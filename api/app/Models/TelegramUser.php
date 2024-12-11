@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Support\Facades\Log;
@@ -31,10 +32,10 @@ class TelegramUser extends Authenticatable
         'remember_token',
     ];
 
-    protected $casts = [
-        'last_login_date' => 'datetime',
-        'total_pnl' => 'array'
-    ];
+    // protected $casts = [
+    //     'last_login_date' => 'datetime',
+    //     'total_pnl' => 'array'
+    // ];
 
     public function userProfiles()
     {
@@ -48,12 +49,18 @@ class TelegramUser extends Authenticatable
 
     public function updateLoginStreak()
     {
-        $now = now();
-        $freq = (now() - $this->last_login) / 3600;
+        $now = Carbon::now();
 
-        if ($freq > 12 && freq < 24) {
-            $this->login_streak = $this->login_streak + 1;
+        if ($this->last_login) {
+            $freq = $now->diffInHours($this->last_login);
+
+            if ($freq > 12 && $freq < 24) {
+                $this->login_streak = $this->login_streak + 1;
+            } else {
+                $this->login_streak = 1;
+            }
         } else {
+            // If no last login date exists, start the login streak
             $this->login_streak = 1;
         }
 

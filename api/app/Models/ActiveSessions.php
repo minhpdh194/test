@@ -11,10 +11,10 @@ class ActiveSessions extends Model
     protected $guarded = [];
     protected $table = "active_sessions";
 
-    public function update($chatId) {
-        $this->chat_id = $chatId;
-        $this->last_activity = now();
+    // public function update($chatId = []) {
+    //     $this->chat_id = $chatId;
+    //     $this->last_activity = now();
 
-        $this->save();
-    }
+    //     $this->save();
+    // }
 }
