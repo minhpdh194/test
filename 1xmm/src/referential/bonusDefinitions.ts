@@ -1,0 +1,66 @@
+import { BonusTerms, BonusTypes } from "@/enums";
+import { BonusDefinition } from "@/types/BonusDefinition"
+
+export const bonusDefinitions: Array<BonusDefinition> = [
+    createBonusDef(1, BonusTypes.Leverage, 4, BonusTerms.Short, 15),
+    createBonusDef(2, BonusTypes.Leverage, 4, BonusTerms.Long, 25),
+    createBonusDef(3, BonusTypes.Leverage, 6, BonusTerms.Short, 25),
+    createBonusDef(4, BonusTypes.Leverage, 6, BonusTerms.Long, 35),
+    createBonusDef(5, BonusTypes.Leverage, 8, BonusTerms.Short, 35),
+    createBonusDef(6, BonusTypes.Leverage, 8, BonusTerms.Long, 50),
+    createBonusDef(7, BonusTypes.Leverage, 10, BonusTerms.Short, 50),
+    createBonusDef(8, BonusTypes.Leverage, 10, BonusTerms.Long, 65),
+    createBonusDef(9, BonusTypes.Leverage, 15, BonusTerms.Short, 65),
+    createBonusDef(10, BonusTypes.Leverage, 15, BonusTerms.Long, 80),
+    createBonusDef(11, BonusTypes.Leverage, 20, BonusTerms.Short, 80),
+    createBonusDef(12, BonusTypes.Leverage, 20, BonusTerms.Long, 90),
+    createBonusDef(13, BonusTypes.PositiveLeverage, 1, BonusTerms.Short, 15),
+    createBonusDef(14, BonusTypes.PositiveLeverage, 1, BonusTerms.Long, 25),
+    createBonusDef(15, BonusTypes.PositiveLeverage, 2, BonusTerms.Short, 25),
+    createBonusDef(16, BonusTypes.PositiveLeverage, 2, BonusTerms.Long, 35),
+    createBonusDef(17, BonusTypes.PositiveLeverage, 3, BonusTerms.Short, 35),
+    createBonusDef(18, BonusTypes.PositiveLeverage, 3, BonusTerms.Long, 50),
+    createBonusDef(19, BonusTypes.PositiveLeverage, 4, BonusTerms.Short, 50),
+    createBonusDef(20, BonusTypes.PositiveLeverage, 4, BonusTerms.Long, 65),
+    createBonusDef(21, BonusTypes.PositiveLeverage, 6, BonusTerms.Short, 65),
+    createBonusDef(22, BonusTypes.PositiveLeverage, 6, BonusTerms.Long, 80),
+    createBonusDef(23, BonusTypes.PositiveLeverage, 8, BonusTerms.Short, 80),
+    createBonusDef(24, BonusTypes.PositiveLeverage, 8, BonusTerms.Long, 90),
+    createBonusDef(25, BonusTypes.CapitalProtection, 5, BonusTerms.Short, 10),
+    createBonusDef(26, BonusTypes.CapitalProtection, 10, BonusTerms.Short, 20),
+    createBonusDef(27, BonusTypes.CapitalProtection, 15, BonusTerms.Short, 30),
+    createBonusDef(28, BonusTypes.CapitalProtection, 20, BonusTerms.Short, 40),
+    createBonusDef(29, BonusTypes.CapitalProtection, 25, BonusTerms.Short, 50),
+    createBonusDef(30, BonusTypes.CapitalProtection, 30, BonusTerms.Short, 60),
+    createBonusDef(31, BonusTypes.CapitalProtection, 35, BonusTerms.Short, 70),
+    createBonusDef(32, BonusTypes.CapitalProtection, 40, BonusTerms.Short, 80),
+    createBonusDef(33, BonusTypes.CapitalProtection, 45, BonusTerms.Short, 85),
+    createBonusDef(34, BonusTypes.CapitalProtection, 50, BonusTerms.Short, 90),
+    createBonusDef(35, BonusTypes.CapitalProtection, 55, BonusTerms.Short, 95),
+    createBonusDef(36, BonusTypes.TimeReduction, 15, BonusTerms.Long, 10),
+    createBonusDef(37, BonusTypes.TimeReduction, 30, BonusTerms.Long, 20),
+    createBonusDef(38, BonusTypes.TimeReduction, 60, BonusTerms.Long, 35),
+    createBonusDef(39, BonusTypes.TimeReduction, 90, BonusTerms.Long, 50),
+    createBonusDef(40, BonusTypes.TimeReduction, 120, BonusTerms.Long, 60),
+    createBonusDef(41, BonusTypes.TimeReduction, 180, BonusTerms.Long, 80),
+    createBonusDef(42, BonusTypes.TimeReduction, 240, BonusTerms.Long, 100),
+    createBonusDef(43, BonusTypes.TimeReduction, 300, BonusTerms.Long, 120),
+    createBonusDef(44, BonusTypes.TimeReduction, 330, BonusTerms.Long, 130),
+    createBonusDef(45, BonusTypes.TimeReduction, 345, BonusTerms.Long, 135),
+    createBonusDef(46, BonusTypes.Friends, 5, BonusTerms.None, 100),
+    createBonusDef(47, BonusTypes.Friends, 10, BonusTerms.None, 180),
+    createBonusDef(48, BonusTypes.Friends, 20, BonusTerms.None, 340),
+    createBonusDef(49, BonusTypes.Friends, 50, BonusTerms.None, 800),
+];
+
+function createBonusDef(id: number, bonus_type: BonusTypes, benefit: number, duration: BonusTerms, cost: number): BonusDefinition {
+    let bonusDef: BonusDefinition = {
+        id: id,
+        bonus_type: bonus_type,
+        benefit: benefit,
+        duration: duration,
+        cost: cost
+    };
+
+    return bonusDef;
+}

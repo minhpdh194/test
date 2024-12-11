@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: 1xmm_pro_be
+    volumes:
+      - ./storage:/var/www/html/storage
+      - ./bootstrap/cache:/var/www/html/bootstrap/cache
+    # volumes:
+    #   - .:/var/www/html  # Gắn kết mã nguồn vào container
+    ports:
+      - "4400:8000"  # Laravel thường chạy trên cổng 8000
+    # environment:
+    #   - APP_ENV=local
+    #   - APP_DEBUG=true
+    #   - DB_HOST=db
+    # depends_on:
+    #   - db  # Đảm bảo dịch vụ database sẵn sàng trước
+    # networks:
+    #   - laravel-network
+
+networks:
+  # laravel-network:
+    default:
+    # driver: bridge

@@ -1,0 +1,4 @@
+cd api
+npm run deploy:main
+cd ../1xmm
+npm run deploy:main

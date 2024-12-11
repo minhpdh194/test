@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  1xmm_main_be:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: 005_1xmm_main_be
+    volumes:
+      - ./storage:/var/www/html/storage
+      - ./bootstrap/cache:/var/www/html/bootstrap/cache
+    ports:
+      - "4500:8000"
+
+networks:
+    default:
