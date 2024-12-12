@@ -42,10 +42,10 @@ class MarketDataService
                 // }
 
                 if ($cur_spot) { //used if there is no spot in the first run
+                    \Log::info("C");
                     $createdAt = Carbon::parse($cur_spot->created_at); // Ensure $cur_spot->created_at is a Carbon instance
                     if ($createdAt->isSameDay(Carbon::now())) {
                         $existingSpot = Spot::where('created_at', $cur_spot->created_at)->first();
-
                         if ($existingSpot) {
                             // Update the record
                             $existingSpot->update([
@@ -56,12 +56,22 @@ class MarketDataService
                         } else {
                             // Create a new record
                             Spot::create([
-                                'created_at' => $cur_spot->created_at,
+                                'pair_id' => $pair->id,
+                                'prev_value' => $cur_spot->current_value,
                                 'current_value' => $new_spot,
                                 'daily_return' => ($new_spot / $cur_spot->prev_value - 1),
                             ]);
                             $isSpotCreatedOrUpdated = true;
                         }
+                    } else {
+                        // Create a new record
+                        Spot::create([
+                            'pair_id' => $pair->id,
+                            'prev_value' => $cur_spot->current_value,
+                            'current_value' => $new_spot,
+                            'daily_return' => ($new_spot / $cur_spot->prev_value - 1),
+                        ]);
+                        $isSpotCreatedOrUpdated = true;
                     }
                     // If we are the same day, we update the latest spot value
                 } else {
@@ -70,14 +80,14 @@ class MarketDataService
                         'pair_id' => $pair->id,
                         'prev_value' => $new_spot,
                         'current_value' => $new_spot,
-                        'daily_return' => 0,
+                        'daily_return' => ($new_spot / $cur_spot->prev_value - 1),
                     ]);
                     $isSpotCreatedOrUpdated = true;
                 }
 
                 // Eagerly load the 'pair' relationship
                 if ($isSpotCreatedOrUpdated) {
-                    $createdSpot = Spot::where('pair_id', $pair->id)->orderBy('created_at','desc')->first();
+                    $createdSpot = Spot::where('pair_id', $pair->id)->orderBy('created_at', 'desc')->first();
                     $createdSpot->load('pair');
                     $createdSpots[] = $createdSpot;
                 }

@@ -57,8 +57,8 @@ class MarketDataTasks
 
         // We need to confirm whether we want Perp price, or if we use Deribit underlying price for BNB | SOL Yields
         $perps_symbols = [
-            'BTC' => "BTC_USDC-PERPETUAL",
-            'ETH' => "ETH_USDC-PERPETUAL",
+            // 'BTC' => "BTC_USDC-PERPETUAL",
+            // 'ETH' => "ETH_USDC-PERPETUAL",
             'BNB' => "BNB_USDC-PERPETUAL",
             'SOL' => "SOL_USDC-PERPETUAL",
         ];
@@ -260,7 +260,8 @@ class MarketDataTasks
     {
         $createdSpots = $this->getYieldsAndVolatilitiesFromMarket();
         // $correlatedVolsAndFwds = $this->getCorrelatedParameters($ts);
-        $spots = Spot::with('volatility')->orderBy('created_at', 'desc')->limit(count($createdSpots))->get();
+        // $spots = Spot::with('volatility')->orderBy('created_at', 'desc')->limit(count($createdSpots))->get();
+        $returnedSpots = [];
         foreach ($createdSpots as $spot) {
             $volatility = VolAndFwd::where('pair_id', $spot->pair_id)->first();
             if ($volatility) {
@@ -279,6 +280,7 @@ class MarketDataTasks
                     'daily_return' => $percent_change,
                     // 'base_symbol' => $volatility->base_symbol,
                 ]);
+                $returnedSpots[] = $spot;
             }
         }
         $options = array(
@@ -294,13 +296,13 @@ class MarketDataTasks
         );
 
         try {
-            $pusher->trigger('pairs', 'data', ['pairs' => $spots]);
-            \Log::info('test pusher', ['result' => $spots]);
+            $pusher->trigger('pairs', 'data', ['pairs' => $returnedSpots]);
+            \Log::info('test pusher', ['result' => $returnedSpots]);
         } catch (\Throwable $e) {
             $notify[] = ['warning', 'Pusher Not Properly Set'];
             \Log::info('error pusher', ['error' => $e->getMessage()]);
         }
-        return response()->json($spots);
+        return response()->json($returnedSpots);
     }
 
     private function getOptionSymbol($coin, $opt_symb, $expiry)
