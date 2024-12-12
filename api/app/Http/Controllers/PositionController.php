@@ -30,7 +30,14 @@ class PositionController extends Controller
 
     public function getPositions($userId)
     {
-        return Position::where(['user_id' => $userId, 'alive' => true])->get();
+        $all = Position::where('user_id', $userId)->get();
+        $next_position_id = $all->count() + 1;
+        $positions = $all->filter(function ($pos) { return $pos->alive; })->values();
+        
+        return response()->json([
+            'next_position_id' => $next_position_id,
+            'positions' => $positions
+        ]);
     }
 
     public function getPositionRatios()

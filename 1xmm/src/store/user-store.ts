@@ -2,19 +2,26 @@ import { create } from "zustand";
 import { toast } from "react-toastify";
 import { $http } from "../lib/http";
 import { UserProfile } from "@/types/UserProfile";
+import { getPositionStore, PositionStore } from "./position-store";
 import { SyncData } from "@/types/SyncData";
+import { Bonus } from "@/classes/Bonus";
+import { Pair } from "@/types/Pair";
+import { LongShort } from "@/enums";
 
 // Referential data
 import { levelBenefits } from "@/referential/levelBenefits";
 import { levelConditions } from "@/referential/levelConditions";
-import { stat } from "fs";
 
 type UserProfileStore = UserProfile & {
   SetLevelBenefits: () => void;
   UpdateProfile: (syncData: SyncData) => void;
   UserTap: () => boolean;
   UserLevelUp: () => void;
+  AddPosition: (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]) => Promise<boolean>;
+  ClosePosition: (position_id: number) => Promise<boolean>;
+
   unlocked_pairs: number[];
+  positionStore: PositionStore;
 }
 
 export const userProfileStore = create<UserProfileStore>()((set, get) => ({
@@ -25,6 +32,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
   last_name: "",
   username: "",
   avatar_id: 0,
+  friends: [],
   
   // User level related info
   level: 0,
@@ -33,8 +41,8 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
   available_energy: 0,
 
   // User trading realted info
-  available_bonuses: [],
-  positions: [],
+  amount_of_tokens: 0,
+  positionStore: getPositionStore(),
   trading_info: {
     balance: 0,
     total_pnl: 0,
@@ -84,6 +92,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       login_streak: syncData['login_streak'],
       avatar_id: syncData['gameData']['avatar_id'],
       available_energy: syncData['gameData']['available_energy'],
+      amount_of_tokens: syncData['gameData']['amount_of_tokens'],
       trading_info: {
         balance: syncData['gameData']['balance'],
         total_pnl: syncData['gameData']['total_pnl'],
@@ -105,6 +114,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
 
     set((state) => ({
       available_energy:  state.available_energy - gainPerTap,
+      amount_of_tokens: state.amount_of_tokens + gainPerTap,
       trading_info: {
         balance: state.trading_info.balance + gainPerTap,
         total_pnl: state.trading_info.total_pnl,
@@ -150,6 +160,52 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       
       toast.success(`You have leveled up to level ${matchedCondition.level}`);
     }
+  },
+
+  AddPosition: async (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]): Promise<boolean> => {
+    let userProfile = get();
+    const addDetails = await userProfile.positionStore.AddPosition(pair, ls, amt, lev, bonuses, userProfile);
+
+    if (addDetails.success) {
+      set((state) => ({
+        amount_of_tokens: state.amount_of_tokens + addDetails.realized_pnl,
+        trading_info: {
+          balance: state.trading_info.balance + addDetails.amount_adjustment + addDetails.realized_pnl,
+          total_pnl: state.trading_info.total_pnl + addDetails.realized_pnl,
+          perf_from_start_date: state.trading_info.perf_from_start_date + addDetails.realized_pnl / state.amount_of_tokens,
+          perf_since_last_fixing: state.trading_info.perf_since_last_fixing + addDetails.realized_pnl / state.amount_of_tokens,
+          positive_leverage: state.trading_info.positive_leverage,
+          capital_protection: state.trading_info.capital_protection,
+          time_reduction: state.trading_info.time_reduction
+        },
+      }))
+
+      return true;
+    }
+    
+    return false;
+  },
+
+  ClosePosition: async (position_id: number): Promise<boolean> => {
+    const closingDetails = await get().positionStore.ClosePosition(position_id);
+
+    if (closingDetails.success)
+    {
+      set((state) => ({
+        amount_of_tokens: state.amount_of_tokens + closingDetails.position_pnl,
+        trading_info: {
+          balance: state.trading_info.balance + closingDetails.position_amount,
+          total_pnl: state.trading_info.total_pnl + closingDetails.position_pnl,
+          perf_from_start_date: state.trading_info.perf_from_start_date + closingDetails.position_pnl / state.amount_of_tokens,
+          perf_since_last_fixing: state.trading_info.perf_since_last_fixing + closingDetails.position_pnl / state.amount_of_tokens,
+          positive_leverage: state.trading_info.positive_leverage,
+          capital_protection: state.trading_info.capital_protection,
+          time_reduction: state.trading_info.time_reduction
+        },
+      }));
+    }
+
+    return closingDetails.success;
   }
 }));
 

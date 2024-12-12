@@ -1,6 +1,5 @@
-import { Position } from "@/classes/Position";
+import { Friend } from "./Friend";
 import { TradingInfo } from "./TradingInfo";
-import { Bonus } from "@/classes/Bonus";
 
 export type UserProfile = {
   // Main user profile info
@@ -10,16 +9,16 @@ export type UserProfile = {
   last_name: string|null;
   username: string|null;
   avatar_id: number;
+  friends: Friend[];
 
   // User level related info
   level: number;
   earn_per_tap: number;
   energy_limit: number;
   available_energy: number;
+  amount_of_tokens: number;
 
   // User trading realted info
-  available_bonuses: Bonus[];
-  positions: Position[];
   trading_info: TradingInfo;
 
   // Login info

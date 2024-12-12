@@ -1,7 +1,6 @@
 import { RouterProvider } from "react-router-dom";
 import express, { Application } from "express";
 import bodyParser from 'body-parser';
-import { asyncParallelForEach, BACK_OFF_RETRY } from "async-parallel-foreach";
 import PlayOnYourMobile from "./pages/PlayOnYourMobile";
 import { useDebounce } from "@uidotdev/usehooks";
 import { useEffect, useState } from "react";
@@ -10,6 +9,7 @@ import { toast } from "react-toastify";
 
 import router from "./router";
 import { $http, setBearerToken } from "./lib/http";
+import { COMM } from "@/lib/comm";
 import useTelegramInitData from "./hooks/useTelegramInitData";
 import { userProfileStore } from "./store/user-store";
 import { SyncData } from "./types/SyncData";
@@ -20,6 +20,7 @@ import { Position } from "./classes/Position";
 import { UserProfile } from "./types/UserProfile";
 import { Bonus } from "./classes/Bonus";
 import { bonusDefinitions } from "./referential/bonusDefinitions";
+import { Friend } from "./types/Friend";
 
 const webApp = window.Telegram.WebApp;
 const isDesktop = import.meta.env.DEV
@@ -56,7 +57,7 @@ function App() {
       try {
         if (localStorage.getItem("token") === null) {
           // We load user data
-          const [ login_streak, token, first_login ] = await loadUserData(user, start_param);
+          const [ login_streak, token, first_login ] = await COMM.loadUserData($http, user, start_param);
           setProgress(20);
 
           streak = login_streak;
@@ -73,13 +74,13 @@ function App() {
         const [ syncData,
           user_bonuses,
           user_positions,
-          { data: referredUsers},
+          referredUsers,
           { data: tasks}
         ] = await Promise.all([
           $http.$get<SyncData>("/clicker/sync"),
           $http.$get<UserBonus[]>("/user_bonuses"),
-          $http.$get<UserPosition[]>("/user_positions"),
-          $http.get("/referred-users"),
+          $http.$get<{next_position_id: number; positions: UserPosition[];}>("/user_positions"),
+          $http.$get<Friend[]>("/referred-users"),
           $http.get("/user_tasks")
         ]);
 
@@ -88,18 +89,21 @@ function App() {
         // We update the userProfileStore
         syncData['login_streak'] = streak;
         userProfile.UpdateProfile(syncData);
+        userProfile.positionStore.next_position_id = user_positions.next_position_id;
         // UpdateProfile has updated user level -> we can load the related benefits
         userProfile.SetLevelBenefits();
 
         setProgress(65);
 
-        const [ availableBonuses, cleanedPositions ] = syncBonusesAndPositions(user_bonuses, user_positions, pairs, userProfile);
-        await updatePositions(cleanedPositions)
+        const [ availableBonuses, cleanedPositions, bonusesToDelete ] = syncBonusesAndPositions(user_bonuses, user_positions.positions, pairs, userProfile);
+        await COMM.bonusExpiry($http, userProfile.id, bonusesToDelete);
+        await COMM.updatePositions(cleanedPositions);
         
-        setProgress(95)
+        setProgress(95);
 
-        userProfile.available_bonuses.push(...availableBonuses);
-        userProfile.positions.push(...cleanedPositions);
+        userProfile.positionStore.available_bonuses.push(...availableBonuses);
+        userProfile.positionStore.positions.push(...cleanedPositions);
+        userProfile.friends.push(...referredUsers);
 
       } catch (error) {
         console.error('Error loading data:', error);
@@ -118,32 +122,10 @@ function App() {
   return <RouterProvider router={router} />;
 }
 
-async function loadUserData(user: any, start_param: any): Promise<[number, string, boolean]> {
-  return await $http.post<{login_streak: number; token: string; first_login: boolean;}, any>("/auth/telegram-user", {
-    telegram_id: user.id?.toString(),
-    first_name: user.first_name,
-    last_name: user.last_name,
-    username: user.usernames,
-    referral_code: start_param?.replace("ref", ""),
-  });
-}
-
-async function updatePositions(positions: Position[]): Promise<Position[]> {
-  const parallelLimit = 4;
-  const results = await asyncParallelForEach(positions, parallelLimit, async (position: Position, ) => {
-          position.update();
-          return position;
-  }, {
-    times: 3,
-    interval: BACK_OFF_RETRY.exponential()
-  });
-
-  return results.map(v => v.value as Position);
-}
-
-function syncBonusesAndPositions(userBonuses: UserBonus[], userPositions: UserPosition[], pairs: Pair[], userProfile: UserProfile): [Bonus[], Position[]] {
+function syncBonusesAndPositions(userBonuses: UserBonus[], userPositions: UserPosition[], pairs: Pair[], userProfile: UserProfile): [Bonus[], Position[], number[]] {
   let openPositions: Position[] = [];
   let availableBonuses: Bonus[] = [];
+  let bonusesToDelete: number[] = [];
 
   userPositions.forEach(p => {
     let open_position: Position = new Position(p.position_id, pairs.find(e => e.id == p.pair_id)!, p.long_short, p.amount, p.average_leverage, p.min_end_date, [], userProfile);
@@ -161,7 +143,7 @@ function syncBonusesAndPositions(userBonuses: UserBonus[], userPositions: UserPo
       userBonuses.pop();
 
       // We attach the bonus to the Position p
-      open_position.attach_bonus(new Bonus(bonusDef))
+      if (!open_position.attach_bonus(new Bonus(element, bonusDef))) { bonusesToDelete.push(element); }
     });
 
     openPositions.push(open_position);
@@ -171,10 +153,10 @@ function syncBonusesAndPositions(userBonuses: UserBonus[], userPositions: UserPo
     const bonusDef = bonusDefinitions.find(def => def.id == b.bonus_id);
     if (!bonusDef) throw new Error('Bonus definition error');
 
-    availableBonuses.push(new Bonus(bonusDef));
+    availableBonuses.push(new Bonus(b.id, bonusDef));
   });
 
-  return [availableBonuses, openPositions];
+  return [availableBonuses, openPositions, bonusesToDelete];
 }
 
 function launchMessageListener(): void {

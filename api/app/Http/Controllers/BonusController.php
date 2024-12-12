@@ -22,6 +22,24 @@ class BonusController extends Controller
         return response()->json($bonuses);
     }
 
+    public function expiry(Request $request)
+    {
+        $validated = $request->validate([
+            'user_id' => 'required',
+            'bonus_ids' => 'required'
+        ]);
+
+        $user_id = $validated['user_id'];
+
+        foreach ($validated['bonus_ids'] as $bonusId)
+        {
+            $bonus = UserBonuses::where(['id' => $bonusId, 'user_id' => $user_id])->first();
+            if (!$bonus) { Log::info(`Issue with bonus Id $bonusId for user $user_id`); continue; }
+            $bonus->is_expired = true;
+            $bonus->save();
+        }
+    }
+
     public function buyBonus(Request $request)
     {
         $user = $request->user();
