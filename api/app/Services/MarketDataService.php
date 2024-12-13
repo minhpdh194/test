@@ -41,12 +41,11 @@ class MarketDataService
                 //     return null;
                 // }
 
+                // If spot already exists we will update the spot
                 if ($cur_spot) {
-                    \Log::info("C");
                     $createdAt = Carbon::parse($cur_spot->created_at); // Ensure $cur_spot->created_at is a Carbon instance
+
                     if ($createdAt->isSameDay(Carbon::now())) {
-                        $existingSpot = Spot::where('created_at', $cur_spot->created_at)->first();
-                        if ($existingSpot) {
                             // Update the record
                             $existingSpot->update([
                                 'current_value' => $new_spot,
@@ -54,17 +53,7 @@ class MarketDataService
                             ]);
                             $isSpotCreatedOrUpdated = true;
                         } else {
-                            // Create a new record
-                            Spot::create([
-                                'pair_id' => $pair->id,
-                                'prev_value' => $cur_spot->current_value,
-                                'current_value' => $new_spot,
-                                'daily_return' => ($new_spot / $cur_spot->prev_value - 1),
-                            ]);
-                            $isSpotCreatedOrUpdated = true;
-                        }
-                    } else {
-                        // Create a new record
+                        // Create a new record if we are not the same day
                         Spot::create([
                             'pair_id' => $pair->id,
                             'prev_value' => $cur_spot->current_value,
@@ -75,8 +64,7 @@ class MarketDataService
                     }
                     // If we are the same day, we update the latest spot value
                 } else {
-                    // If we are not the same day, basically tomorrow, we create a new record
-                    //run if there is no spot in the first run
+                    // If there is no spot in the first run
                     Spot::create([
                         'pair_id' => $pair->id,
                         'prev_value' => $new_spot,
