@@ -41,7 +41,7 @@ class MarketDataService
                 //     return null;
                 // }
 
-                if ($cur_spot) { //used if there is no spot in the first run
+                if ($cur_spot) {
                     \Log::info("C");
                     $createdAt = Carbon::parse($cur_spot->created_at); // Ensure $cur_spot->created_at is a Carbon instance
                     if ($createdAt->isSameDay(Carbon::now())) {
@@ -76,11 +76,12 @@ class MarketDataService
                     // If we are the same day, we update the latest spot value
                 } else {
                     // If we are not the same day, basically tomorrow, we create a new record
+                    //run if there is no spot in the first run
                     Spot::create([
                         'pair_id' => $pair->id,
                         'prev_value' => $new_spot,
                         'current_value' => $new_spot,
-                        'daily_return' => ($new_spot / $cur_spot->prev_value - 1),
+                        'daily_return' => 0,
                     ]);
                     $isSpotCreatedOrUpdated = true;
                 }
