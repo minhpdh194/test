@@ -35,7 +35,6 @@ class MarketDataService
 
                 $new_spot = $crypto['quote']['USD']['price'];
 
-                // $spot should NEVER be null
                 // new spot value should NEVER be null or 0
                 // if(!$cur_spot || !$new_spot || $new_spot == 0) {
                 //     return null;
@@ -46,13 +45,13 @@ class MarketDataService
                     $createdAt = Carbon::parse($cur_spot->created_at); // Ensure $cur_spot->created_at is a Carbon instance
 
                     if ($createdAt->isSameDay(Carbon::now())) {
-                            // Update the record
-                            $existingSpot->update([
-                                'current_value' => $new_spot,
-                                'daily_return' => ($new_spot / $cur_spot->prev_value - 1),
-                            ]);
-                            $isSpotCreatedOrUpdated = true;
-                        } else {
+                        // Update the record
+                        $cur_spot->update([
+                            'current_value' => $new_spot,
+                            'daily_return' => ($new_spot / $cur_spot->prev_value - 1),
+                        ]);
+                        $isSpotCreatedOrUpdated = true;
+                    } else {
                         // Create a new record if we are not the same day
                         Spot::create([
                             'pair_id' => $pair->id,
