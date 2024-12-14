@@ -16,9 +16,9 @@ class BonusController extends Controller
     public function getBonuses(Request $request)
     {
         $user = $request->user();
-        $userProfile = TelegramUser::where('telegram_user_id', $user->id)->first();
+        $userProfile = TelegramUser::where('telegram_user_id', $user->telegram_user_id)->first();
 
-        $bonuses = UserBonuses::select('id', 'bonus_id', 'position_id', 'end_date')->where(["user_id" => $userProfile->id, 'is_expired' => false])->get();
+        $bonuses = UserBonuses::where(["user_id" => $userProfile->id, 'is_expired' => false])->get();
         return response()->json($bonuses);
     }
 

@@ -31,11 +31,14 @@ class ClickerController extends Controller
     public function sync(Request $request)
     {
         $user = $request->user();
-        $telegramUser = TelegramUser::where('telegram_user_id', $user->id)->first();
-        $gameData = UserGameData::where('telegram_user_id', $user->id)->first();
-        $tasks = UserTasks::where('user_id', $gameData->user_id)->get();
+        \Log::info($request->user());
+        $telegramUser = TelegramUser::where('telegram_user_id', $user->telegram_user_id)->first();
+        $gameData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
+        $tasks = [];
 
-        if (!$tasks) $tasks = [];
+        if ($gameData) {
+            $tasks = UserTasks::where('user_id', $gameData->user_id)->get();
+        }
 
         return response()->json([
             'user' => $telegramUser,

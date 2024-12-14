@@ -24,7 +24,7 @@ class TelegramUserController extends Controller
      *
      * @return void
      */
-    public function __construct(TelegramUsersService $userService)
+    public function __construct(TelegramUserService $userService)
     {
         $this->userService = $userService;
     }
@@ -34,7 +34,7 @@ class TelegramUserController extends Controller
         $user = $request->user();
 
         $referredUsers = TelegramUser::with(['level'])
-            ->where('referred_by', $user->telegram_id)
+            ->where('referred_by', $user->telegram_user_id)
             ->paginate($request->get('per_page') ?? 10);
 
         return response()->json($referredUsers);

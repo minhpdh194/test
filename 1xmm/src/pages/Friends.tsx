@@ -13,7 +13,7 @@ const shareMessage = encodeURI(
 
 export default function Friends() {
   const [, copy] = useCopyToClipboard();
-  const { telegram_id } = userProfileStore();
+  const { telegram_user_id } = userProfileStore();
   // const { referral, levels } = uesStore();
   const [activeType, setActiveType] = useState('1');
   const [referedUsers, setReferedUsers] = useState<any[]>([]);
@@ -28,8 +28,8 @@ export default function Friends() {
   }, []);
 
   const referralLink = useMemo(
-    () => `${import.meta.env.VITE_BOT_URL}/?startapp=ref${telegram_id}`,
-    [telegram_id]
+    () => `${import.meta.env.VITE_BOT_URL}/?startapp=ref${telegram_user_id}`,
+    [telegram_user_id]
   );
 
   return (

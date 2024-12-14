@@ -3,11 +3,13 @@ import { TradingInfo } from "./TradingInfo";
 
 export type UserProfile = {
   // Main user profile info
+
+  // Main user profile info
   id: number;
-  telegram_id: number;
+  telegram_user_id: number;
   first_name: string;
-  last_name: string|null;
-  username: string|null;
+  last_name: string | null;
+  username: string | null;
   avatar_id: number;
   friends: Friend[];
 
@@ -22,9 +24,7 @@ export type UserProfile = {
   trading_info: TradingInfo;
 
   // Login info
-  last_login_date: Date;
+  start_date: Date;
+  last_login: Date;
   login_streak: number;
-
-  // Other User info
-  number_of_stars: number;
 }

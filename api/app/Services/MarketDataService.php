@@ -79,10 +79,9 @@ class MarketDataService
                     $createdSpot = Spot::where('pair_id', $pair->id)->orderBy('created_at', 'desc')->first();
                     $createdSpot->load('pair');
                     $createdSpots[] = $createdSpot;
+                }
             }
         }
-    }
-        \Log::info($createdSpots);
         return $createdSpots;
     }
 

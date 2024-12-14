@@ -26,6 +26,7 @@ const isDesktop = import.meta.env.DEV
   : Telegram.WebApp.platform === "tdesktop";
 
 declare global {
+  // eslint-disable-next-line no-var
   var PairReferential: Pair[];
 }
 
@@ -87,7 +88,7 @@ function App() {
           $http.$get<Friend[]>("/referred-users"),
           //$http.get("/user_tasks")
         ]);
-
+        console.log(syncData);
         setProgress(55);
 
         // We update the userProfileStore
@@ -100,8 +101,8 @@ function App() {
         setProgress(65);
 
         const [ availableBonuses, cleanedPositions, bonusesToDelete ] = syncBonusesAndPositions(user_bonuses, user_positions.positions, globalThis.PairReferential, userProfile);
-        await COMM.bonusExpiry($http, userProfile.id, bonusesToDelete);
-        await COMM.updatePositions(cleanedPositions);
+        // await COMM.bonusExpiry($http, userProfile.id, bonusesToDelete);
+        // await COMM.updatePositions(cleanedPositions);
         
         setProgress(95);
 
@@ -127,12 +128,12 @@ function App() {
 }
 
 function syncBonusesAndPositions(userBonuses: UserBonus[], userPositions: UserPosition[], pairs: Pair[], userProfile: UserProfile): [Bonus[], Position[], number[]] {
-  let openPositions: Position[] = [];
-  let availableBonuses: Bonus[] = [];
-  let bonusesToDelete: number[] = [];
+  const openPositions: Position[] = [];
+  const availableBonuses: Bonus[] = [];
+  const bonusesToDelete: number[] = [];
 
   userPositions.forEach(p => {
-    let open_position: Position = new Position(p.position_id, pairs.find(e => e.id == p.pair_id)!, p.long_short, p.amount, p.average_leverage, p.min_end_date, [], userProfile);
+    const open_position: Position = new Position(p.position_id, pairs.find(e => e.id == p.pair_id)!, p.long_short, p.amount, p.average_leverage, p.min_end_date, [], userProfile);
 
     p?.bonuses.forEach(element => {
       const userBonus = userBonuses.find(b => b.id == element);
