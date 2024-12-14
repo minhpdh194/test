@@ -36,9 +36,11 @@ export default function Home() {
     const channel = pusher.subscribe("pairs");
 
     channel.bind("data", (data: any) => {
+      console.log(data);
       const unlockedSpots = data.pairs.filter((spot: SpotType) =>
         userProfile.unlocked_pair_ids.map(Number).includes(Number(spot.pair_id))
       );
+      console.log(unlockedSpots);
       setSpots(unlockedSpots);
     });
 
@@ -48,6 +50,7 @@ export default function Home() {
     };
   }, [userProfile.unlocked_pair_ids]);
 
+  console.log(spots);
   const handleValidateAmount = (amount: number) => {
     setValidatedAmount(amount);
   };
@@ -68,7 +71,8 @@ export default function Home() {
           <div>Loading...</div>
         ) : (
           <TradingItem
-            pairs={globalThis.PairReferential}
+            // pairs={globalThis.PairReferential}
+            spots={spots}
             validatedAmounts={validatedAmount}
             onValidateAmount={handleValidateAmount}
           />

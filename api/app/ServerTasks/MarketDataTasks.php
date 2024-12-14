@@ -153,16 +153,16 @@ class MarketDataTasks
             // Here, we override the vol and yield data since we don't need historical information
 
             if ($fwd > 0) {
-            VolAndFwd::updateOrCreate(
-                [
-                    'pair_id' => $pair->id,
-                ],
-                [
-                    'yield' => $yield,
-                    'forward' => $fwd,
-                    'volatility' => $vol
-                ]
-            );
+                VolAndFwd::updateOrCreate(
+                    [
+                        'pair_id' => $pair->id,
+                    ],
+                    [
+                        'yield' => $yield,
+                        'forward' => $fwd,
+                        'volatility' => $vol
+                    ]
+                );
             }
 
 
@@ -275,7 +275,7 @@ class MarketDataTasks
 
                 $spot->update([
                     // 'pair_symbol' => $volatility->pair_symbol,
-                    'current_value' => $volatility->forward,
+                    'current_value' => (string)$volatility->forward,
                     'daily_return' => $percent_change,
                     // 'base_symbol' => $volatility->base_symbol,
                 ]);
