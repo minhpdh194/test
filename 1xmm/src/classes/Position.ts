@@ -174,6 +174,10 @@ export class Position {
         return total_pnl;
     }
 
+    public get_Return(offset_date: number): number {
+        return this.get_PnL(offset_date) / this.amount;
+    }
+
     public get_performance_adjustment_factors(userProfile: UserProfile): AdjustmentFactors {
         let total_leverage = this.leverage;
         let total_positive_leverage = userProfile.trading_info.positive_leverage;

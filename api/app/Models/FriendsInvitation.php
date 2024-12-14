@@ -11,7 +11,7 @@ class FriendsInvitation extends Model
     protected $guarded = [];
     protected $table = "friends_invitations";
 
-    public function update()
+    public function updateFirstConnection()
     {
         $this->has_connected = true;
         $this->save();

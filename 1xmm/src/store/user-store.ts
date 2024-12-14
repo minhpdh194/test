@@ -2,8 +2,9 @@ import { create } from "zustand";
 import { toast } from "react-toastify";
 import { $http } from "../lib/http";
 import { UserProfile } from "@/types/UserProfile";
-import { getPositionStore, PositionStore } from "./position-store";
+import { PositionStore } from "./position-store";
 import { SyncData } from "@/types/SyncData";
+import { Friend } from "@/types/Friend";
 import { Bonus } from "@/classes/Bonus";
 import { Pair } from "@/types/Pair";
 import { LongShort } from "@/enums";
@@ -14,14 +15,16 @@ import { levelConditions } from "@/referential/levelConditions";
 
 type UserProfileStore = UserProfile & {
   SetLevelBenefits: () => void;
-  UpdateProfile: (syncData: SyncData) => void;
+  UpdateProfile: (syncData: SyncData, positionStore: PositionStore) => void;
   UserTap: () => boolean;
   UserLevelUp: () => void;
   AddPosition: (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]) => Promise<boolean>;
   ClosePosition: (position_id: number) => Promise<boolean>;
+  SetFriends: (friends: Friend[]) => void;
 
-  unlocked_pairs: number[];
-  positionStore: PositionStore;
+  unlocked_pair_ids: number[];
+  unlocked_pairs: Pair[];
+  positionStore: PositionStore|undefined;
 }
 
 export const userProfileStore = create<UserProfileStore>()((set, get) => ({
@@ -42,7 +45,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
 
   // User trading realted info
   amount_of_tokens: 0,
-  positionStore: getPositionStore(),
+  positionStore: undefined,
   trading_info: {
     balance: 0,
     total_pnl: 0,
@@ -59,7 +62,14 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
   
   // Other
   number_of_stars: 0,
+  unlocked_pair_ids: [],
   unlocked_pairs: [],
+
+  SetFriends: (friends: Friend[]): void => {
+    set(() => ({
+      friends: friends
+    }));
+  },
 
   SetLevelBenefits: () => {
     const userLevel = get().level;
@@ -80,14 +90,16 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
         capital_protection: benefits.cumulated_protection_bonus,
         time_reduction: benefits.cumulated_time_bonus
       },
+      unlocked_pair_ids: getUnlockedPairIds(userLevel),
       unlocked_pairs: getUnlockedPairs(userLevel)
     }));
   },
 
-  UpdateProfile: (syncData: SyncData) => {
+  UpdateProfile: (syncData: SyncData, positionStore: PositionStore) => {
     set((state) => ({
       id: syncData.user.id,
       last_login_date: syncData.user.last_login_date,
+      positionStore: positionStore,
       level: syncData['gameData']['level'],
       login_streak: syncData['login_streak'],
       avatar_id: syncData['gameData']['avatar_id'],
@@ -155,7 +167,8 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
         },
         earn_per_tap: benefits.total_gain_per_tap,
         energy_limit_level: benefits.cumulated_tapping_amount,
-        unlocked_pairs: getUnlockedPairs(matchedCondition.level),
+        unlocked_pair_ids: getUnlockedPairIds(matchedCondition.level),
+        unlocked_pairs: getUnlockedPairs(matchedCondition.level)
       }));
       
       toast.success(`You have leveled up to level ${matchedCondition.level}`);
@@ -164,7 +177,9 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
 
   AddPosition: async (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]): Promise<boolean> => {
     let userProfile = get();
-    const addDetails = await userProfile.positionStore.AddPosition(pair, ls, amt, lev, bonuses, userProfile);
+    if (!userProfile.positionStore) return false;
+
+    const addDetails = await userProfile.positionStore!.AddPosition(pair, ls, amt, lev, bonuses, userProfile);
 
     if (addDetails.success) {
       set((state) => ({
@@ -187,7 +202,10 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
   },
 
   ClosePosition: async (position_id: number): Promise<boolean> => {
-    const closingDetails = await get().positionStore.ClosePosition(position_id);
+    let positionStore = get().positionStore;
+    if (!positionStore) return false;
+
+    const closingDetails = await positionStore!.ClosePosition(position_id);
 
     if (closingDetails.success)
     {
@@ -229,12 +247,24 @@ async function updateUserLevel(newLevel: number) {
   if (!response) throw new Error("Issue communicating with server");
 }
 
-function getUnlockedPairs(level: number): number[] {
+function getUnlockedPairIds(level: number): number[] {
   let pairs: number[] = [];
 
   levelBenefits.filter((benefit) => benefit.level <= level)
       .forEach((benefit) => {
         pairs.push(...benefit.pairs_unlocked)
+      });
+
+  return pairs;
+}
+
+function getUnlockedPairs(level: number): Pair[] {
+  let pairs: Pair[] = [];
+
+  levelBenefits.filter((benefit) => benefit.level <= level)
+      .forEach((benefit) => {
+        const unlockedPairs = benefit.pairs_unlocked.map(id => globalThis.PairReferential.find(p => p.id == id)!);
+        pairs.push(...unlockedPairs)
       });
 
   return pairs;

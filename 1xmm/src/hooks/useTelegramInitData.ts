@@ -13,14 +13,10 @@ const fakeData = {
     id: 1,
     first_name: "John",
     last_name: "Doe",
-    username: "1xMM",
+    usernames: "1xMM",
     is_bot: false
   },
-  chat: {
-    id: 123,
-    title: ""
-  },
-  start_param: "ref1",
+  start_param: "",
 } as TelegramWebApps.WebAppInitData;
 
 function useTelegramInitData() {

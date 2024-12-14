@@ -5,24 +5,25 @@ import TradingItem from "./components/Home/TradingItem";
 import Header from "../components/Header";
 import { useEffect, useState } from "react";
 import pusher from "@/lib/pusher";
-import { $http } from "@/lib/http";
-import { useUserProfileStore } from "@/store/user-store";
+import { userProfileStore } from "@/store/user-store";
 import { SpotType } from "@/types/SpotType";
 
 export default function Home() {
   const [spots, setSpots] = useState<SpotType[]>([]);
   const [loading, setLoading] = useState(true);
   const [validatedAmount, setValidatedAmount] = useState(0);
-  const UserTradingUnlock = useUserProfileStore();
+  const userProfile = userProfileStore();
+
   useEffect(() => {
     const fetchSpots = async () => {
       try {
-        const response = await $http.get("/get-user-trading");
-        const allSpots = response.data;
-        const unlockedPairs = allSpots.filter((spot: SpotType) =>
-          UserTradingUnlock.benefitData.trading_unlocked.map(Number).includes(Number(spot.pair_id))
-        );
-        setSpots(unlockedPairs);
+        console.log("We need to get prices from Pusher");
+        //const response = await $http.get("/get-user-trading");
+        //const allSpots = response.data;
+        //const unlockedPairs = allSpots.filter((spot: SpotType) =>
+        //  userProfile.unlocked_pairs.map(Number).includes(Number(spot.pair_id))
+        //);
+        //setSpots(unlockedPairs);
       } catch (error) {
         console.error("Error fetching spots:", error);
       } finally {
@@ -33,10 +34,10 @@ export default function Home() {
     fetchSpots();
   
     const channel = pusher.subscribe("pairs");
+
     channel.bind("data", (data: any) => {
-      console.log(data.pairs);
       const unlockedSpots = data.pairs.filter((spot: SpotType) =>
-        UserTradingUnlock.benefitData.trading_unlocked.map(Number).includes(Number(spot.pair_id))
+        userProfile.unlocked_pair_ids.map(Number).includes(Number(spot.pair_id))
       );
       setSpots(unlockedSpots);
     });
@@ -45,7 +46,7 @@ export default function Home() {
       channel.unbind_all();
       channel.unsubscribe();
     };
-  }, [UserTradingUnlock.benefitData.trading_unlocked]);
+  }, [userProfile.unlocked_pair_ids]);
 
   const handleValidateAmount = (amount: number) => {
     setValidatedAmount(amount);
@@ -67,7 +68,7 @@ export default function Home() {
           <div>Loading...</div>
         ) : (
           <TradingItem
-            spots={spots}
+            pairs={globalThis.PairReferential}
             validatedAmounts={validatedAmount}
             onValidateAmount={handleValidateAmount}
           />

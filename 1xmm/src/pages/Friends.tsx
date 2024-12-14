@@ -1,4 +1,4 @@
-import { useUserStore } from "@/store/user-store";
+import { userProfileStore } from "@/store/user-store";
 import { useCopyToClipboard } from "@uidotdev/usehooks";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
@@ -13,7 +13,7 @@ const shareMessage = encodeURI(
 
 export default function Friends() {
   const [, copy] = useCopyToClipboard();
-  const { telegram_id } = useUserStore();
+  const { telegram_id } = userProfileStore();
   // const { referral, levels } = uesStore();
   const [activeType, setActiveType] = useState('1');
   const [referedUsers, setReferedUsers] = useState<any[]>([]);

@@ -55,10 +55,10 @@ class TelegramUser extends Authenticatable
             $freq = $now->diffInHours($this->last_login);
 
             if ($freq > 12 && $freq < 24) {
-                $this->login_streak = $this->login_streak + 1;
-            } else {
-                $this->login_streak = 1;
-            }
+            $this->login_streak = $this->login_streak + 1;
+        } else {
+            $this->login_streak = 1;
+        }
         } else {
             // If no last login date exists, start the login streak
             $this->login_streak = 1;

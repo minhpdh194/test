@@ -11,7 +11,7 @@ class UserGameData extends Model
 {
     use HasFactory;
     protected $table = "user_game_data";
-
+    protected $guarded = [];
     protected $casts = [
         'last_login_date' => 'datetime',
         'total_pnl' => 'array'

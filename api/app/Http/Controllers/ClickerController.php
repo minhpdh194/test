@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\UserProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 // Traits
 use App\Http\Controllers\Clickers\Booster;
 use DateTime;
 
 // Models
-use App\Models\BonusDefinitions\LevelBonusesDef;
 use App\Models\TelegramUser;
-use App\Models\Tasks\DailyTask;
+use App\Models\UserGameData;
+use App\Models\Tasks\UserTasks;
 use App\Services\TelegramUsersService;
 
 class ClickerController extends Controller
@@ -35,10 +35,12 @@ class ClickerController extends Controller
         $gameData = UserGameData::where('telegram_user_id', $user->id)->first();
         $tasks = UserTasks::where('user_id', $gameData->user_id)->get();
 
+        if (!$tasks) $tasks = [];
+
         return response()->json([
             'user' => $telegramUser,
             'gameData' => $gameData,
-            'restored_energy' => self::restoreEnergy($gameData->available_energy, $user->last_login),
+            'restored_energy' => $this->restoreEnergy($gameData->available_energy, $user->last_login),
             'tasks' => $tasks
         ]);
     }
@@ -160,9 +162,9 @@ class ClickerController extends Controller
         ]);
     }
 
-    private static function restoreEnergy($maxEnergy, $last_login)
+    private function restoreEnergy($maxEnergy, $last_login)
     {
-        $freq = (now() - $last_login) / 3600;
+        $freq = Carbon::now()->diffInHours($last_login);
         if ($freq > 3) $freq = 3;
         return floor($freq / 3 * $maxEnergy);
     }

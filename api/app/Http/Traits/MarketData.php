@@ -1,39 +1,47 @@
 <?php
 
-namespace App\ServerTasks;
+namespace App\Http\Traits;
 
-use DateTimeZone;
-use Http;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Pusher\Pusher;
-
-use App\Models\MarketData\Spot;
 use App\Models\MarketData\Pair;
-use App\Models\MarketData\VolAndFwd;
+use App\Models\MarketData\Spot;
+use App\Models\MarketData\Volatility;
 use App\Services\MarketDataService;
 use App\Utils\MathUtil;
 use App\Utils\ToolsUtil;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
+use DateTimeZone;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
+use Pusher\Pusher;
 
-class MarketDataTasks
+trait MarketData
 {
     private static $ticks = array(
         "BTC" => 500,
         "ETH" => 25,
         "BNB" => 5,
-        "SOL" => 1
+        //Below is temp variable
+        //SOL,XRP,LINK,UNI
+        "SOL" => 4,
+        "XRP" => 3,
+        "LINK" => 2,
+        "UNI" => 1,
+        // "TON" => 10,
     );
 
     private $math;
+    private $tools;
     private $marketDataService;
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct(MathUtil $math, MarketDataService $marketDataService)
+    public function __construct(MathUtil $math, ToolsUtil $tools, MarketDataService $marketDataService)
     {
         $this->math = $math;
+        $this->tools = $tools;
         $this->marketDataService = $marketDataService;
     }
 
@@ -41,42 +49,43 @@ class MarketDataTasks
     {
         $apiUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest';
         // $usdComparedSpots = $this->marketDataService->pairCoin($apiUrl, 'BTC,ETH,BNB,SOL,LINK,UNI,TON,XRP', 'USD');
-        $usdComparedSpots = $this->marketDataService->pairCoin($apiUrl, 'BTC,ETH,BNB,SOL,LINK,UNI,XRP', 'USD');
-        return $usdComparedSpots;
+        $this->marketDataService->pairCoin($apiUrl, 'BTC,ETH,BNB,SOL,LINK,UNI,XRP', 'USD');
     }
 
     public function getYieldsAndVolatilitiesFromMarket()
     {
-        $ts = now();
-        // IF WE DON'T USE THE CREATED SPOTS, SHOULD IT BE KEPT HERE?
-        $createdSpots = $this->getSpotsFromMarket();
+        $ts = now();$this->getSpotsFromMarket();
         $yields = [];
         $expiry_date_options = $this->math->getOptionDateExpiry();
         $expiry_options = strtoupper(date_format($expiry_date_options, "dMy"));
 
-        // We need to confirm whether we want Perp price, or if we use Deribit underlying price for BNB | SOL Yields
+        // We need to confirm whether we want Perp price, or if we use Deribit underlying price for BNB Yield
         $perps_symbols = [
-            // 'BTC' => "BTC_USDC-PERPETUAL",
-            // 'ETH' => "ETH_USDC-PERPETUAL",
+            'BTC' => "BTC_USDC-PERPETUAL",
+            'ETH' => "ETH_USDC-PERPETUAL",
             'BNB' => "BNB_USDC-PERPETUAL",
             'SOL' => "SOL_USDC-PERPETUAL",
+            'XRP' => "XRP_USDC-PERPETUAL",
+            'LINK' => "LINK_USDC-PERPETUAL",
+            'UNI' => "UNI_USDC-PERPETUAL",
+            // 'TON' => "TON_USDC-PERPETUAL",
         ];
         $options_symbols = [
-            'BTC' => $this->getOptionSymbol('BTC', 'BTC', $expiry_options),
-            'ETH' => $this->getOptionSymbol('ETH', 'ETH', $expiry_options),
+            'BTC' => $this->getOptionSymbol('BTC', 'BTC_USDC', $expiry_options),
+            'ETH' => $this->getOptionSymbol('ETH', 'ETH_USDC', $expiry_options),
             'BNB' => $this->getOptionSymbol('BNB', 'BNB_USDC', $expiry_options),
             'SOL' => $this->getOptionSymbol('SOL', 'SOL_USDC', $expiry_options),
+            'XRP' => $this->getOptionSymbol('XRP', 'XRP_USDC', $expiry_options),
+            'LINK' => $this->getOptionSymbol('LINK', 'LINK_USDC', $expiry_options),
+            'UNI' => $this->getOptionSymbol('UNI', 'UNI_USDC', $expiry_options),
             // 'TON' => $this->getOptionSymbol('TON', 'TON_USDC', $expiry_options),
         ];
 
         // $url = 'https://www.deribit.com/api/v2';
         $reqId = 0;
-        $collection = collect($createdSpots);
 
         for ($i = 0; $i < count($perps_symbols); $i++) {
             $coin = array_keys($perps_symbols)[$i];
-            $pair = Pair::select('id', 'pair_symbol')->where('pair_symbol', ToolsUtil::getPairSymbol($coin, 'USD'))->first();
-
             $url = 'https://www.deribit.com/api/v2/public/get_order_book?instrument_name=' . array_values($perps_symbols)[$i] . '&depth=' . '1';
             // We define the parameters for the get request
             // Parameters for futures
@@ -95,22 +104,20 @@ class MarketDataTasks
             $response = Http::withHeaders(['Content-Type' => 'application/json'])->get($url);
             $expiry = $this->math->getPerpExpiryYF();
             $data = $response->json();
+
             $perp_result = $data['result'];
             $perp_price = 0.5 * ($perp_result['best_bid_price'] + $perp_result['best_ask_price']);
 
-            // SHOULDN'T WE USE THE $createdSpots to avoid a call to the database??
-            // $spot = Spot::where('pair_id', $pair->id)->sortByDesc('created_at')->first();
-            $spot = $collection->firstWhere('pair_id', $pair->id);
-            $yields[$coin] = ($perp_price / $spot->current_value - 1.0) / $expiry;
+            // Why there is no referential??? What is the format used for pair_symbol???
+            // $spot = Spot::where('pair_symbol', $this->tools->getPairSymbol($coin, "USD"))->first();
+            // $spot = Spot::where('pair_symbol', $coin)->first();
+            $spot = $this->marketDataService->getLatestSpotFilteredByPairFormat($coin, 'USD');
+            $yields[$coin] = ($perp_price / $spot['value'] - 1.0) / $expiry;
         }
 
         for ($i = 0; $i < count($options_symbols); $i++) {
-            $coin = array_keys($options_symbols)[$i];
-            $pair = Pair::select('id', 'pair_symbol')->where('pair_symbol', ToolsUtil::getPairSymbol($coin, 'USD'))->first();
-
-            // SHOULDN'T WE USE THE $createdSpots to avoid a call to the database??
-            $spot = $collection->firstWhere('pair_id', $pair->id);
-
+            $coin = array_keys($perps_symbols)[$i];
+            $spot = $this->marketDataService->getLatestSpotFilteredByPairFormat($coin, 'USD');
             $url = 'https://www.deribit.com/api/v2/public/get_order_book?instrument_name=' . array_values($options_symbols)[$i] . '&depth=' . '1';
 
             // We define the parameters for the get request
@@ -140,39 +147,43 @@ class MarketDataTasks
             if (array_key_exists($coin, $perps_symbols)) {
                 $option_expiry = $this->math->getOptionExpiryYF($now, $expiry_date_options);
                 $yield = $yields[$coin];
-                $fwd = $spot->current_value * (1.0 + $option_expiry * $yields[$coin]);
+                $fwd = $spot['value'] * (1.0 + $option_expiry * $yields[$coin]);
             } else {
                 $option_expiry = $this->math->getOptionExpiryYF($now, $expiry_date_options);
                 if (isset($data['result'])) {
                     $fwd = $data['result']['underlying_price'];
                 }
-                $yield = ($fwd / $spot->current_value - 1.0) / $option_expiry;
+                $yield = ($fwd / $spot['value'] - 1.0) / $option_expiry;
             }
 
             $fwd = round($fwd, 5);
             // Here, we override the vol and yield data since we don't need historical information
+            $attributes = [
+                'pair_id' => $spot->pair_id,
+            ];
 
-            if ($fwd > 0) {
-            VolAndFwd::updateOrCreate(
-                [
-                    'pair_id' => $pair->id,
-                ],
-                [
+            if ($vol != 0) {
+                $values = [
                     'yield' => $yield,
                     'forward' => $fwd,
-                    'volatility' => $vol
-                ]
-            );
+                    'volatility' => $vol,
+                    'timestamp' => $ts,
+                ];
+            } else {
+                $values = [
+                    'yield' => $yield,
+                    'forward' => $fwd,
+                    'timestamp' => $ts,
+                ];
             }
 
+            Volatility::updateOrCreate($attributes, $values);
 
-            // $res[$pair]['fwd'] = $fwd;
-            // $res[$pair]['volatility'] = $vol;
+            // $res[$spot]['fwd'] = $fwd;
+            // $res[$spot]['volatility'] = $vol;
 
             $reqId++;
         }
-
-        return $createdSpots;
     }
 
     public function getCorrelatedParameters($ts)
@@ -180,50 +191,39 @@ class MarketDataTasks
         $ref_volsAndYields = null;
         $res = null;
 
-        $ref_symbols = ['ETH', 'BTC', 'BNB', 'SOL'];
+        $ref_symbols = ['ETH', 'BTC', 'BNB'];
         // We replace by pairs since we will have cross pairs, like BTC/ETH
-        $correlated_pairs = [
-            ToolsUtil::getPairSymbol('XRP', 'USD'),
-            ToolsUtil::getPairSymbol('UNI', 'USD'),
-            ToolsUtil::getPairSymbol('UNI', 'USD'),
-            ToolsUtil::getPairSymbol('UNI', 'USD'),
-        ];
+        $correlated_pairs = [$this->tools->getPairSymbol('SOL', 'USD'), $this->tools->getPairSymbol('XRP', 'USD')];
         $n = 30;
 
         $return_matrix = null;
         $count = 0;
 
         foreach ($ref_symbols as $ref_symbol) {
-            $pair = Pair::select('id', 'pair_symbol')->where('pair_symbol', ToolsUtil::getPairSymbol($ref_symbol, "USD"))->first();
+            $pair = $this->tools->getPairSymbol($ref_symbol, "USD");
             // We get the last n elements; last means the latest timestamped market data
-            $spots = Spot::where('pair_id', $pair->id)
-                ->orderBy('created_at', 'asc')
-                ->take($n)
-                ->get();
+            $spots = Spot::where('pair_symbol', $pair)->last($n)
+                ->orderBy('timestamp', 'asc');
 
             // We fill in a column of returns for ref_symbol
             $ret_i = 0;
             foreach ($spots as $spot) {
-                $return_matrix[$ret_i][$count] = $spot->daily_return;
+                $return_matrix[$ret_i][$count] = $spot['return'];
                 $ret_i++;
             }
 
-            $ref_volsAndYields[$ref_symbol] = VolAndFwd::where('pair_id', $pair->id)->first();
+            $ref_volsAndYields[$ref_symbol] = Volatility::where('pair_symbol', $pair)->first();
             $count++;
         }
 
         $svd_res = $this->math->solve($return_matrix, count($ref_symbols));
 
         $crypto = [];
-        foreach ($correlated_pairs as $correlated_pair) {
-            $pair = Pair::select('id', 'pair_symbol')->where('pair_symbol', $correlated_pair)->first();
-            $spots = Spot::where('pair_id', $pair->id)
-                ->orderBy('created_at', 'asc')
-                ->take($n)
-                ->get();
+        foreach ($correlated_pairs as $pair) {
+            $spots = Spot::where('pair_symbol', $pair)->last($n)
+                ->orderBy('timestamp', 'asc');
 
-            // IS IT SELECTING THE ARRAY OF DAILY RETURNS?
-            $target_returns = $spots->select['daily_return'];
+            $target_returns = $spots->select['return'];
             $err = $this->math->getError($return_matrix, $target_returns, $svd_res);
 
             $vol = 0.0;
@@ -239,12 +239,13 @@ class MarketDataTasks
             $fwd = $spots * (1.0 + $yield);
             $vol = sqrt($vol) + $err;
 
-            VolAndFwd::updateOrCreate(
-                ['pair_id' => $pair->id],
+            Volatility::updateOrCreate(
+                ['pair_symbol' => $pair],
                 [
                     'yield' => $yield,
                     'forward' => $fwd,
                     'volatility' => $vol,
+                    'timestamp' => $ts
                 ]
             );
 
@@ -257,29 +258,30 @@ class MarketDataTasks
 
     public function integration()
     {
-        $createdSpots = $this->getYieldsAndVolatilitiesFromMarket();
-        // $correlatedVolsAndFwds = $this->getCorrelatedParameters($ts);
-        // $spots = Spot::with('volatility')->orderBy('created_at', 'desc')->limit(count($createdSpots))->get();
-        $returnedSpots = [];
-        foreach ($createdSpots as $spot) {
-            $volatility = VolAndFwd::where('pair_id', $spot->pair_id)->first();
+        $ts = now();
+        $ticks = self::$ticks;
+        $this->getYieldsAndVolatilitiesFromMarket();
+        $createdSpots =  Spot::with('pair')
+            ->orderBy('created_at', 'desc')
+            ->limit(count($ticks))
+            ->get();
+        for ($i = 0; $i < count($ticks); $i++) {
+            $volatility = Volatility::where('pair_id', $createdSpots[$i]->pair->id)->first();
             if ($volatility) {
-                $old_value = $spot->value;
+                $old_value = $createdSpots[$i]->value;
                 $new_value = $volatility->forward;
 
                 if ($old_value != 0) {
                     $percent_change = (($new_value - $old_value) / $old_value) * 100;
                 } else {
-                    $percent_change = 0;
+                    $percent_change = null;
                 }
-
-                $spot->update([
-                    // 'pair_symbol' => $volatility->pair_symbol,
-                    'current_value' => $volatility->forward,
-                    'daily_return' => $percent_change,
-                    // 'base_symbol' => $volatility->base_symbol,
+                
+                $createdSpots[$i]->update([
+                    'value' => $volatility->forward,
+                    'return' => $percent_change,
+                    'timestamp' => $ts,
                 ]);
-                $returnedSpots[] = $spot;
             }
         }
         $options = array(
@@ -295,22 +297,26 @@ class MarketDataTasks
         );
 
         try {
-            $pusher->trigger('pairs', 'data', ['pairs' => $returnedSpots]);
-            \Log::info('test pusher', ['result' => $returnedSpots]);
+            $pusher->trigger('pairs', 'data', ['pairs' => $createdSpots]);
+            Log::info('test pusher', ['result' => $createdSpots]);
         } catch (\Throwable $e) {
             $notify[] = ['warning', 'Pusher Not Properly Set'];
-            \Log::info('error pusher', ['error' => $e->getMessage()]);
+            Log::info('error pusher', ['error' => $e->getMessage()]);
         }
-        return response()->json($returnedSpots);
+        return response()->json($createdSpots);
     }
 
     private function getOptionSymbol($coin, $opt_symb, $expiry)
     {
         $ticks = self::$ticks;
         $tick = $ticks[$coin];
-        $pair = Pair::where('coin_symbol', $coin)->first();
-        $spot = Spot::where('pair_id', $pair->id)->first()->current_value;
-        $strike = floor($spot / $tick) * $tick;
+        // $spot = Spot::join('pairs', 'spot.pair_id', '=', 'pairs.id')
+        //     ->where('pairs.coin_symbol', $coin)->orderBy('spot.created_at', 'desc')->first()->value;
+        $counter_symbol = 'USD'; //temporarity fix value
+        $spot = $this->marketDataService->getLatestSpotFilteredByPairFormat($coin, $counter_symbol);
+        // $spot = $spot = Spot::where('pair_symbol', $coin)->first()->value;
+        $value = $spot->value;
+        $strike = floor($value / $tick) * $tick;
         return sprintf("%s-%s-%s-P", $opt_symb, $expiry, $strike);
     }
 

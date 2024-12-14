@@ -35,6 +35,7 @@ class MarketDataService
 
                 $new_spot = $crypto['quote']['USD']['price'];
 
+                // $spot should NEVER be null
                 // new spot value should NEVER be null or 0
                 // if(!$cur_spot || !$new_spot || $new_spot == 0) {
                 //     return null;
@@ -78,9 +79,9 @@ class MarketDataService
                     $createdSpot = Spot::where('pair_id', $pair->id)->orderBy('created_at', 'desc')->first();
                     $createdSpot->load('pair');
                     $createdSpots[] = $createdSpot;
-                }
             }
         }
+    }
         \Log::info($createdSpots);
         return $createdSpots;
     }

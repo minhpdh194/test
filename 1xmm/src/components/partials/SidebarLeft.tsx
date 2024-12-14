@@ -4,7 +4,7 @@ import { useTonConnectUI } from "@tonconnect/ui-react";
 import { $http } from "@/lib/http";
 import DetailStar from "./components/Star/DetailStar";
 import { toast } from "react-toastify";
-import { useUserProfileStore, useUserStore } from "@/store/user-store";
+import { userProfileStore } from "@/store/user-store";
 
 interface SidebarProps {
     toggleSidebar: () => void;
@@ -16,8 +16,7 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
     const [, setIsLoading] = useState(true);
     const [openStarDrawer, setOpenStarDrawer] = useState(false);
     const [starPackages, setStarPackages] = useState<any[]>([]);
-    const user = useUserStore();
-    const userProfile = useUserProfileStore();
+    const userProfile = userProfileStore();
 
     // Handle wallet connection
     const handleConnectWallet = useCallback((address: string) => {
@@ -116,7 +115,7 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
                         </div>
                         <div className="col-8 pl-0">
                             <p className="text-sm font-bold">
-                                {user?.first_name} {user?.last_name}
+                                {userProfile?.first_name} {userProfile?.last_name}
                             </p>
                             <p className="text-xs font-medium flex items-center mt-3 space-x-1">
                                 <img
@@ -133,9 +132,6 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
                                     alt="play"
                                     className="w-3 h-4"
                                 />
-                                <span>
-                                    Days in Game: {user?.total_login_days}
-                                </span>
                             </p>
                         </div>
                     </Link>

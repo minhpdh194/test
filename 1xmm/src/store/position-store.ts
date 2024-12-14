@@ -20,19 +20,40 @@ export type ClosingDetails = {
 }
 
 export type PositionStore = {
-  next_position_id: number|null;
+  next_position_id: number;
   available_bonuses: Bonus[];
   positions: Position[];
 
   AddPosition: (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[], userProfile: UserProfile) => Promise<AddingDetails>;
   UpdatePosition: (position_id: number) => Promise<void>;
   ClosePosition: (position_id: number) => Promise<ClosingDetails>;
+  SetNextPositionId: (next_position_id: number) => void;
+  SetAvailableBonuses: (available_bonuses: Bonus[]) => void;
+  SetUserPositions: (positions: Position[]) => void;
 }
 
 export const getPositionStore = create<PositionStore>()((set, get) => ({
-  next_position_id: null,
+  next_position_id: -1,
   available_bonuses: [],
   positions: [],
+
+  SetNextPositionId: (next_position_id: number): void => {
+    set(() => ({
+      next_position_id: next_position_id
+    }));
+  },
+
+  SetAvailableBonuses: (available_bonuses: Bonus[]): void => {
+    set(() => ({
+      available_bonuses: available_bonuses
+    }));
+  },
+
+  SetUserPositions: (positions: Position[]): void => {
+    set(() => ({
+      positions: positions
+    }));
+  },
 
   AddPosition: async (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[], userProfile: UserProfile): Promise<AddingDetails> => {
     const positionStore = get();

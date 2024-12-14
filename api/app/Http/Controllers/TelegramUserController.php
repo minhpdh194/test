@@ -40,26 +40,6 @@ class TelegramUserController extends Controller
         return response()->json($referredUsers);
     }
 
-    public function getUserTrading(Request $request)
-    {
-        $user = $request->user();
-        $userProfile = UserProfile::where('telegram_user_id', $user->id)->first();
-        $pairsUnlocked = $bonuses->pluck('pairs_unlocked')->filter()->toArray();
-
-        $combinedPairsUnlocked = array_reduce($pairsUnlocked, function ($carry, $item) {
-            $decodedItem = is_string($item) ? json_decode($item, true) : $item;
-            return array_merge($carry, $decodedItem ?? []);
-        }, []);
-
-        $combinedPairsUnlocked = array_unique($combinedPairsUnlocked);
-        $latestSpots = Spot::with(['pair', 'volatility'])
-            ->whereIn('pair_id', $combinedPairsUnlocked)
-            ->orderBy('created_at', 'desc')
-            ->limit(count($combinedPairsUnlocked))
-            ->get();
-        return response()->json($latestSpots);
-    }
-
     public function levelBenefit(Request $request)
     {
         $user = $request->user();

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { useUserStore, useUserProfileStore } from "@/store/user-store";
+import { userProfileStore} from "@/store/user-store";
 import React, { useState, useEffect } from "react";
 import Sidebar from "./partials/SidebarLeft";
 
@@ -12,16 +12,15 @@ export default function Header({
     validatedAmount = 0,
     ...props
 }: HeaderProps) {
-    const user = useUserStore();
-    const userProfile = useUserProfileStore();
-    const [userBalance, setUserBalance] = useState(user.balance);
+    const userProfile = userProfileStore();
+    const [userBalance, setUserBalance] = useState(userProfile.trading_info.balance);
     const [isSidebarOpen, setSidebarOpen] = useState(false);
 
     // Update local state when user balance changes or when validatedAmount changes
     useEffect(() => {
         // Subscribe to balance changes from the store
-        setUserBalance(user.balance - validatedAmount);
-    }, [user.balance, validatedAmount]);
+        setUserBalance(userProfile.trading_info.balance - validatedAmount);
+    }, [userProfile.trading_info.balance, validatedAmount]);
 
     // Toggle sidebar visibility
     const toggleSidebar = () => {
@@ -40,7 +39,7 @@ export default function Header({
                         </div>
                         <div className="flex-2">
                             <p className="text-sm font-bold">
-                                {user?.first_name} {user?.last_name}
+                                {userProfile?.first_name} {userProfile?.last_name}
                             </p>
                             <p className="text-sm font-medium flex items-center mt-2">
                                 <img

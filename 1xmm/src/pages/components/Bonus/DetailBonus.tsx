@@ -2,8 +2,9 @@ import Drawer from "../../../components/ui/drawer";
 import { toast } from 'react-toastify';
 import { $http } from "@/lib/http";
 
+import { bonusDefinitions } from "@/referential/bonusDefinitions";
+
 interface DetailBonusProps {
-    bonuses: any[];
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onBuySuccess: any;
@@ -11,7 +12,6 @@ interface DetailBonusProps {
 }
 
 export default function DetailBonus({
-    bonuses,
     open,
     onOpenChange,
     // bonusData,
@@ -33,7 +33,7 @@ export default function DetailBonus({
                 toast.success('Bonus bought successfully!');
 
                 // Cập nhật bonusData khi mua thành công
-                const purchasedBonus = bonuses.find((bonus: any) => bonus.id === id);
+                const purchasedBonus = bonusDefinitions.find((bonus: any) => bonus.id === id);
                 if (purchasedBonus) {
                     onBuySuccess(purchasedBonus); // Cập nhật dữ liệu bonusData trong Bonus
                 }
@@ -59,7 +59,7 @@ export default function DetailBonus({
                 List of Bonuses
             </h2>
             <div className="flex flex-col justify-start pb-6 h-[calc(100vh-200px)] overflow-y-auto">
-                {bonuses.map((bonus) => (
+                {bonusDefinitions.map((bonus) => (
                     <div key={bonus.id} className="p-2 flex justify-between" style={{ borderBottom: `.3px solid #FFFFFF33` }}>
                         <div className="flex flex-col mt-1 max-w-[50px]">
                             <span className="text-sm">{bonus.bonus_type || 'N/A'}</span>
