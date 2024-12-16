@@ -14,7 +14,6 @@ use DateTime;
 use App\Models\TelegramUser;
 use App\Models\UserGameData;
 use App\Models\Tasks\UserTasks;
-use App\Services\TelegramUsersService;
 
 class ClickerController extends Controller
 {
@@ -56,9 +55,13 @@ class ClickerController extends Controller
         ]);
 
         $user = $request->user();
-        $userProfile = UserProfile::where('telegram_user_id', $user->id)->first();
+        $userGameData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
+        \Log::info($user);
+        \Log::info($userGameData);
 
-        $available_energy = $user->available_energy;
+        $available_energy = $userGameData->available_energy;
+        \Log::info($available_energy);
+
         $earned = $user->tap($validated['count']);
         return response()->json([
             'success' => true,

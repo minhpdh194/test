@@ -55,10 +55,10 @@ class TelegramUser extends Authenticatable
             $freq = $now->diffInHours($this->last_login);
 
             if ($freq > 12 && $freq < 24) {
-            $this->login_streak = $this->login_streak + 1;
-        } else {
-            $this->login_streak = 1;
-        }
+                $this->login_streak = $this->login_streak + 1;
+            } else {
+                $this->login_streak = 1;
+            }
         } else {
             // If no last login date exists, start the login streak
             $this->login_streak = 1;
@@ -66,5 +66,35 @@ class TelegramUser extends Authenticatable
 
         $this->last_login = $now;
         $this->save();
+    }
+
+    public function tap($count = 1)
+    {
+        $getLevelUser = UserGameData::where('telegram_user_id', $this->telegram_user_id)->first();
+
+        // $bonusDef = LevelBonusesDef::where('level', $getLevelUser->level)->first();
+
+        // $earnPerTap = $bonusDef->gain_per_tap;
+        $available_energy = $this->available_energy;
+        $totalEnergyRequired = $count * $earnPerTap;
+
+        if ($available_energy < $totalEnergyRequired) {
+            return false;
+        }
+
+        $multiplier = $this->getActiveBoosterMultiplier();
+
+        $earned = $count * $earnPerTap * $multiplier;
+
+        $this->balance += $earned;
+
+        $available_energy -= $totalEnergyRequired;
+        $this->available_energy = $available_energy;
+
+        $this->last_tap_date = now();
+
+        $this->save();
+
+        return $earned;
     }
 }

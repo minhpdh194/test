@@ -35,7 +35,6 @@ use App\Http\Controllers\TelegramBonusController;
 // Public routes
 Route::post('/auth/telegram-user', [AuthController::class, 'telegramUser']);
 
-Route::get('/pairs', [MarketDataController::class, 'getPairs']);
 Route::get('/popups', [PopupController::class, 'index']);
 
 // Protected routes
@@ -43,6 +42,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user_session', [AuthController::class, 'userSession']);
     Route::get('/get-user-trading', [TelegramUserController::class, 'getUserTrading']);
     Route::get('/referred-users', [FriendsController::class, 'referredUsers']);
+
+    Route::get('/pairs', [MarketDataController::class, 'getPairs']);
+
+    Route::get('/pairs-by-ids', [MarketDataController::class, 'getPairsByUnlockedIds']);
 
     Route::get('/user_positions', [PositionController::class, 'getPositions']);
     Route::get('/user_bonuses', [BonusController::class, 'getBonuses']);
