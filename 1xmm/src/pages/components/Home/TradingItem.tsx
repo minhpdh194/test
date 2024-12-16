@@ -8,18 +8,18 @@ import { LongShort } from '@/enums';
 import ListBonus from "./ListBonus";
 import { Utils } from '@/lib/utils';
 import { SpotType } from '@/types/SpotType';
+import pusher from '@/lib/pusher';
 
 type TmpSpot = {
     return: number;
 }
 
 type TradingItemProps = {
-    spots: SpotType[];
-    validatedAmounts: any; 
-    onValidateAmount: (amount: number) => void; 
+    validatedAmounts: any;
+    onValidateAmount: (amount: number) => void;
 };
 
-const TradingItem = ({ spots: spots, onValidateAmount }: TradingItemProps) => {
+const TradingItem = ({ onValidateAmount }: TradingItemProps) => {
     const userStore = userProfileStore();
     const [, setTimeBonus] = useState(null);
     const [bonusData, setBonusData] = useState<any[]>([]);
@@ -31,8 +31,48 @@ const TradingItem = ({ spots: spots, onValidateAmount }: TradingItemProps) => {
     const [expandedPairs, setExpandedPairs] = useState<{ [key: number]: boolean }>({});
     const [expandedBonuses, setExpandedBonuses] = useState<{ [key: number]: boolean }>({});
     const allowedLeverages = [0, 1, 2, 3, 5, 7, 10];  // Valid leverage options
+    const [spots, setSpots] = useState<SpotType[]>([]);
     const [positions, setPositions] = useState<Position[]>([]);
     const [, setIsLoading] = useState(false);
+
+    const userProfile = userProfileStore();
+
+    useEffect(() => {
+        const fetchSpots = async () => {
+            try {
+                setIsLoading(true);
+                console.log("We need to get prices from Pusher");
+                //const response = await $http.get("/get-user-trading");
+                //const allSpots = response.data;
+                //const unlockedPairs = allSpots.filter((spot: SpotType) =>
+                //  userProfile.unlocked_pairs.map(Number).includes(Number(spot.pair_id))
+                //);
+                //setSpots(unlockedPairs);
+            } catch (error) {
+                console.error("Error fetching spots:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchSpots();
+
+        const channel = pusher.subscribe("pairs");
+
+        channel.bind("data", (data: any) => {
+            console.log(data);
+            const unlockedSpots = data.pairs.filter((spot: SpotType) =>
+                userProfile.unlocked_pair_ids.map(Number).includes(Number(spot.pair_id))
+            );
+            console.log(unlockedSpots);
+            setSpots(unlockedSpots);
+        });
+
+        return () => {
+            channel.unbind_all();
+            channel.unsubscribe();
+        };
+    }, [userProfile.unlocked_pair_ids]);
 
     useEffect(() => {
         fetchLatestPositions();
@@ -112,12 +152,12 @@ const TradingItem = ({ spots: spots, onValidateAmount }: TradingItemProps) => {
     const handleAmountChange = (pairId: number, value: number) => {
         const newValue = value; // New value to be set
         const userBalance = userStore.trading_info.balance;
-    
+
         if (newValue > userBalance) {
             toast.error("You don't have enough balance");
             return;
         }
-    
+
         setAmounts((prevAmounts) => ({
             ...prevAmounts,
             [pairId]: newValue,
@@ -131,7 +171,7 @@ const TradingItem = ({ spots: spots, onValidateAmount }: TradingItemProps) => {
                 ...prevLeverages,
                 [pairId]: leverage,
             }));
-        } 
+        }
     };
 
 
@@ -165,17 +205,17 @@ const TradingItem = ({ spots: spots, onValidateAmount }: TradingItemProps) => {
             setLeverages((prev) => ({ ...prev, [pairId]: 0 }));
             setExpandedBonuses((prev) => ({ ...prev, [pairId]: false }));
             setSelectedBonuses([]); // Reset selected bonuses
-            
+
             // Update available bonuses by filtering out the used ones
-            setBonusData(prevBonuses => 
-                prevBonuses.filter(bonus => 
+            setBonusData(prevBonuses =>
+                prevBonuses.filter(bonus =>
                     !selectedBonuses.some(selected => selected.id === bonus.id)
                 )
             );
 
             // Fetch updated positions
             await fetchLatestPositions();
-            
+
         } catch (error) {
             console.error('Error validating position:', error);
             toast.error('Failed to validate position');
@@ -194,8 +234,7 @@ const TradingItem = ({ spots: spots, onValidateAmount }: TradingItemProps) => {
                 return;
             }
 
-            if (positions.find((pos: Position) => pos.position_id === spot.id))
-            {
+            if (positions.find((pos: Position) => pos.position_id === spot.id)) {
                 userStore.ClosePosition(spot.id);
 
                 // Reset states
@@ -254,9 +293,8 @@ const TradingItem = ({ spots: spots, onValidateAmount }: TradingItemProps) => {
                                     </div>
                                     <div className="w-1/2 text-right">
                                         <span className="font-normal text-sm mb-2 block">
-                                            {positions.find((pos) => pos.position_id === spot.id) 
-                                                ? `${Utils.toCamelFormat(String(positions.find((pos) => pos.position_id === spot.id)?.long_short))} [${
-                                                   (positions.find((pos) => pos.position_id === spot.id)?.get_Return(Utils.getPositionTimestamp()) ?? 0).toFixed(2)}%]`
+                                            {positions.find((pos) => pos.position_id === spot.id)
+                                                ? `${Utils.toCamelFormat(String(positions.find((pos) => pos.position_id === spot.id)?.long_short))} [${(positions.find((pos) => pos.position_id === spot.id)?.get_Return(Utils.getPositionTimestamp()) ?? 0).toFixed(2)}%]`
                                                 : 'No position'}
                                         </span>
                                     </div>

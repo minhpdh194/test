@@ -71,8 +71,6 @@ export default function Home() {
           <div>Loading...</div>
         ) : (
           <TradingItem
-            // pairs={globalThis.PairReferential}
-            spots={spots}
             validatedAmounts={validatedAmount}
             onValidateAmount={handleValidateAmount}
           />
