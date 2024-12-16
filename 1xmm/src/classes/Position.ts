@@ -1,6 +1,5 @@
 import { BonusTypes, Leverages, LongShort } from "@/enums";
 import { Utils } from "../lib/utils";
-import { SpotType, Volatility } from "../types/SpotType";
 import { toast } from "react-toastify";
 import { UserProfile } from "../types/UserProfile";
 import { Bonus } from "./Bonus";

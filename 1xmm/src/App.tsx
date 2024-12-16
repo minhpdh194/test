@@ -15,7 +15,6 @@ import { UserPosition } from "./types/UserPosition";
 import { Pair } from "./types/Pair";
 import { Position } from "./classes/Position";
 import { UserProfile } from "./types/UserProfile";
-import { Bonus } from "./classes/Bonus";
 import { bonusDefinitions } from "./referential/bonusDefinitions";
 import { Friend } from "./types/Friend";
 import { getPositionStore } from "./store/position-store";
@@ -25,13 +24,7 @@ const isDesktop = import.meta.env.DEV
   ? false
   : Telegram.WebApp.platform === "tdesktop";
 
-declare global {
-  // eslint-disable-next-line no-var
-  var PairReferential: Pair[];
-}
-
 function App() {
-  globalThis.PairReferential = [];
   const userProfile = userProfileStore();
   const positionStore = getPositionStore();
   const data = useTelegramInitData();
@@ -45,7 +38,6 @@ function App() {
     webApp.setBackgroundColor("#000");
     webApp.expand();
   }, []);
-
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -73,7 +65,6 @@ function App() {
       
         // Load user details and referential data
         const pairs = await $http.$get<Pair[]>("/pairs");
-        globalThis.PairReferential.push(...pairs);
         setProgress(35);
 
         const [ syncData,
@@ -88,7 +79,6 @@ function App() {
           $http.$get<Friend[]>("/referred-users"),
           //$http.get("/user_tasks")
         ]);
-        console.log(syncData);
         setProgress(55);
 
         // We update the userProfileStore
@@ -100,14 +90,12 @@ function App() {
 
         setProgress(65);
 
-        const [ availableBonuses, cleanedPositions, bonusesToDelete ] = syncBonusesAndPositions(user_bonuses, user_positions.positions, globalThis.PairReferential, userProfile);
+        const cleanedPositions = syncBonusesAndPositions(user_bonuses, user_positions.positions, pairs, userProfile);
         // await COMM.bonusExpiry($http, userProfile.id, bonusesToDelete);
         // await COMM.updatePositions(cleanedPositions);
         
         setProgress(95);
-
-        userProfile.positionStore!.SetAvailableBonuses(availableBonuses);
-        userProfile.positionStore!.SetUserPositions(cleanedPositions);
+        positionStore.SetUserPositions(cleanedPositions);
         userProfile.SetFriends(referredUsers);
 
       } catch (error) {
@@ -127,10 +115,8 @@ function App() {
   return <RouterProvider router={router} />;
 }
 
-function syncBonusesAndPositions(userBonuses: UserBonus[], userPositions: UserPosition[], pairs: Pair[], userProfile: UserProfile): [Bonus[], Position[], number[]] {
+function syncBonusesAndPositions(userBonuses: UserBonus[], userPositions: UserPosition[], pairs: Pair[], userProfile: UserProfile): Position[] {
   const openPositions: Position[] = [];
-  const availableBonuses: Bonus[] = [];
-  const bonusesToDelete: number[] = [];
 
   userPositions.forEach(p => {
     const open_position: Position = new Position(p.position_id, pairs.find(e => e.id == p.pair_id)!, p.long_short, p.amount, p.average_leverage, p.min_end_date, [], userProfile);
@@ -148,20 +134,13 @@ function syncBonusesAndPositions(userBonuses: UserBonus[], userPositions: UserPo
       userBonuses.pop();
 
       // We attach the bonus to the Position p
-      if (!open_position.attach_bonus(new Bonus(element, bonusDef))) { bonusesToDelete.push(element); }
+      // if (!open_position.attach_bonus(new Bonus(element, bonusDef))) { bonusesToDelete.push(element); }
     });
 
     openPositions.push(open_position);
   });
 
-  userBonuses.forEach(b => {
-    const bonusDef = bonusDefinitions.find(def => def.id == b.bonus_id);
-    if (!bonusDef) throw new Error('Bonus definition error');
-
-    availableBonuses.push(new Bonus(b.id, bonusDef));
-  });
-
-  return [availableBonuses, openPositions, bonusesToDelete];
+  return openPositions;
 }
 
 export default App;

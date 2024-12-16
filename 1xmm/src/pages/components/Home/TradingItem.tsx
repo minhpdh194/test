@@ -145,15 +145,15 @@ const TradingItem = ({ spots: spots, onValidateAmount }: TradingItemProps) => {
     const handleValidate = async (pairId: number): Promise<void> => {
         try {
             setIsLoading(true);
-            const pair = spots?.find(pair => pair.id === pairId);
-            if (!pair) {
+            const spot = spots?.find(pair => pair.id === pairId);
+            if (!spot) {
                 console.error("Pair not found for id:", pairId);
                 return;
             }
 
             onValidateAmount(amounts[pairId]);
 
-            userStore.AddPosition(pair, selectedOptions[pairId], amounts[pairId] || 0, leverages[pairId] || 0, selectedBonuses);
+            userStore.AddPosition(spot, selectedOptions[pairId], amounts[pairId] || 0, leverages[pairId] || 0, selectedBonuses);
             setPositions(userStore.positionStore?.positions ?? []);
 
             // Reset states

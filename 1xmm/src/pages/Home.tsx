@@ -52,7 +52,6 @@ export default function Home() {
     };
   }, [userProfile.unlocked_pair_ids]);
 
-  console.log(spots);
   const handleValidateAmount = (amount: number) => {
     setValidatedAmount(amount);
   };

@@ -13,5 +13,5 @@ export type SpotType = {
   current_value: number;
   daily_return: number;
   id: number;
-  pair?: Pair;
+  pair: Pair;
 };

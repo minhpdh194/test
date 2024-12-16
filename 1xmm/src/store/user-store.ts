@@ -6,19 +6,19 @@ import { PositionStore } from "./position-store";
 import { SyncData } from "@/types/SyncData";
 import { Friend } from "@/types/Friend";
 import { Bonus } from "@/classes/Bonus";
-import { Pair } from "@/types/Pair";
 import { LongShort } from "@/enums";
 
 // Referential data
 import { levelBenefits } from "@/referential/levelBenefits";
 import { levelConditions } from "@/referential/levelConditions";
+import { SpotType } from "@/types/SpotType";
 
 type UserProfileStore = UserProfile & {
   SetLevelBenefits: () => void;
   UpdateProfile: (syncData: SyncData, positionStore: PositionStore) => void;
   UserTap: () => boolean;
   UserLevelUp: () => void;
-  AddPosition: (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]) => Promise<boolean>;
+  AddPosition: (spot: SpotType, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]) => Promise<boolean>;
   ClosePosition: (position_id: number) => Promise<boolean>;
   SetFriends: (friends: Friend[]) => void;
 
@@ -100,44 +100,6 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
     console.log('positionStore');
     console.log(positionStore);
     set((state) => ({
-
-      //     id: 0,
-      // telegram_user_id: 0,
-      // first_name: "",
-      // last_name: "",
-      // username: "",
-      // avatar_id: 0,
-      // friends: [],
-
-      // // User level related info
-      // level: 0,
-      // earn_per_tap: 0,
-      // energy_limit: 0,
-      // available_energy: 0,
-
-      // // User trading realted info
-      // amount_of_tokens: 0,
-      // positionStore: undefined,
-      // trading_info: {
-      //   balance: 0,
-      //   total_pnl: 0,
-      //   perf_from_start_date: 0,
-      //   perf_since_last_fixing: 0,
-      //   positive_leverage: 0,
-      //   capital_protection: 0,
-      //   time_reduction: 0
-      // },
-
-      // // Login info
-      // start_date: new Date(0),
-      // last_login: new Date(0),
-      // login_streak: 0,
-
-      // // Other
-      // number_of_stars: 0,
-      // unlocked_pair_ids: [],
-      // unlocked_pairs: [],
-
       id: syncData.user.id,
       telegram_user_id: syncData.user.telegram_user_id,
       first_name: syncData.user.first_name,
@@ -220,11 +182,11 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
     }
   },
 
-  AddPosition: async (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]): Promise<boolean> => {
+  AddPosition: async (spot: SpotType, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]): Promise<boolean> => {
     const userProfile = get();
     if (!userProfile.positionStore) return false;
 
-    const addDetails = await userProfile.positionStore!.AddPosition(pair, ls, amt, lev, bonuses, userProfile);
+    const addDetails = await userProfile.positionStore!.AddPosition(spot.pair, ls, amt, lev, bonuses, userProfile);
 
     if (addDetails.success) {
       set((state) => ({
