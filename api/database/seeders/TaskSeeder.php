@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Tasks\Task;
+use App\Models\Tasks\Tasks;
 use Illuminate\Database\Seeder;
 
 class TaskSeeder extends Seeder
@@ -77,7 +77,7 @@ class TaskSeeder extends Seeder
         ];
 
         foreach ($tasks as $task) {
-            Task::updateOrCreate(
+            Tasks::updateOrCreate(
                 ['name' => $task['name']],
                 $task
             );
