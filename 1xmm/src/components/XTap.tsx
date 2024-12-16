@@ -59,6 +59,7 @@ const XTap: React.FC<XTapProps> = ({ validatedAmounts = 0, ...props }) => {
                 count,
                 energy: 0,
                 timestamp: Math.floor(Date.now() / 1000),
+                earn_per_tap: user.earn_per_tap,
             })
             .then(({ data }) => {
                 if (data.leveled_up) {

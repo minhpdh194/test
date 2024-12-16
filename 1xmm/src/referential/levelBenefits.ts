@@ -1,9 +1,9 @@
 import { LevelBenefits } from "@/types/LevelBenefits";
 
 export const levelBenefits: Array<LevelBenefits> = [
-    createBenefit(1, [1, 2, 3, 4], 0, 0, 0, 0, 0, 0, 25, 500),
+    createBenefit(1, [1, 2, 3, 5], 0, 0, 0, 0, 0, 0, 25, 500),
     createBenefit(2, [], 0.05, 0.05, 0.025, 0.025, 5, 5, 50, 1000),
-    createBenefit(3, [5, 6], 0.10, 0.15, 0.025, 0.05, 5, 10, 50, 2000),
+    createBenefit(3, [4, 6], 0.10, 0.15, 0.025, 0.05, 5, 10, 50, 2000),
     createBenefit(4, [], 0.10, 0.25, 0.0, 0.05, 5, 15, 100, 3000),
     createBenefit(5, [7, 8], 0.05, 0.30, 0.05, 0.10, 10, 25, 150, 4500),
     createBenefit(6, [], 0.10, 0.40, 0.0, 0.10, 15, 40, 150, 6000),

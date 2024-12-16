@@ -54,15 +54,14 @@ class ClickerController extends Controller
             'count' => 'required|integer|min:1',
         ]);
 
+        $earnPerTap = $request->earn_per_tap; //temporarity
+
         $user = $request->user();
         $userGameData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
-        \Log::info($user);
-        \Log::info($userGameData);
 
         $available_energy = $userGameData->available_energy;
-        \Log::info($available_energy);
 
-        $earned = $user->tap($validated['count']);
+        $earned = $user->tap($validated['count'], $earnPerTap);
         return response()->json([
             'success' => true,
             'earned' => $earned,
