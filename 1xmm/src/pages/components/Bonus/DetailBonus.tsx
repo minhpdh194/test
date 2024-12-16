@@ -10,13 +10,11 @@ interface DetailBonusProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onBuySuccess: any;
-    bonusData: any[];  // Add bonusData prop to receive already purchased bonuses
 }
 
 export default function DetailBonus({
     open,
     onOpenChange,
-    bonusData,
     onBuySuccess,
     ...props
 }: DetailBonusProps) {
@@ -29,12 +27,12 @@ export default function DetailBonus({
         // }
 
         try {
-            const id = bonus.id;
-            const response = await $http.post('/buy-bonus', { id });
+            const bonus_id = bonus.id;
+            const response = await $http.post('/buy-bonus', { bonus_id: bonus_id });
             if (response.status === 200) {
                 toast.success('Bonus bought successfully!');
 
-                const purchasedBonus = bonusDefinitions.find((bonus: any) => bonus.id === id);
+                const purchasedBonus = bonusDefinitions.find((bonus: any) => bonus.id === bonus_id);
                 if (purchasedBonus) {
                     onBuySuccess(purchasedBonus);
                 }

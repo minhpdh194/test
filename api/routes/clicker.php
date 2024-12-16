@@ -13,7 +13,6 @@ use App\Http\Controllers\PositionController;
 Route::prefix('clicker')->group(function () {
     Route::get('/sync', [ClickerController::class, 'sync']);
     Route::post('/tap', [ClickerController::class, 'tap']);
-    Route::post('/buy-bonus', [TelegramBonusController::class, 'buyBonus']);
 
     Route::get('/get-position-ratios', [PositionController::class, 'getPositionRatios']);
 
