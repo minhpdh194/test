@@ -4,6 +4,8 @@ import { $http } from "@/lib/http";
 import DetailBonus from "./components/Bonus/DetailBonus";
 import { toast } from "react-toastify";
 import { useTonConnectUI } from "@tonconnect/ui-react";
+import { bonusDefinitions } from "@/referential/bonusDefinitions";
+import { BonusTypes } from "@/enums";
 
 const convertSecondsToHours = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
@@ -32,7 +34,7 @@ export default function Bonus() {
 
     const updateBonusData = async () => {
         try {
-            const telegramResponse = await $http.get("/telegram-bonus");
+            const telegramResponse = await $http.get("/user_bonuses");
             setBonusData([...telegramResponse.data]);
             setLeverageData(telegramResponse.data.filter((item: any) => item.bonus_type === "Leverage"));
             setPositiveLeverageData(telegramResponse.data.filter((item: any) => item.bonus_type === "PositiveLeverage"));
@@ -60,11 +62,9 @@ export default function Bonus() {
     useEffect(() => {
         const fetchBonusData = async () => {
             try {
-                const telegramResponse = await $http.get("/telegram-bonus");
-                const bonusDefResponse = await $http.get("/bonus-def");
+                const telegramResponse = await $http.get("/user_bonuses");
                 setBonusData([...telegramResponse.data]);
-                setBonusDef([...bonusDefResponse.data]);
-
+                setBonusDef(bonusDefinitions);
 
                 setLeverageData(telegramResponse.data.filter((item: any) => item.bonus_type === "Leverage"));
                 setPositiveLeverageData(telegramResponse.data.filter((item: any) => item.bonus_type === "PositiveLeverage"));
@@ -126,7 +126,7 @@ export default function Bonus() {
             <div key={bonus.id} className="w-full bg-[#32363C] rounded-xl p-3 mt-3">
                 <div className="flex fw-bold pb-2 justify-between items-center border-b">
                     <span className="flex items-center space-x-1">
-                        <span>{bonus.bonus_type}</span>
+                        <span>{BonusTypes[bonus.bonus_type]}</span>
                         <img
                             src="/images/home/polygon.png"
                             alt="polygon"
@@ -259,7 +259,7 @@ export default function Bonus() {
 
             {openBonusDrawer && bonusDef.length > 0 && (
                 <DetailBonus
-                    bonuses={bonusDef}
+                    bonusData={bonusDef}
                     open={openBonusDrawer}
                     // bonusData={bonusData}  
                     onOpenChange={setOpenBonusDrawer}

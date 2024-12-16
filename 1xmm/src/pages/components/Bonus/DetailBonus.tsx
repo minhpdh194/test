@@ -3,18 +3,20 @@ import { toast } from 'react-toastify';
 import { $http } from "@/lib/http";
 
 import { bonusDefinitions } from "@/referential/bonusDefinitions";
+import { BonusTypes } from "@/enums";
+import { Utils } from "@/lib/utils";
 
 interface DetailBonusProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onBuySuccess: any;
-    // bonusData: any[];  // Add bonusData prop to receive already purchased bonuses
+    bonusData: any[];  // Add bonusData prop to receive already purchased bonuses
 }
 
 export default function DetailBonus({
     open,
     onOpenChange,
-    // bonusData,
+    bonusData,
     onBuySuccess,
     ...props
 }: DetailBonusProps) {
@@ -32,16 +34,13 @@ export default function DetailBonus({
             if (response.status === 200) {
                 toast.success('Bonus bought successfully!');
 
-                // Cập nhật bonusData khi mua thành công
                 const purchasedBonus = bonusDefinitions.find((bonus: any) => bonus.id === id);
                 if (purchasedBonus) {
-                    onBuySuccess(purchasedBonus); // Cập nhật dữ liệu bonusData trong Bonus
+                    onBuySuccess(purchasedBonus);
                 }
 
-                // Gọi lại API để lấy dữ liệu mới
-                const telegramResponse = await $http.get("/telegram-bonus");
-                // Cập nhật lại bonusData và các state liên quan sau khi dữ liệu được cập nhật
-                onBuySuccess(telegramResponse.data); // Cập nhật lại dữ liệu
+                const telegramResponse = await $http.get("/user_bonuses");
+                onBuySuccess(telegramResponse.data);
             } else if (response.status === 202) {
                 toast.warning("This bonus has been purchased");
             }
@@ -52,7 +51,7 @@ export default function DetailBonus({
             toast.error('An error occurred while buying the bonus!');
         }
     };
-
+    
     return (
         <Drawer open={open} onOpenChange={onOpenChange} {...props}>
             <h2 className="text-xl font-medium uppercase p-2 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)]">
@@ -62,7 +61,7 @@ export default function DetailBonus({
                 {bonusDefinitions.map((bonus) => (
                     <div key={bonus.id} className="p-2 flex justify-between" style={{ borderBottom: `.3px solid #FFFFFF33` }}>
                         <div className="flex flex-col mt-1 max-w-[50px]">
-                            <span className="text-sm">{bonus.bonus_type || 'N/A'}</span>
+                            <span className="text-sm">{Utils.formatString(BonusTypes[bonus.bonus_type]) || 'N/A'}</span>
                             <span className="text-sm flex space-x-1 items-center">
                                 <img src="/images/home/coin.png" alt="coin" className="object-cover w-4 h-4" />
                                 <span>{bonus.cost}</span>
