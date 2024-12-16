@@ -134,6 +134,7 @@ class MarketDataTasks
             if (isset($data['result'])) {
                 $vol = $data['result']['mark_iv'] / 100.0;
             }
+            
             $yield = 0.0;
             $fwd = 0.0;
 
@@ -261,27 +262,27 @@ class MarketDataTasks
         // $correlatedVolsAndFwds = $this->getCorrelatedParameters($ts);
         // $spots = Spot::with('volatility')->orderBy('created_at', 'desc')->limit(count($createdSpots))->get();
         $returnedSpots = [];
-        foreach ($createdSpots as $spot) {
-            $volatility = VolAndFwd::where('pair_id', $spot->pair_id)->first();
-            if ($volatility) {
-                $old_value = $spot->value;
-                $new_value = $volatility->forward;
+        // foreach ($createdSpots as $spot) {
+        //     $volatility = VolAndFwd::where('pair_id', $spot->pair_id)->first();
+        //     if ($volatility) {
+        //         $old_value = $spot->value;
+        //         $new_value = $volatility->forward;
 
-                if ($old_value != 0) {
-                    $percent_change = (($new_value - $old_value) / $old_value) * 100;
-                } else {
-                    $percent_change = 0;
-                }
+        //         if ($old_value != 0) {
+        //             $percent_change = (($new_value - $old_value) / $old_value);
+        //         } else {
+        //             $percent_change = 0;
+        //         }
 
-                $spot->update([
-                    // 'pair_symbol' => $volatility->pair_symbol,
-                    'current_value' => (string)$volatility->forward,
-                    'daily_return' => $percent_change,
-                    // 'base_symbol' => $volatility->base_symbol,
-                ]);
-                $returnedSpots[] = $spot;
-            }
-        }
+        //         $spot->update([
+        //             // 'pair_symbol' => $volatility->pair_symbol,
+        //             'current_value' => (string)$volatility->forward,
+        //             'daily_return' => $percent_change,
+        //             // 'base_symbol' => $volatility->base_symbol,
+        //         ]);
+        //         $returnedSpots[] = $spot;
+        //     }
+        // }
         $options = array(
             'cluster' => 'ap2',
             'useTLS' => true
@@ -295,13 +296,13 @@ class MarketDataTasks
         );
 
         try {
-            $pusher->trigger('pairs', 'data', ['pairs' => $returnedSpots]);
-            \Log::info('test pusher', ['result' => $returnedSpots]);
+            $pusher->trigger('pairs', 'data', ['pairs' => $createdSpots]);
+            \Log::info('test pusher', ['result' => $createdSpots]);
         } catch (\Throwable $e) {
             $notify[] = ['warning', 'Pusher Not Properly Set'];
             \Log::info('error pusher', ['error' => $e->getMessage()]);
         }
-        return response()->json($returnedSpots);
+        return response()->json($createdSpots);
     }
 
     private function getOptionSymbol($coin, $opt_symb, $expiry)

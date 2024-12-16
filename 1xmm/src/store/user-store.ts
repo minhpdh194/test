@@ -23,7 +23,6 @@ type UserProfileStore = UserProfile & {
   SetFriends: (friends: Friend[]) => void;
 
   unlocked_pair_ids: number[];
-  unlocked_pairs: Pair[];
   positionStore: PositionStore | undefined;
 }
 
@@ -64,7 +63,6 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
   // Other
   number_of_stars: 0,
   unlocked_pair_ids: [],
-  unlocked_pairs: [],
 
   SetFriends: (friends: Friend[]): void => {
     set(() => ({

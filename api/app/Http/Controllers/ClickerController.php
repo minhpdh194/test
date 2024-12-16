@@ -30,7 +30,6 @@ class ClickerController extends Controller
     public function sync(Request $request)
     {
         $user = $request->user();
-        \Log::info($request->user());
         $telegramUser = TelegramUser::where('telegram_user_id', $user->telegram_user_id)->first();
         $gameData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
         $tasks = [];
@@ -49,7 +48,6 @@ class ClickerController extends Controller
 
     public function tap(Request $request)
     {
-        \Log::info($request);
         $validated = $request->validate([
             'count' => 'required|integer|min:1',
         ]);

@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import pusher from "@/lib/pusher";
 import { userProfileStore } from "@/store/user-store";
 import { SpotType } from "@/types/SpotType";
+import { $http } from "@/lib/http";
 
 export default function Home() {
   const [spots, setSpots] = useState<SpotType[]>([]);
@@ -15,24 +16,25 @@ export default function Home() {
   const userProfile = userProfileStore();
 
   useEffect(() => {
+    //fetch spots immediately when run the app first time or unlocked_pair have any changes
     const fetchSpots = async () => {
       try {
-        console.log("We need to get prices from Pusher");
-        //const response = await $http.get("/get-user-trading");
-        //const allSpots = response.data;
-        //const unlockedPairs = allSpots.filter((spot: SpotType) =>
-        //  userProfile.unlocked_pairs.map(Number).includes(Number(spot.pair_id))
-        //);
-        //setSpots(unlockedPairs);
+        const response = await $http.get("/get-user-trading");
+        console.log(response);
+        const allSpots = response.data;
+        const unlockedSpots = allSpots.filter((spot: SpotType) =>
+          userProfile.unlocked_pair_ids.map(Number).includes(Number(spot.pair_id))
+        );
+        setSpots(unlockedSpots);
       } catch (error) {
         console.error("Error fetching spots:", error);
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchSpots();
-  
+
     const channel = pusher.subscribe("pairs");
 
     channel.bind("data", (data: any) => {

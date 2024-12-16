@@ -9,15 +9,7 @@ class TotalOpenPositionValue extends Model
 {
     use HasFactory;
 
-    protected $table = "total_open_position_value";
+    protected $table = "total_open_positions";
 
     protected $guarded = [];
-
-    protected $fillable = [
-        'pair_id',
-        'prev_total_long_value',
-        'prev_total_short_value',
-        'current_total_long_value',
-        'current_total_short_value',
-    ];
 }

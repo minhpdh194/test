@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\UserProfile;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -18,17 +19,6 @@ use App\Services\TelegramUsersService;
 
 class TelegramUserController extends Controller
 {
-    private $userService;
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct(TelegramUserService $userService)
-    {
-        $this->userService = $userService;
-    }
-
     public function referredUsers(Request $request)
     {
         $user = $request->user();
@@ -132,5 +122,12 @@ class TelegramUserController extends Controller
             'success' => false,
             'message' => 'User profile not found'
         ], 404);
+    }
+
+    public function getNewestSpots(Request $request) {
+        $spots = Spot::with('pair')->whereDate('created_at', '=', Carbon::today()->toDateString())
+        ->get();
+
+        return response()->json($spots);
     }
 }
