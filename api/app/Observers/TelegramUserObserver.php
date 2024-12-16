@@ -31,7 +31,7 @@ class TelegramUserObserver
 
         if (!$user->referred_by) return;
 
-        $referredBy = TelegramUser::where('telegram_id', $user->referred_by)->first();
+        $referredBy = TelegramUser::where('telegram_user_id', $user->referred_by)->first();
 
         if (!$referredBy) return;
 

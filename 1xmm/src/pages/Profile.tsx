@@ -1,9 +1,8 @@
 import Header from "../components/Header";
-import { useUserProfileStore, useUserStore } from "@/store/user-store";
+import { userProfileStore } from "@/store/user-store";
 
 export default function Profile() {
-    const user = useUserStore();
-    const userProfile = useUserProfileStore();
+    const userProfile = userProfileStore();
     return (
         <div
             className="flex-1 px-3 pb-20 bg-center bg-cover"
@@ -24,7 +23,7 @@ export default function Profile() {
                     </div>
                     <div className="col-8 pl-0">
                         <p className="text-sm font-bold">
-                            {user?.first_name} {user?.last_name}
+                            {userProfile?.first_name} {userProfile?.last_name}
                         </p>
                         <p className="text-xs font-medium flex items-center mt-3 space-x-1">
                             <img
@@ -41,9 +40,6 @@ export default function Profile() {
                                 alt="play"
                                 className="w-3 h-4"
                             />
-                            <span>
-                                Days in Game: {user?.total_login_days}
-                            </span>
                         </p>
                     </div>
                 </div>
@@ -75,9 +71,9 @@ export default function Profile() {
                                 className="w-8 h-8"
                             />
                             <span className="fw-bold">
-                                ${userProfile.total_pnl?.amount ?? 0}
+                                ${userProfile.trading_info.total_pnl ?? 0}
                                 <span className="text-xs">
-                                    ({userProfile.total_pnl?.percentage ?? 0}% perf)
+                                    ({userProfile.trading_info?.perf_from_start_date ?? 0}% perf)
                                 </span>
                             </span>
 

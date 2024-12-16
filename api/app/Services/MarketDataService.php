@@ -35,6 +35,7 @@ class MarketDataService
 
                 $new_spot = $crypto['quote']['USD']['price'];
 
+                // $spot should NEVER be null
                 // new spot value should NEVER be null or 0
                 // if(!$cur_spot || !$new_spot || $new_spot == 0) {
                 //     return null;
@@ -48,8 +49,9 @@ class MarketDataService
                         // Update the record
                         $cur_spot->update([
                             'current_value' => $new_spot,
-                            'daily_return' => ($new_spot / $cur_spot->prev_value - 1),
+                            'daily_return' => (($new_spot - $cur_spot->current_value) / $cur_spot->current_value),
                         ]);
+                        \Log::info((($new_spot - $cur_spot->current_value) / $cur_spot->current_value));
                         $isSpotCreatedOrUpdated = true;
                     } else {
                         // Create a new record if we are not the same day
@@ -81,7 +83,6 @@ class MarketDataService
                 }
             }
         }
-        \Log::info($createdSpots);
         return $createdSpots;
     }
 

@@ -2,19 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\UserProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 // Traits
 use App\Http\Controllers\Clickers\Booster;
 use DateTime;
 
 // Models
-use App\Models\BonusDefinitions\LevelBonusesDef;
 use App\Models\TelegramUser;
-use App\Models\Tasks\DailyTask;
-use App\Services\TelegramUsersService;
+use App\Models\UserGameData;
+use App\Models\Tasks\UserTasks;
 
 class ClickerController extends Controller
 {
@@ -31,30 +30,36 @@ class ClickerController extends Controller
     public function sync(Request $request)
     {
         $user = $request->user();
-        $telegramUser = TelegramUser::where('telegram_user_id', $user->id)->first();
-        $gameData = UserGameData::where('telegram_user_id', $user->id)->first();
-        $tasks = UserTasks::where('user_id', $gameData->user_id)->get();
+        $telegramUser = TelegramUser::where('telegram_user_id', $user->telegram_user_id)->first();
+        $gameData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
+        $tasks = [];
+
+        if ($gameData) {
+            $tasks = UserTasks::where('user_id', $gameData->user_id)->get();
+        }
 
         return response()->json([
             'user' => $telegramUser,
             'gameData' => $gameData,
-            'restored_energy' => self::restoreEnergy($gameData->available_energy, $user->last_login),
+            'restored_energy' => $this->restoreEnergy($gameData->available_energy, $user->last_login),
             'tasks' => $tasks
         ]);
     }
 
     public function tap(Request $request)
     {
-        \Log::info($request);
         $validated = $request->validate([
             'count' => 'required|integer|min:1',
         ]);
 
-        $user = $request->user();
-        $userProfile = UserProfile::where('telegram_user_id', $user->id)->first();
+        $earnPerTap = $request->earn_per_tap; //temporarity
 
-        $available_energy = $user->available_energy;
-        $earned = $user->tap($validated['count']);
+        $user = $request->user();
+        $userGameData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
+
+        $available_energy = $userGameData->available_energy;
+
+        $earned = $user->tap($validated['count'], $earnPerTap);
         return response()->json([
             'success' => true,
             'earned' => $earned,
@@ -160,9 +165,9 @@ class ClickerController extends Controller
         ]);
     }
 
-    private static function restoreEnergy($maxEnergy, $last_login)
+    private function restoreEnergy($maxEnergy, $last_login)
     {
-        $freq = (now() - $last_login) / 3600;
+        $freq = Carbon::now()->diffInHours($last_login);
         if ($freq > 3) $freq = 3;
         return floor($freq / 3 * $maxEnergy);
     }

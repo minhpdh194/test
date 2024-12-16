@@ -61,6 +61,7 @@ class PositionController extends Controller
         }
         $userGameData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
         $validatedData = $request->only([
+            'pair.id',
             'pair',
             'long_short',
             'amount',
@@ -74,7 +75,7 @@ class PositionController extends Controller
         $positionData['min_end_date'] = Carbon::createFromTimestamp($validatedData['min_end_date'])->toDateTimeString();
         $positionData['long_short'] = $validatedData['long_short'];
         $positionData['user_id'] = $user->telegram_user_id;
-        $positionData['pair_id'] = $validatedData['pair']['id'];
+        $positionData['pair_id'] = $validatedData['pair']['pair_id'];
 
         if (!empty($validatedData['bonuses']) && count($validatedData['bonuses']) > 0) {
             $bonuses_id = array_map(fn($bonus) => (string) $bonus['id'], $validatedData['bonuses']);

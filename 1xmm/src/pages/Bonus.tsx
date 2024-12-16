@@ -4,6 +4,9 @@ import { $http } from "@/lib/http";
 import DetailBonus from "./components/Bonus/DetailBonus";
 import { toast } from "react-toastify";
 import { useTonConnectUI } from "@tonconnect/ui-react";
+import { BonusTypes } from "@/enums";
+import { bonusDefinitions } from "@/referential/bonusDefinitions";
+import { Utils } from "@/lib/utils";
 
 const convertSecondsToHours = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
@@ -19,8 +22,6 @@ const convertSecondsToHours = (seconds: number): string => {
 
 export default function Bonus() {
     const [openBonusDrawer, setOpenBonusDrawer] = useState(false);
-    const [, setBonusData] = useState<any[]>([]);
-    const [bonusDef, setBonusDef] = useState<any[]>([]);
     const [leverageData, setLeverageData] = useState<any[]>([]);
     const [positiveLeverageData, setPositiveLeverageData] = useState<any[]>([]);
     const [capitalProtectionData, setCapitalProtectionData] = useState<any[]>([]);
@@ -32,13 +33,15 @@ export default function Bonus() {
 
     const updateBonusData = async () => {
         try {
-            const telegramResponse = await $http.get("/telegram-bonus");
-            setBonusData([...telegramResponse.data]);
-            setLeverageData(telegramResponse.data.filter((item: any) => item.bonus_type === "Leverage"));
-            setPositiveLeverageData(telegramResponse.data.filter((item: any) => item.bonus_type === "PositiveLeverage"));
-            setCapitalProtectionData(telegramResponse.data.filter((item: any) => item.bonus_type === "CapitalProtection"));
-            setTimeReductionData(telegramResponse.data.filter((item: any) => item.bonus_type === "TimeReduction"));
-            setFriendData(telegramResponse.data.filter((item: any) => item.bonus_type === "Friends"));
+            const telegramResponse = await $http.get("/user_bonuses");
+            const filteredBoughtBonuses = bonusDefinitions.filter((item: any) => telegramResponse.data.includes(item.id));
+            console.log(filteredBoughtBonuses);
+
+            setLeverageData(filteredBoughtBonuses.filter((item: any) => item.bonus_type === 0));
+            setPositiveLeverageData(filteredBoughtBonuses.filter((item: any) => item.bonus_type === 1));
+            setCapitalProtectionData(filteredBoughtBonuses.filter((item: any) => item.bonus_type === 2));
+            setTimeReductionData(filteredBoughtBonuses.filter((item: any) => item.bonus_type === 3));
+            setFriendData(filteredBoughtBonuses.filter((item: any) => item.bonus_type === 4));
         } catch (error) {
             console.error("Error fetching bonus data:", error);
         }
@@ -60,17 +63,15 @@ export default function Bonus() {
     useEffect(() => {
         const fetchBonusData = async () => {
             try {
-                const telegramResponse = await $http.get("/telegram-bonus");
-                const bonusDefResponse = await $http.get("/bonus-def");
-                setBonusData([...telegramResponse.data]);
-                setBonusDef([...bonusDefResponse.data]);
+                const telegramResponse = await $http.get("/user_bonuses");
+                const filteredBoughtBonuses = bonusDefinitions.filter((item: any) => telegramResponse.data.includes(item.id));
+                console.log(filteredBoughtBonuses);
 
-
-                setLeverageData(telegramResponse.data.filter((item: any) => item.bonus_type === "Leverage"));
-                setPositiveLeverageData(telegramResponse.data.filter((item: any) => item.bonus_type === "PositiveLeverage"));
-                setCapitalProtectionData(telegramResponse.data.filter((item: any) => item.bonus_type === "CapitalProtection"));
-                setTimeReductionData(telegramResponse.data.filter((item: any) => item.bonus_type === "TimeReduction"));
-                setFriendData(telegramResponse.data.filter((item: any) => item.bonus_type === "Friends"));
+                setLeverageData(filteredBoughtBonuses.filter((item: any) => item.bonus_type === 0));
+                setPositiveLeverageData(filteredBoughtBonuses.filter((item: any) => item.bonus_type === 1));
+                setCapitalProtectionData(filteredBoughtBonuses.filter((item: any) => item.bonus_type === 2));
+                setTimeReductionData(filteredBoughtBonuses.filter((item: any) => item.bonus_type === 3));
+                setFriendData(filteredBoughtBonuses.filter((item: any) => item.bonus_type === 4));
 
                 const countdownData: { [key: string]: number } = {};
                 telegramResponse.data.forEach((bonus: any) => {
@@ -126,7 +127,7 @@ export default function Bonus() {
             <div key={bonus.id} className="w-full bg-[#32363C] rounded-xl p-3 mt-3">
                 <div className="flex fw-bold pb-2 justify-between items-center border-b">
                     <span className="flex items-center space-x-1">
-                        <span>{bonus.bonus_type}</span>
+                        <span>{Utils.formatString(BonusTypes[bonus.bonus_type])}</span>
                         <img
                             src="/images/home/polygon.png"
                             alt="polygon"
@@ -257,9 +258,8 @@ export default function Bonus() {
                 </div>
             </div>
 
-            {openBonusDrawer && bonusDef.length > 0 && (
+            {openBonusDrawer && (
                 <DetailBonus
-                    bonuses={bonusDef}
                     open={openBonusDrawer}
                     // bonusData={bonusData}  
                     onOpenChange={setOpenBonusDrawer}

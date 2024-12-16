@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\UserProfile;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -18,46 +19,15 @@ use App\Services\TelegramUsersService;
 
 class TelegramUserController extends Controller
 {
-    private $userService;
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct(TelegramUsersService $userService)
-    {
-        $this->userService = $userService;
-    }
-
     public function referredUsers(Request $request)
     {
         $user = $request->user();
 
         $referredUsers = TelegramUser::with(['level'])
-            ->where('referred_by', $user->telegram_id)
+            ->where('referred_by', $user->telegram_user_id)
             ->paginate($request->get('per_page') ?? 10);
 
         return response()->json($referredUsers);
-    }
-
-    public function getUserTrading(Request $request)
-    {
-        $user = $request->user();
-        $userProfile = UserProfile::where('telegram_user_id', $user->id)->first();
-        $pairsUnlocked = $bonuses->pluck('pairs_unlocked')->filter()->toArray();
-
-        $combinedPairsUnlocked = array_reduce($pairsUnlocked, function ($carry, $item) {
-            $decodedItem = is_string($item) ? json_decode($item, true) : $item;
-            return array_merge($carry, $decodedItem ?? []);
-        }, []);
-
-        $combinedPairsUnlocked = array_unique($combinedPairsUnlocked);
-        $latestSpots = Spot::with(['pair', 'volatility'])
-            ->whereIn('pair_id', $combinedPairsUnlocked)
-            ->orderBy('created_at', 'desc')
-            ->limit(count($combinedPairsUnlocked))
-            ->get();
-        return response()->json($latestSpots);
     }
 
     public function levelBenefit(Request $request)
@@ -152,5 +122,12 @@ class TelegramUserController extends Controller
             'success' => false,
             'message' => 'User profile not found'
         ], 404);
+    }
+
+    public function getNewestSpots(Request $request) {
+        $spots = Spot::with('pair')->whereDate('created_at', '=', Carbon::today()->toDateString())
+        ->get();
+
+        return response()->json($spots);
     }
 }

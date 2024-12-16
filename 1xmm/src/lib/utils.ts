@@ -2,7 +2,6 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Pair } from "@/types/Pair";
 import { Leverages, LongShort } from "../enums";
-import { usePositionStore } from '@/store/position-store';
 import { $http } from "@/lib/http";
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -17,24 +16,20 @@ export function compactNumber(num: number) {
 
 // Utils module
 export const Utils = {
-	getIndexPerf: (pair: Pair, long_short: LongShort, open_date: number, value_date: number, exist_position: any, open_return: number, current_return: number, level_positive_leverage_bonus: number, level_capital_protection_bonus: number, premium: number): number => get_index_perf(pair, long_short, open_date, value_date, exist_position, open_return, current_return, level_positive_leverage_bonus, level_capital_protection_bonus, premium),
+	getIndexPerf: (pair: Pair, long_short: LongShort, open_date: number, value_date: number): number => get_index_perf(pair, long_short, open_date, value_date),
 	// Timestamps are in seconds
 	getLastFixingTimestamp: (): number => get_lastfixing_timestamp(),
 	getNextFixingTimestamp: (): number => get_nextfixing_timestamp(),
 	getPositionTimestamp: (): number => get_position_timestamp(),
-	positionWasZero: (pair: Pair, long_short: LongShort, _open_date: number, _leverage: Leverages, value_date: number, exist_poition: any): boolean =>
-		check_position(pair, long_short, _open_date, _leverage, value_date, exist_poition),
-	getPenaltyFee: (pair: Pair, pair_id: number, long_short: LongShort, premium: number) => get_penalty_fee(pair, pair_id, long_short, premium),
+	positionWasZero: async (pair: Pair, long_short: LongShort, _open_date: number, _leverage: Leverages): Promise<boolean> =>
+		check_position(pair, long_short, _open_date, _leverage),
 	formatString: (input: string) => format_string(input),
+	toCamelFormat: (input: string) => { return input.charAt(0).toUpperCase() + input.slice(1); }
 };
 
 /*********************************
  * Functions requiring RPC Calls *
  *********************************/
-const getPositionStoreState = () => {
-	const state = usePositionStore.getState();
-	return state;
-}
 
 const hasLeverageBonuses = (bonuses: any): any[] => {	
 	let leverageBonuses: any[] = [];
@@ -81,104 +76,8 @@ const hasCapitalLeverageBonuses = (bonuses: any): any[] => {
 	return leverageBonuses;
 }
 
-const get_penalty_fee = (_pair: Pair, pair_id: number, _long_short: LongShort, _premium: number): number => {	
-	let prevLongValue = getPositionStoreState().prevTotalLongPositionAmount[pair_id] || 0;
-	let prevShortValue = getPositionStoreState().prevTotalShortPositionAmount[pair_id] || 0;
-
-	let n_t_i = _long_short === LongShort.Long 
-		? prevShortValue / prevLongValue 
-		: prevLongValue / prevShortValue;
-
-	let unrealizedPerf = _premium * (1 / 720) * n_t_i;
-	
-	return unrealizedPerf;
-}
-
-const get_index_perf = (_pair: Pair, _long_short: LongShort, _open_date: number, _value_date: number, exist_position: any, open_return: number, current_return: number, level_positive_leverage_bonus: number, level_capital_protection_bonus: number, premium: number): number => {
-
-	var spotPerf = current_return - open_return;
-	let leverageBonus = 0;
-	let positiveLeverageBonus = 0;
-	let capitalProtectionBonus = 0;
-
-	if (spotPerf == 0) return 0;
-
-	if (exist_position.bonuses) {
-		let lbonus = hasLeverageBonuses(exist_position.bonuses);
-		if (lbonus) {
-			for (let i = 0; i < lbonus.length; i++) {
-				if (exist_position.bonuses[i].end_date > Utils.getPositionTimestamp()) {
-					leverageBonus += exist_position.bonuses[i].bonus_type.benefit;
-				} else {
-					removeBonus(exist_position.id, i);
-				}
-			}
-		}
-
-		let plbonus = hasPositiveLeverageBonuses(exist_position.bonuses);
-
-		if (exist_position.bonuses) {
-			if (plbonus) {
-				for (let i = 0; i < plbonus.length; i++) {
-					if (exist_position.bonuses[i].end_date > Utils.getPositionTimestamp()) {
-						positiveLeverageBonus += exist_position.bonuses[i].bonus_type.benefit;
-					} else {
-						removeBonus(exist_position.id, i);
-					}
-				}
-			}
-		}
-
-		let cbonus = hasCapitalLeverageBonuses(exist_position.bonuses);
-
-		if (exist_position.bonuses) {
-			if (cbonus) {
-				for (let i = 0; i < cbonus.length; i++) {
-					if (exist_position.bonuses[i].end_date > Utils.getPositionTimestamp()) {
-						capitalProtectionBonus += exist_position.bonuses[i].bonus_type.benefit;
-					} else {
-						removeBonus(exist_position.id, i);
-					}
-				}
-			}
-		}
-	}
-
-	let currentTotalLongPositionAmount = getPositionStoreState().currentTotalLongPositionAmount;
-	let currentTotalShortPositionAmount = getPositionStoreState().currentTotalShortPositionAmount;
-
-	if (spotPerf < 0) {
-		if (exist_position.long_short === LongShort.Long) {
-
-			return -(exist_position.leverage - leverageBonus) *
-				exist_position.amount *
-				(1 - capitalProtectionBonus - level_capital_protection_bonus / 100) *
-				premium *
-				0.000684931506849315;
-		} else {
-			return (exist_position.leverage + positiveLeverageBonus + leverageBonus) *
-				exist_position.amount *
-				(1 + level_positive_leverage_bonus / 100) *
-				long_position_ratio(currentTotalLongPositionAmount, currentTotalShortPositionAmount) *
-				premium *
-				0.000684931506849315;
-		}
-	} else {
-		if (exist_position.long_short === LongShort.Short) {
-			return -(exist_position.leverage - leverageBonus) *
-				exist_position.amount *
-				(1 - capitalProtectionBonus - level_capital_protection_bonus / 100) *
-				premium *
-				0.000684931506849315;
-		} else {
-			return (exist_position.leverage + positiveLeverageBonus + leverageBonus) *
-				exist_position.amount *
-				(1 + level_positive_leverage_bonus / 100) *
-				short_position_ratio(currentTotalLongPositionAmount, currentTotalShortPositionAmount) *
-				premium *
-				0.000684931506849315;
-		}
-	}
+const get_index_perf = (_pair: Pair, _long_short: LongShort, _open_date: number, _value_date: number): number => {
+	return 0;
 }
 
 const long_position_ratio = (totalLongAmount: { [key: string]: any }, totalShortAmount: { [key: string]: any }): number => {
@@ -198,19 +97,17 @@ const short_position_ratio = (totalLongAmount: { [key: string]: any }, totalShor
 	return longValue / shortValue;
 }
 
-const removeBonus = async (position_id: number, bonus_index: number): Promise<void> => {
+const check_position = async (_pair: Pair, _long_short: LongShort, _open_date: number, _lev: Leverages): Promise<boolean> => {
 	try {
-		await $http.delete(`/clicker/remove-bonus/${position_id}/${bonus_index}`);
+		return await $http.post('/check_zero', {
+			pair_id: _pair.id,
+			long_short: _long_short,
+			open_date: _open_date,
+			lev: _lev,
+			value_date: Utils.getLastFixingTimestamp()
+		});
 	} catch (error) {
-		console.error('Error removing bonus:', error);
-	}
-};
-
-const check_position = (_pair: Pair, _long_short: LongShort, _open_date: number, _lev: Leverages ,_value_date: number, exist_position: any): boolean => {
-	if (exist_position && _pair.pair_symbol === exist_position.pair && _value_date <= exist_position.open_date) {
-		return false;
-	} else {
-		return true;
+		throw new Error('Communication error - cannot validate transaction');
 	}
 }
 

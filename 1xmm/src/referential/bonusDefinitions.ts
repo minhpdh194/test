@@ -54,7 +54,7 @@ export const bonusDefinitions: Array<BonusDefinition> = [
 ];
 
 function createBonusDef(id: number, bonus_type: BonusTypes, benefit: number, duration: BonusTerms, cost: number): BonusDefinition {
-    let bonusDef: BonusDefinition = {
+    const bonusDef: BonusDefinition = {
         id: id,
         bonus_type: bonus_type,
         benefit: benefit,

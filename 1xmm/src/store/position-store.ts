@@ -1,88 +1,154 @@
 import { create } from 'zustand';
 import { $http } from "@/lib/http";
+import { UserProfile } from '@/types/UserProfile';
 import { Position } from '@/classes/Position';
-import { useUserProfileStore } from './user-store';
+import { Pair } from '@/types/Pair';
+import { LongShort } from '@/enums';
+import { Bonus } from '@/classes/Bonus';
+import { Utils } from '@/lib/utils';
 
-interface PositionStore {
-  positions: Position[];
-  fetchPositions: (pairId?: number) => Promise<void>;
-  addPosition: (position: Position) => Promise<void>;
-  updatePosition: (position: Position) => Promise<void>;
-  setPositions: (positions: Position[]) => void;
-  currentTotalLongPositionAmount: { [key: string]: number };
-  currentTotalShortPositionAmount: { [key: string]: number };
-  prevTotalLongPositionAmount: { [key: string]: number };
-  prevTotalShortPositionAmount: { [key: string]: number };
+export type AddingDetails = {
+  success: boolean;
+  amount_adjustment: number;
+  realized_pnl: number;
 }
 
-export const usePositionStore = create<PositionStore>((set) => ({
+export type ClosingDetails = {
+  success: boolean;
+  position_amount: number;
+  position_pnl: number;
+}
+
+export type PositionStore = {
+  next_position_id: number;
+  available_bonuses: Bonus[];
+  positions: Position[];
+
+  AddPosition: (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[], userProfile: UserProfile) => Promise<AddingDetails>;
+  UpdatePosition: (position_id: number) => Promise<void>;
+  ClosePosition: (position_id: number) => Promise<ClosingDetails>;
+  SetNextPositionId: (next_position_id: number) => void;
+  SetAvailableBonuses: (available_bonuses: Bonus[]) => void;
+  SetUserPositions: (positions: Position[]) => void;
+}
+
+export const getPositionStore = create<PositionStore>()((set, get) => ({
+  next_position_id: -1,
+  available_bonuses: [],
   positions: [],
-  currentTotalLongPositionAmount: {},
-  currentTotalShortPositionAmount: {},
-  prevTotalLongPositionAmount: {},
-  prevTotalShortPositionAmount: {},
 
-  fetchPositions: async () => {
-    try {
-      const [positionsResponse, ratiosResponse] = await Promise.all([
-        $http.get('/clicker/get-position'),
-        $http.get('/clicker/get-position-ratios')
-      ]);
+  SetNextPositionId: (next_position_id: number): void => {
+    set(() => ({
+      next_position_id: next_position_id
+    }));
+  },
 
-      const userProfile = useUserProfileStore.getState();
+  SetAvailableBonuses: (available_bonuses: Bonus[]): void => {
+    set(() => ({
+      available_bonuses: available_bonuses
+    }));
+  },
 
-      const positions = positionsResponse.data.map((pos: any) => new Position(
-        pos.id,
-        pos.position_id,
-        pos.pair_symbol,
-        pos.long_short,
-        pos.amount,
-        pos.average_leverage,
-        pos.bonuses || [],
-        pos.open_return,
-        pos.current_value,
-        userProfile
-      ));
+  SetUserPositions: (positions: Position[]): void => {
+    console.log("Check running");
+    set(() => ({
+      positions: positions
+    }));
+  },
 
-      set({
-        positions,
-        currentTotalLongPositionAmount: ratiosResponse.data.current_total_long_position,
-        currentTotalShortPositionAmount: ratiosResponse.data.current_total_short_position,
-        prevTotalLongPositionAmount: ratiosResponse.data.prev_total_long_position,
-        prevTotalShortPositionAmount: ratiosResponse.data.prev_total_short_position
-      });
+  AddPosition: async (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[], userProfile: UserProfile): Promise<AddingDetails> => {
+    const positionStore = get();
+    const existing_position = positionStore.positions.find((p) => p.pair.id == pair.id);
+console.log(positionStore.positions);
+console.log(pair);
 
-      // Log the position data
+    if (existing_position) {
+      const res = await existing_position.add(pair, ls, amt, lev, bonuses);
 
-      set({ positions });
-    } catch (error) {
-      console.error('Failed to fetch positions:', error);
+      try {
+        await $http.post('/clicker/update-position', existing_position);
+        set((state) => ({
+          next_position_id: state.next_position_id! + 1,
+          positions: state.positions.map((pos) => pos.position_id == existing_position.position_id ? existing_position : pos),
+        }));
+      } catch (error) {
+        console.error('Failed to add position:', error);
+      }
+      return {
+        success: true,
+        amount_adjustment: res.amount_adjustment,
+        realized_pnl: res.realized_pnl
+      };
+    } else {
+      const position: Position = new Position(get().next_position_id!, pair, ls, amt, lev, Utils.getPositionTimestamp() + 21600, bonuses, userProfile);
+      
+      try {
+        await $http.post('/clicker/add-position', position);
+        set((state) => ({
+          next_position_id: state.next_position_id! + 1,
+          positions: [...state.positions, position],
+        }));
+        
+        return {
+          success: true,
+          amount_adjustment: -amt,
+          realized_pnl: 0
+        };
+      } catch (error) {
+        console.error('Failed to add position:', error);
+        return {
+          success: false,
+          amount_adjustment: 0,
+          realized_pnl: 0
+        };
+      }
     }
   },
 
-  addPosition: async (position: Position) => {
-    try {
-      const response = await $http.post('/clicker/add-position', position);
-      set((state) => ({
-        positions: [...state.positions, response.data],
-      }));
-    } catch (error) {
-      console.error('Failed to add position:', error);
-    }
-  },
+  UpdatePosition: async (position_id: number) => {
+    const position = get().positions.find(pos => pos.position_id === position_id);
+    if (!position) return;
 
-  updatePosition: async (position: Position) => {
     try {
-      const response = await $http.post(`/clicker/update-position/${position.id}`, position);
+      await $http.post(`/clicker/update-position`, position);
       set((state) => ({
-        positions: state.positions.map((pos) => (pos.id === position.id ? response.data : pos)),
+        positions: state.positions.map((pos) => (pos.position_id === position_id ? position : pos)),
       }));
     } catch (error) {
       console.error('Failed to update position:', error);
     }
   },
 
-  setPositions: (positions: Position[]) => {
-    set({ positions });
-  },
+  ClosePosition: async (position_id: number): Promise<ClosingDetails> => {
+    const position = get().positions.find(pos => pos.position_id === position_id);
+    if (!position) return {
+      success: false, 
+      position_amount: 0,
+      position_pnl: 0
+    };
+
+    const pnl = position.get_PnL(Utils.getPositionTimestamp());
+    const index = get().positions.indexOf(position);
+
+    try {
+      await $http.post(`/clicker/close-position`, position);
+
+      set((state) => ({
+        positions: state.positions.splice(index, 1),
+      }));
+      return {
+        success: true, 
+        position_amount: position.amount,
+        position_pnl: pnl
+      };
+      
+    } catch (error) {
+      console.error('Failed to close position:', error);
+      return {
+        success: false, 
+        position_amount: 0,
+        position_pnl: 0
+      };
+    }
+  }
 }));

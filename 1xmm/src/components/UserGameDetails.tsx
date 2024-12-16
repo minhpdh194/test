@@ -1,12 +1,12 @@
 import { cn } from "@/lib/utils";
-import { useUserStore } from "@/store/user-store";
+import { userProfileStore } from "@/store/user-store";
 import { SpotType } from "@/types/SpotType";
 import { useState, useEffect } from 'react';
 
 export default function UserGameDetails({
   className, data, ...props
 }: { data: SpotType[], className: string }) {
-  const user = useUserStore();
+  const user = userProfileStore();
 
   const [timeLeftNextFixing, setTimeLeftNextFixing] = useState(0);
   const [timeLeftPeriodEnd, setTimeLeftPeriodEnd] = useState(0);
@@ -93,7 +93,7 @@ export default function UserGameDetails({
         <p className="mb-1 text-xs font-medium text-center" style={{ color: `#F79841` }}>Earn per tap</p>
         <div className="inline-flex items-center space-x-1.5 text-white font-bold">
           <img className="object-contain w-5 h-5" src="/images/home/coin.png" />{" "}
-          <span className="text-sm">+{parseFloat(user?.benefitData.gain_per_tap)}</span>
+          <span className="text-sm">+{user?.earn_per_tap}</span>
         </div>
       </div>
       <div className="flex flex-col items-center justify-center flex-1 p-2 select-none rounded-xl z-10" style={{ backgroundColor: `#32363C` }}>

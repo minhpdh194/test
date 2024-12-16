@@ -8,13 +8,10 @@ export type Volatility = {
 };
 
 export type SpotType = {
-  id: number;
-  position_id: number;
   pair_id: number;
-  pair?: Pair;
-  prev_value: string;
-  value: number;
-  return: string;
-  timestamp: string;
-  volatility?: Volatility;
+  prev_value: number;
+  current_value: number;
+  daily_return: number;
+  id: number;
+  pair: Pair;
 };

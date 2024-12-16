@@ -67,4 +67,33 @@ class TelegramUser extends Authenticatable
         $this->last_login = $now;
         $this->save();
     }
+
+    public function tap($count = 1, $earnPerTap)
+    {
+        $userGameData = UserGameData::where('telegram_user_id', $this->telegram_user_id)->first();
+
+        // $bonusDef = LevelBonusesDef::where('level', $getLevelUser->level)->first();
+
+        // $earnPerTap = $bonusDef->gain_per_tap;
+        $available_energy = $userGameData->available_energy;
+        $totalEnergyRequired = $count * $earnPerTap;
+
+        if ($available_energy < $totalEnergyRequired) {
+            return false;
+        }
+
+        // $multiplier = $this->getActiveBoosterMultiplier();
+        $multiplier = 1;
+
+        $earned = $count * $earnPerTap * $multiplier;
+
+        $userGameData->balance += $earned;
+
+        $available_energy -= $totalEnergyRequired;
+        $userGameData->available_energy = $available_energy;
+
+        $userGameData->save();
+
+        return $earned;
+    }
 }
