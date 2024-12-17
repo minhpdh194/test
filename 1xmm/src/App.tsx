@@ -8,7 +8,7 @@ import router from "./router";
 import { $http, setBearerToken } from "./lib/http";
 import { COMM } from "@/lib/comm";
 import useTelegramInitData from "./hooks/useTelegramInitData";
-import { userProfileStore } from "./store/user-store";
+import { UserProfileStore, userProfileStore } from "./store/user-store";
 import { SyncData } from "./types/SyncData";
 import { UserBonus } from "./types/UserBonus";
 import { UserPosition } from "./types/UserPosition";
@@ -26,13 +26,13 @@ const isDesktop = import.meta.env.DEV
   : Telegram.WebApp.platform === "tdesktop";
 
 declare global {
-  // eslint-disable-next-line no-var
+  var userProfile: UserProfileStore;
   var PairReferential: Pair[];
 }
 
 function App() {
   globalThis.PairReferential = [];
-  const userProfile = userProfileStore();
+  globalThis.userProfile = userProfileStore();
   const positionStore = getPositionStore();
   const data = useTelegramInitData();
   const user = data.user;
@@ -59,23 +59,20 @@ function App() {
       let streak = 1;
       
       try {
-        if (localStorage.getItem("token") === null) {
           // We load user data
           const response = await COMM.loadUserData($http, user, start_param);
           setProgress(20);
 
           streak = response.login_streak;
+
+        if (localStorage.getItem("token") === null) {
+          
           setBearerToken(response.token);
           setIsFirstLoad(response.first_login);
-
-          setProgress(30);
         }
-      
-        // Load user details and referential data
-        const pairs = await $http.$get<Pair[]>("/pairs");
-        globalThis.PairReferential.push(...pairs);
-        setProgress(35);
 
+        setProgress(25);
+      
         const [ syncData,
           user_bonuses,
           user_positions,
@@ -88,28 +85,32 @@ function App() {
           $http.$get<Friend[]>("/referred-users"),
           //$http.get("/user_tasks")
         ]);
-        console.log(syncData);
-        setProgress(55);
+        
+        setProgress(45);
 
+        // Load user details and referential data
+        const pairs = await $http.$get<Pair[]>("/pairs");
+
+        setProgress(55);
+        
         // We update the userProfileStore
         syncData['login_streak'] = streak;
-        userProfile.UpdateProfile(syncData, positionStore);
-        userProfile.positionStore?.SetNextPositionId(user_positions.next_position_id);
-        // UpdateProfile has updated user level -> we can load the related benefits
-        userProfile.SetLevelBenefits();
+        globalThis.userProfile.UpdateProfile(syncData, positionStore);
+        globalThis.userProfile.positionStore?.SetNextPositionId(user_positions.next_position_id);
+        globalThis.userProfile.SetLevelBenefits(pairs);
 
         setProgress(65);
 
-        const [ availableBonuses, cleanedPositions, bonusesToDelete ] = syncBonusesAndPositions(user_bonuses, user_positions.positions, globalThis.PairReferential, userProfile);
+        const [ availableBonuses, cleanedPositions, bonusesToDelete ] = syncBonusesAndPositions(user_bonuses, user_positions.positions, pairs, userProfile);
         // await COMM.bonusExpiry($http, userProfile.id, bonusesToDelete);
         // await COMM.updatePositions(cleanedPositions);
         
         setProgress(95);
+        globalThis.userProfile.positionStore!.SetAvailableBonuses(availableBonuses);
+        globalThis.userProfile.positionStore!.SetUserPositions(cleanedPositions);
+        globalThis.userProfile.SetFriends(referredUsers);
 
-        userProfile.positionStore!.SetAvailableBonuses(availableBonuses);
-        userProfile.positionStore!.SetUserPositions(cleanedPositions);
-        userProfile.SetFriends(referredUsers);
-
+        globalThis.PairReferential.push(...pairs);
       } catch (error) {
         console.error('Error loading data:', error);
         toast.error('Failed to load game data');

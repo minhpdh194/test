@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import { userProfileStore} from "@/store/user-store";
 import React, { useState, useEffect } from "react";
 import Sidebar from "./partials/SidebarLeft";
 
@@ -12,7 +11,6 @@ export default function Header({
     validatedAmount = 0,
     ...props
 }: HeaderProps) {
-    const userProfile = userProfileStore();
     const [userBalance, setUserBalance] = useState(userProfile.trading_info.balance);
     const [isSidebarOpen, setSidebarOpen] = useState(false);
 

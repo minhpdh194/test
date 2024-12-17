@@ -167,7 +167,7 @@ class ClickerController extends Controller
 
     private function restoreEnergy($maxEnergy, $last_login)
     {
-        $freq = Carbon::now()->diffInHours($last_login);
+        $freq = Carbon::parse($last_login)->diffInHours(Carbon::now());
         if ($freq > 3) $freq = 3;
         return floor($freq / 3 * $maxEnergy);
     }
