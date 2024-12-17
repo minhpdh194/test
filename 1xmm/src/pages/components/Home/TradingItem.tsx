@@ -7,14 +7,14 @@ import { LongShort } from '@/enums';
 import ListBonus from "./ListBonus";
 import { Utils } from '@/lib/utils';
 import { SpotType } from '@/types/SpotType';
-import pusher from '@/lib/pusher';
 
 type TradingItemProps = {
     validatedAmounts: any;
+    spots: SpotType[];
     onValidateAmount: (amount: number) => void;
 };
 
-const TradingItem = ({ onValidateAmount }: TradingItemProps) => {
+const TradingItem = ({ spots, onValidateAmount }: TradingItemProps) => {
     const [, setTimeBonus] = useState(null);
     const [bonusData, setBonusData] = useState<any[]>([]);
     const [openBonusDrawer, setOpenBonusDrawer] = useState(false);
@@ -25,46 +25,8 @@ const TradingItem = ({ onValidateAmount }: TradingItemProps) => {
     const [expandedPairs, setExpandedPairs] = useState<{ [key: number]: boolean }>({});
     const [expandedBonuses, setExpandedBonuses] = useState<{ [key: number]: boolean }>({});
     const allowedLeverages = [0, 1, 2, 3, 5, 7, 10];  // Valid leverage options
-    const [spots, setSpots] = useState<SpotType[]>([]);
     const [positions, setPositions] = useState<Position[]>([]);
     const [, setIsLoading] = useState(false);
-
-    useEffect(() => {
-        const fetchSpots = async () => {
-            try {
-                setIsLoading(true);
-                console.log("We need to get prices from Pusher");
-                //const response = await $http.get("/get-user-trading");
-                //const allSpots = response.data;
-                //const unlockedPairs = allSpots.filter((spot: SpotType) =>
-                //  userProfile.unlocked_pairs.map(Number).includes(Number(spot.pair_id))
-                //);
-                //setSpots(unlockedPairs);
-            } catch (error) {
-                console.error("Error fetching spots:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchSpots();
-
-        const channel = pusher.subscribe("pairs");
-
-        channel.bind("data", (data: any) => {
-            console.log(data);
-            const unlockedSpots = data.pairs.filter((spot: SpotType) =>
-                userProfile.unlocked_pair_ids.map(Number).includes(Number(spot.pair_id))
-            );
-            console.log(unlockedSpots);
-            setSpots(unlockedSpots);
-        });
-
-        return () => {
-            channel.unbind_all();
-            channel.unsubscribe();
-        };
-    }, [userProfile.unlocked_pair_ids]);
 
     useEffect(() => {
         fetchLatestPositions();
@@ -173,7 +135,7 @@ const TradingItem = ({ onValidateAmount }: TradingItemProps) => {
         try {
             setIsLoading(true);
             const pair = globalThis.PairReferential.find(p => p.id == pairId);
-            
+
             if (!pair) {
                 console.error("Pair not found for id:", pairId);
                 return;
@@ -207,7 +169,7 @@ const TradingItem = ({ onValidateAmount }: TradingItemProps) => {
             setIsLoading(false);
         }
     };
-
+    console.log(spots);
     const handleClose = async (pairId: number) => {
         try {
             setIsLoading(true);
@@ -248,7 +210,9 @@ const TradingItem = ({ onValidateAmount }: TradingItemProps) => {
                                     <span
                                         className={`text-sm ${(spots?.find(s => s.pair_id == pair.id)?.daily_return ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}
                                     >
-                                        {(spots?.find(s => s.pair_id == pair.id)?.daily_return ?? 0) >= 0 ? `(+${(spots?.find(s => s.pair_id == pair.id)?.daily_return ?? 0).toFixed(2)}%)` : `(${(spots.find(s => s.pair_id == pair.id)?.daily_return ?? 0).toFixed(2)}%)`}
+                                        {(Number(spots?.find(s => s.pair_id == pair.id)?.daily_return ?? 0) >= 0
+                                            ? `(+${Number(spots?.find(s => s.pair_id == pair.id)?.daily_return ?? 0).toFixed(2)}%)`
+                                            : `(${Number(spots?.find(s => s.pair_id == pair.id)?.daily_return ?? 0).toFixed(2)}%)`)}
                                     </span>
                                 </span>
                             </div>

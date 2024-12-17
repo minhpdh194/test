@@ -68,6 +68,7 @@ export default function Home() {
           <div>Loading...</div>
         ) : (
           <TradingItem
+            spots={spots}
             validatedAmounts={validatedAmount}
             onValidateAmount={handleValidateAmount}
           />

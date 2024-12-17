@@ -501,4 +501,26 @@ class MathUtil
 
         return new SVDResult($A, $q, $v);
     }
+
+    function getError($ref_returns, $target_returns, $reg_factors)
+    {
+        $n = count($ref_returns);
+        $l = count($ref_returns[0]);
+
+        $sq = 0.0;
+
+        for ($i = 0; $i < $n; $i++)
+        {
+            $err = 0.0;
+            for ($j = 0; $j < $l; $j++)
+            {
+                $err += $ref_returns[$i][$j] * $reg_factors[$j];
+            }
+
+            $err -= $target_returns[$i];
+            $sq += $err * $err;
+        }
+
+        return sqrt($sq / ($n - 1));
+    }
 }
