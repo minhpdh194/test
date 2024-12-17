@@ -4,6 +4,9 @@ import { $http } from "@/lib/http";
 import DetailBonus from "./components/Bonus/DetailBonus";
 import { toast } from "react-toastify";
 import { useTonConnectUI } from "@tonconnect/ui-react";
+import { bonusDefinitions } from "@/referential/bonusDefinitions";
+import { BonusDefinition } from "@/types/BonusDefinition";
+import { BonusTerms, BonusTypes } from "@/enums";
 
 const convertSecondsToHours = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
@@ -19,7 +22,6 @@ const convertSecondsToHours = (seconds: number): string => {
 
 export default function Bonus() {
     const [openBonusDrawer, setOpenBonusDrawer] = useState(false);
-    const [, setBonusData] = useState<any[]>([]);
     const [bonusDef, setBonusDef] = useState<any[]>([]);
     const [leverageData, setLeverageData] = useState<any[]>([]);
     const [positiveLeverageData, setPositiveLeverageData] = useState<any[]>([]);
@@ -32,13 +34,7 @@ export default function Bonus() {
 
     const updateBonusData = async () => {
         try {
-            const telegramResponse = await $http.get("/telegram-bonus");
-            setBonusData([...telegramResponse.data]);
-            setLeverageData(telegramResponse.data.filter((item: any) => item.bonus_type === "Leverage"));
-            setPositiveLeverageData(telegramResponse.data.filter((item: any) => item.bonus_type === "PositiveLeverage"));
-            setCapitalProtectionData(telegramResponse.data.filter((item: any) => item.bonus_type === "CapitalProtection"));
-            setTimeReductionData(telegramResponse.data.filter((item: any) => item.bonus_type === "TimeReduction"));
-            setFriendData(telegramResponse.data.filter((item: any) => item.bonus_type === "Friends"));
+            throw new Error("Need to send update of buying purchase to server");
         } catch (error) {
             console.error("Error fetching bonus data:", error);
         }
@@ -60,26 +56,23 @@ export default function Bonus() {
     useEffect(() => {
         const fetchBonusData = async () => {
             try {
-                const telegramResponse = await $http.get("/telegram-bonus");
-                const bonusDefResponse = await $http.get("/bonus-def");
-                setBonusData([...telegramResponse.data]);
-                setBonusDef([...bonusDefResponse.data]);
+                const telegramResponse = bonusDefinitions;
+                setBonusDef([...telegramResponse]);
 
-
-                setLeverageData(telegramResponse.data.filter((item: any) => item.bonus_type === "Leverage"));
-                setPositiveLeverageData(telegramResponse.data.filter((item: any) => item.bonus_type === "PositiveLeverage"));
-                setCapitalProtectionData(telegramResponse.data.filter((item: any) => item.bonus_type === "CapitalProtection"));
-                setTimeReductionData(telegramResponse.data.filter((item: any) => item.bonus_type === "TimeReduction"));
-                setFriendData(telegramResponse.data.filter((item: any) => item.bonus_type === "Friends"));
+                setLeverageData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.Leverage));
+                setPositiveLeverageData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.PositiveLeverage));
+                setCapitalProtectionData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.CapitalProtection));
+                setTimeReductionData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.TimeReduction));
+                setFriendData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.Friends));
 
                 const countdownData: { [key: string]: number } = {};
-                telegramResponse.data.forEach((bonus: any) => {
-                    if (bonus.end_date) {
-                        const remainingTime = bonus.end_date - Math.floor(Date.now() / 1000);
-                        countdownData[bonus.id] = remainingTime > 0 ? remainingTime : 0;
+                telegramResponse.forEach((bonus: BonusDefinition) => {
+                    if (bonus.duration != BonusTerms.None) {
+                        countdownData[bonus.id] = bonus.duration;
                     }
                 });
-                setCountdown(countdownData);
+                // No need countdown here...
+                //setCountdown(countdownData);
             } catch (error) {
                 console.error("Error fetching bonus data:", error);
             }
@@ -88,51 +81,54 @@ export default function Bonus() {
         fetchBonusData();
     }, []);
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCountdown((prevCountdown) => {
-                const updatedCountdown = { ...prevCountdown };
-                Object.keys(updatedCountdown).forEach((key) => {
-                    if (updatedCountdown[key] > 0) {
-                        updatedCountdown[key] -= 1;
-                    }
-                });
-                return updatedCountdown;
-            });
-        }, 1000);
-
-        return () => clearInterval(interval);
-    }, []);
+    // What is the use of this function?
+    // Why do we have a countdown in the bonus area, where users are only supposed to buy?
+    //useEffect(() => {
+    //    const interval = setInterval(() => {
+    //        setCountdown((prevCountdown) => {
+    //            const updatedCountdown = { ...prevCountdown };
+    //            Object.keys(updatedCountdown).forEach((key) => {
+    //                if (updatedCountdown[key] > 0) {
+    //                    updatedCountdown[key] -= 1;
+    //                }
+    //            });
+    //            return updatedCountdown;
+    //        });
+    //    }, 1000);
+    //
+    //    return () => clearInterval(interval);
+    //}, []);
 
     const renderBonusItem = (bonus: any) => {
         let formattedDuration = "";
         let countdownClass = "text-white";
 
-        if (countdown[bonus.id] !== undefined) {
-            const remainingTime = countdown[bonus.id];
-            if (remainingTime > 0) {
-                formattedDuration = convertSecondsToHours(remainingTime);
-                countdownClass = "text-green-500";
-            } else {
-                formattedDuration = "Expired";
-                countdownClass = "text-red-500";
+        formattedDuration = bonus.bonus_type != BonusTypes.Friends ? convertSecondsToHours(bonus.duration) : "n/a";
+
+        const toString = (bonusType: BonusTypes) => {
+            switch(bonusType)
+            {
+                case BonusTypes.Leverage: return "Leverage";
+                case BonusTypes.CapitalProtection: return "Capital Protection";
+                case BonusTypes.PositiveLeverage: return "Positive Leverage";
+                case BonusTypes.TimeReduction: return "Time Reduction";
+                case BonusTypes.Friends: return "Friends";
             }
-        } else {
-            formattedDuration = convertSecondsToHours(bonus.duration);
         }
 
-
         return (
-            <div key={bonus.id} className="w-full bg-[#32363C] rounded-xl p-3 mt-3">
+            <div key={bonus.id} className="w-full bg-[#32363C] rounded-xl p-2.5 mt-3">
                 <div className="flex fw-bold pb-2 justify-between items-center border-b">
                     <span className="flex items-center space-x-1">
-                        <span>{bonus.bonus_type}</span>
+                        <span>{toString(bonus.bonus_type)}</span>
                         <img
                             src="/images/home/polygon.png"
                             alt="polygon"
                             className="w-3 h-2"
                         />
-                        <span className="text-xs fw-light">{`+${bonus.benefit}%`}</span>
+                        <span className="text-xs fw-light">{`+${bonus.benefit}
+                        ${bonus.bonus_type == BonusTypes.CapitalProtection ? '%' : ''}
+                        ${bonus.bonus_type == BonusTypes.TimeReduction ? 'sec' : ''}`}</span>
                     </span>
                     <span className="flex items-center space-x-1">
                         <img
@@ -175,6 +171,12 @@ export default function Bonus() {
             }}
         >
             <Header />
+            <div className="mt-5 mb-8">
+                <div className="italic text-sm">
+                    Purchasing bonus entitles to receive 1XMM coins at a ratio of 0.30cts per token, as long as the total allocation amount has not been reached.
+                    Check our website to see whether bonus allocated tokens are still available.
+                </div>
+            </div>
             <div className="mt-4 mb-6">
                 <div className="flex justify-between items-center">
                     <span className="fw-bold text-lg">Leverage</span>
@@ -259,7 +261,6 @@ export default function Bonus() {
 
             {openBonusDrawer && bonusDef.length > 0 && (
                 <DetailBonus
-                    bonuses={bonusDef}
                     open={openBonusDrawer}
                     // bonusData={bonusData}  
                     onOpenChange={setOpenBonusDrawer}
