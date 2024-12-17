@@ -52,7 +52,7 @@ class TelegramUser extends Authenticatable
         $now = Carbon::now();
 
         if ($this->last_login) {
-            $freq = $now->diffInHours($this->last_login);
+            $freq = Carbon::parse($this->last_login)->diffInHours($now);
 
             if ($freq > 12 && $freq < 24) {
                 $this->login_streak = $this->login_streak + 1;

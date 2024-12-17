@@ -5,7 +5,6 @@ import TradingItem from "./components/Home/TradingItem";
 import Header from "../components/Header";
 import { useEffect, useState } from "react";
 import pusher from "@/lib/pusher";
-import { userProfileStore } from "@/store/user-store";
 import { SpotType } from "@/types/SpotType";
 import { $http } from "@/lib/http";
 
@@ -13,7 +12,6 @@ export default function Home() {
   const [spots, setSpots] = useState<SpotType[]>([]);
   const [loading, setLoading] = useState(true);
   const [validatedAmount, setValidatedAmount] = useState(0);
-  const userProfile = userProfileStore();
 
   useEffect(() => {
     //fetch spots immediately when run the app first time or unlocked_pair have any changes
@@ -38,11 +36,9 @@ export default function Home() {
     const channel = pusher.subscribe("pairs");
 
     channel.bind("data", (data: any) => {
-      console.log(data);
       const unlockedSpots = data.pairs.filter((spot: SpotType) =>
         userProfile.unlocked_pair_ids.map(Number).includes(Number(spot.pair_id))
       );
-      console.log(unlockedSpots);
       setSpots(unlockedSpots);
     });
 
@@ -50,7 +46,7 @@ export default function Home() {
       channel.unbind_all();
       channel.unsubscribe();
     };
-  }, [userProfile.unlocked_pair_ids]);
+  }, [globalThis.userProfile.unlocked_pair_ids]);
 
   const handleValidateAmount = (amount: number) => {
     setValidatedAmount(amount);
@@ -72,8 +68,6 @@ export default function Home() {
           <div>Loading...</div>
         ) : (
           <TradingItem
-            // pairs={globalThis.PairReferential}
-            spots={spots}
             validatedAmounts={validatedAmount}
             onValidateAmount={handleValidateAmount}
           />

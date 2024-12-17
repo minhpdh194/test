@@ -6,23 +6,24 @@ import { PositionStore } from "./position-store";
 import { SyncData } from "@/types/SyncData";
 import { Friend } from "@/types/Friend";
 import { Bonus } from "@/classes/Bonus";
+import { Pair } from "@/types/Pair";
 import { LongShort } from "@/enums";
 
 // Referential data
 import { levelBenefits } from "@/referential/levelBenefits";
 import { levelConditions } from "@/referential/levelConditions";
-import { SpotType } from "@/types/SpotType";
 
-type UserProfileStore = UserProfile & {
-  SetLevelBenefits: () => void;
+export type UserProfileStore = UserProfile & {
+  SetLevelBenefits: (pairsInReferential: Pair[]) => void;
   UpdateProfile: (syncData: SyncData, positionStore: PositionStore) => void;
   UserTap: () => boolean;
-  UserLevelUp: () => void;
-  AddPosition: (spot: SpotType, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]) => Promise<boolean>;
+  UserLevelUp: (pairsInReferential: Pair[]) => void;
+  AddPosition: (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]) => Promise<boolean>;
   ClosePosition: (position_id: number) => Promise<boolean>;
   SetFriends: (friends: Friend[]) => void;
 
-  unlocked_pair_ids: number[];
+  unlocked_pair_ids: Array<number>;
+  unlocked_pairs: Pair[];
   positionStore: PositionStore | undefined;
 }
 
@@ -63,6 +64,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
   // Other
   number_of_stars: 0,
   unlocked_pair_ids: [],
+  unlocked_pairs: [],
 
   SetFriends: (friends: Friend[]): void => {
     set(() => ({
@@ -70,12 +72,18 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
     }));
   },
 
-  SetLevelBenefits: () => {
+  SetLevelBenefits: (pairsInReferential: Pair[]) => {
     const userLevel = get().level;
-
+    
     let benefits = levelBenefits.find((b) => b.level == userLevel);
     // If there is no benefit for the level, we use the last benefits
     if (!benefits) benefits = levelBenefits[levelBenefits.length - 1];
+
+    const unlocked_pair_ids = get().unlocked_pair_ids;
+    getUnlockedPairIds(userLevel).forEach(id => {if (!unlocked_pair_ids.find(nid => nid == id)) unlocked_pair_ids.push(id)});
+
+    const unlocked_pairs = get().unlocked_pairs;
+    getUnlockedPairs(pairsInReferential, userLevel).forEach(p => {if (!unlocked_pairs.find(np => np.id == p.id)) unlocked_pairs.push(p)});
 
     set((state) => ({
       earn_per_tap: benefits.total_gain_per_tap,
@@ -89,16 +97,13 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
         capital_protection: benefits.cumulated_protection_bonus,
         time_reduction: benefits.cumulated_time_bonus
       },
-      unlocked_pair_ids: getUnlockedPairIds(userLevel),
-      // unlocked_pairs: getUnlockedPairs(userLevel)
+      unlocked_pair_ids: unlocked_pair_ids,
+      unlocked_pairs: unlocked_pairs
     }));
   },
 
   UpdateProfile: (syncData: SyncData, positionStore: PositionStore) => {
-    console.log('syncData');
-    console.log(syncData);
-    console.log('positionStore');
-    console.log(positionStore);
+    get().positionStore = positionStore;
     set((state) => ({
       id: syncData.user.id,
       telegram_user_id: syncData.user.telegram_user_id,
@@ -106,7 +111,6 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       last_name: syncData.user.last_name,
       username: syncData.user.username,
       last_login: syncData.user.last_login,
-      positionStore: positionStore,
       level: syncData.gameData.level,
       login_streak: syncData.user.login_streak,
       avatar_id: syncData.gameData.avatar_id,
@@ -148,7 +152,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
     return true;
   },
 
-  UserLevelUp: async () => {
+  UserLevelUp: async (pairsInReferential: Pair[]) => {
     const userPnl = get().trading_info.total_pnl;
     const currentLevel = get().level;
 
@@ -158,6 +162,12 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
     if (matchedCondition) {
       const benefits = levelBenefits.find((benef) => benef.level == matchedCondition.level);
       if (!benefits) return;
+
+      const unlocked_pair_ids = get().unlocked_pair_ids;
+    getUnlockedPairIds(matchedCondition.level).forEach(id => {if (!unlocked_pair_ids.find(nid => nid == id)) unlocked_pair_ids.push(id)});
+
+    const unlocked_pairs = get().unlocked_pairs;
+    getUnlockedPairs(pairsInReferential, matchedCondition.level).forEach(p => {if (!unlocked_pairs.find(np => np.id== p.id)) unlocked_pairs.push(p)});
 
       await updateUserLevel(matchedCondition.level);
 
@@ -174,19 +184,19 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
         },
         earn_per_tap: benefits.total_gain_per_tap,
         energy_limit_level: benefits.cumulated_tapping_amount,
-        unlocked_pair_ids: getUnlockedPairIds(matchedCondition.level),
-        // unlocked_pairs: getUnlockedPairs(matchedCondition.level)
+        unlocked_pair_ids: unlocked_pair_ids,
+        unlocked_pairs: unlocked_pairs
       }));
 
       toast.success(`You have leveled up to level ${matchedCondition.level}`);
     }
   },
 
-  AddPosition: async (spot: SpotType, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]): Promise<boolean> => {
+  AddPosition: async (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]): Promise<boolean> => {
     const userProfile = get();
     if (!userProfile.positionStore) return false;
 
-    const addDetails = await userProfile.positionStore!.AddPosition(spot.pair, ls, amt, lev, bonuses, userProfile);
+    const addDetails = await userProfile.positionStore!.AddPosition(pair, ls, amt, lev, bonuses, userProfile);
 
     if (addDetails.success) {
       set((state) => ({
@@ -264,18 +274,9 @@ function getUnlockedPairIds(level: number): number[] {
   return pairs;
 }
 
-// function getUnlockedPairs(level: number): Pair[] {
-//   let pairs: Pair[] = [];
-//   const pairIds = getUnlockedPairIds(level);
-//   console.log(pairIds);
-//   pairs = $http.get('/api/pairs-by-ids');
-//   console.log(pairs);
-//   return pairs;
-// }function getUnlockedPairs(level: number): Pair[] {
-//   let pairs: Pair[] = [];
-//   const pairIds = getUnlockedPairIds(level);
-//   console.log(pairIds);
-//   pairs = $http.get('/api/pairs-by-ids');
-//   console.log(pairs);
-//   return pairs;
-// }
+ function getUnlockedPairs(pairsInReferential: Pair[], level: number): Pair[] {
+   let pairs: Pair[] = [];
+   const pairIds = getUnlockedPairIds(level);
+   pairIds.forEach(id => pairs.push(pairsInReferential.find(p => p.id == id)!))
+   return pairs;
+}
