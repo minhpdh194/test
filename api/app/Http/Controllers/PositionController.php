@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\MarketData\Position;
 use App\Models\MarketData\Spot;
 use App\Models\MarketData\TotalOpenPositionValue;
-
+use App\Models\TelegramUser;
+use App\Models\UserBonuses;
 use App\Models\UserGameData;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -162,13 +163,12 @@ class PositionController extends Controller
 
     public function closePosition(Request $request)
     {
-        Log::info('Close position request: ', ['request' => $request->all()]);
+        Log::info($request);
         $user = $request->user();
-        $telegramUser = TelegramUser::where('id', $user->id)->first();
 
         $position_id = $request->position_id;
         $position = Position::where('id', $position_id)
-            ->where('user_id', $telegramUser->id)
+            ->where('user_id', $user->telegram_user_id)
             ->first();
 
         $positionBonuses = UserBonuses::where('position_id', $position_id)->get();

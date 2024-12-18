@@ -365,13 +365,11 @@ const TradingItem = ({ spots, onValidateAmount }: TradingItemProps) => {
 
                                     <button
                                         type="button"
-                                        className="rounded flex-1 py-1 px-2 bg-[#F27A83]"
+                                        className={`rounded flex-1 py-1 px-2 ${!selectedOptions[pair.id] ? 'bg-gray-400 opacity-50 cursor-not-allowed' : 'bg-[#F27A83]'}`}
                                         onClick={() => handleClose(pair.id)}
-
                                     >
                                         <span className="font-bold text-xs">Close</span>
                                     </button>
-
                                 </div>
                             </>
                         )}
