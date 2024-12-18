@@ -27,11 +27,9 @@ const isDesktop = import.meta.env.DEV
 
 declare global {
   var userProfile: UserProfileStore;
-  var PairReferential: Pair[];
 }
 
 function App() {
-  globalThis.PairReferential = [];
   globalThis.userProfile = userProfileStore();
   const positionStore = getPositionStore();
   const data = useTelegramInitData();
@@ -109,8 +107,7 @@ function App() {
         globalThis.userProfile.positionStore!.SetAvailableBonuses(availableBonuses);
         globalThis.userProfile.positionStore!.SetUserPositions(cleanedPositions);
         globalThis.userProfile.SetFriends(referredUsers);
-
-        globalThis.PairReferential.push(...pairs);
+        localStorage.setItem("PairReferential", JSON.stringify(pairs));
       } catch (error) {
         console.error('Error loading data:', error);
         toast.error('Failed to load game data');

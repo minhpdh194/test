@@ -18,7 +18,6 @@ export default function Home() {
     const fetchSpots = async () => {
       try {
         const response = await $http.get("/get-user-trading");
-        console.log(response);
         const allSpots = response.data;
         const unlockedSpots = allSpots.filter((spot: SpotType) =>
           userProfile.unlocked_pair_ids.map(Number).includes(Number(spot.pair_id))

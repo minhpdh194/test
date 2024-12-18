@@ -7,6 +7,7 @@ import { LongShort } from '@/enums';
 import ListBonus from "./ListBonus";
 import { Utils } from '@/lib/utils';
 import { SpotType } from '@/types/SpotType';
+import { Pair } from '@/types/Pair';
 
 type TradingItemProps = {
     validatedAmounts: any;
@@ -27,6 +28,8 @@ const TradingItem = ({ spots, onValidateAmount }: TradingItemProps) => {
     const allowedLeverages = [0, 1, 2, 3, 5, 7, 10];  // Valid leverage options
     const [positions, setPositions] = useState<Position[]>([]);
     const [, setIsLoading] = useState(false);
+
+    const pairs = JSON.parse(localStorage.getItem("PairReferential") || "[]") as Pair[];
 
     useEffect(() => {
         fetchLatestPositions();
@@ -134,7 +137,7 @@ const TradingItem = ({ spots, onValidateAmount }: TradingItemProps) => {
     const handleValidate = async (pairId: number): Promise<void> => {
         try {
             setIsLoading(true);
-            const pair = globalThis.PairReferential.find(p => p.id == pairId);
+            const pair = pairs.find(p => p.id == pairId);
 
             if (!pair) {
                 console.error("Pair not found for id:", pairId);
@@ -173,7 +176,7 @@ const TradingItem = ({ spots, onValidateAmount }: TradingItemProps) => {
     const handleClose = async (pairId: number) => {
         try {
             setIsLoading(true);
-            const pair = globalThis.PairReferential.find(pair => pair.id === pairId);
+            const pair = pairs.find(pair => pair.id === pairId);
 
             if (positions.find((pos: Position) => pos.position_id === pairId)) {
                 userProfile.ClosePosition(pairId);
@@ -350,7 +353,7 @@ const TradingItem = ({ spots, onValidateAmount }: TradingItemProps) => {
                                     <button
                                         type="button"
                                         className={`rounded flex-1 py-1 px-2 
-                            ${amounts[pair.id] === 0 || leverages[pair.id] === 0
+                            ${amounts[pair.id] === 0 || leverages[pair.id] === 0 || !selectedOptions[pair.id]
                                                 ? 'bg-gray-400 opacity-50 cursor-not-allowed'
                                                 : 'bg-[linear-gradient(142.18deg,#3BB424_21.85%,#2AAA28_78.15%)]'
                                             }`}
