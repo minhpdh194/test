@@ -28,7 +28,7 @@ class PositionController extends Controller
 
     public function getPositions(Request $request)
     {
-        $all = Position::where('user_id', $request->user()->id)->get();
+        $all = Position::where('user_id', $request->user()->telegram_user_id)->get();
         $next_position_id = $all->count() + 1;
         $positions = $all->filter(function ($pos) { return $pos->alive; })->values();
 

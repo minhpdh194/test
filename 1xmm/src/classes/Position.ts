@@ -15,7 +15,7 @@ export type PositionChange = {
 }
 
 export class Position {
-    userId: number;
+    user_id: number;
     position_id: number;
     pair: Pair;
     long_short: LongShort;
@@ -29,7 +29,7 @@ export class Position {
 
     // This opens a new position
     public constructor(position_id: number, pair: Pair, ls: LongShort, amt: number, lev: number, min_end_date: number, bonuses: Bonus[], user_profile: UserProfile) {
-        this.userId = user_profile.id;
+        this.user_id = user_profile.telegram_user_id;
         this.userProfile = user_profile;
         this.position_id = position_id;
         this.pair = pair;
@@ -99,7 +99,7 @@ export class Position {
             
             if (this.min_end_date > Utils.getLastFixingTimestamp()) penalty = penaltyFee;
 
-            const bonus_factors = this.get_performance_adjustment_factors(this.userProfile);
+            const bonus_factors = this.get_performance_adjustment_factors(globalThis.userProfile);
             let pro_rata = Math.min(1.0, (value_date - this.open_date + bonus_factors.total_time_reduction) / (this.min_end_date - this.open_date));
 
             const index_perf = pro_rata * Utils.getIndexPerf(this.pair, this.long_short, this.open_date, value_date) - (1 - pro_rata) * penalty;
@@ -156,11 +156,10 @@ export class Position {
         let penalty = 0.0;
         let total_pnl = 0.0;
 
-        const adj_factors = this.get_performance_adjustment_factors(this.userProfile);
+        const adj_factors = this.get_performance_adjustment_factors(globalThis.userProfile);
         if (this.min_end_date > offset_date) penalty = penaltyFee;
 
         let pro_rata = Math.min(1.0, (offset_date - this.open_date + adj_factors.total_time_reduction) / (this.min_end_date - this.open_date));
-        console.log('pro_rata', pro_rata);
 
         const index_perf = pro_rata * Utils.getIndexPerf(this.pair, this.long_short, this.open_date, offset_date) - (1 - pro_rata) * penalty;
 
@@ -184,7 +183,7 @@ export class Position {
         let total_time_reduction = userProfile.trading_info.time_reduction;
 
         const bonusToDelete = this.check_bonuses();
-        if (bonusToDelete.length > 0) { COMM.bonusExpiry($http, this.userId, bonusToDelete); }
+        if (bonusToDelete.length > 0) { COMM.bonusExpiry($http, this.user_id, bonusToDelete); }
 
         this.bonuses.forEach(b => {
             switch (b.bonus_definition.bonus_type) {

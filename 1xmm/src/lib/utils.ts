@@ -22,7 +22,7 @@ export const Utils = {
 	getNextFixingTimestamp: (): number => get_nextfixing_timestamp(),
 	getPositionTimestamp: (): number => get_position_timestamp(),
 	positionWasZero: async (pair: Pair, long_short: LongShort, _open_date: number, _leverage: Leverages): Promise<boolean> =>
-		check_position(pair, long_short, _open_date, _leverage),
+	check_position(pair, long_short, _open_date, _leverage),
 	formatString: (input: string) => format_string(input),
 	toCamelFormat: (input: string) => { return input.charAt(0).toUpperCase() + input.slice(1); }
 };
@@ -31,7 +31,7 @@ export const Utils = {
  * Functions requiring RPC Calls *
  *********************************/
 
-const hasLeverageBonuses = (bonuses: any): any[] => {	
+const hasLeverageBonuses = (bonuses: any): any[] => {
 	let leverageBonuses: any[] = [];
 
 	if (Array.isArray(bonuses)) {

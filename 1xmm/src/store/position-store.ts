@@ -50,7 +50,7 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
   },
 
   SetUserPositions: (positions: Position[]): void => {
-    console.log("Check running");
+    console.log(positions);
     set(() => ({
       positions: positions
     }));
@@ -59,8 +59,6 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
   AddPosition: async (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[], userProfile: UserProfile): Promise<AddingDetails> => {
     const positionStore = get();
     const existing_position = positionStore.positions.find((p) => p.pair.id == pair.id);
-console.log(positionStore.positions);
-console.log(pair);
 
     if (existing_position) {
       const res = await existing_position.add(pair, ls, amt, lev, bonuses);

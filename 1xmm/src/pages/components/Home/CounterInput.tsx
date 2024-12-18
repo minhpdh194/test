@@ -22,7 +22,6 @@ const CounterInput: React.FC<CounterInputProps> = ({
       }
     } else {
       // Increase the amount by 250
-      console.log(value);
       onChange(value + 250);
     }
   };

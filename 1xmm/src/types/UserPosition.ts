@@ -1,7 +1,7 @@
 import { LongShort } from "@/enums"
 
 export type UserPosition = {
-    position_id: number,
+    id: number,
     pair_id: number,
     long_short: LongShort,
     amount: number,

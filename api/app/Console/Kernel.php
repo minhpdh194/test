@@ -18,6 +18,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         \App\Console\Commands\RunCheckResultPositionJob::class,
+        \App\Console\Commands\Integration::class,
     ];
     /**
      * Định nghĩa các lịch trình của console.
@@ -27,7 +28,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('app:run-check-result-position-job')->hourly();
+        // $schedule->command('app:run-check-result-position-job')->hourly();
+        $schedule->command('app:integration')->everyMinute();
     }
 
     /**

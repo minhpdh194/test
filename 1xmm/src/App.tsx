@@ -55,23 +55,23 @@ function App() {
       if (user.is_bot) throw new Error('No bot');
       if (user.usernames == null) throw new Error();
       let streak = 1;
-      
-      try {
-          // We load user data
-          const response = await COMM.loadUserData($http, user, start_param);
-          setProgress(20);
 
-          streak = response.login_streak;
+      try {
+        // We load user data
+        const response = await COMM.loadUserData($http, user, start_param);
+        setProgress(20);
+
+        streak = response.login_streak;
 
         if (localStorage.getItem("token") === null) {
-          
+
           setBearerToken(response.token);
           setIsFirstLoad(response.first_login);
         }
 
         setProgress(25);
-      
-        const [ syncData,
+
+        const [syncData,
           user_bonuses,
           user_positions,
           referredUsers,
@@ -79,34 +79,37 @@ function App() {
         ] = await Promise.all([
           $http.$get<SyncData>("/clicker/sync"),
           $http.$get<UserBonus[]>("/user_bonuses"),
-          $http.$get<{next_position_id: number; positions: UserPosition[];}>("/user_positions"),
+          $http.$get<{ next_position_id: number; positions: UserPosition[]; }>("/user_positions"),
           $http.$get<Friend[]>("/referred-users"),
           //$http.get("/user_tasks")
         ]);
-        
+
         setProgress(45);
 
         // Load user details and referential data
         const pairs = await $http.$get<Pair[]>("/pairs");
 
         setProgress(55);
-        
+
         // We update the userProfileStore
         syncData['login_streak'] = streak;
-        globalThis.userProfile.UpdateProfile(syncData, positionStore);
-        globalThis.userProfile.positionStore?.SetNextPositionId(user_positions.next_position_id);
-        globalThis.userProfile.SetLevelBenefits(pairs);
 
-        setProgress(65);
-
-        const [ availableBonuses, cleanedPositions, bonusesToDelete ] = syncBonusesAndPositions(user_bonuses, user_positions.positions, pairs, userProfile);
+        const [availableBonuses, cleanedPositions, bonusesToDelete] = syncBonusesAndPositions(user_bonuses, user_positions.positions, pairs, syncData.user);
         // await COMM.bonusExpiry($http, userProfile.id, bonusesToDelete);
         // await COMM.updatePositions(cleanedPositions);
-        
+        console.log(cleanedPositions);
+        positionStore!.available_bonuses = availableBonuses;
+        positionStore!.positions = cleanedPositions;
+        positionStore!.next_position_id = user_positions.next_position_id;
+
+        setProgress(65);
+        globalThis.userProfile.UpdateProfile(syncData, positionStore);
+        globalThis.userProfile.SetLevelBenefits(pairs);
+
         setProgress(95);
-        globalThis.userProfile.positionStore!.SetAvailableBonuses(availableBonuses);
-        globalThis.userProfile.positionStore!.SetUserPositions(cleanedPositions);
+
         globalThis.userProfile.SetFriends(referredUsers);
+
         localStorage.setItem("PairReferential", JSON.stringify(pairs));
       } catch (error) {
         console.error('Error loading data:', error);
@@ -126,28 +129,27 @@ function App() {
 }
 
 function syncBonusesAndPositions(userBonuses: UserBonus[], userPositions: UserPosition[], pairs: Pair[], userProfile: UserProfile): [Bonus[], Position[], number[]] {
-  const openPositions: Position[] = [];
   const availableBonuses: Bonus[] = [];
+  const openPositions: Position[] = [];
   const bonusesToDelete: number[] = [];
 
   userPositions.forEach(p => {
-    const open_position: Position = new Position(p.position_id, pairs.find(e => e.id == p.pair_id)!, p.long_short, p.amount, p.average_leverage, p.min_end_date, [], userProfile);
+    const open_position: Position = new Position(p.id, pairs.find(e => e.id == p.pair_id)!, p.long_short, p.amount, p.average_leverage, p.min_end_date, [], userProfile);
+    // p?.bonuses.forEach(element => { 
+    //   const userBonus = userBonuses.find(b => b.id == element);
+    //   if (!userBonus) throw new Error('Bonus storage mismatch');
+    //   const bonusDef = bonusDefinitions.find(def => def.id == userBonus.bonus_id);
+    //   if (!bonusDef) throw new Error('Bonus definition error');
 
-    p?.bonuses.forEach(element => {
-      const userBonus = userBonuses.find(b => b.id == element);
-      if (!userBonus) throw new Error('Bonus storage mismatch');
-      const bonusDef = bonusDefinitions.find(def => def.id == userBonus.bonus_id);
-      if (!bonusDef) throw new Error('Bonus definition error');
-      
-      // We delete the attached bonus from the list of userBonuses
-      // This process ensures that the bonus is used only 1 time
-      const index = userBonuses.indexOf(userBonus);
-      userBonuses[index] = userBonuses[userBonuses.length - 1];
-      userBonuses.pop();
+    //   // We delete the attached bonus from the list of userBonuses
+    //   // This process ensures that the bonus is used only 1 time
+    //   const index = userBonuses.indexOf(userBonus);
+    //   userBonuses[index] = userBonuses[userBonuses.length - 1];
+    //   userBonuses.pop();
 
-      // We attach the bonus to the Position p
-      if (!open_position.attach_bonus(new Bonus(element, bonusDef))) { bonusesToDelete.push(element); }
-    });
+    //   // We attach the bonus to the Position p
+    //   if (!open_position.attach_bonus(new Bonus(element, bonusDef))) { bonusesToDelete.push(element); }
+    // }); //check later after review all pair features
 
     openPositions.push(open_position);
   });

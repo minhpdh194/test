@@ -172,7 +172,7 @@ const TradingItem = ({ spots, onValidateAmount }: TradingItemProps) => {
             setIsLoading(false);
         }
     };
-    console.log(spots);
+
     const handleClose = async (pairId: number) => {
         try {
             setIsLoading(true);

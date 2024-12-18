@@ -126,6 +126,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
         time_reduction: state.trading_info.time_reduction,
       },
       number_of_stars: syncData.gameData.number_of_stars,
+      positionStore: positionStore,
     }));
   },
 
