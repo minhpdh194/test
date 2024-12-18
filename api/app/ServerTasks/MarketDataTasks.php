@@ -41,15 +41,15 @@ class MarketDataTasks
     {
         $apiUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest';
         // $usdComparedSpots = $this->marketDataService->pairCoin($apiUrl, 'BTC,ETH,BNB,SOL,LINK,UNI,TON,XRP', 'USD');
-        $usdComparedSpots = $this->marketDataService->pairCoin($apiUrl, 'BTC,ETH,BNB,SOL,LINK,UNI,XRP', 'USD');
-        return $usdComparedSpots;
+        $data = $this->marketDataService->pairCoin($apiUrl, 'BTC,ETH,BNB,SOL', 'USD');
+        return $data['data'];
     }
 
     public function getYieldsAndVolatilitiesFromMarket()
     {
-        $ts = now();
+        $createdSpots = [];
         // IF WE DON'T USE THE CREATED SPOTS, SHOULD IT BE KEPT HERE?
-        $createdSpots = $this->getSpotsFromMarket();
+        $crypto_data = $this->getSpotsFromMarket();
         $yields = [];
         $expiry_date_options = $this->math->getOptionDateExpiry();
         $expiry_options = strtoupper(date_format($expiry_date_options, "dMy"));
@@ -71,11 +71,9 @@ class MarketDataTasks
 
         // $url = 'https://www.deribit.com/api/v2';
         $reqId = 0;
-        $collection = collect($createdSpots);
-
         for ($i = 0; $i < count($perps_symbols); $i++) {
             $coin = array_keys($perps_symbols)[$i];
-            $pair = Pair::select('id', 'pair_symbol')->where('pair_symbol', ToolsUtil::getPairSymbol($coin, 'USD'))->first();
+            $pair = Pair::select('id', 'pair_symbol', 'coin_symbol')->where('pair_symbol', ToolsUtil::getPairSymbol($coin, 'USD'))->first();
 
             $url = 'https://www.deribit.com/api/v2/public/get_order_book?instrument_name=' . array_values($perps_symbols)[$i] . '&depth=' . '1';
             // We define the parameters for the get request
@@ -98,18 +96,13 @@ class MarketDataTasks
             $perp_result = $data['result'];
             $perp_price = 0.5 * ($perp_result['best_bid_price'] + $perp_result['best_ask_price']);
 
-            // SHOULDN'T WE USE THE $createdSpots to avoid a call to the database??
-            // $spot = Spot::where('pair_id', $pair->id)->sortByDesc('created_at')->first();
-            $spot = $collection->firstWhere('pair_id', $pair->id);
-            $yields[$coin] = ($perp_price / $spot->current_value - 1.0) / $expiry;
+            $new_spot_value = $crypto_data[$pair->coin_symbol]['quote']['USD']['price'];
+            $yields[$coin] = ($perp_price / $new_spot_value - 1.0) / $expiry;
         }
 
         for ($i = 0; $i < count($options_symbols); $i++) {
             $coin = array_keys($options_symbols)[$i];
-            $pair = Pair::select('id', 'pair_symbol')->where('pair_symbol', ToolsUtil::getPairSymbol($coin, 'USD'))->first();
-
-            // SHOULDN'T WE USE THE $createdSpots to avoid a call to the database??
-            $spot = $collection->firstWhere('pair_id', $pair->id);
+            $pair = Pair::select('id', 'pair_symbol', 'coin_symbol')->where('pair_symbol', ToolsUtil::getPairSymbol($coin, 'USD'))->first();
 
             $url = 'https://www.deribit.com/api/v2/public/get_order_book?instrument_name=' . array_values($options_symbols)[$i] . '&depth=' . '1';
 
@@ -134,47 +127,51 @@ class MarketDataTasks
             if (isset($data['result'])) {
                 $vol = $data['result']['mark_iv'] / 100.0;
             }
-            
+
             $yield = 0.0;
             $fwd = 0.0;
+            $new_spot_value = $crypto_data[$pair->coin_symbol]['quote']['USD']['price'];
 
             if (array_key_exists($coin, $perps_symbols)) {
                 $option_expiry = $this->math->getOptionExpiryYF($now, $expiry_date_options);
                 $yield = $yields[$coin];
-                $fwd = $spot->current_value * (1.0 + $option_expiry * $yields[$coin]);
+                $fwd = $new_spot_value * (1.0 + $option_expiry * $yields[$coin]);
             } else {
                 $option_expiry = $this->math->getOptionExpiryYF($now, $expiry_date_options);
                 if (isset($data['result'])) {
                     $fwd = $data['result']['underlying_price'];
                 }
-                $yield = ($fwd / $spot->current_value - 1.0) / $option_expiry;
+                $yield = ($fwd / $new_spot_value - 1.0) / $option_expiry;
             }
 
             $fwd = round($fwd, 5);
             // Here, we override the vol and yield data since we don't need historical information
 
-            if ($fwd > 0) {
-                VolAndFwd::updateOrCreate(
-                    [
-                        'pair_id' => $pair->id,
-                    ],
-                    [
-                        'yield' => $yield,
-                        'forward' => $fwd,
-                        'volatility' => $vol
-                    ]
-                );
-            }
+            VolAndFwd::updateOrCreate(
+                [
+                    'pair_id' => $pair->id,
+                ],
+                [
+                    'yield' => $yield,
+                    'forward' => $fwd,
+                    'volatility' => $vol
+                ]
+            );
 
 
             // $res[$pair]['fwd'] = $fwd;
             // $res[$pair]['volatility'] = $vol;
 
             $reqId++;
+            $createdSpot = $this->marketDataService->updateOrCreateSpotData($crypto_data[$pair->coin_symbol], $pair, $new_spot_value);
+            if ($createdSpot) {
+                $createdSpots[] = $createdSpot;
+            }
         }
 
         return $createdSpots;
     }
+
 
     public function getCorrelatedParameters($ts)
     {
@@ -261,7 +258,7 @@ class MarketDataTasks
         $createdSpots = $this->getYieldsAndVolatilitiesFromMarket();
         // $correlatedVolsAndFwds = $this->getCorrelatedParameters($ts);
         // $spots = Spot::with('volatility')->orderBy('created_at', 'desc')->limit(count($createdSpots))->get();
-        $returnedSpots = [];
+
         // foreach ($createdSpots as $spot) {
         //     $volatility = VolAndFwd::where('pair_id', $spot->pair_id)->first();
         //     if ($volatility) {
