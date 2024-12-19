@@ -15,8 +15,6 @@ use App\Http\Controllers\PopupController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\BonusController;
 
-use App\Http\Controllers\TelegramBonusController;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -48,9 +46,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/buy-stars', [TelegramStarController::class, 'buyStarPackage']);
 
-    Route::post('/buy-bonus', [TelegramBonusController::class, 'buyBonus']);
-    Route::get('/user_bonuses', [TelegramBonusController::class, 'getBonuses']);
-    Route::post('/expire_bonuses', [TelegramBonusController::class, 'expiry']);
+    Route::post('/buy-bonus', [BonusController::class, 'buyBonus']);
+    Route::get('/user_bonuses', [BonusController::class, 'getBonuses']);
+    Route::post('/expire_bonuses', [BonusController::class, 'expiry']);
 
     require base_path('routes/clicker.php');
 

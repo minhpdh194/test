@@ -13,7 +13,6 @@ const fakeData = {
     id: 1,
     first_name: "John",
     last_name: "Doe",
-    usernames: "1xMM",
     is_bot: false
   },
   start_param: "",

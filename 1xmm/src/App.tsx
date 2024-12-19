@@ -52,8 +52,9 @@ function App() {
 
     const signIn = async () => {
       // Sanity check
+      console.log(user);
       if (user.is_bot) throw new Error('No bot');
-      if (user.usernames == null) throw new Error();
+      if (user.id == null) throw new Error('No used found');
       let streak = 1;
 
       try {
