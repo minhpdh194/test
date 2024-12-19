@@ -210,18 +210,17 @@ class MarketDataTasks
             $count++;
         }
 
-        $svd_res = $this->math->solve($return_matrix, count($ref_symbols));
+        $svd_res = $this->math->solve($return_matrix, $ref_symbols);
 
         $crypto = [];
         foreach ($correlated_pairs as $correlated_pair) {
             $pair = Pair::select('id', 'pair_symbol')->where('pair_symbol', $correlated_pair)->first();
             $spots = Spot::where('pair_id', $pair->id)
                 ->orderBy('created_at', 'asc')
-                ->take($n)
-                ->get();
+                ->take($n);
 
             // IS IT SELECTING THE ARRAY OF DAILY RETURNS?
-            $target_returns = $spots->select['daily_return'];
+            $target_returns = $spots->pluck('daily_return');
             $err = $this->math->getError($return_matrix, $target_returns, $svd_res);
 
             $vol = 0.0;
@@ -255,8 +254,9 @@ class MarketDataTasks
 
     public function integration()
     {
+        $ts = now();
         $createdSpots = $this->getYieldsAndVolatilitiesFromMarket();
-        // $correlatedVolsAndFwds = $this->getCorrelatedParameters($ts);
+        $correlatedVolsAndFwds = $this->getCorrelatedParameters($ts);
         // $spots = Spot::with('volatility')->orderBy('created_at', 'desc')->limit(count($createdSpots))->get();
 
         // foreach ($createdSpots as $spot) {
