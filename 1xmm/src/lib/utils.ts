@@ -31,7 +31,7 @@ export const Utils = {
  * Functions requiring RPC Calls *
  *********************************/
 
-const hasLeverageBonuses = (bonuses: any): any[] => {
+const hasLeverageBonuses = (bonuses: any): any[] => {	
 	let leverageBonuses: any[] = [];
 
 	if (Array.isArray(bonuses)) {
