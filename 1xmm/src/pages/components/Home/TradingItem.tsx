@@ -16,7 +16,7 @@ type TradingItemProps = {
 };
 
 const TradingItem = ({ spots, onValidateAmount }: TradingItemProps) => {
-    const [, setTimeBonus] = useState(null);
+    // const [, setTimeBonus] = useState(null);
     const [bonusData, setBonusData] = useState<any[]>([]);
     const [openBonusDrawer, setOpenBonusDrawer] = useState(false);
     const [selectedBonuses, setSelectedBonuses] = useState<any[]>([]); // Store selected bonuses

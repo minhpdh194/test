@@ -31,71 +31,71 @@ export const Utils = {
  * Functions requiring RPC Calls *
  *********************************/
 
-const hasLeverageBonuses = (bonuses: any): any[] => {	
-	let leverageBonuses: any[] = [];
-
-	if (Array.isArray(bonuses)) {
-		leverageBonuses = bonuses.filter(bonus =>
-			bonus.end_date > Utils.getPositionTimestamp() &&
-			bonus.bonus_type.bonus_type === "Leverage"
-		);
-	} else if (bonuses.bonus_type && bonuses.bonus_type.bonus_type === "Leverage") {
-		leverageBonuses.push(bonuses);
-	}
-
-	return leverageBonuses;
-}
-
-const hasPositiveLeverageBonuses = (bonuses: any): any[] => {
-	let leverageBonuses: any[] = [];
-
-	if (Array.isArray(bonuses)) {
-		leverageBonuses = bonuses.filter(bonus =>
-			bonus.end_date > Utils.getPositionTimestamp() &&
-			bonus.bonus_type.bonus_type === "PositiveLeverage"
-		);
-	} else if (bonuses.bonus_type && bonuses.bonus_type.bonus_type === "PositiveLeverage") {
-		leverageBonuses.push(bonuses);
-	}
-
-	return leverageBonuses;
-}
-
-const hasCapitalLeverageBonuses = (bonuses: any): any[] => {
-	let leverageBonuses: any[] = [];
-
-	if (Array.isArray(bonuses)) {
-		leverageBonuses = bonuses.filter(bonus =>
-			bonus.end_date > Utils.getPositionTimestamp() &&
-			bonus.bonus_type.bonus_type === "CapitalProtection"
-		);
-	} else if (bonuses.bonus_type && bonuses.bonus_type.bonus_type === "CapitalProtection") {
-		leverageBonuses.push(bonuses);
-	}
-
-	return leverageBonuses;
-}
-
 const get_index_perf = (_pair: Pair, _long_short: LongShort, _open_date: number, _value_date: number): number => {
 	return 0;
 }
 
-const long_position_ratio = (totalLongAmount: { [key: string]: any }, totalShortAmount: { [key: string]: any }): number => {
-	const shortValue = totalShortAmount[0]?.short_value || 0;
-	const longValue = totalLongAmount[0]?.long_value || 0;
+// const hasLeverageBonuses = (bonuses: any): any[] => {	
+// 	let leverageBonuses: any[] = [];
 
-	if (!longValue || !shortValue) return 0;
-	return shortValue / longValue;
-}
+// 	if (Array.isArray(bonuses)) {
+// 		leverageBonuses = bonuses.filter(bonus =>
+// 			bonus.end_date > Utils.getPositionTimestamp() &&
+// 			bonus.bonus_type.bonus_type === "Leverage"
+// 		);
+// 	} else if (bonuses.bonus_type && bonuses.bonus_type.bonus_type === "Leverage") {
+// 		leverageBonuses.push(bonuses);
+// 	}
 
-const short_position_ratio = (totalLongAmount: { [key: string]: any }, totalShortAmount: { [key: string]: any }): number => {
+// 	return leverageBonuses;
+// }
 
-	const shortValue = totalShortAmount[0]?.short_value || 0;
-	const longValue = totalLongAmount[0]?.long_value || 0;
+// const hasPositiveLeverageBonuses = (bonuses: any): any[] => {
+// 	let leverageBonuses: any[] = [];
 
-	if (!longValue || !shortValue) return 0;
-	return longValue / shortValue;
-}
+// 	if (Array.isArray(bonuses)) {
+// 		leverageBonuses = bonuses.filter(bonus =>
+// 			bonus.end_date > Utils.getPositionTimestamp() &&
+// 			bonus.bonus_type.bonus_type === "PositiveLeverage"
+// 		);
+// 	} else if (bonuses.bonus_type && bonuses.bonus_type.bonus_type === "PositiveLeverage") {
+// 		leverageBonuses.push(bonuses);
+// 	}
+
+// 	return leverageBonuses;
+// }
+
+// const hasCapitalLeverageBonuses = (bonuses: any): any[] => {
+// 	let leverageBonuses: any[] = [];
+
+// 	if (Array.isArray(bonuses)) {
+// 		leverageBonuses = bonuses.filter(bonus =>
+// 			bonus.end_date > Utils.getPositionTimestamp() &&
+// 			bonus.bonus_type.bonus_type === "CapitalProtection"
+// 		);
+// 	} else if (bonuses.bonus_type && bonuses.bonus_type.bonus_type === "CapitalProtection") {
+// 		leverageBonuses.push(bonuses);
+// 	}
+
+// 	return leverageBonuses;
+// }
+
+// const long_position_ratio = (totalLongAmount: { [key: string]: any }, totalShortAmount: { [key: string]: any }): number => {
+// 	const shortValue = totalShortAmount[0]?.short_value || 0;
+// 	const longValue = totalLongAmount[0]?.long_value || 0;
+
+// 	if (!longValue || !shortValue) return 0;
+// 	return shortValue / longValue;
+// }
+
+// const short_position_ratio = (totalLongAmount: { [key: string]: any }, totalShortAmount: { [key: string]: any }): number => {
+
+// 	const shortValue = totalShortAmount[0]?.short_value || 0;
+// 	const longValue = totalLongAmount[0]?.long_value || 0;
+
+// 	if (!longValue || !shortValue) return 0;
+// 	return longValue / shortValue;
+// }
 
 const check_position = async (_pair: Pair, _long_short: LongShort, _open_date: number, _lev: Leverages): Promise<boolean> => {
 	try {

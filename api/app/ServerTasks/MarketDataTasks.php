@@ -256,7 +256,7 @@ class MarketDataTasks
     {
         $ts = now();
         $createdSpots = $this->getYieldsAndVolatilitiesFromMarket();
-        $correlatedVolsAndFwds = $this->getCorrelatedParameters($ts);
+        // $correlatedVolsAndFwds = $this->getCorrelatedParameters($ts);
         // $spots = Spot::with('volatility')->orderBy('created_at', 'desc')->limit(count($createdSpots))->get();
 
         // foreach ($createdSpots as $spot) {

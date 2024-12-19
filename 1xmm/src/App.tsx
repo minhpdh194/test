@@ -94,7 +94,7 @@ function App() {
         // We update the userProfileStore
         syncData['login_streak'] = streak;
 
-        const [availableBonuses, cleanedPositions, bonusesToDelete] = syncBonusesAndPositions(user_bonuses, user_positions.positions, pairs, syncData.user);
+        const [availableBonuses, cleanedPositions] = syncBonusesAndPositions(user_bonuses, user_positions.positions, pairs, syncData.user);
         // await COMM.bonusExpiry($http, userProfile.id, bonusesToDelete);
         // await COMM.updatePositions(cleanedPositions);
         console.log(cleanedPositions);
@@ -128,10 +128,10 @@ function App() {
   return <RouterProvider router={router} />;
 }
 
-function syncBonusesAndPositions(userBonuses: UserBonus[], userPositions: UserPosition[], pairs: Pair[], userProfile: UserProfile): [Bonus[], Position[], number[]] {
+function syncBonusesAndPositions(userBonuses: UserBonus[], userPositions: UserPosition[], pairs: Pair[], userProfile: UserProfile): [Bonus[], Position[]] {
   const availableBonuses: Bonus[] = [];
   const openPositions: Position[] = [];
-  const bonusesToDelete: number[] = [];
+  // const bonusesToDelete: number[] = [];
 
   userPositions.forEach(p => {
     const open_position: Position = new Position(p.id, pairs.find(e => e.id == p.pair_id)!, p.long_short, p.amount, p.average_leverage, p.min_end_date, [], userProfile);
@@ -161,7 +161,7 @@ function syncBonusesAndPositions(userBonuses: UserBonus[], userPositions: UserPo
     availableBonuses.push(new Bonus(b.id, bonusDef));
   });
 
-  return [availableBonuses, openPositions, bonusesToDelete];
+  return [availableBonuses, openPositions];
 }
 
 export default App;
