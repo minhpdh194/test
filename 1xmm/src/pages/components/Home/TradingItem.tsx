@@ -144,8 +144,8 @@ const TradingItem = ({ spots, onValidateAmount }: TradingItemProps) => {
                 return;
             }
 
-            const amt = parseFloat(amounts[pairId]);
-            onValidateAmount(amt));
+            const amt = Number(amounts[pairId]);
+            onValidateAmount(amt);
 
             userProfile.AddPosition(pair, selectedOptions[pairId], amt || 0, leverages[pairId] || 0, selectedBonuses);
             setPositions(userProfile.positionStore?.positions ?? []);

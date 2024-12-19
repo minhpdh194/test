@@ -6,11 +6,10 @@ import Header from "../components/Header";
 import { useEffect, useState } from "react";
 import pusher from "@/lib/pusher";
 import { SpotType } from "@/types/SpotType";
-import { $http } from "@/lib/http";
 
 export default function Home() {
   const [spots, setSpots] = useState<SpotType[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading] = useState(true);
   const [validatedAmount, setValidatedAmount] = useState(0);
 
   useEffect(() => {

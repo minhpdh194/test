@@ -72,7 +72,7 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
 
     if (existing_position) {
       // hence the code below should update the position in positions directly
-      await existing_position.update(pair, ls, amt, lev, bonuses);
+      const res = await existing_position.add(ls, amt, lev, bonuses);
 
       try {
         await $http.post('/clicker/update-position', existing_position);
@@ -85,8 +85,8 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
       }
       return {
         success: true,
-        amount_adjustment: existing_position.amount_adjustment,
-        realized_pnl: existing_position.realized_pnl
+        amount_adjustment: res.amount_adjustment,
+        realized_pnl: res.realized_pnl
       };
     } else {
       const position: Position = new Position(get().next_position_id!, pair, ls, amt, lev, Utils.getPositionTimestamp() + 21600, bonuses);

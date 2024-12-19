@@ -49,13 +49,13 @@ export class Position {
         }
 
         return false;
-    }
+        }
 
-    public async isZero() {
+    public async update() {
         // We should check if the option has 0 perf
     }
 
-    public async update(_pair: Pair, ls: LongShort, amt: number, lev: Leverages, bonuses: Bonus[]) {
+    public async add(ls: LongShort, amt: number, lev: Leverages, bonuses: Bonus[]) {
         if (ls === this.long_short) {
             const lev_amt = this.amount * this.leverage;
             const new_lev_amt = amt * (lev as number);
@@ -129,23 +129,23 @@ export class Position {
         }
     }
 
-    public add(_pair: Pair, ls: LongShort, amt: number, lev: Leverages, bonuses: Bonus[]) {
-        const pnl = -this.amount;
-        this.long_short = ls;
-        this.open_date = Utils.getPositionTimestamp();
-        this.amount = amt;
-        this.leverage = lev;
-        this.performance = 0.0;
+    //public add(_pair: Pair, ls: LongShort, amt: number, lev: Leverages, bonuses: Bonus[]) {
+    //    const pnl = -this.amount;
+    //    this.long_short = ls;
+    //    this.open_date = Utils.getPositionTimestamp();
+    //    this.amount = amt;
+    //    this.leverage = lev;
+    //    this.performance = 0.0;
 
-        // We attach new bonuses
-        bonuses.forEach(b => this.attach_bonus(b));
-        toast.success("Position added successfully");
+    //    // We attach new bonuses
+    //    bonuses.forEach(b => this.attach_bonus(b));
+    //    toast.success("Position added successfully");
 
-        return {
-            amount_adjustment: -amt,
-            realized_pnl: pnl
-        };
-    }
+    //    return {
+    //        amount_adjustment: -amt,
+    //        realized_pnl: pnl
+    //    };
+    //}
 
     public get_PnL(offset_date: number): number {
 

@@ -40,9 +40,9 @@ class MarketDataTasks
     public function getSpotsFromMarket()
     {
         $apiUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest';
-        $data = $this->marketDataService->pairCoin($apiUrl, 'BTC,ETH,BNB,SOL,LINK,UNI,XRP', 'USD');
-        // $data = $this->marketDataService->pairCoin($apiUrl, 'BTC,ETH,BNB,SOL', 'USD');
-        return $data['data'];
+        // $usdComparedSpots = $this->marketDataService->pairCoin($apiUrl, 'BTC,ETH,BNB,SOL,LINK,UNI,TON,XRP', 'USD');
+        $usdComparedSpots = $this->marketDataService->pairCoin($apiUrl, 'BTC,ETH,BNB,SOL,LINK,UNI,XRP', 'USD');
+        return $usdComparedSpots['data'];
     }
 
     public function getYieldsAndVolatilitiesFromMarket()
@@ -132,7 +132,7 @@ class MarketDataTasks
             $fwd = 0.0;
             $new_spot_value = $crypto_data[$pair->coin_symbol]['quote']['USD']['price'];
 
-            if (array_key_exists($coin, $perps_symbols)) {
+            if (array_key_exists($coin, $yields)) {
                 $option_expiry = $this->math->getOptionExpiryYF($now, $expiry_date_options);
                 $yield = $yields[$coin];
                 $fwd = $new_spot_value * (1.0 + $option_expiry * $yields[$coin]);

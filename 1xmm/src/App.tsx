@@ -14,7 +14,6 @@ import { UserBonus } from "./types/UserBonus";
 import { UserPosition } from "./types/UserPosition";
 import { Pair } from "./types/Pair";
 import { Position } from "./classes/Position";
-import { UserProfile } from "./types/UserProfile";
 import { Bonus } from "./classes/Bonus";
 import { bonusDefinitions } from "./referential/bonusDefinitions";
 import { Friend } from "./types/Friend";
@@ -52,9 +51,8 @@ function App() {
 
     const signIn = async () => {
       // Sanity check
-      console.log(user);
       if (user.is_bot) throw new Error('No bot');
-      if (user.id == null) throw new Error('No used found');
+      if (user.id == null) throw new Error('No user found');
       let streak = 1;
 
       try {
@@ -94,13 +92,13 @@ function App() {
 
         // We update the userProfileStore
         syncData['login_streak'] = streak;
-
-        const [availableBonuses, cleanedPositions] = syncBonusesAndPositions(user_bonuses, user_positions.positions, pairs, syncData.user);
+        //const [availableBonuses, cleanedPositions, bonusToDelete] = syncBonusesAndPositions(user_bonuses, user_positions.positions, pairs);
+        const [availableBonuses, cleanedPositions] = syncBonusesAndPositions(user_bonuses, user_positions.positions, pairs);
         // await COMM.bonusExpiry($http, userProfile.id, bonusesToDelete);
         // await COMM.updatePositions(cleanedPositions);
         console.log(cleanedPositions);
-        positionStore!.available_bonuses = availableBonuses;
-        positionStore!.positions = cleanedPositions;
+        positionStore!.UpdateAvailableBonuses(availableBonuses);
+        positionStore!.SetUserPositions(cleanedPositions);
         positionStore!.next_position_id = user_positions.next_position_id;
 
         setProgress(65);
@@ -129,28 +127,30 @@ function App() {
   return <RouterProvider router={router} />;
 }
 
-function syncBonusesAndPositions(userBonuses: UserBonus[], userPositions: UserPosition[], pairs: Pair[], userProfile: UserProfile): [Bonus[], Position[]] {
+function syncBonusesAndPositions(userBonuses: UserBonus[], userPositions: UserPosition[], pairs: Pair[]): [Bonus[], Position[], number[]] {
   const availableBonuses: Bonus[] = [];
   const openPositions: Position[] = [];
-  // const bonusesToDelete: number[] = [];
+  const bonusesToDelete: number[] = [];
 
   userPositions.forEach(p => {
-    const open_position: Position = new Position(p.id, pairs.find(e => e.id == p.pair_id)!, p.long_short, p.amount, p.average_leverage, p.min_end_date, [], userProfile);
-    // p?.bonuses.forEach(element => { 
-    //   const userBonus = userBonuses.find(b => b.id == element);
-    //   if (!userBonus) throw new Error('Bonus storage mismatch');
-    //   const bonusDef = bonusDefinitions.find(def => def.id == userBonus.bonus_id);
-    //   if (!bonusDef) throw new Error('Bonus definition error');
+    const open_position: Position = new Position(p.id, pairs.find(e => e.id == p.pair_id)!, p.long_short, p.amount, p.average_leverage, p.min_end_date, []);
 
-    //   // We delete the attached bonus from the list of userBonuses
-    //   // This process ensures that the bonus is used only 1 time
-    //   const index = userBonuses.indexOf(userBonus);
-    //   userBonuses[index] = userBonuses[userBonuses.length - 1];
-    //   userBonuses.pop();
 
-    //   // We attach the bonus to the Position p
-    //   if (!open_position.attach_bonus(new Bonus(element, bonusDef))) { bonusesToDelete.push(element); }
-    // }); //check later after review all pair features
+    p?.bonuses.forEach(element => { 
+       const userBonus = userBonuses.find(b => b.id == element);
+       if (!userBonus) throw new Error('Bonus storage mismatch');
+       const bonusDef = bonusDefinitions.find(def => def.id == userBonus.bonus_id);
+       if (!bonusDef) throw new Error('Bonus definition error');
+
+       // We delete the attached bonus from the list of userBonuses
+       // This process ensures that the bonus is used only 1 time
+       const index = userBonuses.indexOf(userBonus);
+       userBonuses[index] = userBonuses[userBonuses.length - 1];
+       userBonuses.pop();
+
+       // We attach the bonus to the Position p
+       if (!open_position.attach_bonus(new Bonus(element, bonusDef))) { bonusesToDelete.push(element); }
+      }); //check later after review all pair features
 
     openPositions.push(open_position);
   });
@@ -162,7 +162,7 @@ function syncBonusesAndPositions(userBonuses: UserBonus[], userPositions: UserPo
     availableBonuses.push(new Bonus(b.id, bonusDef));
   });
 
-  return [availableBonuses, openPositions];
+  return [availableBonuses, openPositions, bonusesToDelete];
 }
 
 export default App;
