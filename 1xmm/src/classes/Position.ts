@@ -25,12 +25,10 @@ export class Position {
     open_date: number;
     min_end_date: number;
     performance: number;
-    userProfile: UserProfile;
 
     // This opens a new position
-    public constructor(position_id: number, pair: Pair, ls: LongShort, amt: number, lev: number, min_end_date: number, bonuses: Bonus[], user_profile: UserProfile) {
-        this.user_id = user_profile.telegram_user_id;
-        this.userProfile = user_profile;
+    public constructor(position_id: number, pair: Pair, ls: LongShort, amt: number, lev: number, min_end_date: number, bonuses: Bonus[]) {
+        this.user_id = globalThis.userProfile.telegram_user_id;
         this.position_id = position_id;
         this.pair = pair;
         this.long_short = ls;
@@ -53,14 +51,16 @@ export class Position {
         return false;
     }
 
+    public async isZero() {
+        // We should check if the option has 0 perf
+    }
+
     public async update(_pair: Pair, ls: LongShort, amt: number, lev: Leverages, bonuses: Bonus[]) {
         if (ls === this.long_short) {
             const lev_amt = this.amount * this.leverage;
             const new_lev_amt = amt * (lev as number);
             this.performance = this.performance * lev_amt / (lev_amt + new_lev_amt);
-            const result = parseFloat(`${this.amount }`) + parseFloat(`${amt}`);
-            this.amount = result;
-            console.log(result);
+            this.amount += amt;
             this.leverage = (lev_amt + new_lev_amt) / this.amount;
 
             bonuses.forEach(b => this.attach_bonus(b));
@@ -90,8 +90,7 @@ export class Position {
                 } else {
                     pnl = bonus_factors.total_leverage * index_perf * amt * (1 - bonus_factors.total_capital_protection);
                 }
-                const result = parseFloat(`${this.amount }`) - parseFloat(`${amt}`);
-                this.amount = result;
+                this.amount += amt;
                 bonuses.forEach(b => this.attach_bonus(b));
                 toast.success("Position updated successfully");
 
@@ -109,8 +108,7 @@ export class Position {
 
                 this.performance = 0;
                 const prev_amt = this.amount;
-                const result = parseFloat(`${amt * 100}`) - parseFloat(`${prev_amt * amt}`) / 100;
-                this.amount = result;
+                this.amount = amt - prev_amt;
                 this.long_short = this.long_short == LongShort.Long
                     ? LongShort.Short
                     : LongShort.Long;
@@ -131,7 +129,7 @@ export class Position {
         }
     }
 
-    public async add(_pair: Pair, ls: LongShort, amt: number, lev: Leverages, bonuses: Bonus[]) {
+    public add(_pair: Pair, ls: LongShort, amt: number, lev: Leverages, bonuses: Bonus[]) {
         const pnl = -this.amount;
         this.long_short = ls;
         this.open_date = Utils.getPositionTimestamp();

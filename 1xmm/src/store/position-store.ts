@@ -27,8 +27,8 @@ export type PositionStore = {
   AddPosition: (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[], userProfile: UserProfile) => Promise<AddingDetails>;
   UpdatePosition: (position_id: number) => Promise<void>;
   ClosePosition: (position_id: number) => Promise<ClosingDetails>;
-  SetNextPositionId: (next_position_id: number) => void;
-  SetAvailableBonuses: (available_bonuses: Bonus[]) => void;
+  UpdateAvailableBonuses: (available_bonuses: Bonus[]) => void;
+  AddNewBonus: (bonus: Bonus) => void;
   SetUserPositions: (positions: Position[]) => void;
 }
 
@@ -37,54 +37,66 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
   available_bonuses: [],
   positions: [],
 
-  SetNextPositionId: (next_position_id: number): void => {
-    set(() => ({
-      next_position_id: next_position_id
-    }));
+  UpdateAvailableBonuses: (available_bonuses: Bonus[]): void => {
+    const stored_available_bonuses = get().available_bonuses;
+
+    // First we remove bonuses which are no more available (i.e. not in available_bonuses)
+    for (let i = stored_available_bonuses.length - 1; i > 0; i--) {
+      if (!available_bonuses.find(ab => ab.id == stored_available_bonuses[i].id)) {
+        stored_available_bonuses[i] = stored_available_bonuses[stored_available_bonuses.length - 1];
+        stored_available_bonuses.pop();
+      };
+    }
+
+    // We add bonuses which are available but not in stored_available_bonuses
+    available_bonuses.forEach(b => { if (!stored_available_bonuses.find(sb => sb.id == b.id)) stored_available_bonuses.push(b); });
   },
 
-  SetAvailableBonuses: (available_bonuses: Bonus[]): void => {
-    set(() => ({
-      available_bonuses: available_bonuses
-    }));
+  AddNewBonus: (bonus: Bonus): void => {
+    get().available_bonuses.push(bonus);
   },
 
   SetUserPositions: (positions: Position[]): void => {
-    set(() => ({
-      positions: positions
-    }));
+    const current_positions = get().positions;
+
+    // Sanity check
+    // If we sent the positions, the current positions length must always be 0
+    if (current_positions.length > 0) throw new Error();
+
+    current_positions.push(...positions);
   },
 
-  AddPosition: async (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[], userProfile: UserProfile): Promise<AddingDetails> => {
-    const positionStore = get();
-    const existing_position = positionStore.positions.find((p) => p.pair.id == pair.id && p.long_short === ls);
-console.log(existing_position);
+  AddPosition: async (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]): Promise<AddingDetails> => {
+    // existing_position should be a pointer...
+    const existing_position = get().positions.find(p => p.pair.id == pair.id && p.long_short === ls);
+
     if (existing_position) {
-      const res = await existing_position.update(pair, ls, amt, lev, bonuses);
+      // hence the code below should update the position in positions directly
+      await existing_position.update(pair, ls, amt, lev, bonuses);
 
       try {
         await $http.post('/clicker/update-position', existing_position);
+
         set((state) => ({
           next_position_id: state.next_position_id! + 1,
-          positions: state.positions.map((pos) => pos.position_id == existing_position.position_id ? existing_position : pos),
         }));
       } catch (error) {
         console.error('Failed to add position:', error);
       }
       return {
         success: true,
-        amount_adjustment: res.amount_adjustment,
-        realized_pnl: res.realized_pnl
+        amount_adjustment: existing_position.amount_adjustment,
+        realized_pnl: existing_position.realized_pnl
       };
     } else {
-      const position: Position = new Position(get().next_position_id!, pair, ls, amt, lev, Utils.getPositionTimestamp() + 21600, bonuses, userProfile);
-      const res = await position.add(pair, ls, amt, lev, bonuses);
+      const position: Position = new Position(get().next_position_id!, pair, ls, amt, lev, Utils.getPositionTimestamp() + 21600, bonuses);
       
       try {
         await $http.post('/clicker/add-position', position);
+        get().positions.push(position);
+
         set((state) => ({
           next_position_id: state.next_position_id! + 1,
-          positions: [...state.positions, position],
         }));
         
         return {
@@ -96,8 +108,8 @@ console.log(existing_position);
         console.error('Failed to add position:', error);
         return {
           success: false,
-          amount_adjustment: res.amount_adjustment,
-          realized_pnl: res.realized_pnl
+          amount_adjustment: 0,
+          realized_pnl: 0
         };
       }
     }

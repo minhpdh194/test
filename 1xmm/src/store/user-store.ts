@@ -104,6 +104,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
 
   UpdateProfile: (syncData: SyncData, positionStore: PositionStore) => {
     get().positionStore = positionStore;
+    
     set((state) => ({
       id: syncData.user.id,
       telegram_user_id: syncData.user.telegram_user_id,
@@ -125,8 +126,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
         capital_protection: state.trading_info.capital_protection,
         time_reduction: state.trading_info.time_reduction,
       },
-      number_of_stars: syncData.gameData.number_of_stars,
-      positionStore: positionStore,
+      number_of_stars: syncData.gameData.number_of_stars
     }));
   },
 

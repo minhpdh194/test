@@ -14,23 +14,28 @@ export default function Home() {
   const [validatedAmount, setValidatedAmount] = useState(0);
 
   useEffect(() => {
-    //fetch spots immediately when run the app first time or unlocked_pair have any changes
-    const fetchSpots = async () => {
-      try {
-        const response = await $http.get("/get-user-trading");
-        const allSpots = response.data;
-        const unlockedSpots = allSpots.filter((spot: SpotType) =>
-          userProfile.unlocked_pair_ids.map(Number).includes(Number(spot.pair_id))
-        );
-        setSpots(unlockedSpots);
-      } catch (error) {
-        console.error("Error fetching spots:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchSpots();
+    /*****************************************
+     * The code below should never be called *
+     * ***************************************/
+    // If this code is required, it's because there is an issue in the code
+    //fetch spots immediately when run the app first time or unlocked_pair have any changes
+    //const fetchSpots = async () => {
+    //  try {
+    //    const response = await $http.get("/get-user-trading");
+    //    const allSpots = response.data;
+    //    const unlockedSpots = allSpots.filter((spot: SpotType) =>
+    //      userProfile.unlocked_pair_ids.map(Number).includes(Number(spot.pair_id))
+    //    );
+    //    setSpots(unlockedSpots);
+    //  } catch (error) {
+    //    console.error("Error fetching spots:", error);
+    //  } finally {
+    //    setLoading(false);
+    //  }
+    //};
+
+    //fetchSpots();
 
     const channel = pusher.subscribe("pairs");
 

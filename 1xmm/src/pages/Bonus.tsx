@@ -4,44 +4,24 @@ import { $http } from "@/lib/http";
 import DetailBonus from "./components/Bonus/DetailBonus";
 import { toast } from "react-toastify";
 import { useTonConnectUI } from "@tonconnect/ui-react";
-import { BonusTypes } from "@/enums";
 import { bonusDefinitions } from "@/referential/bonusDefinitions";
-import { Utils } from "@/lib/utils";
-
-const convertSecondsToHours = (seconds: number): string => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const remainingSeconds = seconds % 60;
-
-    const formattedHours = hours.toString().padStart(2, '0');
-    const formattedMinutes = minutes.toString().padStart(2, '0');
-    const formattedSeconds = remainingSeconds.toString().padStart(2, '0');
-
-    return `${formattedHours}h${formattedMinutes}m${formattedSeconds}s`;
-};
+import { BonusDefinition } from "@/types/BonusDefinition";
+import { BonusTerms, BonusTypes } from "@/enums";
 
 export default function Bonus() {
     const [openBonusDrawer, setOpenBonusDrawer] = useState(false);
+    const [bonusDef, setBonusDef] = useState<any[]>([]);
     const [leverageData, setLeverageData] = useState<any[]>([]);
     const [positiveLeverageData, setPositiveLeverageData] = useState<any[]>([]);
     const [capitalProtectionData, setCapitalProtectionData] = useState<any[]>([]);
     const [timeReductionData, setTimeReductionData] = useState<any[]>([]);
     const [friendData, setFriendData] = useState<any[]>([]);
-    const [countdown, setCountdown] = useState<{ [key: string]: number }>({});
     const [tonWalletAddress, setTonWalletAddress] = useState<string | null>(null);
     const [tonConnectUI] = useTonConnectUI();
 
     const updateBonusData = async () => {
         try {
-            const telegramResponse = await $http.get("/user_bonuses");
-            const filteredBoughtBonuses = bonusDefinitions.filter((item: any) => telegramResponse.data.includes(item.id));
-            console.log(filteredBoughtBonuses);
-
-            setLeverageData(filteredBoughtBonuses.filter((item: any) => item.bonus_type === 0));
-            setPositiveLeverageData(filteredBoughtBonuses.filter((item: any) => item.bonus_type === 1));
-            setCapitalProtectionData(filteredBoughtBonuses.filter((item: any) => item.bonus_type === 2));
-            setTimeReductionData(filteredBoughtBonuses.filter((item: any) => item.bonus_type === 3));
-            setFriendData(filteredBoughtBonuses.filter((item: any) => item.bonus_type === 4));
+            throw new Error("Need to send update of buying purchase to server");
         } catch (error) {
             console.error("Error fetching bonus data:", error);
         }
@@ -63,24 +43,23 @@ export default function Bonus() {
     useEffect(() => {
         const fetchBonusData = async () => {
             try {
-                const telegramResponse = await $http.get("/user_bonuses");
-                const filteredBoughtBonuses = bonusDefinitions.filter((item: any) => telegramResponse.data.includes(item.id));
-                console.log(filteredBoughtBonuses);
+                const telegramResponse = bonusDefinitions;
+                setBonusDef([...telegramResponse]);
 
-                setLeverageData(filteredBoughtBonuses.filter((item: any) => item.bonus_type === 0));
-                setPositiveLeverageData(filteredBoughtBonuses.filter((item: any) => item.bonus_type === 1));
-                setCapitalProtectionData(filteredBoughtBonuses.filter((item: any) => item.bonus_type === 2));
-                setTimeReductionData(filteredBoughtBonuses.filter((item: any) => item.bonus_type === 3));
-                setFriendData(filteredBoughtBonuses.filter((item: any) => item.bonus_type === 4));
+                setLeverageData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.Leverage));
+                setPositiveLeverageData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.PositiveLeverage));
+                setCapitalProtectionData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.CapitalProtection));
+                setTimeReductionData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.TimeReduction));
+                setFriendData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.Friends));
 
                 const countdownData: { [key: string]: number } = {};
-                telegramResponse.data.forEach((bonus: any) => {
-                    if (bonus.end_date) {
-                        const remainingTime = bonus.end_date - Math.floor(Date.now() / 1000);
-                        countdownData[bonus.id] = remainingTime > 0 ? remainingTime : 0;
+                telegramResponse.forEach((bonus: BonusDefinition) => {
+                    if (bonus.duration != BonusTerms.None) {
+                        countdownData[bonus.id] = bonus.duration;
                     }
                 });
-                setCountdown(countdownData);
+                // No need countdown here...
+                //setCountdown(countdownData);
             } catch (error) {
                 console.error("Error fetching bonus data:", error);
             }
@@ -89,75 +68,70 @@ export default function Bonus() {
         fetchBonusData();
     }, []);
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCountdown((prevCountdown) => {
-                const updatedCountdown = { ...prevCountdown };
-                Object.keys(updatedCountdown).forEach((key) => {
-                    if (updatedCountdown[key] > 0) {
-                        updatedCountdown[key] -= 1;
-                    }
-                });
-                return updatedCountdown;
-            });
-        }, 1000);
-
-        return () => clearInterval(interval);
-    }, []);
+    // What is the use of this function?
+    // Why do we have a countdown in the bonus area, where users are only supposed to buy?
+    //useEffect(() => {
+    //    const interval = setInterval(() => {
+    //        setCountdown((prevCountdown) => {
+    //            const updatedCountdown = { ...prevCountdown };
+    //            Object.keys(updatedCountdown).forEach((key) => {
+    //                if (updatedCountdown[key] > 0) {
+    //                    updatedCountdown[key] -= 1;
+    //                }
+    //            });
+    //            return updatedCountdown;
+    //        });
+    //    }, 1000);
+    //
+    //    return () => clearInterval(interval);
+    //}, []);
 
     const renderBonusItem = (bonus: any) => {
-        let formattedDuration = "";
-        let countdownClass = "text-white";
-
-        if (countdown[bonus.id] !== undefined) {
-            const remainingTime = countdown[bonus.id];
-            if (remainingTime > 0) {
-                formattedDuration = convertSecondsToHours(remainingTime);
-                countdownClass = "text-green-500";
-            } else {
-                formattedDuration = "Expired";
-                countdownClass = "text-red-500";
+        const toString = (bonusType: BonusTypes) => {
+            switch(bonusType)
+            {
+                case BonusTypes.Leverage: return "Leverage";
+                case BonusTypes.CapitalProtection: return "Capital Protection";
+                case BonusTypes.PositiveLeverage: return "Positive Leverage";
+                case BonusTypes.TimeReduction: return "Time Reduction";
+                case BonusTypes.Friends: return "Friends";
             }
-        } else {
-            formattedDuration = convertSecondsToHours(bonus.duration);
         }
 
-
         return (
-            <div key={bonus.id} className="w-full bg-[#32363C] rounded-xl p-3 mt-3">
-                <div className="flex fw-bold pb-2 justify-between items-center border-b">
-                    <span className="flex items-center space-x-1">
-                        <span>{Utils.formatString(BonusTypes[bonus.bonus_type])}</span>
-                        <img
-                            src="/images/home/polygon.png"
-                            alt="polygon"
-                            className="w-3 h-2"
-                        />
-                        <span className="text-xs fw-light">{`+${bonus.benefit}%`}</span>
+            <div key={bonus.id} className="w-full bg-[#32363C] rounded-xl p-2.5 mt-3">
+                <div className="flex fw-semibold pb-1 justify-between items-center">
+                    <span className="flex items-center space-x-8">
+                        <span>{toString(bonus.bonus_type)}</span>
+                        <span className="text-md fw-light">{`+${bonus.benefit}
+                        ${bonus.bonus_type == BonusTypes.CapitalProtection ? '%' : ''}
+                        ${bonus.bonus_type == BonusTypes.TimeReduction ? 'sec' : ''}`}</span>
                     </span>
+                    {bonus.bonus_type != BonusTypes.Friends ? getBonusDuration(bonus.duration) : ''}
                     <span className="flex items-center space-x-1">
                         <img
-                            src="/images/home/coin.png"
+                            src="/images/home/star.png"
                             alt="coin"
                             className="w-6 h-6"
                         />
                         <span>{bonus.cost}</span>
                     </span>
                 </div>
-                <div className="flex pb-2 pt-2 justify-between items-center">
-                    <span>Bonus duration</span>
-                    <span className={`flex text-sm space-x-1 items-center ${countdownClass}`}>
+            </div>
+        );
+    };
+
+    const getBonusDuration = (bonusTerm: BonusTerms) => {
+        return (
+        <span className="flex text-sm space-x-1 items-center text-white">
                         <img
                             src="/images/home/time.png"
                             alt="time"
                             className="w-4 h-4"
                         />
-                        <span>{formattedDuration}</span>
-                    </span>
-                </div>
-            </div>
-        );
-    };
+            <span>{bonusTerm == BonusTerms.Short ? "3 hours" : "6 hours"}</span>
+        </span>);
+    }
 
     const handleBuyBonusAction = () => {
         if (tonWalletAddress) {
@@ -176,21 +150,29 @@ export default function Bonus() {
             }}
         >
             <Header />
-            <div className="mt-4 mb-6">
-                <div className="flex justify-between items-center">
-                    <span className="fw-bold text-lg">Leverage</span>
+            <div className="mt-5 mb-8">
+                <div className="italic text-sm">
+                    Purchasing bonus entitles to receive 1XMM coins at a ratio of 0.30cts per token, as long as the total allocation amount has not been reached.
+                    Check our website to see whether bonus allocated tokens are still available.
+                </div>
+            </div>
+            <div className="flex justify-center mt-4 mb-6">
                     <button
                         type="button"
-                        className="rounded flex fw-semibold items-center justify-center py-2 px-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)]"
+                    className="rounded flex fw-semibold py-2 px-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)]"
                         onClick={() => handleBuyBonusAction()}
                     >
                         <img
-                            src="/images/home/coin.png"
+                        src="/images/home/star.png"
                             alt="coin"
                             className="object-cover w-4 h-4"
                         />
-                        <span className="font-normal text-xs">Purchase Bonus</span>
+                    <span className="font-normal text-xs">Purchase Stars</span>
                     </button>
+                </div>
+            <div className="mt-4 mb-6">
+                <div className="flex justify-between items-center">
+                    <span className="fw-bold text-lg">Leverage</span>
                 </div>
                 <div className="flex flex-col">
                     {leverageData.length > 0 ? (
@@ -246,7 +228,7 @@ export default function Bonus() {
 
             <div className="mt-4 mb-6">
                 <div className="flex justify-between items-center">
-                    <span className="fw-bold text-lg">Friends</span>
+                    <span className="fw-bold text-lg">Friends </span>
                 </div>
                 <div className="flex flex-col">
                     {friendData.length > 0 ? (
@@ -258,7 +240,7 @@ export default function Bonus() {
                 </div>
             </div>
 
-            {openBonusDrawer && (
+            {openBonusDrawer && bonusDef.length > 0 && (
                 <DetailBonus
                     open={openBonusDrawer}
                     // bonusData={bonusData}  
