@@ -246,7 +246,7 @@ export default function Bonus() {
 
             <div className="mt-4 mb-6">
                 <div className="flex justify-between items-center">
-                    <span className="fw-bold text-lg">Friends </span>
+                    <span className="fw-bold text-lg">Friends</span>
                 </div>
                 <div className="flex flex-col">
                     {friendData.length > 0 ? (
