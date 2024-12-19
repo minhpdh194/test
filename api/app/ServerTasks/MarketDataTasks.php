@@ -62,10 +62,10 @@ class MarketDataTasks
             'SOL' => "SOL_USDC-PERPETUAL",
         ];
         $options_symbols = [
-            'BTC' => $this->getOptionSymbol('BTC', 'BTC', $expiry_options),
-            'ETH' => $this->getOptionSymbol('ETH', 'ETH', $expiry_options),
-            'BNB' => $this->getOptionSymbol('BNB', 'BNB_USDC', $expiry_options),
-            'SOL' => $this->getOptionSymbol('SOL', 'SOL_USDC', $expiry_options),
+            'BTC' => $this->getOptionSymbol('BTC', 'BTC', $expiry_options, $crypto_data['BTC']['quote']['USD']['price']),
+            'ETH' => $this->getOptionSymbol('ETH', 'ETH', $expiry_options, $crypto_data['ETH']['quote']['USD']['price']),
+            'BNB' => $this->getOptionSymbol('BNB', 'BNB_USDC', $expiry_options, $crypto_data['BNB']['quote']['USD']['price']),
+            'SOL' => $this->getOptionSymbol('SOL', 'SOL_USDC', $expiry_options, $crypto_data['SOL']['quote']['USD']['price']),
             // 'TON' => $this->getOptionSymbol('TON', 'TON_USDC', $expiry_options),
         ];
 
@@ -302,13 +302,14 @@ class MarketDataTasks
         return response()->json($createdSpots);
     }
 
-    private function getOptionSymbol($coin, $opt_symb, $expiry)
+    private function getOptionSymbol($coin, $opt_symb, $expiry, $new_spot_value)
     {
         $ticks = self::$ticks;
         $tick = $ticks[$coin];
         $pair = Pair::where('coin_symbol', $coin)->first();
-        $spot = Spot::where('pair_id', $pair->id)->first()->current_value;
-        $strike = floor($spot / $tick) * $tick;
+        // $spot = Spot::where('pair_id', $pair->id)->first()->current_value;
+        \Log::info($new_spot_value);
+        $strike = floor($new_spot_value / $tick) * $tick;
         return sprintf("%s-%s-%s-P", $opt_symb, $expiry, $strike);
     }
 
