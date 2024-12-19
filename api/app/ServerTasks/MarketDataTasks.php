@@ -21,7 +21,7 @@ class MarketDataTasks
         "BTC" => 500,
         "ETH" => 25,
         "BNB" => 5,
-        "SOL" => 1
+        "SOL" => 2
     );
 
     private $math;
@@ -40,8 +40,8 @@ class MarketDataTasks
     public function getSpotsFromMarket()
     {
         $apiUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest';
-        // $usdComparedSpots = $this->marketDataService->pairCoin($apiUrl, 'BTC,ETH,BNB,SOL,LINK,UNI,TON,XRP', 'USD');
-        $data = $this->marketDataService->pairCoin($apiUrl, 'BTC,ETH,BNB,SOL', 'USD');
+        $data = $this->marketDataService->pairCoin($apiUrl, 'BTC,ETH,BNB,SOL,LINK,UNI,XRP', 'USD');
+        // $data = $this->marketDataService->pairCoin($apiUrl, 'BTC,ETH,BNB,SOL', 'USD');
         return $data['data'];
     }
 

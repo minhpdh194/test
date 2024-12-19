@@ -35,7 +35,7 @@ Route::prefix('clicker')->group(function () {
     // Positions
     Route::get('/get-position', [PositionController::class,'getPositionsByUser']);
     Route::post('/add-position', [PositionController::class,'addPosition']);
-    Route::post('/update-position/{positionId}', [PositionController::class, 'updatePosition']);
+    Route::post('/update-position', [PositionController::class, 'updatePosition']);
     Route::post('/add-bonus', [PositionController::class, 'addBonus']);
     Route::post('/close-position', [PositionController::class, 'closePosition']);
 

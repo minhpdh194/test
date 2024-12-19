@@ -1,8 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Pair } from "@/types/Pair";
-import { Leverages, LongShort } from "../enums";
-import { $http } from "@/lib/http";
+import { LongShort } from "../enums";
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
@@ -11,7 +10,7 @@ export function compactNumber(num: number) {
 	return num.toLocaleString(undefined, {
 		maximumFractionDigits: 2,
 		notation: "compact",
-	});
+	});1
 }
 
 // Utils module
@@ -21,8 +20,8 @@ export const Utils = {
 	getLastFixingTimestamp: (): number => get_lastfixing_timestamp(),
 	getNextFixingTimestamp: (): number => get_nextfixing_timestamp(),
 	getPositionTimestamp: (): number => get_position_timestamp(),
-	positionWasZero: async (pair: Pair, long_short: LongShort, _open_date: number, _leverage: Leverages): Promise<boolean> =>
-	check_position(pair, long_short, _open_date, _leverage),
+	// positionWasZero: (exist_position: Position): boolean =>
+	// check_position(exist_position),
 	formatString: (input: string) => format_string(input),
 	toCamelFormat: (input: string) => { return input.charAt(0).toUpperCase() + input.slice(1); }
 };
@@ -97,19 +96,24 @@ const get_index_perf = (_pair: Pair, _long_short: LongShort, _open_date: number,
 // 	return longValue / shortValue;
 // }
 
-const check_position = async (_pair: Pair, _long_short: LongShort, _open_date: number, _lev: Leverages): Promise<boolean> => {
-	try {
-		return await $http.post('/check_zero', {
-			pair_id: _pair.id,
-			long_short: _long_short,
-			open_date: _open_date,
-			lev: _lev,
-			value_date: Utils.getLastFixingTimestamp()
-		});
-	} catch (error) {
-		throw new Error('Communication error - cannot validate transaction');
-	}
-}
+// const check_position = (added_position: Position): boolean => {
+// 	// try {
+// 	// 	return await $http.post('/check_zero', {
+// 	// 		pair_id: _pair.id,
+// 	// 		long_short: _long_short,
+// 	// 		open_date: _open_date,
+// 	// 		lev: _lev,
+// 	// 		value_date: Utils.getLastFixingTimestamp()
+// 	// 	});
+// 	// } catch (error) {
+// 	// 	throw new Error('Communication error - cannot validate transaction');
+// 	// }
+// 	if (added_position && Utils.getLastFixingTimestamp() <= added_position.open_date) {
+// 		return false;
+// 	} else {
+// 		return true;
+// 	}
+// }
 
 
 const get_lastfixing_timestamp = (): number => {

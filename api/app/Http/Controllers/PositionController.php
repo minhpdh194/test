@@ -123,10 +123,7 @@ class PositionController extends Controller
             return response()->json('User not found', 404);
         }
 
-        $userProfile = TelegramUser::where('id', $user->id)->first();
-
         $validatedData = $request->only([
-            'id',
             'pair',
             'position_id',
             'long_short',
@@ -138,9 +135,11 @@ class PositionController extends Controller
             // 'min_end_date',
             'userId',
         ]);
+        \Log::info($request);
+        \Log::info($validatedData);
 
-        $position = Position::where('id', $validatedData['id'])
-            ->where('user_id', $userProfile->id)
+        $position = Position::where('id', $validatedData['position_id'])
+            ->where('user_id', $user->telegram_user_id)
             ->first();
 
         if (!$position) {
@@ -153,9 +152,9 @@ class PositionController extends Controller
         // $positionData['performance'] = $validatedData['performance'];
         // $positionData['min_end_date'] = $validatedData['id'];
 
-        if (isset($validatedData['bonuses']) && is_array($validatedData['bonuses'])) {
-            $this->positionService->addBonuses($validatedData['bonuses'], $userProfile->id, $position->id);
-        }
+        // if (isset($validatedData['bonuses']) && is_array($validatedData['bonuses'])) {
+        //     $this->positionService->addBonuses($validatedData['bonuses'], $user->telegram_user_id, $position->id);
+        // }
 
         $position->update($positionData);
         return response()->json(['message' => 'Position updated successfully'], 200);

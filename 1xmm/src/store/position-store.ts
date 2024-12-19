@@ -50,7 +50,6 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
   },
 
   SetUserPositions: (positions: Position[]): void => {
-    console.log(positions);
     set(() => ({
       positions: positions
     }));
@@ -58,10 +57,10 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
 
   AddPosition: async (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[], userProfile: UserProfile): Promise<AddingDetails> => {
     const positionStore = get();
-    const existing_position = positionStore.positions.find((p) => p.pair.id == pair.id);
-
+    const existing_position = positionStore.positions.find((p) => p.pair.id == pair.id && p.long_short === ls);
+console.log(existing_position);
     if (existing_position) {
-      const res = await existing_position.add(pair, ls, amt, lev, bonuses);
+      const res = await existing_position.update(pair, ls, amt, lev, bonuses);
 
       try {
         await $http.post('/clicker/update-position', existing_position);
@@ -79,6 +78,7 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
       };
     } else {
       const position: Position = new Position(get().next_position_id!, pair, ls, amt, lev, Utils.getPositionTimestamp() + 21600, bonuses, userProfile);
+      const res = await position.add(pair, ls, amt, lev, bonuses);
       
       try {
         await $http.post('/clicker/add-position', position);
@@ -96,8 +96,8 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
         console.error('Failed to add position:', error);
         return {
           success: false,
-          amount_adjustment: 0,
-          realized_pnl: 0
+          amount_adjustment: res.amount_adjustment,
+          realized_pnl: res.realized_pnl
         };
       }
     }
