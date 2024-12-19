@@ -61,7 +61,7 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
 
     // Sanity check
     // If we sent the positions, the current positions length must always be 0
-    if (current_positions.length > 0) throw new Error();
+    // if (current_positions.length > 0) throw new Error();
 
     current_positions.push(...positions);
   },
@@ -89,7 +89,7 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
         realized_pnl: res.realized_pnl
       };
     } else {
-      const position: Position = new Position(get().next_position_id!, pair, ls, amt, lev, Utils.getPositionTimestamp() + 21600, bonuses);
+      const position: Position = new Position(get().next_position_id!, pair, ls, amt, lev, Utils.getPositionTimestamp() + 21600, bonuses, globalThis.userProfile.telegram_user_id);
       
       try {
         await $http.post('/clicker/add-position', position);

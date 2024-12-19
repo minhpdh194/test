@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -44,6 +45,11 @@ class ClickerController extends Controller
             'restored_energy' => $this->restoreEnergy($gameData->available_energy, $user->last_login),
             'tasks' => $tasks
         ]);
+    }
+
+    public function getSpots() {
+        $userService = new UserService();
+        $userService->getNewestSpots();
     }
 
     public function tap(Request $request)

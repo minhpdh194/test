@@ -123,11 +123,4 @@ class TelegramUserController extends Controller
             'message' => 'User profile not found'
         ], 404);
     }
-
-    public function getNewestSpots(Request $request) {
-        $spots = Spot::with('pair')->whereDate('created_at', '=', Carbon::today()->toDateString())
-        ->get();
-
-        return response()->json($spots);
-    }
 }

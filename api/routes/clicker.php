@@ -13,7 +13,8 @@ use App\Http\Controllers\PositionController;
 Route::prefix('clicker')->group(function () {
     Route::get('/sync', [ClickerController::class, 'sync']);
     Route::post('/tap', [ClickerController::class, 'tap']);
-
+    Route::get('/load-spots', [ClickerController::class,'getSpots']);
+    
     Route::get('/get-position-ratios', [PositionController::class, 'getPositionRatios']);
 
     // Daily tasks

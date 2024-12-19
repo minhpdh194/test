@@ -9,7 +9,7 @@ import { SpotType } from "@/types/SpotType";
 
 export default function Home() {
   const [spots, setSpots] = useState<SpotType[]>([]);
-  const [loading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [validatedAmount, setValidatedAmount] = useState(0);
 
   useEffect(() => {
@@ -42,13 +42,21 @@ export default function Home() {
       const unlockedSpots = data.pairs.filter((spot: SpotType) =>
         userProfile.unlocked_pair_ids.map(Number).includes(Number(spot.pair_id))
       );
+      globalThis.spots = unlockedSpots;
       setSpots(unlockedSpots);
     });
+    
+    if (globalThis.spots) {
+      setSpots(globalThis.spots);
+    }
+    
+    setLoading(false);
 
     return () => {
       channel.unbind_all();
       channel.unsubscribe();
     };
+
   }, [globalThis.userProfile.unlocked_pair_ids]);
 
   const handleValidateAmount = (amount: number) => {

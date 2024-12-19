@@ -34,7 +34,6 @@ Route::get('/popups', [PopupController::class, 'index']);
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user_session', [AuthController::class, 'userSession']);
-    Route::get('/get-user-trading', [TelegramUserController::class, 'getNewestSpots']);
     Route::get('/referred-users', [FriendsController::class, 'referredUsers']);
 
     Route::get('/pairs', [MarketDataController::class, 'getPairs']);
