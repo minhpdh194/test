@@ -211,11 +211,11 @@ const TradingItem = ({ spots, onValidateAmount }: TradingItemProps) => {
                                         <NumberFormat value={spots?.find(s => s.pair_id == pair.id)?.current_value ?? 0} decimals={2} />
                                     </span>
                                     <span
-                                        className={`text-sm ${(spots?.find(s => s.pair_id == pair.id)?.daily_return ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}
+                                        className={`text-sm ${(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}
                                     >
-                                        {(Number(spots?.find(s => s.pair_id == pair.id)?.daily_return ?? 0) >= 0
-                                            ? `(+${(Number(spots?.find(s => s.pair_id == pair.id)?.daily_return ?? 0) * 100).toFixed(2)}%)`
-                                            : `(${(Number(spots?.find(s => s.pair_id == pair.id)?.daily_return ?? 0) * 100).toFixed(2)}%)`)}
+                                        {(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) >= 0
+                                            ? `(+${(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) * 100).toFixed(2)}%)`
+                                            : `(${(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) * 100).toFixed(2)}%)`)}
                                     </span>
                                 </span>
                             </div>
