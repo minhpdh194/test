@@ -215,8 +215,8 @@ const TradingItem = ({ spots, onValidateAmount }: TradingItemProps) => {
                                         className={`text-sm ${(spots?.find(s => s.pair_id == pair.id)?.daily_return ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}
                                     >
                                         {(Number(spots?.find(s => s.pair_id == pair.id)?.daily_return ?? 0) >= 0
-                                            ? `(+${Number(spots?.find(s => s.pair_id == pair.id)?.daily_return ?? 0).toFixed(2)}%)`
-                                            : `(${Number(spots?.find(s => s.pair_id == pair.id)?.daily_return ?? 0).toFixed(2)}%)`)}
+                                            ? `(+${(Number(spots?.find(s => s.pair_id == pair.id)?.daily_return ?? 0) * 100).toFixed(2)}%)`
+                                            : `(${(Number(spots?.find(s => s.pair_id == pair.id)?.daily_return ?? 0) * 100).toFixed(2)}%)`)}
                                     </span>
                                 </span>
                             </div>

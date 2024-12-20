@@ -43,11 +43,11 @@ class MarketDataService
             // If spot already exists we will update the spot
             if ($cur_spot) {
                 $createdAt = Carbon::parse($cur_spot->created_at); // Ensure $cur_spot->created_at is a Carbon instance
-
                 if ($createdAt->isSameDay(Carbon::now())) {
                     // Update the record
                     $cur_spot->update([
                         'current_value' => $new_spot_value,
+                        'prev_value' => $cur_spot->current_value,
                         'daily_return' => (($new_spot_value - $cur_spot->current_value) / $cur_spot->current_value),
                     ]);
                     $isSpotCreatedOrUpdated = true;
