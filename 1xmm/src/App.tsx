@@ -93,21 +93,22 @@ function App() {
         setProgress(45);
         // We update the userProfileStore
         syncData['login_streak'] = streak;
+
+        globalThis.userProfile.UpdateProfile(syncData);
+
         //const [availableBonuses, cleanedPositions, bonusToDelete] = syncBonusesAndPositions(user_bonuses, user_positions.positions, pairs);
-        const [availableBonuses, cleanedPositions] = syncBonusesAndPositions(user_bonuses, user_positions.positions, pairs, syncData.user);
+        const [availableBonuses, cleanedPositions] = syncBonusesAndPositions(user_bonuses, user_positions.positions, pairs);
 
         setProgress(55);
         // await COMM.bonusExpiry($http, userProfile.id, bonusesToDelete);
         // await COMM.updatePositions(cleanedPositions);
-        console.log(cleanedPositions);
         positionStore!.UpdateAvailableBonuses(availableBonuses);
         positionStore!.SetUserPositions(cleanedPositions);
         positionStore!.next_position_id = user_positions.next_position_id;
 
         setProgress(65);
-        globalThis.userProfile.UpdateProfile(syncData, positionStore);
         globalThis.userProfile.SetLevelBenefits(pairs);
-
+        globalThis.userProfile.UpdateUserOpenedPosition(positionStore);
         setProgress(95);
 
         globalThis.userProfile.SetFriends(referredUsers);
@@ -131,13 +132,13 @@ function App() {
   return <RouterProvider router={router} />;
 }
 
-function syncBonusesAndPositions(userBonuses: UserBonus[], userPositions: UserPosition[], pairs: Pair[], userProfile: UserProfile): [Bonus[], Position[], number[]] {
+function syncBonusesAndPositions(userBonuses: UserBonus[], userPositions: UserPosition[], pairs: Pair[]): [Bonus[], Position[], number[]] {
   const availableBonuses: Bonus[] = [];
   const openPositions: Position[] = [];
   const bonusesToDelete: number[] = [];
 
   userPositions.forEach(p => {
-    const open_position: Position = new Position(p.id, pairs.find(e => e.id == p.pair_id)!, p.long_short, p.amount, p.average_leverage, p.min_end_date, [], userProfile);
+    const open_position: Position = new Position(p.id, pairs.find(e => e.id == p.pair_id)!, p.long_short, p.amount, p.average_leverage, p.min_end_date, []);
     //need to use the userProfile in this part, because when this function is called, the global.userProfile is not set, so all of it is default data, which is wrong
 
     // p?.bonuses.forEach(element => { 

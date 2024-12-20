@@ -15,7 +15,8 @@ import { levelConditions } from "@/referential/levelConditions";
 
 export type UserProfileStore = UserProfile & {
   SetLevelBenefits: (pairsInReferential: Pair[]) => void;
-  UpdateProfile: (syncData: SyncData, positionStore: PositionStore) => void;
+  UpdateProfile: (syncData: SyncData) => void;
+  UpdateUserOpenedPosition: (positionStore: PositionStore) => void;
   UserTap: () => boolean;
   UserLevelUp: (pairsInReferential: Pair[]) => void;
   AddPosition: (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]) => Promise<boolean>;
@@ -74,16 +75,16 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
 
   SetLevelBenefits: (pairsInReferential: Pair[]) => {
     const userLevel = get().level;
-    
+
     let benefits = levelBenefits.find((b) => b.level == userLevel);
     // If there is no benefit for the level, we use the last benefits
     if (!benefits) benefits = levelBenefits[levelBenefits.length - 1];
 
     const unlocked_pair_ids = get().unlocked_pair_ids;
-    getUnlockedPairIds(userLevel).forEach(id => {if (!unlocked_pair_ids.find(nid => nid == id)) unlocked_pair_ids.push(id)});
+    getUnlockedPairIds(userLevel).forEach(id => { if (!unlocked_pair_ids.find(nid => nid == id)) unlocked_pair_ids.push(id) });
 
     const unlocked_pairs = get().unlocked_pairs;
-    getUnlockedPairs(pairsInReferential, userLevel).forEach(p => {if (!unlocked_pairs.find(np => np.id == p.id)) unlocked_pairs.push(p)});
+    getUnlockedPairs(pairsInReferential, userLevel).forEach(p => { if (!unlocked_pairs.find(np => np.id == p.id)) unlocked_pairs.push(p) });
 
     set((state) => ({
       earn_per_tap: benefits.total_gain_per_tap,
@@ -102,9 +103,12 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
     }));
   },
 
-  UpdateProfile: (syncData: SyncData, positionStore: PositionStore) => {
-    get().positionStore = positionStore;
-    
+  UpdateUserOpenedPosition: (positionStore: PositionStore) => {
+    const currentStore = get().positionStore;
+    get().positionStore = { ...currentStore, ...positionStore };
+  },
+
+  UpdateProfile: (syncData: SyncData) => {
     set((state) => ({
       id: syncData.user.id,
       telegram_user_id: syncData.user.telegram_user_id,
@@ -128,6 +132,8 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       },
       number_of_stars: syncData.gameData.number_of_stars
     }));
+
+    globalThis.userProfile = get(); //assign newest data to global
   },
 
   UserTap: () => {
@@ -165,10 +171,10 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       if (!benefits) return;
 
       const unlocked_pair_ids = get().unlocked_pair_ids;
-    getUnlockedPairIds(matchedCondition.level).forEach(id => {if (!unlocked_pair_ids.find(nid => nid == id)) unlocked_pair_ids.push(id)});
+      getUnlockedPairIds(matchedCondition.level).forEach(id => { if (!unlocked_pair_ids.find(nid => nid == id)) unlocked_pair_ids.push(id) });
 
-    const unlocked_pairs = get().unlocked_pairs;
-    getUnlockedPairs(pairsInReferential, matchedCondition.level).forEach(p => {if (!unlocked_pairs.find(np => np.id== p.id)) unlocked_pairs.push(p)});
+      const unlocked_pairs = get().unlocked_pairs;
+      getUnlockedPairs(pairsInReferential, matchedCondition.level).forEach(p => { if (!unlocked_pairs.find(np => np.id == p.id)) unlocked_pairs.push(p) });
 
       await updateUserLevel(matchedCondition.level);
 
@@ -275,9 +281,9 @@ function getUnlockedPairIds(level: number): number[] {
   return pairs;
 }
 
- function getUnlockedPairs(pairsInReferential: Pair[], level: number): Pair[] {
-   let pairs: Pair[] = [];
-   const pairIds = getUnlockedPairIds(level);
-   pairIds.forEach(id => pairs.push(pairsInReferential.find(p => p.id == id)!))
-   return pairs;
+function getUnlockedPairs(pairsInReferential: Pair[], level: number): Pair[] {
+  let pairs: Pair[] = [];
+  const pairIds = getUnlockedPairIds(level);
+  pairIds.forEach(id => pairs.push(pairsInReferential.find(p => p.id == id)!))
+  return pairs;
 }
