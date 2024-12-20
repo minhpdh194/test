@@ -148,7 +148,6 @@ const TradingItem = ({ spots, onValidateAmount }: TradingItemProps) => {
             onValidateAmount(amt);
 
             userProfile.AddPosition(pair, selectedOptions[pairId], amt || 0, leverages[pairId] || 0, selectedBonuses);
-            setPositions(userProfile.positionStore?.positions ?? []);
 
             // Reset states
             setAmounts((prev) => ({ ...prev, [pairId]: 0 }));

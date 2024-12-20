@@ -89,7 +89,7 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
         realized_pnl: res.realized_pnl
       };
     } else {
-      const position: Position = new Position(get().next_position_id!, pair, ls, amt, lev, Utils.getPositionTimestamp() + 21600, bonuses, globalThis.userProfile.telegram_user_id);
+      const position: Position = new Position(get().next_position_id!, pair, ls, amt, lev, Utils.getPositionTimestamp() + 21600, bonuses);
       
       try {
         await $http.post('/clicker/add-position', position);
