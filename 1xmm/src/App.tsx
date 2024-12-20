@@ -18,9 +18,6 @@ import { Bonus } from "./classes/Bonus";
 import { bonusDefinitions } from "./referential/bonusDefinitions";
 import { Friend } from "./types/Friend";
 import { getPositionStore } from "./store/position-store";
-import { UserProfile } from "./types/UserProfile";
-import { SpotType } from "./types/SpotType";
-import pusher from "./lib/pusher";
 
 const webApp = window.Telegram.WebApp;
 const isDesktop = import.meta.env.DEV
