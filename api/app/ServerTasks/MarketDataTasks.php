@@ -21,7 +21,7 @@ class MarketDataTasks
         "BTC" => 500,
         "ETH" => 25,
         "BNB" => 5,
-        "SOL" => 1
+        "SOL" => 2
     );
 
     private $math;
@@ -42,14 +42,14 @@ class MarketDataTasks
         $apiUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest';
         // $usdComparedSpots = $this->marketDataService->pairCoin($apiUrl, 'BTC,ETH,BNB,SOL,LINK,UNI,TON,XRP', 'USD');
         $usdComparedSpots = $this->marketDataService->pairCoin($apiUrl, 'BTC,ETH,BNB,SOL,LINK,UNI,XRP', 'USD');
-        return $usdComparedSpots;
+        return $usdComparedSpots['data'];
     }
 
     public function getYieldsAndVolatilitiesFromMarket()
     {
-        $ts = now();
+        $createdSpots = [];
         // IF WE DON'T USE THE CREATED SPOTS, SHOULD IT BE KEPT HERE?
-        $createdSpots = $this->getSpotsFromMarket();
+        $crypto_data = $this->getSpotsFromMarket();
         $yields = [];
         $expiry_date_options = $this->math->getOptionDateExpiry();
         $expiry_options = strtoupper(date_format($expiry_date_options, "dMy"));
@@ -62,20 +62,18 @@ class MarketDataTasks
             'SOL' => "SOL_USDC-PERPETUAL",
         ];
         $options_symbols = [
-            'BTC' => $this->getOptionSymbol('BTC', 'BTC', $expiry_options),
-            'ETH' => $this->getOptionSymbol('ETH', 'ETH', $expiry_options),
-            'BNB' => $this->getOptionSymbol('BNB', 'BNB_USDC', $expiry_options),
-            'SOL' => $this->getOptionSymbol('SOL', 'SOL_USDC', $expiry_options),
+            'BTC' => $this->getOptionSymbol('BTC', 'BTC', $expiry_options, $crypto_data['BTC']['quote']['USD']['price']),
+            'ETH' => $this->getOptionSymbol('ETH', 'ETH', $expiry_options, $crypto_data['ETH']['quote']['USD']['price']),
+            'BNB' => $this->getOptionSymbol('BNB', 'BNB_USDC', $expiry_options, $crypto_data['BNB']['quote']['USD']['price']),
+            'SOL' => $this->getOptionSymbol('SOL', 'SOL_USDC', $expiry_options, $crypto_data['SOL']['quote']['USD']['price']),
             // 'TON' => $this->getOptionSymbol('TON', 'TON_USDC', $expiry_options),
         ];
 
         // $url = 'https://www.deribit.com/api/v2';
         $reqId = 0;
-        $collection = collect($createdSpots);
-
         for ($i = 0; $i < count($perps_symbols); $i++) {
             $coin = array_keys($perps_symbols)[$i];
-            $pair = Pair::select('id', 'pair_symbol')->where('pair_symbol', ToolsUtil::getPairSymbol($coin, 'USD'))->first();
+            $pair = Pair::select('id', 'pair_symbol', 'coin_symbol')->where('pair_symbol', ToolsUtil::getPairSymbol($coin, 'USD'))->first();
 
             $url = 'https://www.deribit.com/api/v2/public/get_order_book?instrument_name=' . array_values($perps_symbols)[$i] . '&depth=' . '1';
             // We define the parameters for the get request
@@ -98,18 +96,13 @@ class MarketDataTasks
             $perp_result = $data['result'];
             $perp_price = 0.5 * ($perp_result['best_bid_price'] + $perp_result['best_ask_price']);
 
-            // SHOULDN'T WE USE THE $createdSpots to avoid a call to the database??
-            // $spot = Spot::where('pair_id', $pair->id)->sortByDesc('created_at')->first();
-            $spot = $collection->firstWhere('pair_id', $pair->id);
-            $yields[$coin] = ($perp_price / $spot->current_value - 1.0) / $expiry;
+            $new_spot_value = $crypto_data[$pair->coin_symbol]['quote']['USD']['price'];
+            $yields[$coin] = ($perp_price / $new_spot_value - 1.0) / $expiry;
         }
 
         for ($i = 0; $i < count($options_symbols); $i++) {
             $coin = array_keys($options_symbols)[$i];
-            $pair = Pair::select('id', 'pair_symbol')->where('pair_symbol', ToolsUtil::getPairSymbol($coin, 'USD'))->first();
-
-            // SHOULDN'T WE USE THE $createdSpots to avoid a call to the database??
-            $spot = $collection->firstWhere('pair_id', $pair->id);
+            $pair = Pair::select('id', 'pair_symbol', 'coin_symbol')->where('pair_symbol', ToolsUtil::getPairSymbol($coin, 'USD'))->first();
 
             $url = 'https://www.deribit.com/api/v2/public/get_order_book?instrument_name=' . array_values($options_symbols)[$i] . '&depth=' . '1';
 
@@ -134,46 +127,51 @@ class MarketDataTasks
             if (isset($data['result'])) {
                 $vol = $data['result']['mark_iv'] / 100.0;
             }
+
             $yield = 0.0;
             $fwd = 0.0;
+            $new_spot_value = $crypto_data[$pair->coin_symbol]['quote']['USD']['price'];
 
-            if (array_key_exists($coin, $perps_symbols)) {
+            if (array_key_exists($coin, $yields)) {
                 $option_expiry = $this->math->getOptionExpiryYF($now, $expiry_date_options);
                 $yield = $yields[$coin];
-                $fwd = $spot->current_value * (1.0 + $option_expiry * $yields[$coin]);
+                $fwd = $new_spot_value * (1.0 + $option_expiry * $yields[$coin]);
             } else {
                 $option_expiry = $this->math->getOptionExpiryYF($now, $expiry_date_options);
                 if (isset($data['result'])) {
                     $fwd = $data['result']['underlying_price'];
                 }
-                $yield = ($fwd / $spot->current_value - 1.0) / $option_expiry;
+                $yield = ($fwd / $new_spot_value - 1.0) / $option_expiry;
             }
 
             $fwd = round($fwd, 5);
             // Here, we override the vol and yield data since we don't need historical information
 
-            if ($fwd > 0) {
-                VolAndFwd::updateOrCreate(
-                    [
-                        'pair_id' => $pair->id,
-                    ],
-                    [
-                        'yield' => $yield,
-                        'forward' => $fwd,
-                        'volatility' => $vol
-                    ]
-                );
-            }
+            VolAndFwd::updateOrCreate(
+                [
+                    'pair_id' => $pair->id,
+                ],
+                [
+                    'yield' => $yield,
+                    'forward' => $fwd,
+                    'volatility' => $vol
+                ]
+            );
 
 
             // $res[$pair]['fwd'] = $fwd;
             // $res[$pair]['volatility'] = $vol;
 
             $reqId++;
+            $createdSpot = $this->marketDataService->updateOrCreateSpotData($crypto_data[$pair->coin_symbol], $pair, $new_spot_value);
+            if ($createdSpot) {
+                $createdSpots[] = $createdSpot;
+            }
         }
 
         return $createdSpots;
     }
+
 
     public function getCorrelatedParameters($ts)
     {
@@ -212,18 +210,17 @@ class MarketDataTasks
             $count++;
         }
 
-        $svd_res = $this->math->solve($return_matrix, count($ref_symbols));
+        $svd_res = $this->math->solve($return_matrix, $ref_symbols);
 
         $crypto = [];
         foreach ($correlated_pairs as $correlated_pair) {
             $pair = Pair::select('id', 'pair_symbol')->where('pair_symbol', $correlated_pair)->first();
             $spots = Spot::where('pair_id', $pair->id)
                 ->orderBy('created_at', 'asc')
-                ->take($n)
-                ->get();
+                ->take($n);
 
             // IS IT SELECTING THE ARRAY OF DAILY RETURNS?
-            $target_returns = $spots->select['daily_return'];
+            $target_returns = $spots->pluck('daily_return');
             $err = $this->math->getError($return_matrix, $target_returns, $svd_res);
 
             $vol = 0.0;
@@ -257,31 +254,32 @@ class MarketDataTasks
 
     public function integration()
     {
+        $ts = now();
         $createdSpots = $this->getYieldsAndVolatilitiesFromMarket();
         // $correlatedVolsAndFwds = $this->getCorrelatedParameters($ts);
         // $spots = Spot::with('volatility')->orderBy('created_at', 'desc')->limit(count($createdSpots))->get();
-        $returnedSpots = [];
-        foreach ($createdSpots as $spot) {
-            $volatility = VolAndFwd::where('pair_id', $spot->pair_id)->first();
-            if ($volatility) {
-                $old_value = $spot->value;
-                $new_value = $volatility->forward;
 
-                if ($old_value != 0) {
-                    $percent_change = (($new_value - $old_value) / $old_value) * 100;
-                } else {
-                    $percent_change = 0;
-                }
+        // foreach ($createdSpots as $spot) {
+        //     $volatility = VolAndFwd::where('pair_id', $spot->pair_id)->first();
+        //     if ($volatility) {
+        //         $old_value = $spot->value;
+        //         $new_value = $volatility->forward;
 
-                $spot->update([
-                    // 'pair_symbol' => $volatility->pair_symbol,
-                    'current_value' => (string)$volatility->forward,
-                    'daily_return' => $percent_change,
-                    // 'base_symbol' => $volatility->base_symbol,
-                ]);
-                $returnedSpots[] = $spot;
-            }
-        }
+        //         if ($old_value != 0) {
+        //             $percent_change = (($new_value - $old_value) / $old_value);
+        //         } else {
+        //             $percent_change = 0;
+        //         }
+
+        //         $spot->update([
+        //             // 'pair_symbol' => $volatility->pair_symbol,
+        //             'current_value' => (string)$volatility->forward,
+        //             'daily_return' => $percent_change,
+        //             // 'base_symbol' => $volatility->base_symbol,
+        //         ]);
+        //         $returnedSpots[] = $spot;
+        //     }
+        // }
         $options = array(
             'cluster' => 'ap2',
             'useTLS' => true
@@ -295,22 +293,23 @@ class MarketDataTasks
         );
 
         try {
-            $pusher->trigger('pairs', 'data', ['pairs' => $returnedSpots]);
-            \Log::info('test pusher', ['result' => $returnedSpots]);
+            $pusher->trigger('pairs', 'data', ['pairs' => $createdSpots]);
+            \Log::info('test pusher', ['result' => $createdSpots]);
         } catch (\Throwable $e) {
             $notify[] = ['warning', 'Pusher Not Properly Set'];
             \Log::info('error pusher', ['error' => $e->getMessage()]);
         }
-        return response()->json($returnedSpots);
+        return response()->json($createdSpots);
     }
 
-    private function getOptionSymbol($coin, $opt_symb, $expiry)
+    private function getOptionSymbol($coin, $opt_symb, $expiry, $new_spot_value)
     {
         $ticks = self::$ticks;
         $tick = $ticks[$coin];
         $pair = Pair::where('coin_symbol', $coin)->first();
-        $spot = Spot::where('pair_id', $pair->id)->first()->current_value;
-        $strike = floor($spot / $tick) * $tick;
+        // $spot = Spot::where('pair_id', $pair->id)->first()->current_value;
+        \Log::info($new_spot_value);
+        $strike = floor($new_spot_value / $tick) * $tick;
         return sprintf("%s-%s-%s-P", $opt_symb, $expiry, $strike);
     }
 

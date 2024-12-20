@@ -7,15 +7,16 @@ import { LongShort } from '@/enums';
 import ListBonus from "./ListBonus";
 import { Utils } from '@/lib/utils';
 import { SpotType } from '@/types/SpotType';
-import pusher from '@/lib/pusher';
+import { Pair } from '@/types/Pair';
 
 type TradingItemProps = {
     validatedAmounts: any;
+    spots: SpotType[];
     onValidateAmount: (amount: number) => void;
 };
 
-const TradingItem = ({ onValidateAmount }: TradingItemProps) => {
-    const [, setTimeBonus] = useState(null);
+const TradingItem = ({ spots, onValidateAmount }: TradingItemProps) => {
+    // const [, setTimeBonus] = useState(null);
     const [bonusData, setBonusData] = useState<any[]>([]);
     const [openBonusDrawer, setOpenBonusDrawer] = useState(false);
     const [selectedBonuses, setSelectedBonuses] = useState<any[]>([]); // Store selected bonuses
@@ -25,46 +26,10 @@ const TradingItem = ({ onValidateAmount }: TradingItemProps) => {
     const [expandedPairs, setExpandedPairs] = useState<{ [key: number]: boolean }>({});
     const [expandedBonuses, setExpandedBonuses] = useState<{ [key: number]: boolean }>({});
     const allowedLeverages = [0, 1, 2, 3, 5, 7, 10];  // Valid leverage options
-    const [spots, setSpots] = useState<SpotType[]>([]);
     const [positions, setPositions] = useState<Position[]>([]);
     const [, setIsLoading] = useState(false);
 
-    useEffect(() => {
-        const fetchSpots = async () => {
-            try {
-                setIsLoading(true);
-                console.log("We need to get prices from Pusher");
-                //const response = await $http.get("/get-user-trading");
-                //const allSpots = response.data;
-                //const unlockedPairs = allSpots.filter((spot: SpotType) =>
-                //  userProfile.unlocked_pairs.map(Number).includes(Number(spot.pair_id))
-                //);
-                //setSpots(unlockedPairs);
-            } catch (error) {
-                console.error("Error fetching spots:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchSpots();
-
-        const channel = pusher.subscribe("pairs");
-
-        channel.bind("data", (data: any) => {
-            console.log(data);
-            const unlockedSpots = data.pairs.filter((spot: SpotType) =>
-                userProfile.unlocked_pair_ids.map(Number).includes(Number(spot.pair_id))
-            );
-            console.log(unlockedSpots);
-            setSpots(unlockedSpots);
-        });
-
-        return () => {
-            channel.unbind_all();
-            channel.unsubscribe();
-        };
-    }, [userProfile.unlocked_pair_ids]);
+    const pairs = JSON.parse(localStorage.getItem("PairReferential") || "[]") as Pair[];
 
     useEffect(() => {
         fetchLatestPositions();
@@ -172,16 +137,17 @@ const TradingItem = ({ onValidateAmount }: TradingItemProps) => {
     const handleValidate = async (pairId: number): Promise<void> => {
         try {
             setIsLoading(true);
-            const pair = globalThis.PairReferential.find(p => p.id == pairId);
-            
+            const pair = pairs.find(p => p.id == pairId);
+
             if (!pair) {
                 console.error("Pair not found for id:", pairId);
                 return;
             }
 
-            onValidateAmount(amounts[pairId]);
+            const amt = Number(amounts[pairId]);
+            onValidateAmount(amt);
 
-            userProfile.AddPosition(pair, selectedOptions[pairId], amounts[pairId] || 0, leverages[pairId] || 0, selectedBonuses);
+            userProfile.AddPosition(pair, selectedOptions[pairId], amt || 0, leverages[pairId] || 0, selectedBonuses);
             setPositions(userProfile.positionStore?.positions ?? []);
 
             // Reset states
@@ -211,7 +177,7 @@ const TradingItem = ({ onValidateAmount }: TradingItemProps) => {
     const handleClose = async (pairId: number) => {
         try {
             setIsLoading(true);
-            const pair = globalThis.PairReferential.find(pair => pair.id === pairId);
+            const pair = pairs.find(pair => pair.id === pairId);
 
             if (positions.find((pos: Position) => pos.position_id === pairId)) {
                 userProfile.ClosePosition(pairId);
@@ -246,9 +212,11 @@ const TradingItem = ({ onValidateAmount }: TradingItemProps) => {
                                         <NumberFormat value={spots?.find(s => s.pair_id == pair.id)?.current_value ?? 0} decimals={2} />
                                     </span>
                                     <span
-                                        className={`text-sm ${(spots?.find(s => s.pair_id == pair.id)?.daily_return ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}
+                                        className={`text-sm ${(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}
                                     >
-                                        {(spots?.find(s => s.pair_id == pair.id)?.daily_return ?? 0) >= 0 ? `(+${(spots?.find(s => s.pair_id == pair.id)?.daily_return ?? 0).toFixed(2)}%)` : `(${(spots.find(s => s.pair_id == pair.id)?.daily_return ?? 0).toFixed(2)}%)`}
+                                        {(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) >= 0
+                                            ? `(+${(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) * 100).toFixed(2)}%)`
+                                            : `(${(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) * 100).toFixed(2)}%)`)}
                                     </span>
                                 </span>
                             </div>
@@ -386,7 +354,7 @@ const TradingItem = ({ onValidateAmount }: TradingItemProps) => {
                                     <button
                                         type="button"
                                         className={`rounded flex-1 py-1 px-2 
-                            ${amounts[pair.id] === 0 || leverages[pair.id] === 0
+                            ${amounts[pair.id] === 0 || leverages[pair.id] === 0 || !selectedOptions[pair.id]
                                                 ? 'bg-gray-400 opacity-50 cursor-not-allowed'
                                                 : 'bg-[linear-gradient(142.18deg,#3BB424_21.85%,#2AAA28_78.15%)]'
                                             }`}
@@ -398,13 +366,11 @@ const TradingItem = ({ onValidateAmount }: TradingItemProps) => {
 
                                     <button
                                         type="button"
-                                        className="rounded flex-1 py-1 px-2 bg-[#F27A83]"
+                                        className={`rounded flex-1 py-1 px-2 ${!selectedOptions[pair.id] ? 'bg-gray-400 opacity-50 cursor-not-allowed' : 'bg-[#F27A83]'}`}
                                         onClick={() => handleClose(pair.id)}
-
                                     >
                                         <span className="font-bold text-xs">Close</span>
                                     </button>
-
                                 </div>
                             </>
                         )}

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('telegram_user_id', 50)->references('telegram_user_id')->on('user_profile')->unique();
             $table->tinyInteger('level')->default(1)->unsigned();
             $table->tinyInteger('avatar_id')->default(0)->unsigned(); // This is the avatar_id of avatar picture
+            $table->decimal('amount_of_tokens', 20, 6)->default(0);
             $table->decimal('balance', 18, 6)->default(0);
             $table->decimal('total_pnl', 18, 6)->default(0);
             $table->integer('available_energy')->default(500);

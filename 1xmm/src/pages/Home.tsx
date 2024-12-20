@@ -13,37 +13,50 @@ export default function Home() {
   const [validatedAmount, setValidatedAmount] = useState(0);
 
   useEffect(() => {
-    const fetchSpots = async () => {
-      try {
-        console.log("We need to get prices from Pusher");
-        //const response = await $http.get("/get-user-trading");
-        //const allSpots = response.data;
-        //const unlockedPairs = allSpots.filter((spot: SpotType) =>
-        //  userProfile.unlocked_pairs.map(Number).includes(Number(spot.pair_id))
-        //);
-        //setSpots(unlockedPairs);
-      } catch (error) {
-        console.error("Error fetching spots:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchSpots();
-  
+
+    /*****************************************
+     * The code below should never be called *
+     * ***************************************/
+    // If this code is required, it's because there is an issue in the code
+    //fetch spots immediately when run the app first time or unlocked_pair have any changes
+    //const fetchSpots = async () => {
+    //  try {
+    //    const response = await $http.get("/get-user-trading");
+    //    const allSpots = response.data;
+    //    const unlockedSpots = allSpots.filter((spot: SpotType) =>
+    //      userProfile.unlocked_pair_ids.map(Number).includes(Number(spot.pair_id))
+    //    );
+    //    setSpots(unlockedSpots);
+    //  } catch (error) {
+    //    console.error("Error fetching spots:", error);
+    //  } finally {
+    //    setLoading(false);
+    //  }
+    //};
+
+    //fetchSpots();
+
     const channel = pusher.subscribe("pairs");
 
     channel.bind("data", (data: any) => {
       const unlockedSpots = data.pairs.filter((spot: SpotType) =>
         userProfile.unlocked_pair_ids.map(Number).includes(Number(spot.pair_id))
       );
+      globalThis.spots = unlockedSpots;
       setSpots(unlockedSpots);
     });
+    
+    if (globalThis.spots) {
+      setSpots(globalThis.spots);
+    }
+    
+    setLoading(false);
 
     return () => {
       channel.unbind_all();
       channel.unsubscribe();
     };
+
   }, [globalThis.userProfile.unlocked_pair_ids]);
 
   const handleValidateAmount = (amount: number) => {
@@ -66,6 +79,7 @@ export default function Home() {
           <div>Loading...</div>
         ) : (
           <TradingItem
+            spots={spots}
             validatedAmounts={validatedAmount}
             onValidateAmount={handleValidateAmount}
           />

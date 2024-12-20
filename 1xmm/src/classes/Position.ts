@@ -1,6 +1,5 @@
 import { BonusTypes, Leverages, LongShort } from "@/enums";
 import { Utils } from "../lib/utils";
-import { SpotType, Volatility } from "../types/SpotType";
 import { toast } from "react-toastify";
 import { UserProfile } from "../types/UserProfile";
 import { Bonus } from "./Bonus";
@@ -16,7 +15,7 @@ export type PositionChange = {
 }
 
 export class Position {
-    userId: number;
+    user_id: number;
     position_id: number;
     pair: Pair;
     long_short: LongShort;
@@ -26,12 +25,10 @@ export class Position {
     open_date: number;
     min_end_date: number;
     performance: number;
-    userProfile: UserProfile;
 
     // This opens a new position
-    public constructor(position_id: number, pair: Pair, ls: LongShort, amt: number, lev: number, min_end_date: number, bonuses: Bonus[], user_profile: UserProfile) {
-        this.userId = user_profile.id;
-        this.userProfile = user_profile;
+    public constructor(position_id: number, pair: Pair, ls: LongShort, amt: number, lev: number, min_end_date: number, bonuses: Bonus[]) {
+        this.user_id = globalThis.userProfile.telegram_user_id;
         this.position_id = position_id;
         this.pair = pair;
         this.long_short = ls;
@@ -50,37 +47,18 @@ export class Position {
             this.bonuses.push(bonus);
             return true;
         }
-        
+
         return false;
-    }
-
-    public async update()
-    {
-        return;
-    }
-
-    public async add(_pair: Pair, ls: LongShort, amt: number, lev: Leverages, bonuses: Bonus[]): Promise<PositionChange> {
-        if (await Utils.positionWasZero(this.pair, this.long_short, this.open_date, lev)) {
-            const pnl = -this.amount;
-            this.long_short = ls;
-            this.open_date = Utils.getPositionTimestamp();
-            this.amount = amt;
-            this.leverage = lev;
-            this.performance = 0.0;
-
-            // We attach new bonuses
-            bonuses.forEach(b => this.attach_bonus(b));
-            toast.success("Position added successfully");
-
-            return {
-                amount_adjustment: -amt,
-                realized_pnl: pnl
-            };
         }
 
+    public async update() {
+        // We should check if the option has 0 perf
+    }
+
+    public async add(ls: LongShort, amt: number, lev: Leverages, bonuses: Bonus[]) {
         if (ls === this.long_short) {
-            let lev_amt = this.amount * this.leverage;
-            let new_lev_amt = amt * (lev as number);
+            const lev_amt = this.amount * this.leverage;
+            const new_lev_amt = amt * (lev as number);
             this.performance = this.performance * lev_amt / (lev_amt + new_lev_amt);
             this.amount += amt;
             this.leverage = (lev_amt + new_lev_amt) / this.amount;
@@ -97,11 +75,11 @@ export class Position {
             let penalty = 0.0;
             let pnl = 0.0;
             const value_date = Utils.getPositionTimestamp();
-            
+
             if (this.min_end_date > Utils.getLastFixingTimestamp()) penalty = penaltyFee;
 
-            const bonus_factors = this.get_performance_adjustment_factors(this.userProfile);
-            let pro_rata = Math.min(1.0, (value_date - this.open_date + bonus_factors.total_time_reduction) / (this.min_end_date - this.open_date));
+            const bonus_factors = this.get_performance_adjustment_factors(globalThis.userProfile);
+            const pro_rata = Math.min(1.0, (value_date - this.open_date + bonus_factors.total_time_reduction) / (this.min_end_date - this.open_date));
 
             const index_perf = pro_rata * Utils.getIndexPerf(this.pair, this.long_short, this.open_date, value_date) - (1 - pro_rata) * penalty;
 
@@ -112,8 +90,7 @@ export class Position {
                 } else {
                     pnl = bonus_factors.total_leverage * index_perf * amt * (1 - bonus_factors.total_capital_protection);
                 }
-                this.amount -= amt;
-
+                this.amount += amt;
                 bonuses.forEach(b => this.attach_bonus(b));
                 toast.success("Position updated successfully");
 
@@ -133,7 +110,7 @@ export class Position {
                 const prev_amt = this.amount;
                 this.amount = amt - prev_amt;
                 this.long_short = this.long_short == LongShort.Long
-                    ? LongShort.Short 
+                    ? LongShort.Short
                     : LongShort.Long;
                 this.leverage = lev;
                 this.open_date = value_date;
@@ -152,16 +129,33 @@ export class Position {
         }
     }
 
+    //public add(_pair: Pair, ls: LongShort, amt: number, lev: Leverages, bonuses: Bonus[]) {
+    //    const pnl = -this.amount;
+    //    this.long_short = ls;
+    //    this.open_date = Utils.getPositionTimestamp();
+    //    this.amount = amt;
+    //    this.leverage = lev;
+    //    this.performance = 0.0;
+
+    //    // We attach new bonuses
+    //    bonuses.forEach(b => this.attach_bonus(b));
+    //    toast.success("Position added successfully");
+
+    //    return {
+    //        amount_adjustment: -amt,
+    //        realized_pnl: pnl
+    //    };
+    //}
+
     public get_PnL(offset_date: number): number {
 
         let penalty = 0.0;
         let total_pnl = 0.0;
 
-        const adj_factors = this.get_performance_adjustment_factors(this.userProfile);
+        const adj_factors = this.get_performance_adjustment_factors(globalThis.userProfile);
         if (this.min_end_date > offset_date) penalty = penaltyFee;
 
-        let pro_rata = Math.min(1.0, (offset_date - this.open_date + adj_factors.total_time_reduction) / (this.min_end_date - this.open_date));
-        console.log('pro_rata', pro_rata);
+        const pro_rata = Math.min(1.0, (offset_date - this.open_date + adj_factors.total_time_reduction) / (this.min_end_date - this.open_date));
 
         const index_perf = pro_rata * Utils.getIndexPerf(this.pair, this.long_short, this.open_date, offset_date) - (1 - pro_rata) * penalty;
 
@@ -185,7 +179,7 @@ export class Position {
         let total_time_reduction = userProfile.trading_info.time_reduction;
 
         const bonusToDelete = this.check_bonuses();
-        if (bonusToDelete.length > 0) { COMM.bonusExpiry($http, this.userId, bonusToDelete); }
+        if (bonusToDelete.length > 0) { COMM.bonusExpiry($http, this.user_id, bonusToDelete); }
 
         this.bonuses.forEach(b => {
             switch (b.bonus_definition.bonus_type) {
@@ -216,8 +210,8 @@ export class Position {
     }
 
     public check_bonuses(): number[] {
-        let remainingBonuses: Bonus[] = [];
-        let bonusToDelete: number[] = [];
+        const remainingBonuses: Bonus[] = [];
+        const bonusToDelete: number[] = [];
 
         this.bonuses.forEach(b => {
             if (b.bonus_is_valid()) {

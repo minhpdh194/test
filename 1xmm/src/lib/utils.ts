@@ -1,8 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Pair } from "@/types/Pair";
-import { Leverages, LongShort } from "../enums";
-import { $http } from "@/lib/http";
+import { LongShort } from "../enums";
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
@@ -11,7 +10,7 @@ export function compactNumber(num: number) {
 	return num.toLocaleString(undefined, {
 		maximumFractionDigits: 2,
 		notation: "compact",
-	});
+	});1
 }
 
 // Utils module
@@ -21,8 +20,8 @@ export const Utils = {
 	getLastFixingTimestamp: (): number => get_lastfixing_timestamp(),
 	getNextFixingTimestamp: (): number => get_nextfixing_timestamp(),
 	getPositionTimestamp: (): number => get_position_timestamp(),
-	positionWasZero: async (pair: Pair, long_short: LongShort, _open_date: number, _leverage: Leverages): Promise<boolean> =>
-		check_position(pair, long_short, _open_date, _leverage),
+	// positionWasZero: (exist_position: Position): boolean =>
+	// check_position(exist_position),
 	formatString: (input: string) => format_string(input),
 	toCamelFormat: (input: string) => { return input.charAt(0).toUpperCase() + input.slice(1); }
 };
@@ -31,85 +30,90 @@ export const Utils = {
  * Functions requiring RPC Calls *
  *********************************/
 
-const hasLeverageBonuses = (bonuses: any): any[] => {	
-	let leverageBonuses: any[] = [];
-
-	if (Array.isArray(bonuses)) {
-		leverageBonuses = bonuses.filter(bonus =>
-			bonus.end_date > Utils.getPositionTimestamp() &&
-			bonus.bonus_type.bonus_type === "Leverage"
-		);
-	} else if (bonuses.bonus_type && bonuses.bonus_type.bonus_type === "Leverage") {
-		leverageBonuses.push(bonuses);
-	}
-
-	return leverageBonuses;
-}
-
-const hasPositiveLeverageBonuses = (bonuses: any): any[] => {
-	let leverageBonuses: any[] = [];
-
-	if (Array.isArray(bonuses)) {
-		leverageBonuses = bonuses.filter(bonus =>
-			bonus.end_date > Utils.getPositionTimestamp() &&
-			bonus.bonus_type.bonus_type === "PositiveLeverage"
-		);
-	} else if (bonuses.bonus_type && bonuses.bonus_type.bonus_type === "PositiveLeverage") {
-		leverageBonuses.push(bonuses);
-	}
-
-	return leverageBonuses;
-}
-
-const hasCapitalLeverageBonuses = (bonuses: any): any[] => {
-	let leverageBonuses: any[] = [];
-
-	if (Array.isArray(bonuses)) {
-		leverageBonuses = bonuses.filter(bonus =>
-			bonus.end_date > Utils.getPositionTimestamp() &&
-			bonus.bonus_type.bonus_type === "CapitalProtection"
-		);
-	} else if (bonuses.bonus_type && bonuses.bonus_type.bonus_type === "CapitalProtection") {
-		leverageBonuses.push(bonuses);
-	}
-
-	return leverageBonuses;
-}
-
 const get_index_perf = (_pair: Pair, _long_short: LongShort, _open_date: number, _value_date: number): number => {
 	return 0;
 }
 
-const long_position_ratio = (totalLongAmount: { [key: string]: any }, totalShortAmount: { [key: string]: any }): number => {
-	const shortValue = totalShortAmount[0]?.short_value || 0;
-	const longValue = totalLongAmount[0]?.long_value || 0;
+// const hasLeverageBonuses = (bonuses: any): any[] => {	
+// 	let leverageBonuses: any[] = [];
 
-	if (!longValue || !shortValue) return 0;
-	return shortValue / longValue;
-}
+// 	if (Array.isArray(bonuses)) {
+// 		leverageBonuses = bonuses.filter(bonus =>
+// 			bonus.end_date > Utils.getPositionTimestamp() &&
+// 			bonus.bonus_type.bonus_type === "Leverage"
+// 		);
+// 	} else if (bonuses.bonus_type && bonuses.bonus_type.bonus_type === "Leverage") {
+// 		leverageBonuses.push(bonuses);
+// 	}
 
-const short_position_ratio = (totalLongAmount: { [key: string]: any }, totalShortAmount: { [key: string]: any }): number => {
+// 	return leverageBonuses;
+// }
 
-	const shortValue = totalShortAmount[0]?.short_value || 0;
-	const longValue = totalLongAmount[0]?.long_value || 0;
+// const hasPositiveLeverageBonuses = (bonuses: any): any[] => {
+// 	let leverageBonuses: any[] = [];
 
-	if (!longValue || !shortValue) return 0;
-	return longValue / shortValue;
-}
+// 	if (Array.isArray(bonuses)) {
+// 		leverageBonuses = bonuses.filter(bonus =>
+// 			bonus.end_date > Utils.getPositionTimestamp() &&
+// 			bonus.bonus_type.bonus_type === "PositiveLeverage"
+// 		);
+// 	} else if (bonuses.bonus_type && bonuses.bonus_type.bonus_type === "PositiveLeverage") {
+// 		leverageBonuses.push(bonuses);
+// 	}
 
-const check_position = async (_pair: Pair, _long_short: LongShort, _open_date: number, _lev: Leverages): Promise<boolean> => {
-	try {
-		return await $http.post('/check_zero', {
-			pair_id: _pair.id,
-			long_short: _long_short,
-			open_date: _open_date,
-			lev: _lev,
-			value_date: Utils.getLastFixingTimestamp()
-		});
-	} catch (error) {
-		throw new Error('Communication error - cannot validate transaction');
-	}
-}
+// 	return leverageBonuses;
+// }
+
+// const hasCapitalLeverageBonuses = (bonuses: any): any[] => {
+// 	let leverageBonuses: any[] = [];
+
+// 	if (Array.isArray(bonuses)) {
+// 		leverageBonuses = bonuses.filter(bonus =>
+// 			bonus.end_date > Utils.getPositionTimestamp() &&
+// 			bonus.bonus_type.bonus_type === "CapitalProtection"
+// 		);
+// 	} else if (bonuses.bonus_type && bonuses.bonus_type.bonus_type === "CapitalProtection") {
+// 		leverageBonuses.push(bonuses);
+// 	}
+
+// 	return leverageBonuses;
+// }
+
+// const long_position_ratio = (totalLongAmount: { [key: string]: any }, totalShortAmount: { [key: string]: any }): number => {
+// 	const shortValue = totalShortAmount[0]?.short_value || 0;
+// 	const longValue = totalLongAmount[0]?.long_value || 0;
+
+// 	if (!longValue || !shortValue) return 0;
+// 	return shortValue / longValue;
+// }
+
+// const short_position_ratio = (totalLongAmount: { [key: string]: any }, totalShortAmount: { [key: string]: any }): number => {
+
+// 	const shortValue = totalShortAmount[0]?.short_value || 0;
+// 	const longValue = totalLongAmount[0]?.long_value || 0;
+
+// 	if (!longValue || !shortValue) return 0;
+// 	return longValue / shortValue;
+// }
+
+// const check_position = (added_position: Position): boolean => {
+// 	// try {
+// 	// 	return await $http.post('/check_zero', {
+// 	// 		pair_id: _pair.id,
+// 	// 		long_short: _long_short,
+// 	// 		open_date: _open_date,
+// 	// 		lev: _lev,
+// 	// 		value_date: Utils.getLastFixingTimestamp()
+// 	// 	});
+// 	// } catch (error) {
+// 	// 	throw new Error('Communication error - cannot validate transaction');
+// 	// }
+// 	if (added_position && Utils.getLastFixingTimestamp() <= added_position.open_date) {
+// 		return false;
+// 	} else {
+// 		return true;
+// 	}
+// }
 
 
 const get_lastfixing_timestamp = (): number => {

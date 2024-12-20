@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('last_name', 100)->nullable();
             $table->string('username', 100)->nullable();
             $table->date('start_date')->default(now());
-            $table->date('last_login')->default(now());
+            $table->timestamp('last_login')->default(now());
             $table->integer('login_streak')->default(1);
             $table->timestamps();
         });

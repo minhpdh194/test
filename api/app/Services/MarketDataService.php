@@ -11,7 +11,6 @@ class MarketDataService
 {
     public function pairCoin($apiUrl, $symbol, $convertTo)
     {
-        $createdSpots = [];
         $parameters = [
             'symbol' => $symbol,
             'convert' => $convertTo,
@@ -25,64 +24,83 @@ class MarketDataService
 
         $data = $response->json();
 
-        if (isset($data['data'])) {
-            foreach ($data['data'] as $crypto) {
-                $pair = Pair::where('coin_symbol', $crypto['symbol'])->first();
+        return $data;
+    }
 
-                $cur_spot = Spot::where('pair_id', $pair->id)
-                    ->orderBy('created_at', 'desc')
-                    ->first();
+    public function updateOrCreateSpotData($crypto_data, $pair, $new_spot_value)
+    {
+        if ($crypto_data) {
+            $cur_spot = Spot::where('pair_id', $pair->id)
+                ->orderBy('created_at', 'desc')
+                ->first();
 
-                $new_spot = $crypto['quote']['USD']['price'];
+            $fixing_period = intval(Carbon::now()->hour / 6) * 6;
 
-                // $spot should NEVER be null
-                // new spot value should NEVER be null or 0
-                // if(!$cur_spot || !$new_spot || $new_spot == 0) {
-                //     return null;
-                // }
-
-                // If spot already exists we will update the spot
-                if ($cur_spot) {
-                    $createdAt = Carbon::parse($cur_spot->created_at); // Ensure $cur_spot->created_at is a Carbon instance
-
-                    if ($createdAt->isSameDay(Carbon::now())) {
-                        // Update the record
+            // If spot already exists we will update the spot
+            if ($cur_spot) {
+                $createdAt = Carbon::parse($cur_spot->created_at); // Ensure $cur_spot->created_at is a Carbon instance
+                // If same day and same fixing period, we update existing spot
+                if ($createdAt->isSameDay(Carbon::now())) {
+                    // Update the record
+                    // If it is same fixing period
+                    if ($fixing_period == $cur_spot->fixing_period) {
                         $cur_spot->update([
-                            'current_value' => $new_spot,
-                            'daily_return' => ($new_spot / $cur_spot->prev_value - 1),
-                        ]);
-                        $isSpotCreatedOrUpdated = true;
-                    } else {
-                        // Create a new record if we are not the same day
-                        Spot::create([
-                            'pair_id' => $pair->id,
                             'prev_value' => $cur_spot->current_value,
-                            'current_value' => $new_spot,
-                            'daily_return' => ($new_spot / $cur_spot->prev_value - 1),
+                            'current_value' => $new_spot_value,
+                            'period_return' => (($new_spot_value - $cur_spot->period_open_value) / $cur_spot->period_open_value),
+                            'daily_return' => (($new_spot_value - $cur_spot->day_open_value) / $cur_spot->day_open_value),
                         ]);
-                        $isSpotCreatedOrUpdated = true;
+                    } else {
+                        $cur_spot->update([
+                            'fixing_period' => $fixing_period,
+                            'period_open_value' => $new_spot_value,
+                            'prev_value' => $cur_spot->current_value,
+                            'current_value' => $new_spot_value,
+                            'period_return' => 0,
+                            'daily_return' => (($new_spot_value - $cur_spot->day_open_value) / $cur_spot->day_open_value),
+                        ]);
                     }
-                    // If we are the same day, we update the latest spot value
+                    
+                    $isSpotCreatedOrUpdated = true;
                 } else {
-                    // If there is no spot in the first run
+                    // Create a new record if we are not the same day
                     Spot::create([
                         'pair_id' => $pair->id,
-                        'prev_value' => $new_spot,
-                        'current_value' => $new_spot,
+                        'fixing_period' => 0,
+                        'period_open_value' => $new_spot_value,
+                        'day_open_value' => $new_spot_value,
+                        'prev_value' => $new_spot_value,
+                        'current_value' => $new_spot_value,
+                        'period_return' => 0,
                         'daily_return' => 0,
                     ]);
                     $isSpotCreatedOrUpdated = true;
                 }
-
-                // Eagerly load the 'pair' relationship
-                if ($isSpotCreatedOrUpdated) {
-                    $createdSpot = Spot::where('pair_id', $pair->id)->orderBy('created_at', 'desc')->first();
-                    $createdSpot->load('pair');
-                    $createdSpots[] = $createdSpot;
-                }
+            // If we are the same day, we update the latest spot value
+            } else {
+                // If there is no spot in the first run
+                Spot::create([
+                    'pair_id' => $pair->id,
+                    'fixing_period' => $fixing_period,
+                    'day_open_value' => $new_spot_value,
+                    'period_open_value' => $new_spot_value,
+                    'prev_value' => $new_spot_value,
+                    'current_value' => $new_spot_value,
+                    'period_return' => 0,
+                    'daily_return' => 0,
+                ]);
+                $isSpotCreatedOrUpdated = true;
             }
+
+            // Eagerly load the 'pair' relationship
+            if ($isSpotCreatedOrUpdated) {
+                $createdSpot = Spot::where('pair_id', $pair->id)->orderBy('created_at', 'desc')->first();
+                $createdSpot->load('pair');
+                return $createdSpot;
+            }
+
+            return null; //should never happen
         }
-        return $createdSpots;
     }
 
     public function getLatestSpotFilteredByPairFormat($coin_symbol, $counter_symbol)

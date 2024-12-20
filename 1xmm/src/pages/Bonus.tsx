@@ -1,24 +1,12 @@
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
-import { $http } from "@/lib/http";
+//import { $http } from "@/lib/http";
 import DetailBonus from "./components/Bonus/DetailBonus";
 import { toast } from "react-toastify";
 import { useTonConnectUI } from "@tonconnect/ui-react";
 import { bonusDefinitions } from "@/referential/bonusDefinitions";
 import { BonusDefinition } from "@/types/BonusDefinition";
 import { BonusTerms, BonusTypes } from "@/enums";
-
-const convertSecondsToHours = (seconds: number): string => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const remainingSeconds = seconds % 60;
-
-    const formattedHours = hours.toString().padStart(2, '0');
-    const formattedMinutes = minutes.toString().padStart(2, '0');
-    const formattedSeconds = remainingSeconds.toString().padStart(2, '0');
-
-    return `${formattedHours}h${formattedMinutes}m${formattedSeconds}s`;
-};
 
 export default function Bonus() {
     const [openBonusDrawer, setOpenBonusDrawer] = useState(false);
@@ -28,7 +16,6 @@ export default function Bonus() {
     const [capitalProtectionData, setCapitalProtectionData] = useState<any[]>([]);
     const [timeReductionData, setTimeReductionData] = useState<any[]>([]);
     const [friendData, setFriendData] = useState<any[]>([]);
-    const [countdown, setCountdown] = useState<{ [key: string]: number }>({});
     const [tonWalletAddress, setTonWalletAddress] = useState<string | null>(null);
     const [tonConnectUI] = useTonConnectUI();
 
@@ -100,11 +87,6 @@ export default function Bonus() {
     //}, []);
 
     const renderBonusItem = (bonus: any) => {
-        let formattedDuration = "";
-        let countdownClass = "text-white";
-
-        formattedDuration = bonus.bonus_type != BonusTypes.Friends ? convertSecondsToHours(bonus.duration) : "n/a";
-
         const toString = (bonusType: BonusTypes) => {
             switch(bonusType)
             {
@@ -118,41 +100,38 @@ export default function Bonus() {
 
         return (
             <div key={bonus.id} className="w-full bg-[#32363C] rounded-xl p-2.5 mt-3">
-                <div className="flex fw-bold pb-2 justify-between items-center border-b">
-                    <span className="flex items-center space-x-1">
+                <div className="flex fw-semibold pb-1 justify-between items-center">
+                    <span className="flex items-center space-x-8">
                         <span>{toString(bonus.bonus_type)}</span>
-                        <img
-                            src="/images/home/polygon.png"
-                            alt="polygon"
-                            className="w-3 h-2"
-                        />
-                        <span className="text-xs fw-light">{`+${bonus.benefit}
+                        <span className="text-md fw-light">{`+${bonus.benefit}
                         ${bonus.bonus_type == BonusTypes.CapitalProtection ? '%' : ''}
                         ${bonus.bonus_type == BonusTypes.TimeReduction ? 'sec' : ''}`}</span>
                     </span>
+                    {bonus.bonus_type != BonusTypes.Friends ? getBonusDuration(bonus.duration) : ''}
                     <span className="flex items-center space-x-1">
                         <img
-                            src="/images/home/coin.png"
+                            src="/images/home/star.png"
                             alt="coin"
                             className="w-6 h-6"
                         />
                         <span>{bonus.cost}</span>
                     </span>
                 </div>
-                <div className="flex pb-2 pt-2 justify-between items-center">
-                    <span>Bonus duration</span>
-                    <span className={`flex text-sm space-x-1 items-center ${countdownClass}`}>
-                        <img
-                            src="/images/home/time.png"
-                            alt="time"
-                            className="w-4 h-4"
-                        />
-                        <span>{formattedDuration}</span>
-                    </span>
-                </div>
             </div>
         );
     };
+
+    const getBonusDuration = (bonusTerm: BonusTerms) => {
+        return (
+        <span className="flex text-sm space-x-1 items-center text-white">
+            <img
+                src="/images/home/time.png"
+                alt="time"
+                className="w-4 h-4"
+            />
+            <span>{bonusTerm == BonusTerms.Short ? "3 hours" : "6 hours"}</span>
+        </span>);
+    }
 
     const handleBuyBonusAction = () => {
         if (tonWalletAddress) {
@@ -177,21 +156,23 @@ export default function Bonus() {
                     Check our website to see whether bonus allocated tokens are still available.
                 </div>
             </div>
+            <div className="flex justify-center mt-4 mb-6">
+                <button
+                    type="button"
+                    className="rounded flex fw-semibold py-2 px-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)]"
+                    onClick={() => handleBuyBonusAction()}
+                    >
+                    <img
+                        src="/images/home/star.png"
+                        alt="coin"
+                        className="object-cover w-4 h-4"
+                    />
+                    <span className="font-normal text-xs">Purchase Stars</span>
+                </button>
+            </div>
             <div className="mt-4 mb-6">
                 <div className="flex justify-between items-center">
                     <span className="fw-bold text-lg">Leverage</span>
-                    <button
-                        type="button"
-                        className="rounded flex fw-semibold items-center justify-center py-2 px-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)]"
-                        onClick={() => handleBuyBonusAction()}
-                    >
-                        <img
-                            src="/images/home/coin.png"
-                            alt="coin"
-                            className="object-cover w-4 h-4"
-                        />
-                        <span className="font-normal text-xs">Purchase Bonus</span>
-                    </button>
                 </div>
                 <div className="flex flex-col">
                     {leverageData.length > 0 ? (
