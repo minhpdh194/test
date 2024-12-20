@@ -32,17 +32,17 @@ function createBenefit(level: number, pairs_unlocked: number[], positive_leverag
     protection_bonus: number, cumulated_protection_bonus: number, time_bonus: number, cumulated_time_bonus: number, total_gain_per_tap: number,
     cumulated_tapping_amount: number): LevelBenefits {
     const benefit: LevelBenefits = {
-        level: level,
-        pairs_unlocked: pairs_unlocked,
-        positive_leverage: positive_leverage,
-        cumulated_positive_leverage: cumulated_positive_leverage,
-        protection_bonus: protection_bonus,
-        cumulated_protection_bonus: cumulated_protection_bonus,
-        time_bonus: time_bonus,
-        cumulated_time_bonus: cumulated_time_bonus,
-        total_gain_per_tap: total_gain_per_tap,
-        cumulated_tapping_amount: cumulated_tapping_amount
-    };
+            level: level,
+            pairs_unlocked: pairs_unlocked,
+            positive_leverage: positive_leverage,
+            cumulated_positive_leverage: cumulated_positive_leverage,
+            protection_bonus: protection_bonus,
+            cumulated_protection_bonus: cumulated_protection_bonus,
+            time_bonus: time_bonus,
+            cumulated_time_bonus: cumulated_time_bonus,
+            total_gain_per_tap: total_gain_per_tap,
+            cumulated_tapping_amount: cumulated_tapping_amount
+        };
 
-    return benefit;
+        return benefit;
 }

@@ -12,9 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('historical_spots', function (Blueprint $table) {
+            $table->id();
             $table->integer('pair_id')->references('id')->on('pairs');
+            $table->tinyInteger('fixing_period');
+            $table->decimal('day_open_value', 15, 8);
+            $table->decimal('period_open_value', 15, 8);
             $table->decimal('prev_value', 15, 8);
-            $table->decimal('current_value', 15, 8); 
+            $table->decimal('current_value', 15, 8);
+            $table->decimal('period_return', 15, 8); 
             $table->decimal('daily_return', 15, 8);
             $table->timestamps();
 

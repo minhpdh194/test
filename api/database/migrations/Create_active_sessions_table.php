@@ -12,9 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('active_sessions', function (Blueprint $table) {
+            $table->string('id')->nullable(false)->unique();
             $table->string('telegram_id')->references('telegram_user_id')->on('user_profile')->unique();
             $table->string('chat_id', 100)->nullable();
             $table->timestamp('last_activity')->default(now());
+            $table->string('ip_address', 40)->nullable(false)->unique();
+            $table->string('payload');
+            $table->timestamps();
         });
     }
 
