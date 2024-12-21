@@ -34,25 +34,21 @@ class MarketDataService
                 ->orderBy('created_at', 'desc')
                 ->first();
 
-            // $spot should NEVER be null
-            // new spot value should NEVER be null or 0
-            // if(!$cur_spot || !$new_spot || $new_spot == 0) {
-            //     return null;
-            // }
             $fixing_period = intval(Carbon::now()->hour / 6) * 6;
 
             // If spot already exists we will update the spot
             if ($cur_spot) {
                 $createdAt = Carbon::parse($cur_spot->created_at); // Ensure $cur_spot->created_at is a Carbon instance
+                // If same day and same fixing period, we update existing spot
                 if ($createdAt->isSameDay(Carbon::now())) {
                     // Update the record
+                    // If it is same fixing period
                     if ($fixing_period == $cur_spot->fixing_period) {
                         $cur_spot->update([
-                            'current_value' => $new_spot_value,
                             'prev_value' => $cur_spot->current_value,
+                            'current_value' => $new_spot_value,
                             'period_return' => (($new_spot_value - $cur_spot->period_open_value) / $cur_spot->period_open_value),
                             'daily_return' => (($new_spot_value - $cur_spot->day_open_value) / $cur_spot->day_open_value),
-
                         ]);
                     } else {
                         $cur_spot->update([
@@ -64,6 +60,7 @@ class MarketDataService
                             'daily_return' => (($new_spot_value - $cur_spot->day_open_value) / $cur_spot->day_open_value),
                         ]);
                     }
+                    
                     $isSpotCreatedOrUpdated = true;
                 } else {
                     // Create a new record if we are not the same day
