@@ -10,7 +10,7 @@ import { TelegramWebApps } from "telegram-webapps-types";
 
 const fakeData = {
   user: {
-    id: 1,
+    id: 123159,
     first_name: "John",
     last_name: "Doe",
     is_bot: false

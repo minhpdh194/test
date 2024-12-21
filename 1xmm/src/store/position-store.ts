@@ -68,18 +68,15 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
 
   AddPosition: async (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]): Promise<AddingDetails> => {
     // existing_position should be a pointer...
-    const existing_position = get().positions.find(p => p.pair.id == pair.id && p.long_short === ls);
+    const existing_position = get().positions.find(p => p.pair.id == pair.id);
 
     if (existing_position) {
       // hence the code below should update the position in positions directly
       const res = await existing_position.add(ls, amt, lev, bonuses);
+      throw new Error('if existing_position.amount == 0 => we should close the position');
 
       try {
         await $http.post('/clicker/update-position', existing_position);
-
-        set((state) => ({
-          next_position_id: state.next_position_id! + 1,
-        }));
       } catch (error) {
         console.error('Failed to add position:', error);
       }
@@ -89,7 +86,7 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
         realized_pnl: res.realized_pnl
       };
     } else {
-      const position: Position = new Position(get().next_position_id!, pair, ls, amt, lev, Utils.getPositionTimestamp() + 21600, bonuses, globalThis.userProfile.telegram_user_id);
+      const position: Position = new Position(get().next_position_id!, pair, ls, Number(amt), lev, Utils.getPositionTimestamp() + 21600, bonuses);
       
       try {
         await $http.post('/clicker/add-position', position);

@@ -35,8 +35,9 @@ export class Position {
         this.amount = amt;
         this.leverage = lev;
         this.bonuses = bonuses;
-        this.open_date = min_end_date - 21600;
         this.min_end_date = min_end_date;
+        this.open_date = min_end_date - 21600;
+        
         this.performance = 0.0;
     }
 
@@ -90,7 +91,7 @@ export class Position {
                 } else {
                     pnl = bonus_factors.total_leverage * index_perf * amt * (1 - bonus_factors.total_capital_protection);
                 }
-                this.amount += amt;
+                this.amount -= amt;
                 bonuses.forEach(b => this.attach_bonus(b));
                 toast.success("Position updated successfully");
 
@@ -122,7 +123,7 @@ export class Position {
                 toast.success("Position updated successfully");
 
                 return {
-                    amount_adjustment: prev_amt,
+                    amount_adjustment: prev_amt - this.amount,
                     realized_pnl: pnl
                 }
             }

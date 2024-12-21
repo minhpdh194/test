@@ -13,6 +13,7 @@ const CounterInput: React.FC<CounterInputProps> = ({
   onChange,
   isLeverage = false,
 }) => {
+  const pos_amt_inc = Math.max(25, 10 ** (Math.round(Math.log10(userProfile.trading_info.balance)) - 2) * 2.5);
   const handleIncrement = () => {
     if (isLeverage) {
       const currentIndex = allowedLeverages.indexOf(value); // Find the current index of value
@@ -21,8 +22,8 @@ const CounterInput: React.FC<CounterInputProps> = ({
         onChange(allowedLeverages[currentIndex + 1]);
       }
     } else {
-      // Increase the amount by 250
-      onChange(value + 250);
+      // Increase the amount by pos_amt_inc
+      onChange(value + pos_amt_inc);
     }
   };
 
@@ -33,8 +34,8 @@ const CounterInput: React.FC<CounterInputProps> = ({
         onChange(allowedLeverages[currentIndex - 1]);
       }
     } else {
-      if (value > 0 && value - 250 >= 0) {
-        onChange(value - 250);
+      if (value > 0 && value - pos_amt_inc >= 0) {
+        onChange(value - pos_amt_inc);
       }
     }
   };

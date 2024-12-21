@@ -116,21 +116,21 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       last_name: syncData.user.last_name,
       username: syncData.user.username,
       last_login: syncData.user.last_login,
-      level: syncData.gameData.level,
-      login_streak: syncData.user.login_streak,
+      level: Number(syncData.gameData.level),
+      login_streak: Number(syncData.user.login_streak),
       avatar_id: syncData.gameData.avatar_id,
-      available_energy: syncData.gameData.available_energy,
+      available_energy: Number(syncData.gameData.available_energy),
       amount_of_tokens: 0, //temporarity
       trading_info: {
-        balance: syncData.gameData.balance,
-        total_pnl: syncData.gameData.total_pnl,
-        perf_from_start_date: syncData.gameData.perf_from_start_date,
-        perf_since_last_fixing: syncData.gameData.perf_since_last_fixing,
-        positive_leverage: state.trading_info.positive_leverage,
+        balance: parseFloat(syncData.gameData.balance),
+        total_pnl: parseFloat(syncData.gameData.total_pnl),
+        perf_from_start_date: parseFloat(syncData.gameData.perf_from_start_date),
+        perf_since_last_fixing: parseFloat(syncData.gameData.perf_since_last_fixing),
+        positive_leverage: Number(state.trading_info.positive_leverage),
         capital_protection: state.trading_info.capital_protection,
-        time_reduction: state.trading_info.time_reduction,
+        time_reduction: Number(state.trading_info.time_reduction),
       },
-      number_of_stars: syncData.gameData.number_of_stars
+      number_of_stars: Number(syncData.gameData.number_of_stars)
     }));
 
     globalThis.userProfile = get(); //assign newest data to global
@@ -202,7 +202,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
   AddPosition: async (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]): Promise<boolean> => {
     const userProfile = get();
     if (!userProfile.positionStore) return false;
-
+    
     const addDetails = await userProfile.positionStore!.AddPosition(pair, ls, amt, lev, bonuses, userProfile);
 
     if (addDetails.success) {
@@ -211,8 +211,8 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
         trading_info: {
           balance: state.trading_info.balance + addDetails.amount_adjustment + addDetails.realized_pnl,
           total_pnl: state.trading_info.total_pnl + addDetails.realized_pnl,
-          perf_from_start_date: state.trading_info.perf_from_start_date + addDetails.realized_pnl / state.amount_of_tokens,
-          perf_since_last_fixing: state.trading_info.perf_since_last_fixing + addDetails.realized_pnl / state.amount_of_tokens,
+          perf_from_start_date: (state.trading_info.perf_from_start_date * state.amount_of_tokens + addDetails.realized_pnl) / state.amount_of_tokens,
+          perf_since_last_fixing: (state.trading_info.perf_since_last_fixing * state.amount_of_tokens + addDetails.realized_pnl) / state.amount_of_tokens,
           positive_leverage: state.trading_info.positive_leverage,
           capital_protection: state.trading_info.capital_protection,
           time_reduction: state.trading_info.time_reduction

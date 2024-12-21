@@ -11,6 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('total_open_positions', function (Blueprint $table) {
+            $table->increments('id');
             $table->integer('pair_id')->references('id')->on('pairs')->unique();
             $table->integer('total_long_value')->default(0);
             $table->integer('total_short_value')->default(0);

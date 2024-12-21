@@ -18,9 +18,10 @@ import { Bonus } from "./classes/Bonus";
 import { bonusDefinitions } from "./referential/bonusDefinitions";
 import { Friend } from "./types/Friend";
 import { getPositionStore } from "./store/position-store";
-import { UserProfile } from "./types/UserProfile";
-import { SpotType } from "./types/SpotType";
-import pusher from "./lib/pusher";
+import { Utils } from "./lib/utils";
+//import { UserProfile } from "./types/UserProfile";
+//import { SpotType } from "./types/SpotType";
+//import pusher from "./lib/pusher";
 
 const webApp = window.Telegram.WebApp;
 const isDesktop = import.meta.env.DEV
@@ -138,7 +139,8 @@ function syncBonusesAndPositions(userBonuses: UserBonus[], userPositions: UserPo
   const bonusesToDelete: number[] = [];
 
   userPositions.forEach(p => {
-    const open_position: Position = new Position(p.id, pairs.find(e => e.id == p.pair_id)!, p.long_short, p.amount, p.average_leverage, p.min_end_date, []);
+    const date = new Date(p.min_end_date).getTime() / 1000;
+    const open_position: Position = new Position(p.id, pairs.find(e => e.id == p.pair_id)!, p.long_short, p.amount, p.average_leverage, date, []);
     //need to use the userProfile in this part, because when this function is called, the global.userProfile is not set, so all of it is default data, which is wrong
 
     // p?.bonuses.forEach(element => { 

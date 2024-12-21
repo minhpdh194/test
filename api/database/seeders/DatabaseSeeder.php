@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             PairSeeder::class,
+            HistoricalSpotSeeder::class,
             SettingsSeeder::class,
             StarsDefinitionSeeder::class,
             TaskSeeder::class,

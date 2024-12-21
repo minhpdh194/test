@@ -12,18 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('positions', function (Blueprint $table) {
+            $table->increments('id');
             $table->integer('position_id')->nullable(false);
-            $table->integer('user_id')->references('id')->on('user_profile')->onDelete('cascade');
+            $table->integer('telegram_user_id')->references('telegram_user_id')->on('user_profile')->onDelete('cascade');
             $table->integer('pair_id')->nullable(false);
             $table->enum('long_short', ['long', 'short']);
-            $table->decimal('amount', 18, 8)->nullable(false);
+            $table->integer('amount')->nullable(false);
             $table->decimal('average_leverage', 8, 6)->nullable(false);
             $table->json('bonuses_id')->nullable();
             $table->timestamp('min_end_date')->nullable(false);
             $table->boolean('alive')->default(true);
             $table->timestamps();
 
-            $table->unique(['position_id', 'user_id', 'pair_id']);
+            $table->unique(['position_id', 'telegram_user_id', 'pair_id']);
         });
     }
 

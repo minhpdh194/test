@@ -72,7 +72,7 @@ class MarketDataService
                         'prev_value' => $new_spot_value,
                         'current_value' => $new_spot_value,
                         'period_return' => 0,
-                        'daily_return' => 0,
+                        'daily_return' => ($new_spot_value / $cur_spot->prev_value - 1),
                     ]);
                     $isSpotCreatedOrUpdated = true;
                 }

@@ -15,6 +15,7 @@ class Spot extends Model
     protected $guarded = [];
 
     protected $table = "historical_spots";
+    protected $fillable = ['created_at'];
 
     public function volatility()
     {

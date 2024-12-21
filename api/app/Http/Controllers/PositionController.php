@@ -29,7 +29,7 @@ class PositionController extends Controller
 
     public function getPositions(Request $request)
     {
-        $all = Position::where('user_id', $request->user()->telegram_user_id)->get();
+        $all = Position::where('telegram_user_id', $request->user()->telegram_user_id)->get();
         $next_position_id = $all->count() + 1;
         $positions = $all->filter(function ($pos) { return $pos->alive; })->values();
 
@@ -50,7 +50,7 @@ class PositionController extends Controller
 
     public function getPositionsByUser(Request $request)
     {
-        $positions = Position::where('user_id', $request->user()->id)->get();
+        $positions = Position::where('telegram_user_id', $request->user()->id)->get();
         return response()->json($positions);
     }
 
@@ -62,6 +62,7 @@ class PositionController extends Controller
         }
         $userGameData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
         $validatedData = $request->only([
+            'position_id',
             'pair',
             'long_short',
             'amount',
@@ -70,18 +71,18 @@ class PositionController extends Controller
             'min_end_date',
         ]);
 
+        $positionData['position_id'] = $validatedData['position_id'];
         $positionData['amount'] = $validatedData['amount'];
         $positionData['average_leverage'] = $validatedData['leverage'];
         $positionData['min_end_date'] = Carbon::createFromTimestamp($validatedData['min_end_date'])->toDateTimeString();
         $positionData['long_short'] = $validatedData['long_short'];
-        $positionData['user_id'] = $user->telegram_user_id;
+        $positionData['telegram_user_id'] = $user->telegram_user_id;
         $positionData['pair_id'] = $validatedData['pair']['id'];
 
         if (!empty($validatedData['bonuses']) && count($validatedData['bonuses']) > 0) {
             $bonuses_id = array_map(fn($bonus) => (string) $bonus['id'], $validatedData['bonuses']);
             $positionData['bonuses_id'] = json_encode($bonuses_id);
         }
-
         $totalPositionValue = TotalOpenPositionValue::where('pair_id', $positionData['pair_id'])->first();
         if (!$totalPositionValue) {
             $totalPositionValue = TotalOpenPositionValue::create([
@@ -131,32 +132,37 @@ class PositionController extends Controller
             // 'pnl',
             'leverage',
             // 'open_date',
-            'bonuses',
-            // 'min_end_date',
+            //'bonuses',
+            'min_end_date',
             'userId',
         ]);
         \Log::info($request);
         \Log::info($validatedData);
 
-        $position = Position::where('id', $validatedData['position_id'])
-            ->where('user_id', $user->telegram_user_id)
-            ->first();
+        $position = Position::where(['position_id' => $validatedData['position_id'], 'telegram_user_id' => $user->telegram_user_id])->first();
+        $userGameData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
 
-        if (!$position) {
+        if (!$position || !$userGameData) {
+            $pos_issue = !$position;
             return response()->json(['message' => 'Position not found'], 404);
         }
+
+        $position_change = $validatedData['amount'] - $position->amount;
 
         $positionData['amount'] = $validatedData['amount'];
         $positionData['average_leverage'] = $validatedData['leverage'];
         $positionData['long_short'] = $validatedData['long_short'];
         // $positionData['performance'] = $validatedData['performance'];
-        // $positionData['min_end_date'] = $validatedData['id'];
+        $positionData['min_end_date'] = Carbon::createFromTimestamp($validatedData['min_end_date'])->toDateTimeString();
+        $positionData['alive'] = $validatedData['amount'] != 0;
 
         // if (isset($validatedData['bonuses']) && is_array($validatedData['bonuses'])) {
         //     $this->positionService->addBonuses($validatedData['bonuses'], $user->telegram_user_id, $position->id);
         // }
 
         $position->update($positionData);
+        $userGameData->balance = $userGameData->balance - $position_change;
+        $userGameData->save();
         return response()->json(['message' => 'Position updated successfully'], 200);
     }
 
@@ -167,7 +173,7 @@ class PositionController extends Controller
 
         $position_id = $request->position_id;
         $position = Position::where('id', $position_id)
-            ->where('user_id', $user->telegram_user_id)
+            ->where('telegram_user_id', $user->telegram_user_id)
             ->first();
 
         $positionBonuses = UserBonuses::where('position_id', $position_id)->get();
