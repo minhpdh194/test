@@ -10,18 +10,28 @@ use Illuminate\Support\Facades\Log;
 use App\Models\TelegramUser;
 use App\Models\Spot;
 use App\Models\UserBonuses;
+use App\Models\UserGameData;
+use Carbon\Carbon;
 
 class BonusController extends Controller
 {
     public function buyBonus(Request $request)
     {
         $user = $request->user();
-        $isBonusBought = UserBonuses::where('bonus_id', $request->bonus_id)->where('user_id', $user->telegram_user_id)->first();
+        $boughtBonus = $request->bonus;
+        $isBonusBought = UserBonuses::where('bonus_id', $boughtBonus['id'])->where('user_id', $user->telegram_user_id)->first();
         if ($isBonusBought) {
             return response()->json(['success' => 'This bonus has been purchased'], 202);
         } else {
+            $userData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
+            $ownedStars = $userData->number_of_stars;
+            if ($ownedStars < $boughtBonus['cost']) {
+                return response()->json(['success' => "You don't have enough stars"], 202);
+            }
+            $userData->number_of_stars = $ownedStars - $boughtBonus["cost"];
+            $userData->save();
             UserBonuses::create([
-                'bonus_id' => $request->bonus_id,
+                'bonus_id' => $boughtBonus['id'],
                 'user_id' => $user->telegram_user_id,
                 'purchase_time' => Carbon::now(),
             ]);

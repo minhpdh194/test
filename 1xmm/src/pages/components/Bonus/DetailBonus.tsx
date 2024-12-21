@@ -5,6 +5,7 @@ import { $http } from "@/lib/http";
 import { bonusDefinitions } from "@/referential/bonusDefinitions";
 import { BonusTypes } from "@/enums";
 import { Utils } from "@/lib/utils";
+import { BonusDefinition } from "@/types/BonusDefinition";
 
 interface DetailBonusProps {
     open: boolean;
@@ -18,7 +19,7 @@ export default function DetailBonus({
     onBuySuccess,
     ...props
 }: DetailBonusProps) {
-    const handleBuyClick = async (bonus: any) => {
+    const handleBuyClick = async (bonus: BonusDefinition) => {
         // const isPurchased = bonusData.some((bonus: any) => bonus.id === id);
 
         // if (isPurchased) {
@@ -27,12 +28,11 @@ export default function DetailBonus({
         // }
 
         try {
-            const bonus_id = bonus.id;
-            const response = await $http.post('/buy-bonus', { bonus_id: bonus_id });
+            const response = await $http.post('/buy-bonus', { bonus: bonus });
             if (response.status === 200) {
                 toast.success('Bonus bought successfully!');
 
-                const purchasedBonus = bonusDefinitions.find((bonus: any) => bonus.id === bonus_id);
+                const purchasedBonus = bonus;
                 if (purchasedBonus) {
                     onBuySuccess(purchasedBonus);
                 }

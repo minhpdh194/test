@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useTonConnectUI } from "@tonconnect/ui-react";
-import { $http } from "@/lib/http";
 import DetailStar from "./components/Star/DetailStar";
 import { toast } from "react-toastify";
 import { userProfileStore } from "@/store/user-store";
@@ -15,7 +14,6 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
     const [tonWalletAddress, setTonWalletAddress] = useState<string | null>(null);
     const [, setIsLoading] = useState(true);
     const [openStarDrawer, setOpenStarDrawer] = useState(false);
-    const [starPackages, setStarPackages] = useState<any[]>([]);
     const userProfile = userProfileStore();
 
     // Handle wallet connection
@@ -30,20 +28,6 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
         setTonWalletAddress(null);
         console.log("Wallet disconnected");
         setIsLoading(false);
-    }, []);
-
-    useEffect(() => {
-        const fetchStarPackageData = async () => {
-            try {
-                const starPackagesResponse = await $http.get("/all-star-packages");
-                console.log("starPackagesResponse", starPackagesResponse.data);
-                setStarPackages(starPackagesResponse.data);
-            } catch (error) {
-                console.error("Error fetching bonus data:", error);
-            }
-        };
-
-        fetchStarPackageData();
     }, []);
 
     // Check wallet connection on load
@@ -217,7 +201,6 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
 
             {openStarDrawer && starPackages.length > 0 && (
                 <DetailStar
-                    starPackages={starPackages}
                     open={openStarDrawer}
                     onOpenChange={setOpenStarDrawer}
                 />

@@ -86,10 +86,9 @@ export default function Bonus() {
     //    return () => clearInterval(interval);
     //}, []);
 
-    const renderBonusItem = (bonus: any) => {
+    const renderBonusItem = (bonus: BonusDefinition) => {
         const toString = (bonusType: BonusTypes) => {
-            switch(bonusType)
-            {
+            switch (bonusType) {
                 case BonusTypes.Leverage: return "Leverage";
                 case BonusTypes.CapitalProtection: return "Capital Protection";
                 case BonusTypes.PositiveLeverage: return "Positive Leverage";
@@ -123,14 +122,14 @@ export default function Bonus() {
 
     const getBonusDuration = (bonusTerm: BonusTerms) => {
         return (
-        <span className="flex text-sm space-x-1 items-center text-white">
-                        <img
-                            src="/images/home/time.png"
-                            alt="time"
-                            className="w-4 h-4"
-                        />
-            <span>{bonusTerm == BonusTerms.Short ? "3 hours" : "6 hours"}</span>
-        </span>);
+            <span className="flex text-sm space-x-1 items-center text-white">
+                <img
+                    src="/images/home/time.png"
+                    alt="time"
+                    className="w-4 h-4"
+                />
+                <span>{bonusTerm == BonusTerms.Short ? "3 hours" : "6 hours"}</span>
+            </span>);
     }
 
     const handleBuyBonusAction = () => {
@@ -156,20 +155,32 @@ export default function Bonus() {
                     Check our website to see whether bonus allocated tokens are still available.
                 </div>
             </div>
-            <div className="flex justify-center mt-4 mb-6">
-                    <button
-                        type="button"
+            <div className="flex justify-around mt-4 mb-6">
+                <button
+                    type="button"
                     className="rounded flex fw-semibold py-2 px-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)]"
-                        onClick={() => handleBuyBonusAction()}
-                    >
-                        <img
+                    onClick={() => handleBuyBonusAction()}
+                >
+                    <img
                         src="/images/home/star.png"
-                            alt="coin"
-                            className="object-cover w-4 h-4"
-                        />
+                        alt="coin"
+                        className="object-cover w-4 h-4"
+                    />
+                    <span className="font-normal text-xs">Purchase Bonuses</span>
+                </button>
+
+                <button
+                    type="button"
+                    className="rounded flex fw-semibold py-2 px-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)]"
+                >
+                    <img
+                        src="/images/home/star.png"
+                        alt="coin"
+                        className="object-cover w-4 h-4"
+                    />
                     <span className="font-normal text-xs">Purchase Stars</span>
-                    </button>
-                </div>
+                </button>
+            </div>
             <div className="mt-4 mb-6">
                 <div className="flex justify-between items-center">
                     <span className="fw-bold text-lg">Leverage</span>

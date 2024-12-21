@@ -2,22 +2,21 @@ import { toast } from 'react-toastify';
 import { $http } from "@/lib/http";
 import Drawer from '@/components/ui/drawer';
 import { useTonConnectUI } from '@tonconnect/ui-react';
+import { StarPackage } from '@/types/StarPackage';
 
 interface DetailStarProps {
-    starPackages: any[];
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }
 
 export default function DetailStar({
-    starPackages,
     open,
     onOpenChange,
     ...props
 }: DetailStarProps) {
     const [tonConnectUI] = useTonConnectUI();
     const receiveAccountAddress = import.meta.env.VITE_RECEIVER_WALLET_ADDRESS;
-
+    
     const buyStarPackage = async (amount: number) => {
         const transaction = {
             validUntil: Math.floor(Date.now() / 1000) + 120, // Transaction valid for 120 seconds
@@ -42,18 +41,16 @@ export default function DetailStar({
         }
     };
 
-    const calculatePackagePrice = (starPackage: any) => {
-        return starPackage.price - (starPackage.price * (starPackage.discount / 100));
+    const calculatePackagePrice = (starPackage: StarPackage) => {
+        return starPackage.cost - (starPackage.cost * (starPackage.discount / 100));
     }
 
-    const handleBuyStarPackage = async (starPackage: any) => {
+    const handleBuyStarPackage = async (starPackage: StarPackage) => {
         try {
-            const id = starPackage.id;
             const paidPrice = calculatePackagePrice(starPackage);
-            console.log(paidPrice);
             const transactionResult = await buyStarPackage(paidPrice);
             if (transactionResult) {
-                const response = await $http.post('/buy-star-package', { id });
+                const response = await $http.post('/buy-stars', { package: starPackage });
                 if (response.status === 200) {
                     toast.success('Bonus bought successfully!');
                 }
@@ -83,7 +80,7 @@ export default function DetailStar({
                             <span className="text-sm">{starPackage.discount || 0}% discounted</span>
                         </div>
                         <div className="flex flex-col mt-1 ml-4">
-                            <span className="text-sm">{starPackage.price || 0} TON</span>
+                            <span className="text-sm">{starPackage.cost || 0} USD</span>
                         </div>
                         <div className="flex flex-col items-center">
                             <button
