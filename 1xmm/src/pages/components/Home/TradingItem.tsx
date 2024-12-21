@@ -176,10 +176,9 @@ const TradingItem = ({ spots, onValidateAmount }: TradingItemProps) => {
     const handleClose = async (pairId: number) => {
         try {
             setIsLoading(true);
-            const pair = pairs.find(pair => pair.id === pairId);
-
-            if (positions.find((pos: Position) => pos.position_id === pairId)) {
-                userProfile.ClosePosition(pairId);
+            const closedPosition = positions.find((pos: Position) => pos.pair.id === pairId && pos.long_short === selectedOptions[pairId]);
+            if (closedPosition) {
+                userProfile.ClosePosition(closedPosition);
 
                 // Reset states
                 setAmounts((prev) => ({ ...prev, [pairId]: 0 }));
@@ -187,8 +186,6 @@ const TradingItem = ({ spots, onValidateAmount }: TradingItemProps) => {
 
                 // Fetch updated positions
                 await fetchLatestPositions();
-
-                toast.success(`${pair!.pair_symbol} closed successfully`);
             }
         } catch (error) {
             console.error('Error closing position:', error);

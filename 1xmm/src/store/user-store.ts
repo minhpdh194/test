@@ -12,6 +12,7 @@ import { LongShort } from "@/enums";
 // Referential data
 import { levelBenefits } from "@/referential/levelBenefits";
 import { levelConditions } from "@/referential/levelConditions";
+import { Position } from "@/classes/Position";
 
 export type UserProfileStore = UserProfile & {
   SetLevelBenefits: (pairsInReferential: Pair[]) => void;
@@ -20,7 +21,7 @@ export type UserProfileStore = UserProfile & {
   UserTap: () => boolean;
   UserLevelUp: (pairsInReferential: Pair[]) => void;
   AddPosition: (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]) => Promise<boolean>;
-  ClosePosition: (position_id: number) => Promise<boolean>;
+  ClosePosition: (position: Position) => Promise<boolean>;
   SetFriends: (friends: Friend[]) => void;
 
   unlocked_pair_ids: Array<number>;
@@ -225,11 +226,11 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
     return false;
   },
 
-  ClosePosition: async (position_id: number): Promise<boolean> => {
+  ClosePosition: async (position: Position): Promise<boolean> => {
     const positionStore = get().positionStore;
     if (!positionStore) return false;
 
-    const closingDetails = await positionStore!.ClosePosition(position_id);
+    const closingDetails = await positionStore!.ClosePosition(position);
 
     if (closingDetails.success) {
       set((state) => ({
@@ -282,7 +283,7 @@ function getUnlockedPairIds(level: number): number[] {
 }
 
 function getUnlockedPairs(pairsInReferential: Pair[], level: number): Pair[] {
-  let pairs: Pair[] = [];
+  const pairs: Pair[] = [];
   const pairIds = getUnlockedPairIds(level);
   pairIds.forEach(id => pairs.push(pairsInReferential.find(p => p.id == id)!))
   return pairs;

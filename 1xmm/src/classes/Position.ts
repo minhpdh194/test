@@ -1,6 +1,5 @@
 import { BonusTypes, Leverages, LongShort } from "@/enums";
 import { Utils } from "../lib/utils";
-import { toast } from "react-toastify";
 import { UserProfile } from "../types/UserProfile";
 import { Bonus } from "./Bonus";
 import { COMM } from "@/lib/comm";
@@ -56,6 +55,7 @@ export class Position {
     }
 
     public async add(ls: LongShort, amt: number, lev: Leverages, bonuses: Bonus[]) {
+        this.amount = Number(this.amount); //convert amount to number
         if (ls === this.long_short) {
             const lev_amt = this.amount * this.leverage;
             const new_lev_amt = amt * (lev as number);
@@ -64,7 +64,6 @@ export class Position {
             this.leverage = (lev_amt + new_lev_amt) / this.amount;
 
             bonuses.forEach(b => this.attach_bonus(b));
-            toast.success("Position updated successfully");
 
             // No PnL has been generated
             return {
@@ -92,7 +91,6 @@ export class Position {
                 }
                 this.amount += amt;
                 bonuses.forEach(b => this.attach_bonus(b));
-                toast.success("Position updated successfully");
 
                 return {
                     amount_adjustment: amt,
@@ -119,7 +117,6 @@ export class Position {
                 this.min_end_date = value_date + 21600;
 
                 bonuses.forEach(b => this.attach_bonus(b));
-                toast.success("Position updated successfully");
 
                 return {
                     amount_adjustment: prev_amt,
