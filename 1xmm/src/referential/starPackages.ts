@@ -13,7 +13,7 @@ function createStarPackages(id: number, number_of_stars: number, discount: numbe
         id: id,
         number_of_stars: number_of_stars,
         discount: discount,
-        cost: number_of_stars * 0.25
+        cost: number_of_stars * 0.025
     };
 
     return StarPackage;

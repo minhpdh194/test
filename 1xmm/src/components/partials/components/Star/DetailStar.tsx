@@ -80,7 +80,7 @@ export default function DetailStar({
                             <span className="text-sm">{starPackage.discount || 0}% discounted</span>
                         </div>
                         <div className="flex flex-col mt-1 ml-4">
-                            <span className="text-sm">{starPackage.cost || 0} USD</span>
+                            <span className="text-sm">{starPackage.cost || 0} TON</span>
                         </div>
                         <div className="flex flex-col items-center">
                             <button
