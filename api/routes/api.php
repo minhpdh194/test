@@ -42,14 +42,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/user_positions', [PositionController::class, 'getPositions']);
 
-
-    Route::post('/buy-stars', [TelegramStarController::class, 'buyStarPackage']);
-
-    Route::post('/buy-bonus', [BonusController::class, 'buyBonus']);
     Route::get('/user_bonuses', [BonusController::class, 'getBonuses']);
+
     Route::post('/expire_bonuses', [BonusController::class, 'expiry']);
 
     require base_path('routes/clicker.php');
+    require base_path('routes/transaction.php');
 
     Route::post('/update-user-level', [TelegramUserController::class, 'updateUserLevel']);
 });

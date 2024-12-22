@@ -50,7 +50,7 @@ export default function DetailStar({
             const paidPrice = calculatePackagePrice(starPackage);
             const transactionResult = await buyStarPackage(paidPrice);
             if (transactionResult) {
-                const response = await $http.post('/buy-stars', { package: starPackage });
+                const response = await $http.post('/transaction/buy-stars', { package: starPackage });
                 if (response.status === 200) {
                     toast.success('Bonus bought successfully!');
                 }

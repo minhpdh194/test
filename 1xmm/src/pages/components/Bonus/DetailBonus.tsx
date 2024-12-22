@@ -28,7 +28,7 @@ export default function DetailBonus({
         // }
 
         try {
-            const response = await $http.post('/buy-bonus', { bonus: bonus });
+            const response = await $http.post('/transaction/buy-bonus', { bonus: bonus });
             if (response.status === 200) {
                 toast.success('Bonus bought successfully!');
 
