@@ -143,11 +143,7 @@ export default function Bonus() {
     }
 
     const handleBuyBonusAction = () => {
-        if (tonWalletAddress) {
-            setOpenBonusDrawer(true);
-        } else {
-            toast.error("Please connect your wallet before");
-        }
+        setOpenBonusDrawer(true);
     }
 
     return (
