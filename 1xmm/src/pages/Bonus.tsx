@@ -128,8 +128,12 @@ export default function Bonus() {
         }
     }
 
-    const handleBuyBonusAction = () => {
-        setOpenBonusDrawer(true);
+    const handleBuyBonusAction = async () => {
+        if (tonConnectUI.connected || globalThis.userProfile.number_of_stars > 0) {
+            setOpenBonusDrawer(true);
+        } else {
+            await tonConnectUI.openModal();
+        }
     }
 
     return (
