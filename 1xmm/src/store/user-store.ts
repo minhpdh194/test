@@ -26,6 +26,7 @@ export type UserProfileStore = UserProfile & {
 
   unlocked_pair_ids: Array<number>;
   unlocked_pairs: Pair[];
+  number_of_stars: number;
   positionStore: PositionStore | undefined;
 }
 
