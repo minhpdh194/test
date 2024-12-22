@@ -17,7 +17,6 @@ export default function Bonus() {
     const [capitalProtectionData, setCapitalProtectionData] = useState<any[]>([]);
     const [timeReductionData, setTimeReductionData] = useState<any[]>([]);
     const [friendData, setFriendData] = useState<any[]>([]);
-    const [tonWalletAddress, setTonWalletAddress] = useState<string | null>(null);
     const [tonConnectUI] = useTonConnectUI();
     const [openStarDrawer, setOpenStarDrawer] = useState(false);
 
@@ -28,19 +27,6 @@ export default function Bonus() {
             console.error("Error fetching bonus data:", error);
         }
     };
-
-    useEffect(() => {
-        const checkWalletConnection = async () => {
-            if (tonConnectUI.account?.address) {
-                console.log(tonConnectUI.account?.address)
-                setTonWalletAddress(tonConnectUI.account?.address);
-            } else {
-                setTonWalletAddress(null);
-            }
-        };
-
-        checkWalletConnection();
-    }, [tonConnectUI]);
 
     useEffect(() => {
         const fetchBonusData = async () => {
@@ -135,7 +121,7 @@ export default function Bonus() {
     }
 
     const handleBuyStarsAction = async () => {
-        if (tonWalletAddress) {
+        if (tonConnectUI.connected) {
             setOpenStarDrawer(true);
         } else {
             await tonConnectUI.openModal();
