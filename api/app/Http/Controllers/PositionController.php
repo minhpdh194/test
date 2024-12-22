@@ -29,7 +29,7 @@ class PositionController extends Controller
 
     public function getPositions(Request $request)
     {
-        $all = Position::where('user_id', $request->user()->telegram_user_id)->get();
+        $all = Position::where('telegram_user_id', $request->user()->telegram_user_id)->get();
         $next_position_id = $all->count() + 1;
         $positions = $all->filter(function ($pos) { return $pos->alive; })->values();
 
@@ -50,7 +50,7 @@ class PositionController extends Controller
 
     public function getPositionsByUser(Request $request)
     {
-        $positions = Position::where('user_id', $request->user()->id)->get();
+        $positions = Position::where('telegram_user_id', $request->user()->id)->get();
         return response()->json($positions);
     }
 
@@ -74,7 +74,7 @@ class PositionController extends Controller
         $positionData['average_leverage'] = $validatedData['leverage'];
         $positionData['min_end_date'] = Carbon::createFromTimestamp($validatedData['min_end_date'])->toDateTimeString();
         $positionData['long_short'] = $validatedData['long_short'];
-        $positionData['user_id'] = $user->telegram_user_id;
+        $positionData['telegram_user_id'] = $user->telegram_user_id;
         $positionData['pair_id'] = $validatedData['pair']['id'];
 
         if (!empty($validatedData['bonuses']) && count($validatedData['bonuses']) > 0) {
@@ -135,11 +135,9 @@ class PositionController extends Controller
             // 'min_end_date',
             'userId',
         ]);
-        \Log::info($request);
-        \Log::info($validatedData);
 
         $position = Position::where('id', $validatedData['position_id'])
-            ->where('user_id', $user->telegram_user_id)
+            ->where('telegram_user_id', $user->telegram_user_id)
             ->first();
 
         if (!$position) {
@@ -167,7 +165,7 @@ class PositionController extends Controller
 
         $position_id = $request->position_id;
         $position = Position::where('id', $position_id)
-            ->where('user_id', $user->telegram_user_id)
+            ->where('telegram_user_id', $user->telegram_user_id)
             ->first();
 
         $positionBonuses = UserBonuses::where('position_id', $position_id)->get();

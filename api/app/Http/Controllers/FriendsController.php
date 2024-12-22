@@ -21,7 +21,7 @@ class FriendsController extends Controller
         if ($friends) {
             foreach ($friends as $friend) {
                 $user = TelegramUser::where('telegram_user_id', $friend->invitee_id)->first();
-                $avatar_id = UserGameData::select('avatar_id')->where('user_id', $user->id)->first();
+                $avatar_id = UserGameData::select('avatar_id')->where('telegram_user_id', $user->telegram_user_id)->first();
 
                 $referredFriends[] = [
                     'id' => $user->id,
@@ -29,6 +29,7 @@ class FriendsController extends Controller
                     'username' => $user->username,
                     'avatar_id' => $avatar_id
                 ];
+                //Can be done later
             }
         }
 

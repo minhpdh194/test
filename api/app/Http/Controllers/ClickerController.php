@@ -9,6 +9,7 @@ use Carbon\Carbon;
 
 // Traits
 use App\Http\Controllers\Clickers\Booster;
+use App\Models\Tasks\DailyTask;
 use DateTime;
 
 // Models
@@ -36,7 +37,7 @@ class ClickerController extends Controller
         $tasks = [];
 
         if ($gameData) {
-            $tasks = UserTasks::where('user_id', $gameData->user_id)->get();
+            $tasks = UserTasks::where('telegram_user_id', $gameData->telegram_user_id)->get();
         }
 
         return response()->json([

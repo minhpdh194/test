@@ -4,13 +4,19 @@ namespace App\Services;
 
 use App\Models\MarketData\Spot;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Pusher\Pusher;
 
 class UserService
 {
     public function getNewestSpots()
     {
-        $spots = Spot::with('pair')->whereDate('created_at', '=', Carbon::today()->toDateString())
+        $spots = Spot::with('pair')
+            ->whereIn('id', function ($query) {
+                $query->select(DB::raw('MAX(id)'))
+                    ->from('historical_spots')
+                    ->groupBy('pair_id');
+            })
             ->get();
 
         $options = array(

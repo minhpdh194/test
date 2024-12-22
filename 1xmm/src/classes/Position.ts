@@ -14,7 +14,7 @@ export type PositionChange = {
 }
 
 export class Position {
-    user_id: number;
+    telegram_user_id: number;
     position_id: number;
     pair: Pair;
     long_short: LongShort;
@@ -27,7 +27,7 @@ export class Position {
 
     // This opens a new position
     public constructor(position_id: number, pair: Pair, ls: LongShort, amt: number, lev: number, min_end_date: number, bonuses: Bonus[]) {
-        this.user_id = globalThis.userProfile.telegram_user_id;
+        this.telegram_user_id = globalThis.userProfile.telegram_user_id;
         this.position_id = position_id;
         this.pair = pair;
         this.long_short = ls;
@@ -176,7 +176,7 @@ export class Position {
         let total_time_reduction = userProfile.trading_info.time_reduction;
 
         const bonusToDelete = this.check_bonuses();
-        if (bonusToDelete.length > 0) { COMM.bonusExpiry($http, this.user_id, bonusToDelete); }
+        if (bonusToDelete.length > 0) { COMM.bonusExpiry($http, this.telegram_user_id, bonusToDelete); }
 
         this.bonuses.forEach(b => {
             switch (b.bonus_definition.bonus_type) {
