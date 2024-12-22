@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useTonConnectUI } from "@tonconnect/ui-react";
 import DetailStar from "./components/Star/DetailStar";
-import { toast } from "react-toastify";
 import { userProfileStore } from "@/store/user-store";
 
 interface SidebarProps {
