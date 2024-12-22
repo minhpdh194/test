@@ -3,22 +3,22 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "./partials/SidebarLeft";
 
 type HeaderProps = React.HtmlHTMLAttributes<HTMLDivElement> & {
-    validatedAmount?: number;
+    amount_token?: number;
 };
 
 export default function Header({
     className,
-    validatedAmount = 0,
+    amount_token = 0,
     ...props
 }: HeaderProps) {
-    const [userBalance, setUserBalance] = useState(userProfile.trading_info.balance);
+    const [userAmount1vMM, setUserAmount1vMM] = useState(userProfile.amount_of_tokens);
     const [isSidebarOpen, setSidebarOpen] = useState(false);
 
     // Update local state when user balance changes or when validatedAmount changes
     useEffect(() => {
         // Subscribe to balance changes from the store
-        setUserBalance(userProfile.trading_info.balance - validatedAmount);
-    }, [userProfile.trading_info.balance, validatedAmount]);
+        setUserAmount1vMM(amount_token);
+    }, [amount_token]);
 
     // Toggle sidebar visibility
     const toggleSidebar = () => {
@@ -59,7 +59,7 @@ export default function Header({
                         className="object-cover w-6 h-6"
                     />
                     <p className="text-sm font-semibold">
-                        +{Math.floor(userBalance)?.toLocaleString()}
+                        +{Math.floor(userAmount1vMM)?.toLocaleString()}
                     </p>
                     <img
                         src="/images/home/setting.png"

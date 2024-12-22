@@ -120,7 +120,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       login_streak: Number(syncData.user.login_streak),
       avatar_id: syncData.gameData.avatar_id,
       available_energy: Number(syncData.gameData.available_energy),
-      amount_of_tokens: 0, //temporarity
+      amount_of_tokens: Number(syncData.gameData.amount_of_tokens),
       trading_info: {
         balance: parseFloat(syncData.gameData.balance),
         total_pnl: parseFloat(syncData.gameData.total_pnl),

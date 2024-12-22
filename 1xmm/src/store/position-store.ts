@@ -73,10 +73,13 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
     if (existing_position) {
       // hence the code below should update the position in positions directly
       const res = await existing_position.add(ls, amt, lev, bonuses);
-      throw new Error('if existing_position.amount == 0 => we should close the position');
 
       try {
+        if (existing_position.amount == 0) {
+          await $http.post('clicker/close-position', existing_position);
+        } else {
         await $http.post('/clicker/update-position', existing_position);
+        }
       } catch (error) {
         console.error('Failed to add position:', error);
       }
