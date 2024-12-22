@@ -40,7 +40,8 @@ export default function DetailBonus({
                 const telegramResponse = await $http.get("/user_bonuses");
                 onBuySuccess(telegramResponse.data);
             } else if (response.status === 202) {
-                toast.warning("This bonus has been purchased");
+                console.log(response);
+                toast.warning(response.data.success);
             }
             else {
                 toast.error('Failed to buy bonus!');

@@ -134,11 +134,11 @@ export default function Bonus() {
             </span>);
     }
 
-    const handleBuyStarsAction = () => {
+    const handleBuyStarsAction = async () => {
         if (tonWalletAddress) {
             setOpenStarDrawer(true);
         } else {
-            toast.error("Please connect your wallet before");
+            await tonConnectUI.openModal();
         }
     }
 

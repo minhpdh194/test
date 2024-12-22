@@ -64,11 +64,11 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
         }
     };
 
-    const handleBuyStarsAction = () => {
+    const handleBuyStarsAction = async () => {
         if (tonWalletAddress) {
             setOpenStarDrawer(true);
         } else {
-            toast.error("Please connect your wallet before");
+            await tonConnectUI.openModal();
         }
     }
 
