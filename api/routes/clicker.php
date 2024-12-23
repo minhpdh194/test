@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\BonusController;
 use App\Http\Controllers\TelegramBonusController;
+use App\Http\Controllers\TelegramStarController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
@@ -14,7 +16,7 @@ Route::prefix('clicker')->group(function () {
     Route::get('/sync', [ClickerController::class, 'sync']);
     Route::post('/tap', [ClickerController::class, 'tap']);
     Route::get('/load-spots', [ClickerController::class,'getSpots']);
-    
+
     Route::get('/get-position-ratios', [PositionController::class, 'getPositionRatios']);
 
     // Daily tasks
@@ -45,5 +47,9 @@ Route::prefix('clicker')->group(function () {
 
     // Set ton wallet
     Route::post('/set-eth-wallet', [ClickerController::class, 'setEthWallet']);
+
+    Route::post('/buy-stars', [TelegramStarController::class, 'buyStarPackage']);
+
+    Route::post('/buy-bonus', [BonusController::class, 'buyBonus']);
 });
 

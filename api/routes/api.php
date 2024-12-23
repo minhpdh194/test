@@ -47,7 +47,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/expire_bonuses', [BonusController::class, 'expiry']);
 
     require base_path('routes/clicker.php');
-    require base_path('routes/transaction.php');
 
     Route::post('/update-user-level', [TelegramUserController::class, 'updateUserLevel']);
 });
