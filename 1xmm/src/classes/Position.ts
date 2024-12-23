@@ -1,5 +1,6 @@
 import { BonusTypes, Leverages, LongShort } from "@/enums";
 import { Utils } from "../lib/utils";
+import { toast } from "react-toastify";
 import { UserProfile } from "../types/UserProfile";
 import { Bonus } from "./Bonus";
 import { COMM } from "@/lib/comm";
@@ -34,8 +35,9 @@ export class Position {
         this.amount = amt;
         this.leverage = lev;
         this.bonuses = bonuses;
-        this.open_date = min_end_date - 21600;
         this.min_end_date = min_end_date;
+        this.open_date = min_end_date - 21600;
+        
         this.performance = 0.0;
     }
 
@@ -55,7 +57,6 @@ export class Position {
     }
 
     public async add(ls: LongShort, amt: number, lev: Leverages, bonuses: Bonus[]) {
-        this.amount = Number(this.amount); //convert amount to number
         if (ls === this.long_short) {
             const lev_amt = this.amount * this.leverage;
             const new_lev_amt = amt * (lev as number);
@@ -64,6 +65,7 @@ export class Position {
             this.leverage = (lev_amt + new_lev_amt) / this.amount;
 
             bonuses.forEach(b => this.attach_bonus(b));
+            toast.success("Position updated successfully");
 
             // No PnL has been generated
             return {
@@ -89,8 +91,9 @@ export class Position {
                 } else {
                     pnl = bonus_factors.total_leverage * index_perf * amt * (1 - bonus_factors.total_capital_protection);
                 }
-                this.amount += amt;
+                this.amount -= amt;
                 bonuses.forEach(b => this.attach_bonus(b));
+                toast.success("Position updated successfully");
 
                 return {
                     amount_adjustment: amt,
@@ -117,9 +120,10 @@ export class Position {
                 this.min_end_date = value_date + 21600;
 
                 bonuses.forEach(b => this.attach_bonus(b));
+                toast.success("Position updated successfully");
 
                 return {
-                    amount_adjustment: prev_amt,
+                    amount_adjustment: prev_amt - this.amount,
                     realized_pnl: pnl
                 }
             }

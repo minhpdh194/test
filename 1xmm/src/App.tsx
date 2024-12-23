@@ -100,6 +100,8 @@ function App() {
         //const [availableBonuses, cleanedPositions, bonusToDelete] = syncBonusesAndPositions(user_bonuses, user_positions.positions, pairs);
         const [availableBonuses, cleanedPositions] = syncBonusesAndPositions(user_bonuses, user_positions.positions, pairs);
 
+        console.log(cleanedPositions);
+
         setProgress(55);
         // await COMM.bonusExpiry($http, userProfile.id, bonusesToDelete);
         // await COMM.updatePositions(cleanedPositions);
@@ -139,7 +141,9 @@ function syncBonusesAndPositions(userBonuses: UserBonus[], userPositions: UserPo
   const bonusesToDelete: number[] = [];
 
   userPositions.forEach(p => {
-    const open_position: Position = new Position(p.id, pairs.find(e => e.id == p.pair_id)!, p.long_short, p.amount, p.average_leverage, p.min_end_date, []);
+    const date = new Date(p.min_end_date).getTime() / 1000;
+    const open_position: Position = new Position(p.id, pairs.find(e => e.id == p.pair_id)!, p.long_short, p.amount, p.average_leverage, date, []);
+    //need to use the userProfile in this part, because when this function is called, the global.userProfile is not set, so all of it is default data, which is wrong
 
     // p?.bonuses.forEach(element => { 
     //    const userBonus = userBonuses.find(b => b.id == element);

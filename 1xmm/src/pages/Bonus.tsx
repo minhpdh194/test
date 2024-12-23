@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Header from "../components/Header";
 //import { $http } from "@/lib/http";
 import DetailBonus from "./components/Bonus/DetailBonus";
+//import { toast } from "react-toastify";
 import { useTonConnectUI } from "@tonconnect/ui-react";
 import { bonusDefinitions } from "@/referential/bonusDefinitions";
 import { BonusDefinition } from "@/types/BonusDefinition";
