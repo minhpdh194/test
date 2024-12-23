@@ -86,10 +86,11 @@ class AuthController extends Controller
             $validated
         );
 
-        $gameData = UserGameData::firstOrCreate(['telegram_user_id' => $user->telegram_user_id],
+        $gameData = UserGameData::firstOrCreate(['user_id' => $user->id],
             [
+                'user_id' => $user->id,
                 'telegram_user_id' => $request->get('telegram_user_id'),
-                // 'amount_of_tokens' => $baseBalance,
+                'amount_of_tokens' => $baseBalance,
                 'balance' => $baseBalance
             ]
         );

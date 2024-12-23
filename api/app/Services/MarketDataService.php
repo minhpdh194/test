@@ -60,7 +60,7 @@ class MarketDataService
                             'daily_return' => (($new_spot_value - $cur_spot->day_open_value) / $cur_spot->day_open_value),
                         ]);
                     }
-
+                    
                     $isSpotCreatedOrUpdated = true;
                 } else {
                     // Create a new record if we are not the same day
@@ -76,7 +76,7 @@ class MarketDataService
                     ]);
                     $isSpotCreatedOrUpdated = true;
                 }
-                // If we are the same day, we update the latest spot value
+            // If we are the same day, we update the latest spot value
             } else {
                 // If there is no spot in the first run
                 Spot::create([

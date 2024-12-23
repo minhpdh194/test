@@ -183,9 +183,8 @@ class MarketDataTasks
         $correlated_pairs = [
             ToolsUtil::getPairSymbol('XRP', 'USD'),
             ToolsUtil::getPairSymbol('UNI', 'USD'),
-            ToolsUtil::getPairSymbol('UNI', 'USD'),
-            ToolsUtil::getPairSymbol('UNI', 'USD'),
         ];
+        
         $n = 30;
 
         $return_matrix = null;
