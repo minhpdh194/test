@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('user_bonuses', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('bonus_id')->nullable(false);
-            $table->integer('user_id')->references('id')->on('user_profile')->onDelete('cascade');
+            $table->integer('telegram_user_id')->references('telegram_user_id')->on('user_profile')->onDelete('cascade');
             $table->integer('position_id')->references('id')->on('positions')->onDelete('cascade');
             $table->timestamp('purchase_time');
             $table->timestamp('end_date')->nullable();

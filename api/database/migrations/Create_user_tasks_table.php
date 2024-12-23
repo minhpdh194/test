@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('user_tasks', function (Blueprint $table) {
-            $table->integer('user_id')->references('id')->on('user_profile')->onDelete('cascade');
+            $table->integer('telegram_user_id')->references('telegram_user_id')->on('user_profile')->onDelete('cascade');
             $table->integer('task_id')->references('id')->on('tasks');
             $table->boolean('completed')->default(false);
             $table->timestamps();

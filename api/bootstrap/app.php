@@ -3,12 +3,26 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Middleware\SetCacheHeaders;
 
 use Laravel\Sanctum\Http\Middleware\CheckAbilities;
 use Laravel\Sanctum\Http\Middleware\CheckForAnyAbility;
-use App\bootstrap\cache\CustomHeaders;
 
 use App\Http\Middleware\CorsMiddleware;
+
+class CustomHeaders extends SetCacheHeaders
+{
+    public function handle($request, Closure $next, $options = [])
+    {
+        $response = $next($request);
+
+        $response->header('Access-Control-Allow-Origin', 'http://localhost:5173');
+        $response->header('Access-Control-Allow-Methods', 'GET, POST');
+        $response->header('Access-Control-Allow-Headers', 'Origin, Content-Type, Content-Range, Content-Disposition, Content-Description, X-Auth-Token');
+        
+        return $response;
+    }
+}
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(

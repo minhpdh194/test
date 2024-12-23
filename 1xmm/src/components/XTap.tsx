@@ -16,28 +16,35 @@ const XTap: React.FC<XTapProps> = ({ validatedAmounts = 0, ...props }) => {
     const debounceClicksCount = useDebounce(clicksCount, 1000);
 
     const { clicks, addClick, removeClick } = useClicksStore();
-    const { UserTap, ...user } = userProfileStore();
-
-    const [userBalance, setUserBalance] = useState<number>(user.trading_info.balance);
+    const [userBalance, setUserBalance] = useState<number>(userProfile.trading_info.balance);
+    const [, setTokenAmount] = useState<number>(userProfile.amount_of_tokens);
 
     const tabMe = (e: React.MouseEvent) => {
         e.preventDefault();
 
-        if (!UserTap() || userBalance < validatedAmounts) return;
+        if (userBalance < validatedAmounts) return;
 
         setClicksCount((prev) => prev + 1);
 
         setUserBalance((prevBalance) => {
             const newBalance = new Decimal(prevBalance)
-                .plus(new Decimal(user.earn_per_tap))
+                .plus(new Decimal(userProfile.earn_per_tap))
                 .toFixed(6); // Limit to 6 decimal places
 
             return new Decimal(newBalance).toNumber();
         });
 
+        setTokenAmount((prevAmount) => {
+            const newAmount = new Decimal(prevAmount)
+                .plus(new Decimal(userProfile.earn_per_tap))
+                .toFixed(6);
+
+            return new Decimal(newAmount).toNumber();
+        });
+
         addClick({
             id: new Date().getTime(),
-            value: user.earn_per_tap,
+            value: userProfile.earn_per_tap,
             style: {
                 insetBlockStart: e.clientY,
                 insetInlineStart: e.clientX + (Math.random() > 0.5 ? 5 : -5),
@@ -59,12 +66,12 @@ const XTap: React.FC<XTapProps> = ({ validatedAmounts = 0, ...props }) => {
                 count,
                 energy: 0,
                 timestamp: Math.floor(Date.now() / 1000),
-                earn_per_tap: user.earn_per_tap,
+                earn_per_tap: userProfile.earn_per_tap,
             })
             .then(({ data }) => {
                 if (data.leveled_up) {
                     userProfileStore.setState({
-                        level: data.level || user.level,
+                        level: data.level || userProfile.level,
                         earn_per_tap: data.earn_per_tap,
                     });
                 }
