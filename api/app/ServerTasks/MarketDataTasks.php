@@ -229,6 +229,7 @@ class MarketDataTasks
         $dt = 1.0 / ($T * 262800);
         $indices_perf = [];
         $mult = (float)Settings::where('name', 'prem_mult')->first();
+        $timestamp = ToolsUtil::getFixingTimestamp();
 
         foreach ($pairs as $pair) {
             $vol_fwd = VolAndFwd::where(['pair_id' => $pair->id])->first();
@@ -250,17 +251,20 @@ class MarketDataTasks
 
                 $longPerf = Index::create(['pair_id' => $pair->id], [
                     'long_short' => 'long',
-                    'value' => $prev_long_index->value + $premium * max(1, $total_positions->total_short_value / $total_positions->total_long_value)
+                    'value' => $prev_long_index->value + $premium * max(1, $total_positions->total_short_value / $total_positions->total_long_value),
+                    'created_at' => $timestamp
                 ]);
 
                 $shortPerf = Index::create(['pair_id' => $pair->id], [
                     'long_short' => 'short',
-                    'value' => $prev_short_index->value - $premium
+                    'value' => $prev_short_index->value - $premium,
+                    'created_at' => $timestamp
                 ]);
 
                 $indices_perf[$pairs->coin_symbol] = [
                     'long' => $longPerf->value - $prev_long_index->value,
                     'short' => -$premium,
+                    'time' => $timestamp
                 ];
             } else if ($spot->current_value < $spot->prev_value) {
                 $put = MathUtil::put($T, $spot->prev_value, $spot->current_value, $vol_fwd->$yield, $vol_fwd->volatility);
@@ -268,32 +272,38 @@ class MarketDataTasks
 
                 $longPerf = Index::create(['pair_id' => $pair->id], [
                     'long_short' => 'long',
-                    'value' => $prev_long_index->value - $premium
+                    'value' => $prev_long_index->value - $premium,
+                    'created_at' => $timestamp
                 ]);
 
                 $shortPerf = Index::create(['pair_id' => $pair->id], [
                     'long_short' => 'short',
-                    'value' => $prev_short_index->value + $premium * max(1, $total_positions->total_long_value / $total_positions->total_short_value)
+                    'value' => $prev_short_index->value + $premium * max(1, $total_positions->total_long_value / $total_positions->total_short_value),
+                    'created_at' => $timestamp
                 ]);
 
                 $indices_perf[$pairs->coin_symbol] = [
                     'long' => -$premium,
                     'short' => $shortPerf->value - $prev_short_index->value,
+                    'time' => $timestamp
                 ];
             } else {
                 $longPerf = Index::create(['pair_id' => $pair->id], [
                     'long_short' => 'long',
-                    'value' => $prev_long_index
+                    'value' => $prev_long_index,
+                    'created_at' => $timestamp
                 ]);
 
                 $shortPerf = Index::create(['pair_id' => $pair->id], [
                     'long_short' => 'short',
-                    'value' => $prev_short_index
+                    'value' => $prev_short_index,
+                    'created_at' => $timestamp
                 ]);
 
                 $indices_perf[$pairs->coin_symbol] = [
                     'long' => 0,
                     'short' => 0,
+                    'time' => $timestamp
                 ];
             }
 
