@@ -18,6 +18,8 @@ import { Bonus } from "./classes/Bonus";
 import { bonusDefinitions } from "./referential/bonusDefinitions";
 import { Friend } from "./types/Friend";
 import { getPositionStore } from "./store/position-store";
+import { StarPackage } from "./types/StarPackage";
+import { StarPackages } from "./referential/starPackages";
 //import { UserProfile } from "./types/UserProfile";
 //import { SpotType } from "./types/SpotType";
 //import pusher from "./lib/pusher";
@@ -30,6 +32,7 @@ const isDesktop = import.meta.env.DEV
 declare global {
   var userProfile: UserProfileStore;
   var spots: any;
+  var starPackage: StarPackage[];
 }
 
 function App() {
@@ -115,6 +118,7 @@ function App() {
         setProgress(95);
 
         globalThis.userProfile.SetFriends(referredUsers);
+        globalThis.starPackage = StarPackages;
         $http.get("/clicker/load-spots");
       } catch (error) {
         console.error('Error loading data:', error);

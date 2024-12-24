@@ -27,4 +27,6 @@ export type UserProfile = {
   start_date: Date;
   last_login: Date;
   login_streak: number;
+
+  number_of_stars: number;
 }

@@ -257,7 +257,7 @@ export default function Bonus() {
                 />
             )}
 
-            {openStarDrawer && starPackages.length > 0 && (
+            {openStarDrawer && starPackage.length > 0 && (
                 <DetailStar
                     open={openStarDrawer}
                     onOpenChange={setOpenStarDrawer}

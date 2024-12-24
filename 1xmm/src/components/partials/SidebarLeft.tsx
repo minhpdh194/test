@@ -198,7 +198,7 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
                 </button>
             </div>
 
-            {openStarDrawer && starPackages.length > 0 && (
+            {openStarDrawer && starPackage.length > 0 && (
                 <DetailStar
                     open={openStarDrawer}
                     onOpenChange={setOpenStarDrawer}

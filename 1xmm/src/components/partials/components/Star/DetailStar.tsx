@@ -73,7 +73,7 @@ export default function DetailStar({
                 List of Star Packages
             </h2>
             <div className="flex flex-col justify-start pb-6 overflow-y-auto">
-                {starPackages.map((starPackage) => (
+                {starPackage.map((starPackage) => (
                     <div key={starPackage.id} className="p-2 flex justify-between" style={{ borderBottom: `.3px solid #FFFFFF33` }}>
                         <div className="flex flex-col mt-1">
                             <span className="text-sm">{starPackage.number_of_stars || 'N/A'} stars</span>
