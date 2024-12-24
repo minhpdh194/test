@@ -14,12 +14,12 @@ import { levelBenefits } from "@/referential/levelBenefits";
 import { levelConditions } from "@/referential/levelConditions";
 
 export type UserProfileStore = UserProfile & {
-  SetLevelBenefits: (pairsInReferential: Pair[]) => void;
+  SetLevelBenefits: () => void;
   UpdateProfile: (syncData: SyncData) => void;
   UpdateUserOpenedPosition: (positionStore: PositionStore) => void;
   UserTap: () => boolean;
-  UserLevelUp: (pairsInReferential: Pair[]) => void;
-  AddPosition: (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]) => Promise<boolean>;
+  UserLevelUp: () => void;
+  AddPosition: (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]) => Promise<number>;
   ClosePosition: (position_id: number) => Promise<boolean>;
   SetFriends: (friends: Friend[]) => void;
 
@@ -73,7 +73,8 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
     }));
   },
 
-  SetLevelBenefits: (pairsInReferential: Pair[]) => {
+  SetLevelBenefits: () => {
+    const pairsInReferential = JSON.parse(localStorage.getItem("PairReferential") || "[]") as Pair[];
     const userLevel = get().level;
 
     let benefits = levelBenefits.find((b) => b.level == userLevel);
@@ -159,7 +160,8 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
     return true;
   },
 
-  UserLevelUp: async (pairsInReferential: Pair[]) => {
+  UserLevelUp: async () => {
+    const pairsInReferential = JSON.parse(localStorage.getItem("PairReferential") || "[]") as Pair[];
     const userPnl = get().trading_info.total_pnl;
     const currentLevel = get().level;
 
@@ -199,9 +201,9 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
     }
   },
 
-  AddPosition: async (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]): Promise<boolean> => {
+  AddPosition: async (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]): Promise<number> => {
     const userProfile = get();
-    if (!userProfile.positionStore) return false;
+    if (!userProfile.positionStore) return 0;
     
     const addDetails = await userProfile.positionStore!.AddPosition(pair, ls, amt, lev, bonuses, userProfile);
 
@@ -218,11 +220,11 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
           time_reduction: state.trading_info.time_reduction
         },
       }))
-
-      return true;
+      
+      return addDetails.amount_adjustment + addDetails.realized_pnl;
     }
 
-    return false;
+    return 0;
   },
 
   ClosePosition: async (position_id: number): Promise<boolean> => {

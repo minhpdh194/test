@@ -18,7 +18,6 @@ import { Bonus } from "./classes/Bonus";
 import { bonusDefinitions } from "./referential/bonusDefinitions";
 import { Friend } from "./types/Friend";
 import { getPositionStore } from "./store/position-store";
-import { Utils } from "./lib/utils";
 //import { UserProfile } from "./types/UserProfile";
 //import { SpotType } from "./types/SpotType";
 //import pusher from "./lib/pusher";
@@ -77,6 +76,7 @@ function App() {
         setProgress(25);
 
         const pairs = await $http.$get<Pair[]>("/pairs");
+        localStorage.setItem("PairReferential", JSON.stringify(pairs));
 
         const [syncData,
           user_bonuses,
@@ -100,6 +100,8 @@ function App() {
         //const [availableBonuses, cleanedPositions, bonusToDelete] = syncBonusesAndPositions(user_bonuses, user_positions.positions, pairs);
         const [availableBonuses, cleanedPositions] = syncBonusesAndPositions(user_bonuses, user_positions.positions, pairs);
 
+        console.log(cleanedPositions);
+
         setProgress(55);
         // await COMM.bonusExpiry($http, userProfile.id, bonusesToDelete);
         // await COMM.updatePositions(cleanedPositions);
@@ -108,14 +110,12 @@ function App() {
         positionStore!.next_position_id = user_positions.next_position_id;
 
         setProgress(65);
-        globalThis.userProfile.SetLevelBenefits(pairs);
+        globalThis.userProfile.SetLevelBenefits();
         globalThis.userProfile.UpdateUserOpenedPosition(positionStore);
         setProgress(95);
 
         globalThis.userProfile.SetFriends(referredUsers);
         $http.get("/clicker/load-spots");
-
-        localStorage.setItem("PairReferential", JSON.stringify(pairs));
       } catch (error) {
         console.error('Error loading data:', error);
         toast.error('Failed to load game data');

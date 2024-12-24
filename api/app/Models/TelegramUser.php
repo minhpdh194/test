@@ -78,22 +78,27 @@ class TelegramUser extends Authenticatable
         $available_energy = $userGameData->available_energy;
         $totalEnergyRequired = $count * $earnPerTap;
 
+        // We allow only to tap until remaining energy is empty
         if ($available_energy < $totalEnergyRequired) {
-            return false;
+            $totalEnergyRequired = $available_energy;
+            $count = $totalEnergyRequired / $earnPerTap;
         }
 
         // $multiplier = $this->getActiveBoosterMultiplier();
         $multiplier = 1;
 
-        $earned = $count * $earnPerTap * $multiplier;
+        $earned = $totalEnergyRequired * $multiplier;
 
         $userGameData->balance += $earned;
-
-        $available_energy -= $totalEnergyRequired;
-        $userGameData->available_energy = $available_energy;
+        $userGameData->amount_of_tokens += $earned;
+        $userGameData->available_energy -= $totalEnergyRequired;
 
         $userGameData->save();
-
-        return $earned;
+        return [
+            'earned' => $earned, 
+            'balance' => $userGameData->balance, 
+            'amount_of_tokens' => $userGameData->amount_of_tokens,
+            'energy' => $userGameData->available_energy
+        ];
     }
 }

@@ -10,12 +10,11 @@ import { SpotType } from '@/types/SpotType';
 import { Pair } from '@/types/Pair';
 
 type TradingItemProps = {
-    validatedAmounts: any;
     spots: SpotType[];
-    onValidateAmount: (amount: number) => void;
+    onValidatePosition: (amount: number) => void;
 };
 
-const TradingItem = ({ spots, onValidateAmount }: TradingItemProps) => {
+const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
     // const [, setTimeBonus] = useState(null);
     const [bonusData, setBonusData] = useState<any[]>([]);
     const [openBonusDrawer, setOpenBonusDrawer] = useState(false);
@@ -131,13 +130,12 @@ const TradingItem = ({ spots, onValidateAmount }: TradingItemProps) => {
             }
 
             const amt = Number(amounts[pairId]);
-            onValidateAmount(amt);
+            const balanceAdjustment = await userProfile.AddPosition(pair, selectedOptions[pairId]!, amt || 0, leverages[pairId], selectedBonuses);
 
-            userProfile.AddPosition(pair, selectedOptions[pairId], amt || 0, leverages[pairId], selectedBonuses);
+            onValidatePosition(balanceAdjustment);            
 
             // Reset states
             setAmounts((prev) => ({ ...prev, [pairId]: 0 }));
-            setPositions(userProfile.positionStore?.positions ?? []);
             setSelectedOptions((prev) => ({ ...prev, [pairId]: undefined }));
             setLeverages((prev) => ({ ...prev, [pairId]: 0 }));
             setExpandedBonuses((prev) => ({ ...prev, [pairId]: false }));

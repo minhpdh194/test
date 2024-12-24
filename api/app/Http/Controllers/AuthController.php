@@ -75,7 +75,7 @@ class AuthController extends Controller
                 // sendMessage($referralData->inviter_id, 'referral: ' . $request->get('first_name'));
                 //later, comment it to avoid error
                 // We update the database
-                $inviterGameData = UserGameData::where('user_id', $referredBy->id)->first()->referralUpdate();
+                $inviterGameData = UserGameData::where('telegram_user_id', $referredBy->id)->first()->referralUpdate();
             }
         }
 
@@ -88,6 +88,7 @@ class AuthController extends Controller
 
         $gameData = UserGameData::firstOrCreate(['user_id' => $user->id],
             [
+                'user_id' => $user->id,
                 'telegram_user_id' => $request->get('telegram_user_id'),
                 'amount_of_tokens' => $baseBalance,
                 'balance' => $baseBalance

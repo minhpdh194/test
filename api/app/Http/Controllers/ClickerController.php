@@ -36,7 +36,7 @@ class ClickerController extends Controller
         $tasks = [];
 
         if ($gameData) {
-            $tasks = UserTasks::where('user_id', $gameData->user_id)->get();
+            $tasks = UserTasks::where('telegram_user_id', $gameData->telegram_user_id)->get();
         }
 
         return response()->json([
@@ -65,12 +65,14 @@ class ClickerController extends Controller
 
         $available_energy = $userGameData->available_energy;
 
-        $earned = $user->tap($validated['count'], $earnPerTap);
+        $tap = $user->tap($validated['count'], $earnPerTap);
+
         return response()->json([
             'success' => true,
-            'earned' => $earned,
-            'balance' => $user->balance,
-            'available_energy' => $available_energy,
+            'earned' => $tap['earned'],
+            'balance' => $tap['balance'],
+            'amount_of_tokens' => $tap['amount_of_tokens'],
+            'available_energy' => $tap['energy'],
         ]);
     }
 

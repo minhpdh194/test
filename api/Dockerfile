@@ -47,14 +47,14 @@ RUN php artisan db:seed --class=DatabaseSeeder --force
 
 
 # Thêm Cronjob
-RUN echo "*/2 * * * * curl -X GET http://localhost:8000/get-volatility >> /dev/null 2>&1" >> /etc/cron.d/laravel-cron \
+RUN echo "*/2 * * * * /usr/local/bin/php /var/www/html/artisan app:integration >> /var/log/cron.log 2>&1" >> /etc/cron.d/laravel-cron \
     && chmod 0644 /etc/cron.d/laravel-cron \
     && crontab /etc/cron.d/laravel-cron
 
 # Thêm Cronjob mới
-RUN echo "*/2 * * * * php /var/www/html/artisan app:run-check-result-position-job >> /var/log/cron.log 2>&1" >> /etc/cron.d/laravel-cron \
-    && chmod 0644 /etc/cron.d/laravel-cron \
-    && crontab /etc/cron.d/laravel-cron
+#RUN echo "*/2 * * * * php /var/www/html/artisan app:run-check-result-position-job >> /var/log/cron.log 2>&1" >> /etc/cron.d/laravel-cron \
+#    && chmod 0644 /etc/cron.d/laravel-cron \
+#    && crontab /etc/cron.d/laravel-cron
 
 
 COPY start.sh /start.sh

@@ -1,43 +1,38 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useClicksStore } from "../store/clicks-store";
-import { userProfileStore } from "../store/user-store";
 import { useDebounce } from "@uidotdev/usehooks";
 import { $http } from "@/lib/http";
-import Decimal from 'decimal.js';
 
 interface XTapProps extends React.HTMLProps<HTMLDivElement> {
-    validatedAmounts?: number;
+    changeInBalance?: number;
+    updateAmountOfTokens: () => void;
 }
 
-const XTap: React.FC<XTapProps> = ({ validatedAmounts = 0, ...props }) => {
+const XTap: React.FC<XTapProps> = ({ changeInBalance = 0, updateAmountOfTokens, ...props }) => {
     const userAnimateRef = useRef<HTMLDivElement | null>(null);
     const userTapButtonRef = useRef<HTMLButtonElement | null>(null);
     const [clicksCount, setClicksCount] = useState(0);
     const debounceClicksCount = useDebounce(clicksCount, 1000);
-
     const { clicks, addClick, removeClick } = useClicksStore();
-    const { UserTap, ...user } = userProfileStore();
-
-    const [userBalance, setUserBalance] = useState<number>(user.trading_info.balance);
+    const [userBalance, setUserBalance] = useState<number>(userProfile.trading_info.balance);
 
     const tabMe = (e: React.MouseEvent) => {
         e.preventDefault();
 
-        if (!UserTap() || userBalance < validatedAmounts) return;
+        if (userBalance < changeInBalance) return;
 
         setClicksCount((prev) => prev + 1);
+        userProfile.UserTap();
 
-        setUserBalance((prevBalance) => {
-            const newBalance = new Decimal(prevBalance)
-                .plus(new Decimal(user.earn_per_tap))
-                .toFixed(6); // Limit to 6 decimal places
+        updateAmountOfTokens();
 
-            return new Decimal(newBalance).toNumber();
+        setUserBalance(() => {
+            return userProfile.trading_info.balance;
         });
 
         addClick({
             id: new Date().getTime(),
-            value: user.earn_per_tap,
+            value: userProfile.earn_per_tap,
             style: {
                 insetBlockStart: e.clientY,
                 insetInlineStart: e.clientX + (Math.random() > 0.5 ? 5 : -5),
@@ -46,8 +41,8 @@ const XTap: React.FC<XTapProps> = ({ validatedAmounts = 0, ...props }) => {
     };
 
     useEffect(() => {
-        setUserBalance(parseFloat(userBalance.toString()) - parseFloat(validatedAmounts.toString()));
-    }, [validatedAmounts]);
+        setUserBalance(userBalance + changeInBalance);
+    }, [changeInBalance]);
 
     useEffect(() => {
         const count = debounceClicksCount;
@@ -59,14 +54,11 @@ const XTap: React.FC<XTapProps> = ({ validatedAmounts = 0, ...props }) => {
                 count,
                 energy: 0,
                 timestamp: Math.floor(Date.now() / 1000),
-                earn_per_tap: user.earn_per_tap,
+                earn_per_tap: userProfile.earn_per_tap,
             })
             .then(({ data }) => {
                 if (data.leveled_up) {
-                    userProfileStore.setState({
-                        level: data.level || user.level,
-                        earn_per_tap: data.earn_per_tap,
-                    });
+                    userProfile.UserLevelUp();
                 }
             })
             .catch(() => setClicksCount(count));

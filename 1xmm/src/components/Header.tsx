@@ -11,7 +11,7 @@ export default function Header({
     amount_token = 0,
     ...props
 }: HeaderProps) {
-    const [userAmount1vMM, setUserAmount1vMM] = useState(userProfile.amount_of_tokens);
+    const [userAmount1vMM, setUserAmount1vMM] = useState<number>(userProfile.amount_of_tokens);
     const [isSidebarOpen, setSidebarOpen] = useState(false);
 
     // Update local state when user balance changes or when validatedAmount changes

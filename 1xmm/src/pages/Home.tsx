@@ -9,8 +9,9 @@ import { SpotType } from "@/types/SpotType";
 
 export default function Home() {
   const [spots, setSpots] = useState<SpotType[]>([]);
+  const [amtOfTokens, setAmountOfTokens] = useState<number>(userProfile.amount_of_tokens);
   const [loading, setLoading] = useState(true);
-  const [validatedAmount, setValidatedAmount] = useState(0);
+  const [changeInBalance, setChangeInBalance] = useState(0);
 
   useEffect(() => {
     const channel = pusher.subscribe("pairs");
@@ -36,8 +37,14 @@ export default function Home() {
 
   }, [globalThis.userProfile.unlocked_pair_ids]);
 
-  const handleValidateAmount = (amount: number) => {
-    setValidatedAmount(amount);
+  const updateTokenAmountAfterTap = () => {
+    setAmountOfTokens(() => {
+      return userProfile.amount_of_tokens + userProfile.earn_per_tap;
+    });
+  };
+
+  const handleValidatePosition = (amount: number) => {
+    setChangeInBalance(amount);
   };
 
   return (
@@ -48,17 +55,16 @@ export default function Home() {
         backgroundImage: `url(/images/home/bg.png)`,
       }}
     >
-      <Header amount_token={userProfile.amount_of_tokens} />
+      <Header amount_token={amtOfTokens} />
       <UserGameDetails className="mt-6" data={spots} />
-      <XTap validatedAmounts={validatedAmount} />
+      <XTap changeInBalance={changeInBalance} updateAmountOfTokens={updateTokenAmountAfterTap} />
       <div className="pt-24 pb-4">
         {loading ? (
           <div>Loading...</div>
         ) : (
           <TradingItem
             spots={spots}
-            validatedAmounts={validatedAmount}
-            onValidateAmount={handleValidateAmount}
+            onValidatePosition={handleValidatePosition}
           />
         )}
       </div>

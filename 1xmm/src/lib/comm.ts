@@ -33,9 +33,9 @@ export namespace COMM {
         return results.map(v => v.value as Position);
       }
     
-    export async function bonusExpiry(http: AxiosInstance, user_id: number, bonusesToDelete: number[]): Promise<void> {
+    export async function bonusExpiry(http: AxiosInstance, telegram_user_id: number, bonusesToDelete: number[]): Promise<void> {
         await http.post<{success: boolean}, any>("expire_bonuses", {
-            user_id: user_id,
+            telegram_user_id: telegram_user_id,
             bonus_ids: bonusesToDelete
         });
     }

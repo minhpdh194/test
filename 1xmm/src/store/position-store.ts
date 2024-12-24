@@ -78,7 +78,7 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
         if (existing_position.amount == 0) {
           await $http.post('clicker/close-position', existing_position);
         } else {
-        await $http.post('/clicker/update-position', existing_position);
+          await $http.post('/clicker/update-position', existing_position);
         }
       } catch (error) {
         console.error('Failed to add position:', error);
