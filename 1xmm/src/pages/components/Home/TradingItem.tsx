@@ -10,12 +10,11 @@ import { SpotType } from '@/types/SpotType';
 import { Pair } from '@/types/Pair';
 
 type TradingItemProps = {
-    validatedAmounts: any;
     spots: SpotType[];
-    onValidateAmount: (amount: number) => void;
+    onValidatePosition: (amount: number) => void;
 };
 
-const TradingItem = ({ spots, onValidateAmount }: TradingItemProps) => {
+const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
     // const [, setTimeBonus] = useState(null);
     const [bonusData, setBonusData] = useState<any[]>([]);
     const [openBonusDrawer, setOpenBonusDrawer] = useState(false);
@@ -131,13 +130,12 @@ const TradingItem = ({ spots, onValidateAmount }: TradingItemProps) => {
             }
 
             const amt = Number(amounts[pairId]);
-            onValidateAmount(amt);
+            const balanceAdjustment = await userProfile.AddPosition(pair, selectedOptions[pairId]!, amt || 0, leverages[pairId], selectedBonuses);
 
-            userProfile.AddPosition(pair, selectedOptions[pairId]!, amt || 0, leverages[pairId], selectedBonuses);
+            onValidatePosition(balanceAdjustment);            
 
             // Reset states
             setAmounts((prev) => ({ ...prev, [pairId]: 0 }));
-            setPositions(userProfile.positionStore?.positions ?? []);
             setSelectedOptions((prev) => ({ ...prev, [pairId]: undefined }));
             setLeverages((prev) => ({ ...prev, [pairId]: 0 }));
             setExpandedBonuses((prev) => ({ ...prev, [pairId]: false }));
@@ -326,7 +324,7 @@ const TradingItem = ({ spots, onValidateAmount }: TradingItemProps) => {
                                     <button
                                         type="button"
                                         className={`rounded w-auto py-1 px-2 space-x-1
-                            ${amounts[pair.id] === 0 || leverages[pair.id] === 0
+                                            ${amounts[pair.id] === 0 || leverages[pair.id] === 0
                                                 ? 'bg-gray-400 opacity-50 cursor-not-allowed'
                                                 : 'bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)] flex items-center justify-center'
                                             }`}

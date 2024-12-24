@@ -15,9 +15,10 @@ return new class extends Migration
             $table->integer('pair_id')->references('id')->on('pairs')->unique();
             $table->enum('long_short', ['long', 'short']);
             $table->double('value')->default(0);
-            $table->timestamp('timestamp')->nullable(false);
             $table->timestamps();
         });
+
+        $table->unique(['pair_id', 'long_short', 'created_at']);
     }
 
     /**

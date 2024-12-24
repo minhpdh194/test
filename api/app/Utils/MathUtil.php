@@ -8,7 +8,7 @@ use SVDResult;
 
 class MathUtil
 {
-    function getPerpExpiryYF()
+    public static function getPerpExpiryYF()
     {
         // We get UTC date time now
         $now = date_create('now', new DateTimeZone('UTC'));
@@ -29,13 +29,13 @@ class MathUtil
         return ($diff->h * 3600 + $diff->i * 60 + $diff->s) / 31536000;
     }
 
-    function getOptionExpiryYF($now, $expiry_date)
+    public static function getOptionExpiryYF($now, $expiry_date)
     {
         $diff = date_diff($now, $expiry_date);
-        return ($diff->h * 3600 + $diff->i * 60 + $diff->s) / 31536000;
+        return ($diff->d * 86400 + $diff->h * 3600 + $diff->i * 60 + $diff->s) / 31536000;
     }
 
-    function getOptionDateExpiry()
+    public static function getOptionDateExpiry()
     {
         // Get UTC datetime now
         $now = date_create('now', new DateTimeZone('UTC'));
@@ -47,22 +47,22 @@ class MathUtil
         return $expiry_day; // Return the DateTime object
     }
 
-    function solve($A, $r)
+    public static function solve($A, $r)
     {
         if (count($A) == 0 || count($A) != count($r))
             return null;
-        $svdres = $this->svd($A);
+        $svdres = MathUtil::svd($A);
 
-        $C = $this->toMatrix($svdres->Q);
-        $SI = $this->inverse_matrix($C);
+        $C = MathUtil::toMatrix($svdres->Q);
+        $SI = MathUtil::inverse_matrix($C);
 
-        $UT = $this->transpose_U($svdres->U, $svdres->n);
+        $UT = MathUtil::transpose_U($svdres->U, $svdres->n);
 
-        $AA = $this->matrix_multiply($this->matrix_multiply($svdres->V, $SI), $UT);
-        return $this->mv_multiply($AA, $r);
+        $AA = MathUtil::matrix_multiply(MathUtil::matrix_multiply($svdres->V, $SI), $UT);
+        return MathUtil::mv_multiply($AA, $r);
     }
 
-    function identity_matrix($dim)
+    public static function identity_matrix($dim)
     {
         $I = [[]];
         // We don't fill all the values to optimize CPU resources and time
@@ -73,7 +73,7 @@ class MathUtil
         return $I;
     }
 
-    function mv_multiply($A, $b)
+    public static function mv_multiply($A, $b)
     {
         $nRowA = count($A);
         if ($nRowA == 0)
@@ -97,7 +97,7 @@ class MathUtil
         return $R;
     }
 
-    function matrix_multiply($A, $B)
+    public static function matrix_multiply($A, $B)
     {
         $nRowA = count($A);
         $nRowB = count($B);
@@ -131,13 +131,13 @@ class MathUtil
         return $R;
     }
 
-    function inverse_matrix($A)
+    public static function inverse_matrix($A)
     {
         $fd = 0;
         $fdScaler = 1.0 / $A[$fd][$fd];
 
         $n = count($A);
-        $I = $this->identity_matrix($n);
+        $I = MathUtil::identity_matrix($n);
 
         for ($j = 0; $j < $n; $j++) {
             $A[$fd][$j] = $fdScaler * $A[$fd][$j];
@@ -177,7 +177,7 @@ class MathUtil
         return $I;
     }
 
-    function transpose_U($U, $n)
+    public static function transpose_U($U, $n)
     {
         $UT = [[]];
         $m = count($U);
@@ -191,7 +191,7 @@ class MathUtil
         return $UT;
     }
 
-    function toMatrix($q)
+    public static function toMatrix($q)
     {
         $R = [[]];
         $n = count($q);
@@ -203,7 +203,7 @@ class MathUtil
         return $R;
     }
 
-    function transpose($A)
+    public static function transpose($A)
     {
         $m = count($A);
         $n = count($A[0]);
@@ -218,7 +218,7 @@ class MathUtil
         return $AT;
     }
 
-    function pythag($a, $b)
+    public static function pythag($a, $b)
     {
         $absa = abs($a);
         $absb = abs($b);
@@ -234,7 +234,7 @@ class MathUtil
         return $absb * sqrt(1.0 + $r * $r);
     }
 
-    function svd($A)
+    public static function svd($A)
     {
         $eps = 1E-10;
         $tol = 1E-12;
@@ -412,7 +412,7 @@ class MathUtil
                             break;
                         }
                         $g = $q[$i];
-                        $h = $this->pythag($f, $g);
+                        $h = MathUtil::pythag($f, $g);
 
                         $q[$i] = $h;
                         $c = $g / $h;
@@ -446,7 +446,7 @@ class MathUtil
                 $g = $e[$k - 1];
                 $h = $e[$k];
                 $f = (($y - $z) * ($y + $z) + ($g - $h) * ($g + $h)) / (2.0 * $h * $y);
-                $g = $this->pythag($f, 1.0);
+                $g = MathUtil::pythag($f, 1.0);
 
                 if ($f < 0.0) {
                     $f = (($x - $z) * ($x + $z) + $h * ($y / ($f - $g) - $h)) / $x;
@@ -462,7 +462,7 @@ class MathUtil
                     $y = $q[$i];
                     $h = $s * $g;
                     $g = $c * $g;
-                    $z = $this->pythag($f, $h);
+                    $z = MathUtil::pythag($f, $h);
                     $e[$i - 1] = $z;
                     $c = $f / $z;
                     $s = $h / $z;
@@ -478,7 +478,7 @@ class MathUtil
                         $v[$j][$i] = -$x * $s + $z * $c;
                     }
 
-                    $z = $this->pythag($f, $h);
+                    $z = MathUtil::pythag($f, $h);
                     $q[$i - 1] = $z;
                     $c = $f / $z;
                     $s = $h / $z;
@@ -502,7 +502,7 @@ class MathUtil
         return new SVDResult($A, $q, $v);
     }
 
-    function getError($ref_returns, $target_returns, $reg_factors)
+    public static function getError($ref_returns, $target_returns, $reg_factors)
     {
         $n = count($ref_returns);
         $l = count($ref_returns[0]);
@@ -522,5 +522,27 @@ class MathUtil
         }
 
         return sqrt($sq / ($n - 1));
+    }
+
+    public static function call($T, $prev_spot, $current_spot, $yield, $vol)
+    {
+        $ff = 1.0 + $yield * $T;
+        $fwd = $current_spot * $ff;
+        $vol_sqrtT = $vol * sqrt($T);
+        $d1 = log($fwd / $prev_spot) / $vol_sqrtT + 0.5 * $vol_sqrtT;
+        $d2 = $d1 - $vol_sqrtT;
+
+        return $current_spot * stats_cdf_normal($d1, 0, 1, 1) - $prev_spot / $ff * stats_cdf_normal($d2, 0, 1, 1);
+    }
+
+    public static function put($T, $prev_spot, $current_spot, $yield, $vol)
+    {
+        $ff = 1.0 + $yield * $T;
+        $fwd = $current_spot * $ff;
+        $vol_sqrtT = $vol * sqrt($T);
+        $d1 = log($fwd / $prev_spot) / $vol_sqrtT + 0.5 * $vol_sqrtT;
+        $d2 = $d1 - $vol_sqrtT;
+
+        return -$current_spot * stats_cdf_normal(-$d1, 0, 1, 1) + $prev_spot / $ff * stats_cdf_normal(-$d2, 0, 1, 1);
     }
 }

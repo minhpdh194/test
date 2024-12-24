@@ -18,9 +18,9 @@ import { Bonus } from "./classes/Bonus";
 import { bonusDefinitions } from "./referential/bonusDefinitions";
 import { Friend } from "./types/Friend";
 import { getPositionStore } from "./store/position-store";
-import { StarPackage } from "./types/StarPackage";
-import { SpotType } from "./types/SpotType";
-import { StarPackages } from "./referential/starPackages";
+//import { UserProfile } from "./types/UserProfile";
+//import { SpotType } from "./types/SpotType";
+//import pusher from "./lib/pusher";
 
 const webApp = window.Telegram.WebApp;
 const isDesktop = import.meta.env.DEV
@@ -29,8 +29,7 @@ const isDesktop = import.meta.env.DEV
 
 declare global {
   var userProfile: UserProfileStore;
-  var spots: SpotType[];
-  var starPackages: StarPackage[];
+  var spots: any;
 }
 
 function App() {
@@ -77,6 +76,7 @@ function App() {
         setProgress(25);
 
         const pairs = await $http.$get<Pair[]>("/pairs");
+        localStorage.setItem("PairReferential", JSON.stringify(pairs));
 
         const [syncData,
           user_bonuses,
@@ -94,7 +94,7 @@ function App() {
         setProgress(45);
         // We update the userProfileStore
         syncData['login_streak'] = streak;
-        globalThis.starPackages = StarPackages;
+
         globalThis.userProfile.UpdateProfile(syncData);
 
         //const [availableBonuses, cleanedPositions, bonusToDelete] = syncBonusesAndPositions(user_bonuses, user_positions.positions, pairs);
@@ -110,14 +110,12 @@ function App() {
         positionStore!.next_position_id = user_positions.next_position_id;
 
         setProgress(65);
-        globalThis.userProfile.SetLevelBenefits(pairs);
+        globalThis.userProfile.SetLevelBenefits();
         globalThis.userProfile.UpdateUserOpenedPosition(positionStore);
         setProgress(95);
 
         globalThis.userProfile.SetFriends(referredUsers);
         $http.get("/clicker/load-spots");
-
-        localStorage.setItem("PairReferential", JSON.stringify(pairs));
       } catch (error) {
         console.error('Error loading data:', error);
         toast.error('Failed to load game data');

@@ -10,6 +10,19 @@ use Laravel\Sanctum\Http\Middleware\CheckForAnyAbility;
 
 use App\Http\Middleware\CorsMiddleware;
 
+class CustomHeaders extends SetCacheHeaders
+{
+    public function handle($request, Closure $next, $options = [])
+    {
+        $response = $next($request);
+
+        $response->header('Access-Control-Allow-Origin', '*');
+        $response->header('Access-Control-Allow-Methods', 'GET, POST');
+        $response->header('Access-Control-Allow-Headers', 'Origin, Content-Type, Content-Range, Content-Disposition, Content-Description, X-Auth-Token');
+        
+        return $response;
+    }
+}
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -20,7 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            // 'cache.headers' => CustomHeaders::class,
+            'cache.headers' => CustomHeaders::class,
             'abilities' => CheckAbilities::class,
             'ability' => CheckForAnyAbility::class,
         ]);

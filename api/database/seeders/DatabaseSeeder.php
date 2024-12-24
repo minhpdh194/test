@@ -20,7 +20,9 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             PairSeeder::class,
-            HistoricalSpotsSeeder::class,
+            HistoricalSpotSeeder::class,
+            SettingsSeeder::class,
+            StarsDefinitionSeeder::class,
             TaskSeeder::class,
             PopupSeeder::class,
             // TelegramUserSeeder::class,

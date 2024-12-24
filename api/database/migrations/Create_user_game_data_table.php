@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('user_game_data', function (Blueprint $table) {
+            $table->increments('id');
             $table->integer('user_id')->references('id')->on('user_profile')->unique();
             $table->string('telegram_user_id', 50)->references('telegram_user_id')->on('user_profile')->unique();
             $table->tinyInteger('level')->default(1)->unsigned();
