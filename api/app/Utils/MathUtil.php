@@ -2,10 +2,25 @@
 
 namespace App\Utils;
 
+use MathPHP\Probability\Distribution\Continuous\Normal;
+
 use DateTime;
 use DateTimeZone;
-use MathPHP\Probability\Distribution\Continuous\Normal;
-use SVDResult;
+
+class SVDResult {
+	public $U;
+	public $Q;
+	public $V;
+	
+	public $n;
+	
+	function __construct($u, $q, $v) {
+		$this->U = $u;
+		$this->Q = $q;
+		$this->V = $v;
+		$this->n = count($v);
+	}
+}
 
 class MathUtil
 {
@@ -50,8 +65,7 @@ class MathUtil
 
     public static function solve($A, $r)
     {
-        if (count($A) == 0 || count($A) != count($r))
-            return null;
+        if (count($A) == 0 || count($A) != count($r)) return null;
         $svdres = MathUtil::svd($A);
 
         $C = MathUtil::toMatrix($svdres->Q);
@@ -65,8 +79,8 @@ class MathUtil
 
     public static function identity_matrix($dim)
     {
-        $I = [[]];
-        // We don't fill all the values to optimize CPU resources and time
+        $I = array_fill(0, $dim, array_fill(0, $dim, 0.0));
+
         for ($i = 0; $i < $dim; $i++) {
             $I[$i][$i] = 1.0;
         }
@@ -194,8 +208,8 @@ class MathUtil
 
     public static function toMatrix($q)
     {
-        $R = [[]];
         $n = count($q);
+        $R = array_fill(0, $n, array_fill(0, $n, 0.0));
 
         for ($i = 0; $i < $n; $i++) {
             $R[$i][$i] = $q[$i];
@@ -532,9 +546,9 @@ class MathUtil
         $vol_sqrtT = $vol * sqrt($T);
         $d1 = log($fwd / $prev_spot) / $vol_sqrtT + 0.5 * $vol_sqrtT;
         $d2 = $d1 - $vol_sqrtT;
-        $normal = new Normal(0, 1);
 
-        return $current_spot * $normal->cdf($d1) - $prev_spot / $ff * $normal->cdf(-$d2);
+        $normal = new Normal(0, 1);
+        return $current_spot * $normal->cdf($d1) - $prev_spot / $ff * $normal->cdf($d2);
     }
 
     public static function put($T, $prev_spot, $current_spot, $yield, $vol)
@@ -542,11 +556,10 @@ class MathUtil
         $ff = 1.0 + $yield * $T;
         $fwd = $current_spot * $ff;
         $vol_sqrtT = $vol * sqrt($T);
-        \Log::info($prev_spot);
         $d1 = log($fwd / $prev_spot) / $vol_sqrtT + 0.5 * $vol_sqrtT;
         $d2 = $d1 - $vol_sqrtT;
-        $normal = new Normal(0, 1);
 
-        return -$current_spot * $normal->cdf(-$d1) + $prev_spot / $ff * $normal->cdf(-$d2);;
+        $normal = new Normal(0, 1);
+        return -$current_spot * $normal->cdf(-$d1) + $prev_spot / $ff * $normal->cdf(-$d2);
     }
 }

@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('indices', function (Blueprint $table) {
-            $table->integer('pair_id')->references('id')->on('pairs')->unique();
+            $table->integer('pair_id')->references('id')->on('pairs');
             $table->enum('long_short', ['long', 'short']);
             $table->double('value')->default(0);
             $table->timestamps();
-        });
 
-        $table->unique(['pair_id', 'long_short', 'created_at']);
+            $table->unique(['pair_id', 'long_short', 'created_at']);
+        });
     }
 
     /**
