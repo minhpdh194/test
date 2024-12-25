@@ -256,18 +256,23 @@ class MarketDataTasks
 
                 $longPerf = Index::updateOrCreate(['pair_id' => $pair->id], [
                     'long_short' => 'long',
-                    'value' => $prev_long_index->value + $premium * max(1, $total_positions->total_short_value / $total_positions->total_long_value),
+                    'value' => $prev_long_index ? $prev_long_index->value : 0
+                        + $premium * max(
+                            1,
+                            ($total_positions ? $total_positions->total_short_value : 0) /
+                                ($total_positions ? $total_positions->total_short_value : 1)
+                        ),
                     'timestamp' => $timestamp
                 ]);
 
                 $shortPerf = Index::updateOrCreate(['pair_id' => $pair->id], [
                     'long_short' => 'short',
-                    'value' => $prev_short_index->value - $premium,
+                    'value' => $prev_short_index ? $prev_short_index->value : 0 - $premium,
                     'timestamp' => $timestamp
                 ]);
 
-                $indices_perf[$pairs->coin_symbol] = [
-                    'long' => $longPerf->value - $prev_long_index->value,
+                $indices_perf[$pair->coin_symbol] = [
+                    'long' => ($longPerf ? $longPerf->value : 0) - ($prev_long_index ? $prev_long_index->value : 0),
                     'short' => -$premium,
                     'time' => $timestamp
                 ];
@@ -277,35 +282,38 @@ class MarketDataTasks
 
                 $longPerf = Index::updateOrCreate(['pair_id' => $pair->id], [
                     'long_short' => 'long',
-                    'value' => $prev_long_index->value - $premium,
+                    'value' => $prev_long_index ? $prev_long_index->value : 0 - $premium,
                     'timestamp' => $timestamp
                 ]);
 
                 $shortPerf = Index::updateOrCreate(['pair_id' => $pair->id], [
                     'long_short' => 'short',
-                    'value' => $prev_short_index->value + $premium * max(1, $total_positions->total_long_value / $total_positions->total_short_value),
+                    'value' => $prev_short_index ? $prev_short_index->value : 0 + $premium * max(
+                        1,
+                        ($total_positions ? $total_positions->total_long_value : 0) / ($total_positions ? $total_positions->total_short_value : 1)
+                    ),
                     'timestamp' => $timestamp
                 ]);
 
-                $indices_perf[$pairs->coin_symbol] = [
+                $indices_perf[$pair->coin_symbol] = [
                     'long' => -$premium,
-                    'short' => $shortPerf->value - $prev_short_index->value,
+                    'short' => $shortPerf->value - ($prev_short_index ? $prev_short_index->value : 0),
                     'time' => $timestamp
                 ];
             } else {
                 $longPerf = Index::updateOrCreate(['pair_id' => $pair->id], [
                     'long_short' => 'long',
-                    'value' => $prev_long_index,
+                    'value' => $prev_long_index ? $prev_long_index->value : 0,
                     'timestamp' => $timestamp
                 ]);
 
                 $shortPerf = Index::updateOrCreate(['pair_id' => $pair->id], [
                     'long_short' => 'short',
-                    'value' => $prev_short_index,
+                    'value' => $prev_short_index ? $prev_short_index->value : 0,
                     'timestamp' => $timestamp
                 ]);
 
-                $indices_perf[$pairs->coin_symbol] = [
+                $indices_perf[$pair->coin_symbol] = [
                     'long' => 0,
                     'short' => 0,
                     'time' => $timestamp
@@ -327,12 +335,12 @@ class MarketDataTasks
 
     public function integration()
     {
-        $pairs = Pair::all();
+        $pairs = Pair::limit(4)->get(); //get first 4 rows;
 
         $createdSpots = $this->storeSpots($pairs);
         $T = $this->getYieldsAndVolatilitiesFromMarket($createdSpots);
-        // $this->getCorrelatedParameters($pairs);
-        // $indices_perf = $this->computeFixings($pairs, $T);
+        $this->getCorrelatedParameters($pairs);
+        $indices_perf = $this->computeFixings($pairs, $T);
 
         $options = array(
             'cluster' => 'ap2',

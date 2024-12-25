@@ -4,6 +4,7 @@ namespace App\Utils;
 
 use DateTime;
 use DateTimeZone;
+use MathPHP\Probability\Distribution\Continuous\Normal;
 use SVDResult;
 
 class MathUtil
@@ -531,8 +532,9 @@ class MathUtil
         $vol_sqrtT = $vol * sqrt($T);
         $d1 = log($fwd / $prev_spot) / $vol_sqrtT + 0.5 * $vol_sqrtT;
         $d2 = $d1 - $vol_sqrtT;
+        $normal = new Normal(0, 1);
 
-        return $current_spot * stats_cdf_normal($d1, 0, 1, 1) - $prev_spot / $ff * stats_cdf_normal($d2, 0, 1, 1);
+        return $current_spot * $normal->cdf($d1) - $prev_spot / $ff * $normal->cdf(-$d2);
     }
 
     public static function put($T, $prev_spot, $current_spot, $yield, $vol)
@@ -540,9 +542,11 @@ class MathUtil
         $ff = 1.0 + $yield * $T;
         $fwd = $current_spot * $ff;
         $vol_sqrtT = $vol * sqrt($T);
+        \Log::info($prev_spot);
         $d1 = log($fwd / $prev_spot) / $vol_sqrtT + 0.5 * $vol_sqrtT;
         $d2 = $d1 - $vol_sqrtT;
+        $normal = new Normal(0, 1);
 
-        return -$current_spot * stats_cdf_normal(-$d1, 0, 1, 1) + $prev_spot / $ff * stats_cdf_normal(-$d2, 0, 1, 1);
+        return -$current_spot * $normal->cdf(-$d1) + $prev_spot / $ff * $normal->cdf(-$d2);;
     }
 }
