@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('fixings', function (Blueprint $table) {
+            $table->increments('id');
             $table->integer('pair_id')->references('id')->on('pairs')->unique();
             $table->double('prev_spot')->default(0.0);
             $table->double('spot')->default(0.0);
