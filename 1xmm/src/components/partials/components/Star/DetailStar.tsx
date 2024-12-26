@@ -52,7 +52,7 @@ export default function DetailStar({
             if (transactionResult) {
                 const response = await $http.post('/clicker/buy-stars', { package: starPackage });
                 if (response.status === 200) {
-                    toast.success('Bonus bought successfully!');
+                    toast.success('Package bought successfully!');
                 }
                 else {
                     toast.error('Failed to buy package!');

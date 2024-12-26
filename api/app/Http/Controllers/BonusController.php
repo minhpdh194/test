@@ -34,6 +34,7 @@ class BonusController extends Controller
                 'bonus_id' => $boughtBonus['id'],
                 'telegram_user_id' => $user->telegram_user_id,
                 'purchase_time' => Carbon::now(),
+                'position_id' => 0,
             ]);
             return response()->json(['success' => 'Bonus list updated successfully'], 200);
         }
