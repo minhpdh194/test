@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { $http } from "@/lib/http";
 import { UserProfile } from '@/types/UserProfile';
-import { Position } from '@/classes/Position';
+import { PnLResult, Position } from '@/classes/Position';
 import { Pair } from '@/types/Pair';
 import { LongShort } from '@/enums';
 import { Bonus } from '@/classes/Bonus';
@@ -19,6 +19,12 @@ export type ClosingDetails = {
   position_pnl: number;
 }
 
+export type PositionsUpdate = {
+  pnl_results: PnLResult[];
+  total_change_in_amount_of_tokens: number;
+  total_change_in_pnl: number;
+}
+
 export type PositionStore = {
   next_position_id: number;
   available_bonuses: Bonus[];
@@ -30,6 +36,7 @@ export type PositionStore = {
   UpdateAvailableBonuses: (available_bonuses: Bonus[]) => void;
   AddNewBonus: (bonus: Bonus) => void;
   SetUserPositions: (positions: Position[]) => void;
+  RefreshPositions: () => PositionsUpdate;
 }
 
 export const getPositionStore = create<PositionStore>()((set, get) => ({
@@ -129,6 +136,38 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
     }
   },
 
+  RefreshPositions: (): PositionsUpdate => {
+    let pnl_results: PnLResult[] = [];
+    let positions_to_remove: number[] = [];
+    let total_change_in_amount_of_tokens = 0;
+    let total_change_in_pnl = 0;
+
+    get().positions.forEach(async (pos, i) => {
+      const pnlResult = pos.update();
+      pnl_results.push(pnlResult);
+      total_change_in_pnl += pnlResult.pnl;
+
+      if (pnlResult.is_zero) {
+        await $http.post(`/clicker/close-position`, pos);
+        total_change_in_amount_of_tokens -= pos.amount;
+        positions_to_remove.push(i);
+      }
+    });
+
+    // Going backwards to avoid index shifting
+    for (let i = positions_to_remove.length - 1; i > 0; i--) {
+      set((state) => ({
+        positions: state.positions.splice(positions_to_remove[i], 1),
+      }));
+    }
+
+    return {
+      pnl_results,
+      total_change_in_amount_of_tokens,
+      total_change_in_pnl
+    };
+  },
+
   ClosePosition: async (position_id: number): Promise<ClosingDetails> => {
     const position = get().positions.find(pos => pos.position_id === position_id);
     if (!position) return {
@@ -149,7 +188,7 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
       return {
         success: true, 
         position_amount: position.amount,
-        position_pnl: pnl
+        position_pnl: pnl.pnl
       };
       
     } catch (error) {

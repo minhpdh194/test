@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Traits\MarketData;
-use App\Models\MarketData\Fixing;
-use App\Models\MarketData\Pair;
-use App\ServerTasks\MarketDataTasks;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+
+use App\ServerTasks\MarketDataTasks;
+
+use App\Http\Traits\MarketData;
+use App\Models\MarketData\Fixing;
+use App\Models\MarketData\Pair;
+use App\Models\MarketData\Index;
 
 class MarketDataController extends Controller
 {
@@ -35,5 +38,33 @@ class MarketDataController extends Controller
     {
         $pairs = Pair::select('id', 'pair_symbol')->get();
         return response()->json($pairs);
+    }
+
+    public function getIndexPerf(Request $request)
+    {
+        $validated = $request->validate([
+            'pair_id' => 'required',
+            'long_short' => 'required',
+            'from' => 'required',
+            'to' => 'required'
+        ]);
+
+        $index_start = Index::where(['pair_id' => $validated['pair_id'], 'long_short' => $validated['long_short']])
+            ->where('created_at', $validated['from'])
+            ->first();
+
+        $index_end = Index::where(['pair_id' => $validated['pair_id'], 'long_short' => $validated['long_short']])
+            ->where('created_at', $validated['to'])
+            ->first();
+
+        if (!$index_start || !$index_end) {
+            return response()->json(['error' => 'Index not found']);
+        }
+
+        $indexPerf = [
+            'perf' => $index_end->value - $index_start->value
+        ];
+
+        return response()->json($indexPerf);
     }
 }

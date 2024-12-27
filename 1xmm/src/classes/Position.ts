@@ -14,6 +14,12 @@ export type PositionChange = {
     realized_pnl: number;
 }
 
+export type PnLResult = {
+    is_zero: boolean;
+    pnl: number;
+    perf: number;
+}
+
 export class Position {
     telegram_user_id: number;
     position_id: number;
@@ -51,9 +57,11 @@ export class Position {
 
         return false;
         }
-
-    public async update() {
-        // We should check if the option has 0 perf
+    
+    public update(): PnLResult {
+        const pnlUpdate = this.get_PnL(Utils.getLastFixingTimestamp());
+        this.performance = pnlUpdate.perf;
+        return pnlUpdate;
     }
 
     public async add(ls: LongShort, amt: number, lev: Leverages, bonuses: Bonus[]) {
@@ -82,12 +90,12 @@ export class Position {
             const bonus_factors = this.get_performance_adjustment_factors(globalThis.userProfile);
             const pro_rata = Math.min(1.0, (value_date - this.open_date + bonus_factors.total_time_reduction) / (this.min_end_date - this.open_date));
 
-            const index_perf = pro_rata * Utils.getIndexPerf(this.pair, this.long_short, this.open_date, value_date) - (1 - pro_rata) * penalty;
+            const index_perf = Utils.getIndexPerf(this.pair, this.long_short, this.open_date, value_date) - (1 - pro_rata) * penalty;
 
             if (amt <= this.amount) {
                 // Partial position closepositive_leverage
                 if (index_perf > 0) {
-                    pnl = (bonus_factors.total_leverage + bonus_factors.total_positive_leverage) * index_perf * amt;
+                    pnl = pro_rata * (bonus_factors.total_leverage + bonus_factors.total_positive_leverage) * pro_rata * index_perf * amt;
                 } else {
                     pnl = bonus_factors.total_leverage * index_perf * amt * (1 - bonus_factors.total_capital_protection);
                 }
@@ -102,7 +110,7 @@ export class Position {
             } else {
                 // Full position close and reverse
                 if (index_perf > 0) {
-                    pnl = (bonus_factors.total_leverage + bonus_factors.total_positive_leverage) * index_perf * this.amount;
+                    pnl = pro_rata * (bonus_factors.total_leverage + bonus_factors.total_positive_leverage) * index_perf * this.amount;
                 } else {
                     pnl = bonus_factors.total_leverage * index_perf * this.amount * (1 - bonus_factors.total_capital_protection);
                 }
@@ -130,47 +138,32 @@ export class Position {
         }
     }
 
-    //public add(_pair: Pair, ls: LongShort, amt: number, lev: Leverages, bonuses: Bonus[]) {
-    //    const pnl = -this.amount;
-    //    this.long_short = ls;
-    //    this.open_date = Utils.getPositionTimestamp();
-    //    this.amount = amt;
-    //    this.leverage = lev;
-    //    this.performance = 0.0;
-
-    //    // We attach new bonuses
-    //    bonuses.forEach(b => this.attach_bonus(b));
-    //    toast.success("Position added successfully");
-
-    //    return {
-    //        amount_adjustment: -amt,
-    //        realized_pnl: pnl
-    //    };
-    //}
-
-    public get_PnL(offset_date: number): number {
+    public get_PnL(offset_date: number): PnLResult {
 
         let penalty = 0.0;
         let total_pnl = 0.0;
+        let isZero = false;
 
         const adj_factors = this.get_performance_adjustment_factors(globalThis.userProfile);
         if (this.min_end_date > offset_date) penalty = penaltyFee;
 
         const pro_rata = Math.min(1.0, (offset_date - this.open_date + adj_factors.total_time_reduction) / (this.min_end_date - this.open_date));
 
-        const index_perf = pro_rata * Utils.getIndexPerf(this.pair, this.long_short, this.open_date, offset_date) - (1 - pro_rata) * penalty;
+        const index_perf = Utils.getIndexPerf(this.pair, this.long_short, this.open_date, offset_date) - (1 - pro_rata) * penalty;
 
         if (index_perf > 0) {
-            total_pnl = (adj_factors.total_leverage + adj_factors.total_positive_leverage) * index_perf * this.amount;
+            total_pnl = pro_rata * (adj_factors.total_leverage + adj_factors.total_positive_leverage) * index_perf * this.amount;
         } else {
-            total_pnl = (adj_factors.total_leverage) * index_perf * this.amount * (1 - adj_factors.total_capital_protection);
+            let negPerf: number = adj_factors.total_leverage * index_perf * (1 - adj_factors.total_capital_protection);
+            if (negPerf <= -1) { negPerf = -1; isZero = true; }
+            total_pnl = negPerf * this.amount;
         }
 
-        return total_pnl;
+        return {
+            is_zero: isZero,
+            pnl: total_pnl,
+            perf: total_pnl / this.amount
     }
-
-    public get_Return(offset_date: number): number {
-        return this.get_PnL(offset_date) / this.amount;
     }
 
     public get_performance_adjustment_factors(userProfile: UserProfile): AdjustmentFactors {

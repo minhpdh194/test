@@ -1,6 +1,7 @@
 import { asyncParallelForEach, BACK_OFF_RETRY } from "async-parallel-foreach";
 import { AxiosInstance } from "axios";
 import { Position } from "@/classes/Position";
+import { LongShort } from "@/enums";
 
 export type UserData = {
   first_login: boolean;
@@ -20,6 +21,19 @@ export namespace COMM {
         
         return response.data;
       }
+    
+    export async function getIndexPerf(http: AxiosInstance, pairId: number, ls: LongShort, from: number, to: number): Promise<number> {
+      var response = await http.get("/get-index-perf", {
+        params: {
+          pair_id: pairId,
+          long_short: ls,
+          from: from,
+          to: to
+        }
+      });
+
+      return Number(response.data.perf);
+    }
 
     export async function updatePositions(positions: Position[]): Promise<Position[]> {
         const parallelLimit = 4;

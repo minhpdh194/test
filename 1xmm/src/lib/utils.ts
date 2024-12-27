@@ -3,6 +3,7 @@ import { twMerge } from "tailwind-merge";
 import { Pair } from "@/types/Pair";
 import { LongShort } from "../enums";
 import { $http } from "./http";
+import { COMM } from "./comm";
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -33,7 +34,9 @@ export const Utils = {
  *********************************/
 
 const get_index_perf = (_pair: Pair, _long_short: LongShort, _open_date: number, _value_date: number): number => {
-	return 0;
+	let perf: number = 0;
+	COMM.getIndexPerf($http, _pair.id, _long_short, _open_date, _value_date).then((res) => { perf = res; });
+	return perf;
 }
 
 // To avoid wrong user timestamp, we sync all timestamps with the server
