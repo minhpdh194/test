@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             StarsDefinitionSeeder::class,
             TaskSeeder::class,
             PopupSeeder::class,
+            TicksSeeder::class,
             // TelegramUserSeeder::class,
         ]);
     }

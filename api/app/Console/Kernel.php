@@ -7,6 +7,10 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
+    protected $routeMiddleware = [
+        'cors' => \App\Http\Middleware\Cors::class
+    ];
+
     /**
      * Đăng ký các lệnh Artisan của bạn.
      *
@@ -14,7 +18,6 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         \App\Console\Commands\RunCheckResultPositionJob::class,
-        \App\Console\Commands\Integration::class,
     ];
     /**
      * Định nghĩa các lịch trình của console.
@@ -24,8 +27,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('app:run-check-result-position-job')->hourly();
-        $schedule->command('app:integration')->everyMinute();
+        $schedule->command('app:run-check-result-position-job')->hourly();
     }
 
     /**

@@ -11,7 +11,7 @@ class PairSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-    */
+     */
     public function run(): void
     {
         $pairs = [

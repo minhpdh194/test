@@ -1,4 +1,3 @@
-import { Utils } from "@/lib/utils";
 import { BonusDefinition } from "@/types/BonusDefinition";
 import { Position } from "./Position";
 
@@ -15,12 +14,12 @@ export class Bonus {
         this.end_date = null;
     }
 
-    public attach_to_position(p: Position) {
+    public attach_to_position(p: Position, end_date: number) {
         this.position_id = p.position_id;
-        this.end_date = Utils.getNextFixingTimestamp();
+        this.end_date = end_date;
     }
 
-    public bonus_is_valid(): boolean {
-        return this.end_date == null || this.end_date >= Utils.getNextFixingTimestamp();
+    public bonus_is_valid(position_last_update_timestamp: number): boolean {
+        return this.end_date == null || this.end_date >= position_last_update_timestamp;
     }
 }

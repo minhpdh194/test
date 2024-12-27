@@ -14,7 +14,7 @@ export default function Profile() {
         backgroundImage: `url(/images/home/bg.png)`,
       }}
     >
-      <Header />
+      <Header amount_token={userProfile.amount_of_tokens} />
       <div className="mt-4 mb-8 text-center">
         <span className="fw-bold text-2xl">Earn more Coins</span>
         <img

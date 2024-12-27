@@ -10,7 +10,7 @@ export default function Profile() {
                 backgroundImage: `url(/images/home/bg.png)`,
             }}
         >
-            <Header />
+            <Header amount_token={userProfile.amount_of_tokens} />
             <div className="mt-4 mb-8">
                 <div className="flex gap-2 w-100 text-sm">
                     <div className="bg-[#32363C] flex-1 text-center py-2 rounded-lg">

@@ -20,7 +20,7 @@ export type UserProfileStore = UserProfile & {
   UserTap: () => boolean;
   UserLevelUp: () => void;
   AddPosition: (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]) => Promise<number>;
-  ClosePosition: (position_id: number) => Promise<boolean>;
+  ClosePosition: (position_id: number) => Promise<number>;
   SetFriends: (friends: Friend[]) => void;
 
   unlocked_pair_ids: Array<number>;
@@ -227,9 +227,9 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
     return 0;
   },
 
-  ClosePosition: async (position_id: number): Promise<boolean> => {
+  ClosePosition: async (position_id: number): Promise<number> => {
     const positionStore = get().positionStore;
-    if (!positionStore) return false;
+    if (!positionStore) return 0;
 
     const closingDetails = await positionStore!.ClosePosition(position_id);
 
@@ -237,7 +237,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       set((state) => ({
         amount_of_tokens: state.amount_of_tokens + closingDetails.position_pnl,
         trading_info: {
-          balance: state.trading_info.balance + closingDetails.position_amount,
+          balance: state.trading_info.balance + closingDetails.position_amount + closingDetails.position_pnl,
           total_pnl: state.trading_info.total_pnl + closingDetails.position_pnl,
           perf_from_start_date: state.trading_info.perf_from_start_date + closingDetails.position_pnl / state.amount_of_tokens,
           perf_since_last_fixing: state.trading_info.perf_since_last_fixing + closingDetails.position_pnl / state.amount_of_tokens,
@@ -248,7 +248,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       }));
     }
 
-    return closingDetails.success;
+    return closingDetails.position_amount + closingDetails.position_pnl;
   }
 }));
 

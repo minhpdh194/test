@@ -36,7 +36,7 @@ export type PositionStore = {
   UpdateAvailableBonuses: (available_bonuses: Bonus[]) => void;
   AddNewBonus: (bonus: Bonus) => void;
   SetUserPositions: (positions: Position[]) => void;
-  RefreshPositions: () => PositionsUpdate;
+  RefreshPositions: () => Promise<PositionsUpdate>;
 }
 
 export const getPositionStore = create<PositionStore>()((set, get) => ({
@@ -96,7 +96,7 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
         realized_pnl: res.realized_pnl
       };
     } else {
-      const position: Position = new Position(get().next_position_id!, pair, ls, Number(amt), lev, Utils.getPositionTimestamp() + 21600, bonuses);
+      const position: Position = new Position(get().next_position_id!, pair, ls, Number(amt), lev, await Utils.getPositionTimestamp() + 21600, bonuses);
       
       try {
         await $http.post('/clicker/add-position', position);
@@ -136,23 +136,25 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
     }
   },
 
-  RefreshPositions: (): PositionsUpdate => {
+  RefreshPositions: async (): Promise<PositionsUpdate> => {
     let pnl_results: PnLResult[] = [];
     let positions_to_remove: number[] = [];
     let total_change_in_amount_of_tokens = 0;
     let total_change_in_pnl = 0;
 
-    get().positions.forEach(async (pos, i) => {
-      const pnlResult = pos.update();
+    const positions = get().positions;
+
+    for (let i = 0; i < positions.length; i++) {
+      const pnlResult = await positions[i].update();
       pnl_results.push(pnlResult);
       total_change_in_pnl += pnlResult.pnl;
 
       if (pnlResult.is_zero) {
-        await $http.post(`/clicker/close-position`, pos);
-        total_change_in_amount_of_tokens -= pos.amount;
+        await $http.post(`/clicker/close-position`, positions[i]);
+        total_change_in_amount_of_tokens -= positions[i].amount;
         positions_to_remove.push(i);
       }
-    });
+    }
 
     // Going backwards to avoid index shifting
     for (let i = positions_to_remove.length - 1; i > 0; i--) {
@@ -176,7 +178,7 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
       position_pnl: 0
     };
 
-    const pnl = position.get_PnL(Utils.getPositionTimestamp());
+    const pnl = await position.get_PnL();
     const index = get().positions.indexOf(position);
 
     try {

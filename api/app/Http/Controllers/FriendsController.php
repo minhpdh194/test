@@ -29,7 +29,6 @@ class FriendsController extends Controller
                     'username' => $user->username,
                     'avatar_id' => $avatar_id
                 ];
-                //Can be done later
             }
         }
 

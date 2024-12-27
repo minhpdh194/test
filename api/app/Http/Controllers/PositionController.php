@@ -156,10 +156,6 @@ class PositionController extends Controller
         $positionData['min_end_date'] = Carbon::createFromTimestamp($validatedData['min_end_date'])->toDateTimeString();
         $positionData['alive'] = $validatedData['amount'] != 0;
 
-        // if (isset($validatedData['bonuses']) && is_array($validatedData['bonuses'])) {
-        //     $this->positionService->addBonuses($validatedData['bonuses'], $user->telegram_user_id, $position->id);
-        // }
-
         $position->update($positionData);
         $userGameData->balance = $userGameData->balance - $position_change;
         $userGameData->save();
@@ -168,7 +164,7 @@ class PositionController extends Controller
 
     public function closePosition(Request $request)
     {
-        Log::info($request);
+        \Log::info($request);
         $user = $request->user();
 
         $position_id = $request->position_id;

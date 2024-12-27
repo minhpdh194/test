@@ -2,6 +2,7 @@ import { asyncParallelForEach, BACK_OFF_RETRY } from "async-parallel-foreach";
 import { AxiosInstance } from "axios";
 import { Position } from "@/classes/Position";
 import { LongShort } from "@/enums";
+import { Toast } from "node_modules/react-toastify/dist/components";
 
 export type UserData = {
   first_login: boolean;
@@ -22,7 +23,7 @@ export namespace COMM {
         return response.data;
       }
     
-    export async function getIndexPerf(http: AxiosInstance, pairId: number, ls: LongShort, from: number, to: number): Promise<number> {
+    export async function getIndexPerf(http: AxiosInstance, pairId: number, ls: LongShort, from: number, to: number): Promise<number|undefined> {
       var response = await http.get("/get-index-perf", {
         params: {
           pair_id: pairId,
@@ -32,6 +33,7 @@ export namespace COMM {
         }
       });
 
+      if (response.data.error) return undefined;
       return Number(response.data.perf);
     }
 

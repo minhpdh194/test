@@ -103,14 +103,13 @@ function App() {
         //const [availableBonuses, cleanedPositions, bonusToDelete] = syncBonusesAndPositions(user_bonuses, user_positions.positions, pairs);
         const [availableBonuses, cleanedPositions] = syncBonusesAndPositions(user_bonuses, user_positions.positions, pairs);
 
-        console.log(cleanedPositions);
-
         setProgress(55);
         // await COMM.bonusExpiry($http, userProfile.id, bonusesToDelete);
         // await COMM.updatePositions(cleanedPositions);
         positionStore!.UpdateAvailableBonuses(availableBonuses);
         positionStore!.SetUserPositions(cleanedPositions);
         positionStore!.next_position_id = user_positions.next_position_id;
+        await positionStore.RefreshPositions();
 
         setProgress(65);
         globalThis.userProfile.SetLevelBenefits();

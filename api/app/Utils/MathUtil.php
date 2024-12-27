@@ -539,6 +539,29 @@ class MathUtil
         return sqrt($sq / ($n - 1));
     }
 
+    public static function computeCorrelation($r_a, $r_b, $n)
+    {
+        $avg_r_a = array_sum($r_a) / $n;
+        $avg_r_b = array_sum($r_b) / $n;
+
+        $cov = 0.0;
+        $var_a = 0.0;
+        $var_b = 0.0;
+
+        for ($i = 0; $i < $n; $i++)
+        {
+            $cov += ($r_a[$i] - $avg_r_a) * ($r_b[$i] - $avg_r_b);
+
+            $tmp = $r_a[$i] - $avg_r_a;
+            $var_a += $tmp * $tmp;
+
+            $tmp = $r_b[$i] - $avg_r_b;
+            $var_b += $tmp * $tmp;
+        }
+
+        return $cov / sqrt($var_a * $var_b);
+    }
+
     public static function call($T, $prev_spot, $current_spot, $yield, $vol)
     {
         $ff = 1.0 + $yield * $T;

@@ -9,7 +9,6 @@ use Carbon\Carbon;
 
 // Traits
 use App\Http\Controllers\Clickers\Booster;
-use App\Models\Tasks\DailyTask;
 use DateTime;
 
 // Models

@@ -13,6 +13,7 @@ use App\Models\MarketData\Pair;
 use App\Models\MarketData\VolAndFwd;
 use App\Models\MarketData\Fixing;
 use App\Models\MarketData\Index;
+use App\Models\MarketData\Ticks;
 use App\Models\MarketData\TotalOpenPositionValue;
 use App\Models\Settings;
 use App\Services\MarketDataService;
@@ -21,13 +22,6 @@ use App\Utils\ToolsUtil;
 
 class MarketDataTasks
 {
-    private static $ticks = array(
-        "BTC" => 500,
-        "ETH" => 25,
-        "BNB" => 5,
-        "SOL" => 2
-    );
-
     private $marketDataService;
     /**
      * Create a new controller instance.
@@ -42,9 +36,7 @@ class MarketDataTasks
     public function getSpotsFromMarket($pairs)
     {
         $list_of_coins = '';
-        foreach ($pairs as $pair) {
-            $list_of_coins = $list_of_coins . ($list_of_coins !== '' ? ',' : '') . $pair->coin_symbol;
-        }
+        foreach ($pairs as $pair) { $list_of_coins = $list_of_coins . ($list_of_coins !== '' ? ',' : '') . $pair->coin_symbol; }
 
         $apiUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest';
         // $usdComparedSpots = $this->marketDataService->pairCoin($apiUrl, 'BTC,ETH,BNB,SOL,LINK,UNI,TON,XRP', 'USD');
@@ -52,13 +44,12 @@ class MarketDataTasks
         return $usdComparedSpots['data'];
     }
 
-    public function storeSpots($pairs)
-    {
+    public function storeSpots($pairs) {
         $createdSpots = [];
         $crypto_data = $this->getSpotsFromMarket($pairs);
 
         foreach ($pairs as $pair) {
-            $createdSpot = $this->marketDataService->updateOrCreateSpotData($crypto_data[$pair->coin_symbol], $pair, $crypto_data[$pair->coin_symbol]['quote']['USD']['price']);
+            $createdSpot = $this->marketDataService->updateOrCreateSpotData($pair, $crypto_data[$pair->coin_symbol]['quote']['USD']['price']);
             if ($createdSpot) {
                 $createdSpots[$pair->coin_symbol] = $createdSpot;
             }
@@ -116,11 +107,14 @@ class MarketDataTasks
             $fwd = 0.0;
             $data = [];
 
-            try {
+            try
+            {
                 $url = 'https://www.deribit.com/api/v2/public/get_order_book?instrument_name=' . array_values($options_symbols)[$i] . '&depth=' . '1';
                 $response = Http::withHeaders(['Content-Type' => 'application/json'])->get($url);
                 $data = $response->json();
-            } catch (\Exception $e) {
+            }
+            catch (\Exception $e)
+            {
                 \Log::info('Error getting data from Deribit API', ['error' => $e->getMessage()]);
             }
 
@@ -140,7 +134,9 @@ class MarketDataTasks
                 }
 
                 $fwd = round($fwd, 5);
-            } else {
+            }
+            else
+            {
                 $last = VolAndFwd::where('pair_id', $pair->id)->first();
 
                 if (!$last) {
@@ -177,11 +173,10 @@ class MarketDataTasks
         $correlated_pairs = [];
 
         foreach ($pairs as $pair) {
-            if (in_array($pair->coin_symbol, $ref_symbols))
-                continue;
-            $correlated_pairs[] = ToolsUtil::getPairSymbol($pair->coin_symbol, 'USD');
+            if (in_array($pair->coin_symbol, $ref_symbols)) continue;
+            $correlated_pairs[] = $pair->pair_symbol;
         }
-
+        
         $n = 30;
 
         $return_matrix = null;
@@ -242,11 +237,54 @@ class MarketDataTasks
         }
     }
 
+    public function getXPairsParameters($xpairs, $T)
+    {
+        $n = 30;
+
+        foreach ($xpairs as $pair) {
+            // Sanity check: we exclude USD pairs
+            if ($pair->counter_symbol === 'USD') continue;
+
+            $pair1 = Pair::where('pair_symbol', ToolsUtil::getPairSymbol($pair->coin_symbol, 'USD'))->first();
+            $pair2 = Pair::where('pair_symbol', ToolsUtil::getPairSymbol($pair->counter_symbol, 'USD'))->first();
+
+            $spots1 = Spot::where('pair_id', $pair1->id)
+                ->orderBy('created_at', 'desc')
+                ->take($n)
+                ->get();
+            
+            $spots2 = Spot::where('pair_id', $pair2->id)
+                ->orderBy('created_at', 'desc')
+                ->take($n)
+                ->get();
+            
+            $corr = MathUtil::computeCorrelation($spots1->pluck('daily_return')->toArray(), $spots2->pluck('daily_return')->toArray(), $n);
+            $spot = $spots1->first()->current_value / $spots2->first()->current_value;
+
+            $vol_fwd1 = VolAndFwd::where('pair_id', $pair1->id)->first();
+            $vol_fwd2 = VolAndFwd::where('pair_id', $pair2->id)->first();
+
+            $fwd = $vol_fwd1->forward / $vol_fwd2->forward;
+            $vol = sqrt($vol_fwd1->volatility * $vol_fwd1->volatility + $vol_fwd2->volatility * $vol_fwd2->volatility + 2.0 * $corr * $vol_fwd1->volatility * $vol_fwd2->volatility);
+
+            $this->marketDataService->updateOrCreateSpotData($pair, $spot);
+
+            VolAndFwd::updateOrCreate(
+                ['pair_id' => $pair->id],
+                [
+                    'yield' => ($fwd / $spot - 1.0) / $T,
+                    'forward' => $fwd,
+                    'volatility' => $vol,
+                ]
+            );
+        }
+    }
+
     public function computeFixings($pairs, $T)
     {
         $dt = 1.0 / ($T * 262800);
         $indices_perf = [];
-        $mult = (float) Settings::where('name', 'prem_mult')->first()->value;
+        $mult = (float)Settings::where('name', 'prem_mult')->first()->value;
         $timestamp = ToolsUtil::getFixingTimestamp();
 
         foreach ($pairs as $pair) {
@@ -266,7 +304,7 @@ class MarketDataTasks
                     'created_at' => ($timestamp - 120)
                 ]);
             }
-
+            
             $prev_short_index = Index::where(['pair_id' => $pair->id, 'long_short' => 'short'])
                 ->orderBy('created_at', 'desc')
                 ->first();
@@ -359,7 +397,7 @@ class MarketDataTasks
                 ];
             }
 
-            $fixing = Fixing::updateOrCreate(['pair_id' => $pair->id], [
+            $fixing = Fixing::updateOrCreate(['pair_id' => $pair->id],[
                 'prev_spot' => $spot->prev_value,
                 'spot' => $spot->current_value,
                 'forward' => $vol_fwd->forward,
@@ -372,12 +410,15 @@ class MarketDataTasks
 
     public function integration()
     {
-        $pairs = Pair::all();
+        $natural_pairs = Pair::where('counter_symbol', 'USD')->get();
+        $xpairs = Pair::where('counter_symbol', '!=', 'USD')->get();
 
-        $createdSpots = $this->storeSpots($pairs);
+        $createdSpots = $this->storeSpots($natural_pairs);
         $T = $this->getYieldsAndVolatilitiesFromMarket($createdSpots);
-        $this->getCorrelatedParameters($pairs);
-        $indices_perf = $this->computeFixings($pairs, $T);
+        $this->getCorrelatedParameters($natural_pairs);
+        if ($xpairs) $this->getXPairsParameters($xpairs, $T);
+
+        $indices_perf = $this->computeFixings(Pair::all(), $T);
 
         $options = array(
             'cluster' => 'ap2',
@@ -406,8 +447,7 @@ class MarketDataTasks
 
     private function getOptionSymbol($coin, $opt_symb, $expiry, $new_spot_value)
     {
-        $ticks = self::$ticks;
-        $tick = $ticks[$coin];
+        $tick = Ticks::where('coin_symbol', $coin)->first()->value;
         $pair = Pair::where('coin_symbol', $coin)->first();
         // $spot = Spot::where('pair_id', $pair->id)->first()->current_value;
         \Log::info($new_spot_value);

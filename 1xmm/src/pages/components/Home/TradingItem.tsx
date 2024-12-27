@@ -240,7 +240,7 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
                                         <span className="font-normal text-sm block">Performance to Date</span>
                                     </div>
                                     <div className="w-1/2 text-right mb-2">
-                                        <span className="font-normal text-sm block">{(positions.find((pos) => pos.position_id === pair.id)?.get_PnL(Utils.getPositionTimestamp()).perf ?? 0).toFixed(2)}%</span>
+                                        <span className="font-normal text-sm block">{((positions.find((pos) => pos.position_id === pair.id)?.performance ?? 0) * 100).toFixed(2)}%</span>
                                     </div>
                                 </div>
                                 <div className={`flex justify-between pl-3 pr-3 border-b border-gray-500 my-0 ${expandedBonuses[pair.id] ? 'bg-[#32363C]' : ''}`}>

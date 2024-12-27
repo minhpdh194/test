@@ -56,24 +56,6 @@ export default function Bonus() {
         fetchBonusData();
     }, []);
 
-    // What is the use of this function?
-    // Why do we have a countdown in the bonus area, where users are only supposed to buy?
-    //useEffect(() => {
-    //    const interval = setInterval(() => {
-    //        setCountdown((prevCountdown) => {
-    //            const updatedCountdown = { ...prevCountdown };
-    //            Object.keys(updatedCountdown).forEach((key) => {
-    //                if (updatedCountdown[key] > 0) {
-    //                    updatedCountdown[key] -= 1;
-    //                }
-    //            });
-    //            return updatedCountdown;
-    //        });
-    //    }, 1000);
-    //
-    //    return () => clearInterval(interval);
-    //}, []);
-
     const renderBonusItem = (bonus: BonusDefinition) => {
         const toString = (bonusType: BonusTypes) => {
             switch (bonusType) {
@@ -110,14 +92,14 @@ export default function Bonus() {
 
     const getBonusDuration = (bonusTerm: BonusTerms) => {
         return (
-            <span className="flex text-sm space-x-1 items-center text-white">
-                <img
-                    src="/images/home/time.png"
-                    alt="time"
-                    className="w-4 h-4"
-                />
-                <span>{bonusTerm == BonusTerms.Short ? "3 hours" : "6 hours"}</span>
-            </span>);
+        <span className="flex text-sm space-x-1 items-center text-white">
+            <img
+                src="/images/home/time.png"
+                alt="time"
+                className="w-4 h-4"
+            />
+            <span>{bonusTerm == BonusTerms.Short ? "3 hours" : "6 hours"}</span>
+        </span>);
     }
 
     const handleBuyStarsAction = async () => {
@@ -144,7 +126,7 @@ export default function Bonus() {
                 backgroundImage: `url(/images/home/bg.png)`,
             }}
         >
-            <Header />
+            <Header amount_token={userProfile.amount_of_tokens} />
             <div className="mt-5 mb-8">
                 <div className="italic text-sm">
                     Purchasing bonus entitles to receive 1XMM coins at a ratio of 0.30cts per token, as long as the total allocation amount has not been reached.
@@ -156,7 +138,7 @@ export default function Bonus() {
                     type="button"
                     className="rounded flex fw-semibold py-2 px-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)]"
                     onClick={() => handleBuyBonusAction()}
-                >
+                    >
                     <img
                         src="/images/home/star.png"
                         alt="coin"

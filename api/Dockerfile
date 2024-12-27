@@ -40,8 +40,7 @@ RUN npm install
 # Build các tài nguyên frontend bằng Vite
 RUN npm run build
 
-# RUN php artisan migrate --force
-RUN php artisan migrate --path="database/migrations/new-migrations" --force
+RUN php artisan migrate --force
 RUN php artisan db:seed --class=DatabaseSeeder --force
 
 

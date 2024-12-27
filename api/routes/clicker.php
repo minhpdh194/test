@@ -11,6 +11,8 @@ use App\Http\Controllers\ClickerController;
 use App\Http\Controllers\UserTaskController;
 use App\Http\Controllers\ReferralTaskController;
 use App\Http\Controllers\PositionController;
+use App\Http\Controllers\MarketDataController;
+
 
 Route::prefix('clicker')->group(function () {
     Route::get('/sync', [ClickerController::class, 'sync']);
