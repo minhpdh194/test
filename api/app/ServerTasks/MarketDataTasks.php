@@ -42,7 +42,9 @@ class MarketDataTasks
     public function getSpotsFromMarket($pairs)
     {
         $list_of_coins = '';
-        foreach ($pairs as $pair) { $list_of_coins = $list_of_coins . ($list_of_coins !== '' ? ',' : '') . $pair->coin_symbol; }
+        foreach ($pairs as $pair) {
+            $list_of_coins = $list_of_coins . ($list_of_coins !== '' ? ',' : '') . $pair->coin_symbol;
+        }
 
         $apiUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest';
         // $usdComparedSpots = $this->marketDataService->pairCoin($apiUrl, 'BTC,ETH,BNB,SOL,LINK,UNI,TON,XRP', 'USD');
@@ -50,7 +52,8 @@ class MarketDataTasks
         return $usdComparedSpots['data'];
     }
 
-    public function storeSpots($pairs) {
+    public function storeSpots($pairs)
+    {
         $createdSpots = [];
         $crypto_data = $this->getSpotsFromMarket($pairs);
 
@@ -113,14 +116,11 @@ class MarketDataTasks
             $fwd = 0.0;
             $data = [];
 
-            try
-            {
+            try {
                 $url = 'https://www.deribit.com/api/v2/public/get_order_book?instrument_name=' . array_values($options_symbols)[$i] . '&depth=' . '1';
                 $response = Http::withHeaders(['Content-Type' => 'application/json'])->get($url);
                 $data = $response->json();
-            }
-            catch (\Exception $e)
-            {
+            } catch (\Exception $e) {
                 \Log::info('Error getting data from Deribit API', ['error' => $e->getMessage()]);
             }
 
@@ -140,9 +140,7 @@ class MarketDataTasks
                 }
 
                 $fwd = round($fwd, 5);
-            }
-            else
-            {
+            } else {
                 $last = VolAndFwd::where('pair_id', $pair->id)->first();
 
                 if (!$last) {
@@ -179,10 +177,11 @@ class MarketDataTasks
         $correlated_pairs = [];
 
         foreach ($pairs as $pair) {
-            if (in_array($pair->coin_symbol, $ref_symbols)) continue;
+            if (in_array($pair->coin_symbol, $ref_symbols))
+                continue;
             $correlated_pairs[] = ToolsUtil::getPairSymbol($pair->coin_symbol, 'USD');
         }
-        
+
         $n = 30;
 
         $return_matrix = null;
@@ -247,7 +246,7 @@ class MarketDataTasks
     {
         $dt = 1.0 / ($T * 262800);
         $indices_perf = [];
-        $mult = (float)Settings::where('name', 'prem_mult')->first()->value;
+        $mult = (float) Settings::where('name', 'prem_mult')->first()->value;
         $timestamp = ToolsUtil::getFixingTimestamp();
 
         foreach ($pairs as $pair) {
@@ -267,7 +266,7 @@ class MarketDataTasks
                     'created_at' => ($timestamp - 120)
                 ]);
             }
-            
+
             $prev_short_index = Index::where(['pair_id' => $pair->id, 'long_short' => 'short'])
                 ->orderBy('created_at', 'desc')
                 ->first();
@@ -360,7 +359,7 @@ class MarketDataTasks
                 ];
             }
 
-            $fixing = Fixing::updateOrCreate(['pair_id' => $pair->id],[
+            $fixing = Fixing::updateOrCreate(['pair_id' => $pair->id], [
                 'prev_spot' => $spot->prev_value,
                 'spot' => $spot->current_value,
                 'forward' => $vol_fwd->forward,
