@@ -47,9 +47,5 @@ Route::prefix('clicker')->group(function () {
 
     // Set ton wallet
     Route::post('/set-eth-wallet', [ClickerController::class, 'setEthWallet']);
-
-    Route::post('/buy-stars', [TelegramStarController::class, 'buyStarPackage']);
-
-    Route::post('/buy-bonus', [BonusController::class, 'buyBonus']);
 });
 
