@@ -6,6 +6,9 @@ import { Pair } from '@/types/Pair';
 import { LongShort } from '@/enums';
 import { Bonus } from '@/classes/Bonus';
 import { Utils } from '@/lib/utils';
+import { COMM } from '@/lib/comm';
+import { toast } from 'react-toastify';
+import { Index } from '@/types/Index';
 
 export type AddingDetails = {
   success: boolean;
@@ -36,7 +39,7 @@ export type PositionStore = {
   UpdateAvailableBonuses: (available_bonuses: Bonus[]) => void;
   AddNewBonus: (bonus: Bonus) => void;
   SetUserPositions: (positions: Position[]) => void;
-  RefreshPositions: () => Promise<PositionsUpdate>;
+  RefreshPositions: (indices: Index[]) => Promise<PositionsUpdate>;
 }
 
 export const getPositionStore = create<PositionStore>()((set, get) => ({
@@ -96,7 +99,19 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
         realized_pnl: res.realized_pnl
       };
     } else {
-      const position: Position = new Position(get().next_position_id!, pair, ls, Number(amt), lev, await Utils.getPositionTimestamp() + 21600, bonuses);
+      const value_date = await Utils.getPositionTimestamp();
+      const index_at_start = await COMM.getIndex($http, pair.id, ls, value_date);
+
+      if (!index_at_start) {
+        toast.error('Failed to get index for the pair');
+        return {
+          success: false,
+          amount_adjustment: 0,
+          realized_pnl: 0
+        };
+      }
+
+      const position: Position = new Position(get().next_position_id!, pair, ls, Number(amt), index_at_start!, lev, value_date + 21600, bonuses);
       
       try {
         await $http.post('/clicker/add-position', position);
@@ -136,16 +151,20 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
     }
   },
 
-  RefreshPositions: async (): Promise<PositionsUpdate> => {
+  RefreshPositions: async (indices: Index[]): Promise<PositionsUpdate> => {
     let pnl_results: PnLResult[] = [];
     let positions_to_remove: number[] = [];
     let total_change_in_amount_of_tokens = 0;
     let total_change_in_pnl = 0;
 
     const positions = get().positions;
+    const value_date = await Utils.getPositionTimestamp();
 
     for (let i = 0; i < positions.length; i++) {
-      const pnlResult = await positions[i].update();
+      const index_value = indices.find(v => v.pair_id === positions[i].pair.id && v.long_short === positions[i].long_short)?.value;
+      if (!index_value) continue;
+
+      const pnlResult = positions[i].update(value_date, index_value);
       pnl_results.push(pnlResult);
       total_change_in_pnl += pnlResult.pnl;
 

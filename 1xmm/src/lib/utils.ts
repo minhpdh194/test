@@ -1,9 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Pair } from "@/types/Pair";
-import { LongShort } from "../enums";
 import { $http } from "./http";
-import { COMM } from "./comm";
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));

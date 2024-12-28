@@ -2,7 +2,8 @@ import { asyncParallelForEach, BACK_OFF_RETRY } from "async-parallel-foreach";
 import { AxiosInstance } from "axios";
 import { Position } from "@/classes/Position";
 import { LongShort } from "@/enums";
-import { Toast } from "node_modules/react-toastify/dist/components";
+import { Index } from "@/types/Index";
+import { Utils } from "./utils";
 
 export type UserData = {
   first_login: boolean;
@@ -23,24 +24,31 @@ export namespace COMM {
         return response.data;
       }
     
-    export async function getIndexPerf(http: AxiosInstance, pairId: number, ls: LongShort, from: number, to: number): Promise<number|undefined> {
-      var response = await http.get("/get-index-perf", {
+    export async function getIndex(http: AxiosInstance, pairId: number, ls: LongShort, value_date: number): Promise<number|undefined> {
+      var response = await http.get("/get-index", {
         params: {
           pair_id: pairId,
           long_short: ls,
-          from: from,
-          to: to
+          value_date: value_date,
         }
       });
 
       if (response.data.error) return undefined;
-      return Number(response.data.perf);
+      return Number(response.data.index);
     }
 
-    export async function updatePositions(positions: Position[]): Promise<Position[]> {
+    export async function updatePositions(positions: Position[], indices: Index[]): Promise<Position[]> {
         const parallelLimit = 4;
+        const updateTime = await Utils.getPositionTimestamp();
+
         const results = await asyncParallelForEach(positions, parallelLimit, async (position: Position, ) => {
-                return await position.update();
+            const index = indices.find(v => v.pair_id === position.pair.id && v.long_short === position.long_short)?.value;
+            if (!index) return {
+              is_zero: false,
+              pnl: 0,
+              perf: position.performance,
+            };
+            return position.update(updateTime, index);
         }, {
           times: 3,
           interval: BACK_OFF_RETRY.exponential()

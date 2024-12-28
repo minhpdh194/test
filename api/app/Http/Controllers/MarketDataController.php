@@ -40,31 +40,44 @@ class MarketDataController extends Controller
         return response()->json($pairs);
     }
 
-    public function getIndexPerf(Request $request)
+    public function getIndices()
+    {
+        $pairs = Pair::select('id')->get();
+        $indices = [];
+
+        foreach ($pairs as $pair) {
+            $index = Index::where(['pair_id' => $pair->id])
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            $indices[] = [
+                'pair_id' => $pair->id,
+                'long_short' => $index->long_short,
+                'value' => $index->value,
+            ];
+        }
+
+        return response()->json($indices);
+    }
+
+    public function getIndex(Request $request)
     {
         $validated = $request->validate([
             'pair_id' => 'required',
             'long_short' => 'required',
-            'from' => 'required',
-            'to' => 'required'
+            'value_date' => 'required',
         ]);
 
-        $index_start = Index::where(['pair_id' => $validated['pair_id'], 'long_short' => $validated['long_short']])
-            ->where('created_at', $validated['from'])
+        $index = Index::where(['pair_id' => $validated['pair_id'], 'long_short' => $validated['long_short']])
+            ->where('created_at', $validated['value_date'])
             ->first();
 
-        $index_end = Index::where(['pair_id' => $validated['pair_id'], 'long_short' => $validated['long_short']])
-            ->where('created_at', $validated['to'])
-            ->first();
-
-        if (!$index_start || !$index_end) {
+        if (!$index) {
             return response()->json(['error' => 'Index not found']);
         }
 
-        $indexPerf = [
-            'perf' => $index_end->value - $index_start->value
-        ];
-
-        return response()->json($indexPerf);
+        return response()->json([
+            'index' => $index->value,
+        ]);
     }
 }

@@ -20,6 +20,7 @@ import { Friend } from "./types/Friend";
 import { getPositionStore } from "./store/position-store";
 import { StarPackage } from "./types/StarPackage";
 import { StarPackages } from "./referential/starPackages";
+import { Index } from "./types/Index";
 //import { UserProfile } from "./types/UserProfile";
 //import { SpotType } from "./types/SpotType";
 //import pusher from "./lib/pusher";
@@ -84,12 +85,14 @@ function App() {
         const [syncData,
           user_bonuses,
           user_positions,
+          indices,
           referredUsers,
           //{ data: tasks}
         ] = await Promise.all([
           $http.$get<SyncData>("/clicker/sync"),
           $http.$get<UserBonus[]>("/user_bonuses"),
           $http.$get<{ next_position_id: number; positions: UserPosition[]; }>("/user_positions"),
+          $http.$get<Index[]>("/get-indices"),
           $http.$get<Friend[]>("/referred-users"),
           //$http.get("/user_tasks")
         ]);
@@ -109,7 +112,7 @@ function App() {
         positionStore!.UpdateAvailableBonuses(availableBonuses);
         positionStore!.SetUserPositions(cleanedPositions);
         positionStore!.next_position_id = user_positions.next_position_id;
-        await positionStore.RefreshPositions();
+        await positionStore.RefreshPositions(indices);
 
         setProgress(65);
         globalThis.userProfile.SetLevelBenefits();
@@ -143,7 +146,7 @@ function syncBonusesAndPositions(userBonuses: UserBonus[], userPositions: UserPo
 
   userPositions.forEach(p => {
     const date = new Date(p.min_end_date).getTime() / 1000;
-    const open_position: Position = new Position(p.id, pairs.find(e => e.id == p.pair_id)!, p.long_short, p.amount, p.average_leverage, date, []);
+    const open_position: Position = new Position(p.id, pairs.find(e => e.id == p.pair_id)!, p.long_short, p.amount, p.index_start, p.average_leverage, date, []);
     //need to use the userProfile in this part, because when this function is called, the global.userProfile is not set, so all of it is default data, which is wrong
 
     // p?.bonuses.forEach(element => { 

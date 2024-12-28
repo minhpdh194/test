@@ -13,6 +13,11 @@ class HistoricalSpotSeeder extends Seeder
     public function run(): void
     {
         $histo_spots_BTC = [
+            ['pair_id' => 1, 'fixing_period' => 0, 'day_open_value' => 95704.97, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 94164.86, 'period_return' => 0, 'daily_return' => -0.01609226772653500, 'created_at' => '2024-12-27 23:59:59'],
+            ['pair_id' => 1, 'fixing_period' => 0, 'day_open_value' => 99297.70, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 95795.52, 'period_return' => 0, 'daily_return' => -0.03526949768222225, 'created_at' => '2024-12-26 23:59:59'],
+            ['pair_id' => 1, 'fixing_period' => 0, 'day_open_value' => 98675.91, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 99299.19, 'period_return' => 0, 'daily_return' => 0.00631643528800495, 'created_at' => '2024-12-25 23:59:59'],
+            ['pair_id' => 1, 'fixing_period' => 0, 'day_open_value' => 94684.35, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 98676.10, 'period_return' => 0, 'daily_return' => 0.04215849821010547, 'created_at' => '2024-12-24 23:59:59'],
+            ['pair_id' => 1, 'fixing_period' => 0, 'day_open_value' => 95099.39, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 94686.24, 'period_return' => 0, 'daily_return' => -0.0043444022090993, 'created_at' => '2024-12-23 23:59:59'],
             ['pair_id' => 1, 'fixing_period' => 0, 'day_open_value' => 97218.32, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 95104.93, 'period_return' => 0, 'daily_return' => -0.02173859823950877, 'created_at' => '2024-12-22 23:59:59'],
             ['pair_id' => 1, 'fixing_period' => 0, 'day_open_value' => 97756.19, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 97224.73, 'period_return' => 0, 'daily_return' => -0.00543658667548315, 'created_at' => '2024-12-21 23:59:59'],
             ['pair_id' => 1, 'fixing_period' => 0, 'day_open_value' => 97484.6973095173, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 97755.9301603751, 'period_return' => 0, 'daily_return' => 0.0027823120791628, 'created_at' => '2024-12-20 23:59:59'],
@@ -42,14 +47,14 @@ class HistoricalSpotSeeder extends Seeder
             ['pair_id' => 1, 'fixing_period' => 0, 'day_open_value' => 93087.2799915931, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 91985.3168304103, 'period_return' => 0, 'daily_return' => -0.0118379563919185, 'created_at' => '2024-11-26 23:59:59'],
             ['pair_id' => 1, 'fixing_period' => 0, 'day_open_value' => 98033.4427003163, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 93102.2952135852, 'period_return' => 0, 'daily_return' => -0.0503006662920672, 'created_at' => '2024-11-25 23:59:59'],
             ['pair_id' => 1, 'fixing_period' => 0, 'day_open_value' => 97778.0973586439, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 98013.8209078789, 'period_return' => 0, 'daily_return' => 0.00241080114670633, 'created_at' => '2024-11-24 23:59:59'],
-            ['pair_id' => 1, 'fixing_period' => 0, 'day_open_value' => 99006.7422747472, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 97777.279763055, 'period_return' => 0, 'daily_return' => -0.0124179675388206, 'created_at' => '2024-11-23 23:59:59'],
-            ['pair_id' => 1, 'fixing_period' => 0, 'day_open_value' => 98496.4294867186, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 98997.662080436, 'period_return' => 0, 'daily_return' => 0.00508884023846767, 'created_at' => '2024-11-22 23:59:59'],
-            ['pair_id' => 1, 'fixing_period' => 0, 'day_open_value' => 94334.6432809324, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 98504.7275898154, 'period_return' => 0, 'daily_return' => 0.0442052268800586, 'created_at' => '2024-11-21 23:59:59'],
-            ['pair_id' => 1, 'fixing_period' => 0, 'day_open_value' => 92341.8941573535, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 94339.4950270085, 'period_return' => 0, 'daily_return' => 0.0216326607536448, 'created_at' => '2024-11-20 23:59:59'],
-            ['pair_id' => 1, 'fixing_period' => 0, 'day_open_value' => 90536.8115264555, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 92343.7920549007, 'period_return' => 0, 'daily_return' => 0.0199585174028045, 'created_at' => '2024-11-19 23:59:59'],
         ];
 
         $histo_spots_ETH = [
+            ['pair_id' => 2, 'fixing_period' => 0, 'day_open_value' => 3331.05, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 3328.92, 'period_return' => 0, 'daily_return' => -0.00063943801504030, 'created_at' => '2024-12-27 23:59:59'],
+            ['pair_id' => 2, 'fixing_period' => 0, 'day_open_value' => 3493.30, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 3331.23, 'period_return' => 0, 'daily_return' => -0.04639452666533078, 'created_at' => '2024-12-26 23:59:59'],
+            ['pair_id' => 2, 'fixing_period' => 0, 'day_open_value' => 3491.96, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 3493.24, 'period_return' => 0, 'daily_return' => 0.00036655631794179, 'created_at' => '2024-12-25 23:59:59'],
+            ['pair_id' => 2, 'fixing_period' => 0, 'day_open_value' => 3415.74, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 3492.05, 'period_return' => 0, 'daily_return' => 0.02234069337830163, 'created_at' => '2024-12-24 23:59:59'],
+            ['pair_id' => 2, 'fixing_period' => 0, 'day_open_value' => 3277.51, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 3415.79, 'period_return' => 0, 'daily_return' => 0.04219056539873257, 'created_at' => '2024-12-23 23:59:59'],
             ['pair_id' => 2, 'fixing_period' => 0, 'day_open_value' => 3337.0, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 3277.54, 'period_return' => 0, 'daily_return' => -0.01781839976026371, 'created_at' => '2024-12-22 23:59:59'],
             ['pair_id' => 2, 'fixing_period' => 0, 'day_open_value' => 3472.59, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 3337.22, 'period_return' => 0, 'daily_return' => -0.0389824309809105, 'created_at' => '2024-12-21 23:59:59'],
             ['pair_id' => 2, 'fixing_period' => 0, 'day_open_value' => 3417.9301837478, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 3472.5534066558, 'period_return' => 0, 'daily_return' => 0.0159813746833484, 'created_at' => '2024-12-20 23:59:59'],
@@ -79,13 +84,14 @@ class HistoricalSpotSeeder extends Seeder
             ['pair_id' => 2, 'fixing_period' => 0, 'day_open_value' => 3412.9508397174, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 3326.5174096597, 'period_return' => 0, 'daily_return' => -0.0253251318629766, 'created_at' => '2024-11-26 23:59:59'],
             ['pair_id' => 2, 'fixing_period' => 0, 'day_open_value' => 3364.6014561404, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 3413.5439002968, 'period_return' => 0, 'daily_return' => 0.0145462827602003, 'created_at' => '2024-11-25 23:59:59'],
             ['pair_id' => 2, 'fixing_period' => 0, 'day_open_value' => 3396.9994079033, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 3363.6598928297, 'period_return' => 0, 'daily_return' => -0.00981440120243582, 'created_at' => '2024-11-24 23:59:59'],
-            ['pair_id' => 2, 'fixing_period' => 0, 'day_open_value' => 3331.6455885381, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 3396.2234332679, 'period_return' => 0, 'daily_return' => 0.0193831675709948, 'created_at' => '2024-11-23 23:59:59'],
-            ['pair_id' => 2, 'fixing_period' => 0, 'day_open_value' => 3360.6542356249, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 3331.6008755241, 'period_return' => 0, 'daily_return' => -0.00864515004037536, 'created_at' => '2024-11-22 23:59:59'],
-            ['pair_id' => 2, 'fixing_period' => 0, 'day_open_value' => 3072.0552366375, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 3361.0539269185, 'period_return' => 0, 'daily_return' => 0.0940734029891084, 'created_at' => '2024-11-21 23:59:59'],
-            ['pair_id' => 2, 'fixing_period' => 0, 'day_open_value' => 3111.1170572108, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 3072.1879396184, 'period_return' => 0, 'daily_return' => -0.0125129067394529, 'created_at' => '2024-11-20 23:59:59'],
         ];
 
         $histo_spots_BNB = [
+            ['pair_id' => 3, 'fixing_period' => 0, 'day_open_value' => 688.35, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 690.43, 'period_return' => 0, 'daily_return' => 0.00302171860245515, 'created_at' => '2024-12-27 23:59:59'],
+            ['pair_id' => 3, 'fixing_period' => 0, 'day_open_value' => 702.33, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 688.36, 'period_return' => 0, 'daily_return' => -0.01989093446100836, 'created_at' => '2024-12-26 23:59:59'],
+            ['pair_id' => 3, 'fixing_period' => 0, 'day_open_value' => 696.74, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 702.33, 'period_return' => 0, 'daily_return' => 0.00802307891035393, 'created_at' => '2024-12-25 23:59:59'],
+            ['pair_id' => 3, 'fixing_period' => 0, 'day_open_value' => 693.0, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 696.74, 'period_return' => 0, 'daily_return' => 0.00539682539682540, 'created_at' => '2024-12-24 23:59:59'],
+            ['pair_id' => 3, 'fixing_period' => 0, 'day_open_value' => 648.70, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 693.0, 'period_return' => 0, 'daily_return' => 0.06829042700786188, 'created_at' => '2024-12-23 23:59:59'],
             ['pair_id' => 3, 'fixing_period' => 0, 'day_open_value' => 663.27, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 648.7, 'period_return' => 0, 'daily_return' => -0.02196692146486348, 'created_at' => '2024-12-22 23:59:59'],
             ['pair_id' => 3, 'fixing_period' => 0, 'day_open_value' => 678.09, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 663.28, 'period_return' => 0, 'daily_return' => -0.0218407586013656, 'created_at' => '2024-12-21 23:59:59'],
             ['pair_id' => 3, 'fixing_period' => 0, 'day_open_value' => 666.5693567023, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 678.0866096902, 'period_return' => 0, 'daily_return' => 0.0172784015228049, 'created_at' => '2024-12-20 23:59:59'],
@@ -122,6 +128,11 @@ class HistoricalSpotSeeder extends Seeder
         ];
 
         $histo_spots_SOL = [
+            ['pair_id' => 4, 'fixing_period' => 0, 'day_open_value' => 188.22, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 183.33, 'period_return' => 0, 'daily_return' => -0.0259802358941664, 'created_at' => '2024-12-27 23:59:59'],
+            ['pair_id' => 4, 'fixing_period' => 0, 'day_open_value' => 197.48, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 188.22, 'period_return' => 0, 'daily_return' => -0.0468908243872797, 'created_at' => '2024-12-26 23:59:59'],
+            ['pair_id' => 4, 'fixing_period' => 0, 'day_open_value' => 196.99, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 197.48, 'period_return' => 0, 'daily_return' => 0.0024874359104523, 'created_at' => '2024-12-25 23:59:59'],
+            ['pair_id' => 4, 'fixing_period' => 0, 'day_open_value' => 189.75, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 196.99, 'period_return' => 0, 'daily_return' => 0.0381554677206851, 'created_at' => '2024-12-24 23:59:59'],
+            ['pair_id' => 4, 'fixing_period' => 0, 'day_open_value' => 180.17, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 189.75, 'period_return' => 0, 'daily_return' => 0.0531720042182383, 'created_at' => '2024-12-23 23:59:59'],
             ['pair_id' => 4, 'fixing_period' => 0, 'day_open_value' => 181.29, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 180.17, 'period_return' => 0, 'daily_return' => -0.0061779469358486, 'created_at' => '2024-12-22 23:59:59'],
             ['pair_id' => 4, 'fixing_period' => 0, 'day_open_value' => 194.21, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 181.30, 'period_return' => 0, 'daily_return' => -0.0664744348900675, 'created_at' => '2024-12-21 23:59:59'],
             ['pair_id' => 4, 'fixing_period' => 0, 'day_open_value' => 194.282274294, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 194.208168826, 'period_return' => 0, 'daily_return' => -0.0003814319565143, 'created_at' => '2024-12-20 23:59:59'],
@@ -158,6 +169,11 @@ class HistoricalSpotSeeder extends Seeder
         ];
 
         $histo_spots_XRP = [
+            ['pair_id' => 5, 'fixing_period' => 0, 'day_open_value' => 2.1543, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 2.1417, 'period_return' => 0, 'daily_return' => -0.0058487675811168, 'created_at' => '2024-12-27 23:59:59'],
+            ['pair_id' => 5, 'fixing_period' => 0, 'day_open_value' => 2.2959, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 2.1543, 'period_return' => 0, 'daily_return' => -0.0616751600679472, 'created_at' => '2024-12-26 23:59:59'],
+            ['pair_id' => 5, 'fixing_period' => 0, 'day_open_value' => 2.3246, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 2.2960, 'period_return' => 0, 'daily_return' => -0.0123031919470016, 'created_at' => '2024-12-25 23:59:59'],
+            ['pair_id' => 5, 'fixing_period' => 0, 'day_open_value' => 2.2573, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 2.3246, 'period_return' => 0, 'daily_return' => 0.0298143800115182, 'created_at' => '2024-12-24 23:59:59'],
+            ['pair_id' => 5, 'fixing_period' => 0, 'day_open_value' => 2.1994, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 2.2573, 'period_return' => 0, 'daily_return' => 0.0263253614622170, 'created_at' => '2024-12-23 23:59:59'],
             ['pair_id' => 5, 'fixing_period' => 0, 'day_open_value' => 2.2378, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 2.1993, 'period_return' => 0, 'daily_return' => -0.0172043971758, 'created_at' => '2024-12-22 23:59:59'],
             ['pair_id' => 5, 'fixing_period' => 0, 'day_open_value' => 2.2769, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 2.2381, 'period_return' => 0, 'daily_return' => -0.0170407132505, 'created_at' => '2024-12-21 23:59:59'],
             ['pair_id' => 5, 'fixing_period' => 0, 'day_open_value' => 2.2488820598, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 2.2768859082, 'period_return' => 0, 'daily_return' => 0.0124523419438414, 'created_at' => '2024-12-20 23:59:59'],
@@ -195,6 +211,11 @@ class HistoricalSpotSeeder extends Seeder
         ];
 
         $histo_spots_UNI = [
+            ['pair_id' => 6, 'fixing_period' => 0, 'day_open_value' => 13.23, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 13.32, 'period_return' => 0, 'daily_return' => 0.00680272108843537, 'created_at' => '2024-12-27 23:59:59'],
+            ['pair_id' => 6, 'fixing_period' => 0, 'day_open_value' => 13.89, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 13.23, 'period_return' => 0, 'daily_return' => -0.04751619870410367, 'created_at' => '2024-12-26 23:59:59'],
+            ['pair_id' => 6, 'fixing_period' => 0, 'day_open_value' => 14.59, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 13.89, 'period_return' => 0, 'daily_return' => -0.04797806716929404, 'created_at' => '2024-12-25 23:59:59'],
+            ['pair_id' => 6, 'fixing_period' => 0, 'day_open_value' => 14.27, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 14.59, 'period_return' => 0, 'daily_return' => 0.02242466713384723, 'created_at' => '2024-12-24 23:59:59'],
+            ['pair_id' => 6, 'fixing_period' => 0, 'day_open_value' => 13.86, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 14.27, 'period_return' => 0, 'daily_return' => 0.02958152958152958, 'created_at' => '2024-12-23 23:59:59'],
             ['pair_id' => 6, 'fixing_period' => 0, 'day_open_value' => 13.39, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 13.86, 'period_return' => 0, 'daily_return' => 0.0351008215085885, 'created_at' => '2024-12-22 23:59:59'],
             ['pair_id' => 6, 'fixing_period' => 0, 'day_open_value' => 13.69, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 13.39, 'period_return' => 0, 'daily_return' => -0.02191380569759, 'created_at' => '2024-12-21 23:59:59'],
             ['pair_id' => 6, 'fixing_period' => 0, 'day_open_value' => 12.7849657854, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 13.6907051766, 'period_return' => 0, 'daily_return' => 0.0708440997342616, 'created_at' => '2024-12-20 23:59:59'],
@@ -232,6 +253,11 @@ class HistoricalSpotSeeder extends Seeder
         ];
 
         $histo_spots_LINK = [
+            ['pair_id' => 7, 'fixing_period' => 0, 'day_open_value' => 22.65, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 21.53, 'period_return' => 0, 'daily_return' => -0.0494481236203091, 'created_at' => '2024-12-27 23:59:59'],
+            ['pair_id' => 7, 'fixing_period' => 0, 'day_open_value' => 24.43, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 22.65, 'period_return' => 0, 'daily_return' => -0.0728612361850184, 'created_at' => '2024-12-26 23:59:59'],
+            ['pair_id' => 7, 'fixing_period' => 0, 'day_open_value' => 25.44, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 24.43, 'period_return' => 0, 'daily_return' => -0.0397012578616352, 'created_at' => '2024-12-25 23:59:59'],
+            ['pair_id' => 7, 'fixing_period' => 0, 'day_open_value' => 24.48, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 25.44, 'period_return' => 0, 'daily_return' => 0.0392156862745098, 'created_at' => '2024-12-24 23:59:59'],
+            ['pair_id' => 7, 'fixing_period' => 0, 'day_open_value' => 22.05, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 24.48, 'period_return' => 0, 'daily_return' => 0.1102040816326531, 'created_at' => '2024-12-23 23:59:59'],
             ['pair_id' => 7, 'fixing_period' => 0, 'day_open_value' => 22.13, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 22.05, 'period_return' => 0, 'daily_return' => -0.0036150022593764, 'created_at' => '2024-12-22 23:59:59'],
             ['pair_id' => 7, 'fixing_period' => 0, 'day_open_value' => 23.36, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 22.13, 'period_return' => 0, 'daily_return' => -0.0526541095890411, 'created_at' => '2024-12-21 23:59:59'],
             ['pair_id' => 7, 'fixing_period' => 0, 'day_open_value' => 22.8921646542, 'period_open_value' => 0, 'prev_value' => 0, 'current_value' => 23.3645019636, 'period_return' => 0, 'daily_return' => 0.0206331431096596, 'created_at' => '2024-12-20 23:59:59'],

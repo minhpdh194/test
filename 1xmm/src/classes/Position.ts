@@ -27,6 +27,7 @@ export class Position {
     pair: Pair;
     long_short: LongShort;
     amount: number;
+    index_at_start: number;
     leverage: number;
     bonuses: Bonus[] = [];
     open_date: number;
@@ -34,12 +35,13 @@ export class Position {
     performance: number;
 
     // This opens a new position
-    public constructor(position_id: number, pair: Pair, ls: LongShort, amt: number, lev: number, min_end_date: number, bonuses: Bonus[]) {
+    public constructor(position_id: number, pair: Pair, ls: LongShort, amt: number, index_at_start: number, lev: number, min_end_date: number, bonuses: Bonus[]) {
         this.telegram_user_id = globalThis.userProfile.telegram_user_id;
         this.position_id = position_id;
         this.pair = pair;
         this.long_short = ls;
         this.amount = amt;
+        this.index_at_start = index_at_start;
         this.leverage = lev;
         this.bonuses = bonuses;
         this.min_end_date = min_end_date;
@@ -66,9 +68,9 @@ export class Position {
         return false;
     }
     
-    public async update(): Promise<PnLResult> {
-        this.last_update_timestamp = await Utils.getPositionTimestamp();
-        const pnlUpdate = await this.get_PnL();
+    public update(value_date: number, index_value: number): PnLResult {
+        this.last_update_timestamp = value_date;
+        const pnlUpdate = this.computePnL(value_date, index_value);
         this.performance = pnlUpdate.perf;
         return pnlUpdate;
     }
@@ -99,9 +101,9 @@ export class Position {
             const bonus_factors = this.get_performance_adjustment_factors(globalThis.userProfile);
             const pro_rata = Math.min(1.0, (value_date - this.open_date + bonus_factors.total_time_reduction) / (this.min_end_date - this.open_date));
 
-            const index_perf = await COMM.getIndexPerf($http, this.pair.id, this.long_short, this.open_date, value_date);
+            const index_value = await COMM.getIndex($http, this.pair.id, this.long_short, value_date);
 
-            if (!index_perf) {
+            if (!index_value) {
                 toast.error("Issues with position's timestamps");
                 return {
                     amount_adjustment: 0,
@@ -109,7 +111,7 @@ export class Position {
                 }
             }
 
-            const net_perf = index_perf! - (1 - pro_rata) * penalty;
+            const net_perf = (index_value! - this.index_at_start) - (1 - pro_rata) * penalty;
 
             if (amt <= this.amount) {
                 // Partial position closepositive_leverage
@@ -134,16 +136,17 @@ export class Position {
                     pnl = bonus_factors.total_leverage * net_perf * this.amount * (1 - bonus_factors.total_capital_protection);
                 }
 
+                // It is a new position, not an increase in position
                 this.performance = 0;
                 const prev_amt = this.amount;
                 this.amount = amt - prev_amt;
+                this.index_at_start = index_value!;
                 this.long_short = this.long_short == LongShort.Long
                     ? LongShort.Short
                     : LongShort.Long;
                 this.leverage = lev;
                 this.open_date = value_date;
-                // It is a new position, not an increase in position
-                // We update the min_end_date
+                // We also update the min_end_date since it is a new position
                 this.min_end_date = value_date + 21600;
 
                 bonuses.forEach(b => this.attach_bonus(b));
@@ -158,19 +161,10 @@ export class Position {
     }
 
     public async get_PnL(): Promise<PnLResult> {
+        const value_date = await Utils.getLastFixingTimestamp();
+        const index_value = await COMM.getIndex($http, this.pair.id, this.long_short, this.last_update_timestamp);
 
-        let penalty = 0.0;
-        let total_pnl = 0.0;
-        let isZero = false;
-        this.last_update_timestamp = await Utils.getLastFixingTimestamp();
-
-        const adj_factors = this.get_performance_adjustment_factors(globalThis.userProfile);
-        if (this.min_end_date > this.last_update_timestamp) penalty = penaltyFee;
-
-        const pro_rata = Math.min(1.0, (this.last_update_timestamp - this.open_date + adj_factors.total_time_reduction) / (this.min_end_date - this.open_date));
-        const index_perf = await COMM.getIndexPerf($http, this.pair.id, this.long_short, this.open_date, this.last_update_timestamp);
-
-        if (!index_perf) {
+        if (!index_value) {
             toast.error("Issues with position's timestamps");
 
             return {
@@ -179,24 +173,8 @@ export class Position {
                 perf: this.performance
             }
         }
-
-        const net_perf = index_perf! - (1 - pro_rata) * penalty;
-
-        if (net_perf > 0) {
-            total_pnl = pro_rata * (adj_factors.total_leverage + adj_factors.total_positive_leverage) * net_perf * this.amount;
-        } else {
-            let negPerf: number = adj_factors.total_leverage * net_perf * (1 - adj_factors.total_capital_protection);
-            if (negPerf <= -1) { negPerf = -1; isZero = true; }
-            total_pnl = negPerf * this.amount;
-        }
-
-        this.performance = total_pnl / this.amount;
-
-        return {
-            is_zero: isZero,
-            pnl: total_pnl,
-            perf: this.performance
-        }
+        
+        return this.computePnL(value_date, index_value!);
     }
 
     public get_performance_adjustment_factors(userProfile: UserProfile): AdjustmentFactors {
@@ -250,6 +228,35 @@ export class Position {
 
         this.bonuses = remainingBonuses;
         return bonusToDelete;
+    }
+
+    private computePnL(value_date: number, index_value: number): PnLResult {
+        let penalty = 0.0;
+        let total_pnl = 0.0;
+        let isZero = false;
+        this.last_update_timestamp = value_date;
+
+        const adj_factors = this.get_performance_adjustment_factors(globalThis.userProfile);
+        if (this.min_end_date > this.last_update_timestamp) penalty = penaltyFee;
+
+        const pro_rata = Math.min(1.0, (this.last_update_timestamp - this.open_date + adj_factors.total_time_reduction) / (this.min_end_date - this.open_date));
+        const net_perf = (index_value! - this.index_at_start) - (1 - pro_rata) * penalty;
+
+        if (net_perf > 0) {
+            total_pnl = pro_rata * (adj_factors.total_leverage + adj_factors.total_positive_leverage) * net_perf * this.amount;
+        } else {
+            let negPerf: number = adj_factors.total_leverage * net_perf * (1 - adj_factors.total_capital_protection);
+            if (negPerf <= -1) { negPerf = -1; isZero = true; }
+            total_pnl = negPerf * this.amount;
+        }
+
+        this.performance = total_pnl / this.amount;
+
+        return {
+            is_zero: isZero,
+            pnl: total_pnl,
+            perf: this.performance
+        }
     }
 }
 

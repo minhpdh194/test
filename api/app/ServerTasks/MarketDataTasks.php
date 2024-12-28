@@ -343,7 +343,8 @@ class MarketDataTasks
                     'created_at' => $timestamp
                 ]);
 
-                $indices_perf[$pair->coin_symbol] = [
+                $indices_perf[] = [
+                    'pair_id' => $pair->id,
                     'long' => $longPerf->value - $prev_long_index->value,
                     'short' => -$premium,
                     'time' => $timestamp
@@ -370,7 +371,8 @@ class MarketDataTasks
                     'created_at' => $timestamp
                 ]);
 
-                $indices_perf[$pair->coin_symbol] = [
+                $indices_perf[] = [
+                    'pair_id' => $pair->id,
                     'long' => -$premium,
                     'short' => $shortPerf->value - $prev_short_index->value,
                     'time' => $timestamp
@@ -390,7 +392,8 @@ class MarketDataTasks
                     'created_at' => $timestamp
                 ]);
 
-                $indices_perf[$pair->coin_symbol] = [
+                $indices_perf[] = [
+                    'pair_id' => $pair->id,
                     'long' => 0,
                     'short' => 0,
                     'time' => $timestamp
@@ -436,13 +439,14 @@ class MarketDataTasks
             $pusher->trigger('pairs', 'data', ['pairs' => $createdSpots]);
             \Log::info('test pusher', ['result' => $createdSpots]);
 
-            $pusher->trigger('perfs', 'data', ['perfs' => $indices_perf]);
+            $pusher->trigger('indices', 'data', ['indices' => $indices_perf]);
             \Log::info('test pusher', ['result' => $indices_perf]);
         } catch (\Throwable $e) {
             $notify[] = ['warning', 'Pusher Not Properly Set'];
             \Log::info('error pusher', ['error' => $e->getMessage()]);
         }
-        return response()->json($createdSpots);
+
+        return response()->json(['spots' => $createdSpots, 'indices' => $indices_perf]);
     }
 
     private function getOptionSymbol($coin, $opt_symb, $expiry, $new_spot_value)
