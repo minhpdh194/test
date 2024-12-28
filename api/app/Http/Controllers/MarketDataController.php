@@ -69,7 +69,7 @@ class MarketDataController extends Controller
         ]);
 
         $index = Index::where(['pair_id' => $validated['pair_id'], 'long_short' => $validated['long_short']])
-            ->where('created_at', $validated['value_date'])
+            ->where('timestamp', $validated['value_date'])
             ->first();
 
         if (!$index) {
