@@ -19,7 +19,7 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
     const [bonusData, setBonusData] = useState<any[]>([]);
     const [openBonusDrawer, setOpenBonusDrawer] = useState(false);
     const [selectedBonuses, setSelectedBonuses] = useState<any[]>([]); // Store selected bonuses
-    const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: LongShort|undefined }>({});
+    const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: LongShort | undefined }>({});
     const [amounts, setAmounts] = useState<{ [key: number]: number }>({});
     const [leverages, setLeverages] = useState<{ [key: number]: number }>({});
     const [expandedPairs, setExpandedPairs] = useState<{ [key: number]: boolean }>({});
@@ -132,7 +132,7 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
             const amt = Number(amounts[pairId]);
             const balanceAdjustment = await userProfile.AddPosition(pair, selectedOptions[pairId]!, amt || 0, leverages[pairId], selectedBonuses);
 
-            onValidatePosition(balanceAdjustment);            
+            onValidatePosition(balanceAdjustment);
 
             // Reset states
             setAmounts((prev) => ({ ...prev, [pairId]: 0 }));
@@ -297,27 +297,22 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
                                     </span>
                                 </div>
 
-                                <div className="flex justify-between space-x-4 mt-2 pl-3 pr-3">
-                                    <div className="w-1/2 flex justify-center">
-                                        <div className="w-full pl-3">
-                                            <span className="font-normal text-sm mb-2 block">Amount</span>
-                                            <CounterInput
-                                                value={amounts[pair.id] || 0}
-                                                onChange={(value) => handleAmountChange(pair.id, value)} // Tăng giá trị
-                                            />
-                                        </div>
+                                <div className="flex justify-between space-x-4 mt-2 px-3">
+                                    <div className="">
+                                        <span className="font-normal text-sm mb-2 block">Amount</span>
+                                        <CounterInput
+                                            value={amounts[pair.id] || 0}
+                                            onChange={(value) => handleAmountChange(pair.id, value)} // Tăng giá trị
+                                        />
                                     </div>
-                                    <div className="w-1/2 pl-1">
-                                        <div className="w-full">
-                                            <span className="font-normal text-sm mb-2 block">Leverage</span>
-                                            <CounterInput
-                                                value={leverages[pair.id] || 0}
-                                                onChange={(value) => handleLeverageChange(pair.id, value)}
-                                                isLeverage={true} // Only leverage counter will be restricted to allowed values
-                                            />
-                                        </div>
+                                    <div className="">
+                                        <span className="font-normal text-sm mb-2 block">Leverage</span>
+                                        <CounterInput
+                                            value={leverages[pair.id] || 0}
+                                            onChange={(value) => handleLeverageChange(pair.id, value)}
+                                            isLeverage={true} // Only leverage counter will be restricted to allowed values
+                                        />
                                     </div>
-
                                 </div>
 
                                 <div className="flex justify-between mt-4 space-x-2 pl-3 pr-3">
@@ -338,7 +333,7 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
                                                 className="object-cover w-4 h-4"
                                             />
                                             <span className="font-bold text-xs">Add Bonus</span>
-                                        </div>                                    
+                                        </div>
                                     </button>
 
                                     <button
@@ -357,7 +352,7 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
                                     <button
                                         type="button"
                                         className={`rounded flex-1 py-1 px-2 ${!positions.find((pos) => pos.position_id === pair.id) ? 'bg-gray-400 opacity-50 cursor-not-allowed' : 'bg-[#F27A83]'}`}
-                                        onClick={() => { if(!positions.find((pos) => pos.position_id === pair.id)) return; handleClose(pair.id); }}
+                                        onClick={() => { if (!positions.find((pos) => pos.position_id === pair.id)) return; handleClose(pair.id); }}
                                     >
                                         <span className="font-bold text-xs">Close</span>
                                     </button>

@@ -8,6 +8,8 @@ interface CounterInputProps {
 
 const allowedLeverages = [0, 1, 2, 3, 5, 7, 10]; // Define allowed leverage values
 
+const isSmallScreen = window.innerWidth < 400;
+
 const CounterInput: React.FC<CounterInputProps> = ({
   value,
   onChange,
@@ -29,7 +31,7 @@ const CounterInput: React.FC<CounterInputProps> = ({
 
   const handleDecrement = () => {
     if (isLeverage) {
-      const currentIndex = allowedLeverages.indexOf(value); 
+      const currentIndex = allowedLeverages.indexOf(value);
       if (currentIndex > 0) {
         onChange(allowedLeverages[currentIndex - 1]);
       }
@@ -39,7 +41,7 @@ const CounterInput: React.FC<CounterInputProps> = ({
       }
     }
   };
-  
+
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = Number(event.target.value);
@@ -61,7 +63,7 @@ const CounterInput: React.FC<CounterInputProps> = ({
         type="number"
         value={value}
         onChange={handleChange}
-        className="w-24 h-6 text-center bg-[#000] rounded mx-1 border-black text-sm"
+        className={`${isSmallScreen ? 'w-16' : 'w-24'} max-w-[400px]:w-16 h-6 text-center bg-[#000] rounded mx-1 border-black text-sm`}
         min={0}
       />
       <button
