@@ -8,7 +8,6 @@ import { Bonus } from '@/classes/Bonus';
 import { Utils } from '@/lib/utils';
 import { COMM } from '@/lib/comm';
 import { toast } from 'react-toastify';
-import { Index } from '@/types/Index';
 import { PusherIndex } from '@/types/PusherIndex';
 
 export type AddingDetails = {
