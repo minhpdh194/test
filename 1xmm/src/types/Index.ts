@@ -4,4 +4,5 @@ export type Index = {
     pair_id: number,
     long_short: LongShort,
     value: number;
+    timestamp: number;
 }

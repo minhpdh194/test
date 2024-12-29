@@ -99,10 +99,9 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
         realized_pnl: res.realized_pnl
       };
     } else {
-      const value_date = await Utils.getLastFixingTimestamp();
-      const index_at_start = await COMM.getIndex($http, pair.id, ls, value_date);
+      const index_value = COMM.getIndex(pair.id, ls);
       
-      if (index_at_start == undefined) {
+      if (index_value == undefined) {
         toast.error('Failed to get index for the pair');
         return {
           success: false,
@@ -110,6 +109,9 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
           realized_pnl: 0
         };
       }
+
+      const index_at_start = index_value.value;
+      const value_date = index_value.timestamp;
 
       const position: Position = new Position(get().next_position_id!, pair, ls, Number(amt), index_at_start!, lev, value_date + 21600, bonuses);
       
@@ -151,7 +153,7 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
     }
   },
 
-  RefreshPositions: async (indices: Index[]): Promise<PositionsUpdate> => {
+  RefreshPositions: async (): Promise<PositionsUpdate> => {
     let pnl_results: PnLResult[] = [];
     let positions_to_remove: number[] = [];
     let total_change_in_amount_of_tokens = 0;
@@ -161,8 +163,10 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
     const value_date = await Utils.getLastFixingTimestamp();
 
     for (let i = 0; i < positions.length; i++) {
-      const index_value = indices.find(v => v.pair_id === positions[i].pair.id && v.long_short === positions[i].long_short)?.value;
-      if (!index_value) continue;
+      const index = indices.find(v => v.pair_id === positions[i].pair.id);
+      if (!index) continue;
+
+      const index_value =  positions[i].long_short == LongShort.Long ? index.long : index.short;
 
       const pnlResult = positions[i].update(value_date, index_value);
       pnl_results.push(pnlResult);

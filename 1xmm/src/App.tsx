@@ -21,6 +21,8 @@ import { getPositionStore } from "./store/position-store";
 import { StarPackage } from "./types/StarPackage";
 import { StarPackages } from "./referential/starPackages";
 import { Index } from "./types/Index";
+import { PusherIndex } from "./types/PusherIndex";
+import { SpotType } from "./types/SpotType";
 //import { UserProfile } from "./types/UserProfile";
 //import { SpotType } from "./types/SpotType";
 //import pusher from "./lib/pusher";
@@ -32,7 +34,8 @@ const isDesktop = import.meta.env.DEV
 
 declare global {
   var userProfile: UserProfileStore;
-  var spots: any;
+  var spots: SpotType[];
+  var indices: PusherIndex[];
   var starPackage: StarPackage[];
 }
 

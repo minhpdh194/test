@@ -1,5 +1,4 @@
 import { BonusTypes, Leverages, LongShort } from "@/enums";
-import { Utils } from "../lib/utils";
 import { toast } from "react-toastify";
 import { UserProfile } from "../types/UserProfile";
 import { Bonus } from "./Bonus";
@@ -94,14 +93,7 @@ export class Position {
         } else {
             let penalty = 0.0;
             let pnl = 0.0;
-            const value_date = await Utils.getLastFixingTimestamp();
-
-            if (this.min_end_date > value_date) penalty = penaltyFee;
-
-            const bonus_factors = this.get_performance_adjustment_factors(globalThis.userProfile);
-            const pro_rata = Math.min(1.0, (value_date - this.open_date + bonus_factors.total_time_reduction) / (this.min_end_date - this.open_date));
-
-            const index_value = await COMM.getIndex($http, this.pair.id, this.long_short, value_date);
+            const index_value = COMM.getIndex(this.pair.id, this.long_short);
 
             if (index_value == undefined) {
                 toast.error("Issues with position's timestamps");
@@ -111,7 +103,14 @@ export class Position {
                 }
             }
 
-            const net_perf = (index_value! - this.index_at_start) - (1 - pro_rata) * penalty;
+            const value_date = index_value.timestamp;
+
+            if (this.min_end_date > value_date) penalty = penaltyFee;
+
+            const bonus_factors = this.get_performance_adjustment_factors(globalThis.userProfile);
+            const pro_rata = Math.min(1.0, (value_date - this.open_date + bonus_factors.total_time_reduction) / (this.min_end_date - this.open_date));
+
+            const net_perf = (index_value!.value - this.index_at_start) - (1 - pro_rata) * penalty;
 
             if (amt <= this.amount) {
                 // Partial position closepositive_leverage
@@ -140,7 +139,7 @@ export class Position {
                 this.performance = 0;
                 const prev_amt = this.amount;
                 this.amount = amt - prev_amt;
-                this.index_at_start = index_value!;
+                this.index_at_start = index_value!.value;
                 this.long_short = this.long_short == LongShort.Long
                     ? LongShort.Short
                     : LongShort.Long;
@@ -160,9 +159,8 @@ export class Position {
         }
     }
 
-    public async get_PnL(): Promise<PnLResult> {
-        const value_date = await Utils.getLastFixingTimestamp();
-        const index_value = await COMM.getIndex($http, this.pair.id, this.long_short, this.last_update_timestamp);
+    public get_PnL(): PnLResult {
+        const index_value = COMM.getIndex(this.pair.id, this.long_short);
 
         if (index_value == undefined) {
             toast.error("Issues with position's timestamps");
@@ -174,7 +172,7 @@ export class Position {
             }
         }
         
-        return this.computePnL(value_date, index_value!);
+        return this.computePnL(index_value!.timestamp, index_value!.value);
     }
 
     public get_performance_adjustment_factors(userProfile: UserProfile): AdjustmentFactors {

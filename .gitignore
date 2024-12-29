@@ -28,3 +28,6 @@ dist-ssr
 *.sw?
 
 .env
+api/package-lock.json
+bot/package-lock.json
+package-lock.json

@@ -24,17 +24,16 @@ export namespace COMM {
         return response.data;
       }
     
-    export async function getIndex(http: AxiosInstance, pairId: number, ls: LongShort, value_date: number): Promise<number|undefined> {
-      var response = await http.get("/get-index", {
-        params: {
+    export function getIndex(pairId: number, ls: LongShort): Index|undefined {
+      var index = globalThis.indices.find(v => v.pair_id === pairId);
+      if (!index) return undefined;
+
+      return {
           pair_id: pairId,
           long_short: ls,
-          value_date: value_date,
+        value: ls == LongShort.Long ? index.long : index.short,
+        timestamp: index.time
         }
-      });
-
-      if (response.data.error) { return undefined; }
-      return Number(response.data.index);
     }
 
     export async function updatePositions(positions: Position[], indices: Index[]): Promise<Position[]> {

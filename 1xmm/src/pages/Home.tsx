@@ -6,6 +6,7 @@ import Header from "../components/Header";
 import { useEffect, useState } from "react";
 import pusher from "@/lib/pusher";
 import { SpotType } from "@/types/SpotType";
+import { PusherIndex } from "@/types/PusherIndex";
 
 export default function Home() {
   const [spots, setSpots] = useState<SpotType[]>([]);
@@ -14,14 +15,22 @@ export default function Home() {
   const [changeInBalance, setChangeInBalance] = useState(0);
 
   useEffect(() => {
-    const channel = pusher.subscribe("pairs");
+    const pairs = pusher.subscribe("pairs");
+    const indices = pusher.subscribe("indices");
 
-    channel.bind("data", (data: any) => {
+    pairs.bind("data", (data: any) => {
       const unlockedSpots = data.pairs.filter((spot: SpotType) =>
         userProfile.unlocked_pair_ids.map(Number).includes(Number(spot.pair_id))
       );
       globalThis.spots = unlockedSpots;
       setSpots(unlockedSpots);
+    });
+
+    indices.bind("data", (data: any) => {
+      const unlockedIndices = data.indices.filter((index: PusherIndex) =>
+        userProfile.unlocked_pair_ids.map(Number).includes(Number(index.pair_id))
+      );
+      globalThis.indices = unlockedIndices;
     });
     
     if (globalThis.spots) {
@@ -31,8 +40,10 @@ export default function Home() {
     setLoading(false);
 
     return () => {
-      channel.unbind_all();
-      channel.unsubscribe();
+      pairs.unbind_all();
+      pairs.unsubscribe();
+      indices.unbind_all();
+      indices.unsubscribe();
     };
 
   }, [globalThis.userProfile.unlocked_pair_ids]);
