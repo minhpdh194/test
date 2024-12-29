@@ -25,7 +25,7 @@ export namespace COMM {
       }
     
     export function getIndex(pairId: number, ls: LongShort): Index|undefined {
-      var index = globalThis.indices.find(v => v.pair_id === pairId);
+      var index = globalThis.globalIndices.find(v => v.pair_id === pairId);
       if (!index) return undefined;
 
       return {

@@ -30,7 +30,7 @@ export default function Home() {
       const unlockedIndices = data.indices.filter((index: PusherIndex) =>
         userProfile.unlocked_pair_ids.map(Number).includes(Number(index.pair_id))
       );
-      globalThis.indices = unlockedIndices;
+      globalThis.globalIndices = unlockedIndices;
     });
     
     if (globalThis.spots) {

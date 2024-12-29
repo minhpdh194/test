@@ -23,6 +23,7 @@ import { StarPackages } from "./referential/starPackages";
 import { Index } from "./types/Index";
 import { PusherIndex } from "./types/PusherIndex";
 import { SpotType } from "./types/SpotType";
+import pusher from "./lib/pusher";
 //import { UserProfile } from "./types/UserProfile";
 //import { SpotType } from "./types/SpotType";
 //import pusher from "./lib/pusher";
@@ -35,7 +36,7 @@ const isDesktop = import.meta.env.DEV
 declare global {
   var userProfile: UserProfileStore;
   var spots: SpotType[];
-  var indices: PusherIndex[];
+  var globalIndices: PusherIndex[];
   var starPackage: StarPackage[];
 }
 
@@ -99,8 +100,20 @@ function App() {
           $http.$get<Friend[]>("/referred-users"),
           //$http.get("/user_tasks")
         ]);
-
+        $http.get("/clicker/load-spots");
+        console.log(indices); //unnessary variable, need to check later
         setProgress(45);
+
+        let pusherIndices: PusherIndex[] = [];
+        const subsriber = pusher.subscribe("indices");
+        subsriber.bind("data", (data: any) => {
+          const unlockedIndices = data.indices.filter((index: PusherIndex) =>
+            userProfile.unlocked_pair_ids.map(Number).includes(Number(index.pair_id))
+          );
+          console.log(unlockedIndices)
+          pusherIndices = unlockedIndices;
+        });
+
         // We update the userProfileStore
         syncData['login_streak'] = streak;
 
@@ -115,7 +128,7 @@ function App() {
         positionStore!.UpdateAvailableBonuses(availableBonuses);
         positionStore!.SetUserPositions(cleanedPositions);
         positionStore!.next_position_id = user_positions.next_position_id;
-        await positionStore.RefreshPositions(indices);
+        await positionStore.RefreshPositions(pusherIndices);
 
         setProgress(65);
         globalThis.userProfile.SetLevelBenefits();
@@ -124,7 +137,6 @@ function App() {
 
         globalThis.userProfile.SetFriends(referredUsers);
         globalThis.starPackage = StarPackages;
-        $http.get("/clicker/load-spots");
       } catch (error) {
         console.error('Error loading data:', error);
         toast.error('Failed to load game data');

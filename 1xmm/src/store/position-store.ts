@@ -40,7 +40,7 @@ export type PositionStore = {
   UpdateAvailableBonuses: (available_bonuses: Bonus[]) => void;
   AddNewBonus: (bonus: Bonus) => void;
   SetUserPositions: (positions: Position[]) => void;
-  RefreshPositions: (indices: Index[]) => Promise<PositionsUpdate>;
+  RefreshPositions: (indices: PusherIndex[]) => Promise<PositionsUpdate>;
 }
 
 export const getPositionStore = create<PositionStore>()((set, get) => ({
@@ -166,7 +166,7 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
     }
   },
 
-  RefreshPositions: async (indices: Index[]): Promise<PositionsUpdate> => {
+  RefreshPositions: async (indices: PusherIndex[]): Promise<PositionsUpdate> => {
     let pnl_results: PnLResult[] = [];
     let positions_to_remove: number[] = [];
     let total_change_in_amount_of_tokens = 0;
