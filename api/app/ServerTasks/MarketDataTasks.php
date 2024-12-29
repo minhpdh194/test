@@ -416,7 +416,7 @@ class MarketDataTasks
             env('PUSHER_APP_ID'),
             $options
         );
-
+        $createdSpots = array_values($createdSpots);
         try {
             $pusher->trigger('pairs', 'data', ['pairs' => $createdSpots]);
             \Log::info('test pusher', ['result' => $createdSpots]);

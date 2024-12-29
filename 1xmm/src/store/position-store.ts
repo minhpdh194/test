@@ -9,6 +9,7 @@ import { Utils } from '@/lib/utils';
 import { COMM } from '@/lib/comm';
 import { toast } from 'react-toastify';
 import { Index } from '@/types/Index';
+import { PusherIndex } from '@/types/PusherIndex';
 
 export type AddingDetails = {
   success: boolean;
@@ -153,7 +154,7 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
     }
   },
 
-  RefreshPositions: async (): Promise<PositionsUpdate> => {
+  RefreshPositions: async (indices: PusherIndex[]): Promise<PositionsUpdate> => {
     let pnl_results: PnLResult[] = [];
     let positions_to_remove: number[] = [];
     let total_change_in_amount_of_tokens = 0;
