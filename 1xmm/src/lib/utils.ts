@@ -18,7 +18,6 @@ export const Utils = {
 	// Timestamps are in seconds
 	getLastFixingTimestamp: async (): Promise<number> => get_lastfixing_timestamp(),
 	getNextFixingTimestamp: async (): Promise<number> => get_nextfixing_timestamp(),
-	getPositionTimestamp: async (): Promise<number> => get_position_timestamp(),
 	// positionWasZero: (exist_position: Position): boolean =>
 	// check_position(exist_position),
 	formatString: (input: string) => format_string(input),
@@ -33,21 +32,13 @@ const get_timestamp_from_server = async (): Promise<number> => {
 	return (await $http.get('/timestamp')).data.timestamp;
 }
 
-const get_position_timestamp = async (): Promise<number> => {
-	let now = Math.floor(await get_timestamp_from_server() / 1000);
-	let d = Math.floor(now / 120);
-
-	let mid = d * 120 + 60;
-	return now > mid ? (d + 1) * 120 : d * 120;
-}
-
 const get_lastfixing_timestamp = async (): Promise<number> => {
-	let d = Math.floor(await get_timestamp_from_server() / 120000);
+	let d = Math.floor(await get_timestamp_from_server() / 120);
 	return d * 120;
 }
 
 const get_nextfixing_timestamp = async (): Promise<number> => {
-	let d = Math.floor(await get_timestamp_from_server() / 120000);
+	let d = Math.floor(await get_timestamp_from_server() / 120);
 	return (d + 1) * 120;
 }
 

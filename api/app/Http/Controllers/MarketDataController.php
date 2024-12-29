@@ -46,13 +46,23 @@ class MarketDataController extends Controller
         $indices = [];
 
         foreach ($pairs as $pair) {
-            $index = Index::where(['pair_id' => $pair->id])
+            $index = Index::where(['pair_id' => $pair->id, 'long_short' => 'long'])
+                ->orderBy('created_at', 'desc')
+                ->first();
+                
+            $indices[] = [
+                'pair_id' => $pair->id,
+                'long_short' => 'long',
+                'value' => $index->value,
+            ];
+
+            $index = Index::where(['pair_id' => $pair->id, 'long_short' => 'short'])
                 ->orderBy('created_at', 'desc')
                 ->first();
 
             $indices[] = [
                 'pair_id' => $pair->id,
-                'long_short' => $index->long_short,
+                'long_short' => 'short',
                 'value' => $index->value,
             ];
         }
@@ -69,7 +79,7 @@ class MarketDataController extends Controller
         ]);
 
         $index = Index::where(['pair_id' => $validated['pair_id'], 'long_short' => $validated['long_short']])
-            ->where('timestamp', $validated['value_date'])
+            ->where('created_at', Carbon::createFromTimestamp($validated['value_date']))
             ->first();
 
         if (!$index) {

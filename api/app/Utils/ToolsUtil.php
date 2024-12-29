@@ -18,7 +18,7 @@ class ToolsUtil
         $fixing = (int)($ts / 120) * 120;
 
         // We assume that fixing will always be done around time % 2min = 0
-        if ($ts < $fixing) $fixing += 120;
+        if ($ts > $fixing + 110) $fixing += 120;
 
         return $fixing;
     }

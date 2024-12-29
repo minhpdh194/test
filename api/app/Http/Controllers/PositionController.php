@@ -66,6 +66,7 @@ class PositionController extends Controller
             'pair',
             'long_short',
             'amount',
+            'index_at_start',
             'leverage',
             'bonuses',
             'min_end_date',
@@ -73,6 +74,7 @@ class PositionController extends Controller
 
         $positionData['position_id'] = $validatedData['position_id'];
         $positionData['amount'] = $validatedData['amount'];
+        $positionData['index_start'] = $validatedData['index_at_start'];
         $positionData['average_leverage'] = $validatedData['leverage'];
         $positionData['min_end_date'] = Carbon::createFromTimestamp($validatedData['min_end_date'])->toDateTimeString();
         $positionData['long_short'] = $validatedData['long_short'];
@@ -128,6 +130,7 @@ class PositionController extends Controller
             'pair',
             'position_id',
             'long_short',
+            'index_at_start',
             'amount',
             // 'pnl',
             'leverage',
@@ -150,6 +153,7 @@ class PositionController extends Controller
         $position_change = $validatedData['amount'] - $position->amount;
 
         $positionData['amount'] = $validatedData['amount'];
+        $positionData['index_start'] = $validatedData['index_at_start'];
         $positionData['average_leverage'] = $validatedData['leverage'];
         $positionData['long_short'] = $validatedData['long_short'];
         // $positionData['performance'] = $validatedData['performance'];

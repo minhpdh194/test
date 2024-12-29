@@ -176,7 +176,7 @@ class MarketDataTasks
             if (in_array($pair->coin_symbol, $ref_symbols)) continue;
             $correlated_pairs[] = $pair->pair_symbol;
         }
-
+        
         $n = 30;
 
         $return_matrix = null;
@@ -252,12 +252,12 @@ class MarketDataTasks
                 ->orderBy('created_at', 'desc')
                 ->take($n)
                 ->get();
-
+            
             $spots2 = Spot::where('pair_id', $pair2->id)
                 ->orderBy('created_at', 'desc')
                 ->take($n)
                 ->get();
-
+            
             $corr = MathUtil::computeCorrelation($spots1->pluck('daily_return')->toArray(), $spots2->pluck('daily_return')->toArray(), $n);
             $spot = $spots1->first()->current_value / $spots2->first()->current_value;
 
@@ -295,28 +295,10 @@ class MarketDataTasks
             $prev_long_index = Index::where(['pair_id' => $pair->id, 'long_short' => 'long'])
                 ->orderBy('created_at', 'desc')
                 ->first();
-
-            if (!$prev_long_index) {
-                $prev_long_index = Index::create([
-                    'pair_id' => $pair->id,
-                    'long_short' => 'long',
-                    'value' => 0,
-                    'timestamp' => ($timestamp - 120)
-                ]);
-            }
-
+            
             $prev_short_index = Index::where(['pair_id' => $pair->id, 'long_short' => 'short'])
                 ->orderBy('created_at', 'desc')
                 ->first();
-
-            if (!$prev_short_index) {
-                $prev_short_index = Index::create([
-                    'pair_id' => $pair->id,
-                    'long_short' => 'short',
-                    'value' => 0,
-                    'timestamp' => ($timestamp - 120)
-                ]);
-            }
 
             $total_positions = TotalOpenPositionValue::where('pair_id', $pair->id)->first();
             $adj = 1;
@@ -333,14 +315,14 @@ class MarketDataTasks
                     'pair_id' => $pair->id,
                     'long_short' => 'long',
                     'value' => $prev_long_index->value + $premium * $adj,
-                    'timestamp' => $timestamp
+                    'created_at' => $timestamp
                 ]);
 
                 $shortPerf = Index::create([
                     'pair_id' => $pair->id,
                     'long_short' => 'short',
                     'value' => $prev_short_index->value - $premium,
-                    'timestamp' => $timestamp
+                    'created_at' => $timestamp
                 ]);
 
                 $indices_perf[] = [
@@ -357,7 +339,7 @@ class MarketDataTasks
                     'pair_id' => $pair->id,
                     'long_short' => 'long',
                     'value' => $prev_long_index->value - $premium,
-                    'timestamp' => $timestamp
+                    'created_at' => $timestamp
                 ]);
 
                 if ($total_positions && $total_positions->total_short_value > 0) {
@@ -368,7 +350,7 @@ class MarketDataTasks
                     'pair_id' => $pair->id,
                     'long_short' => 'short',
                     'value' => $prev_short_index->value + $premium * $adj,
-                    'timestamp' => $timestamp
+                    'created_at' => $timestamp
                 ]);
 
                 $indices_perf[] = [
@@ -382,14 +364,14 @@ class MarketDataTasks
                     'pair_id' => $pair->id,
                     'long_short' => 'long',
                     'value' => $prev_long_index->value,
-                    'timestamp' => $timestamp
+                    'created_at' => $timestamp
                 ]);
 
                 $shortPerf = Index::create([
                     'pair_id' => $pair->id,
                     'long_short' => 'short',
                     'value' => $prev_short_index->value,
-                    'timestamp' => $timestamp
+                    'created_at' => $timestamp
                 ]);
 
                 $indices_perf[] = [
@@ -434,8 +416,6 @@ class MarketDataTasks
             env('PUSHER_APP_ID'),
             $options
         );
-
-        $createdSpots = array_values($createdSpots);
 
         try {
             $pusher->trigger('pairs', 'data', ['pairs' => $createdSpots]);

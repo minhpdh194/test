@@ -33,13 +33,13 @@ export namespace COMM {
         }
       });
 
-      if (response.data.error) return undefined;
+      if (response.data.error) { return undefined; }
       return Number(response.data.index);
     }
 
     export async function updatePositions(positions: Position[], indices: Index[]): Promise<Position[]> {
         const parallelLimit = 4;
-        const updateTime = await Utils.getPositionTimestamp();
+        const updateTime = await Utils.getLastFixingTimestamp();
 
         const results = await asyncParallelForEach(positions, parallelLimit, async (position: Position, ) => {
             const index = indices.find(v => v.pair_id === position.pair.id && v.long_short === position.long_short)?.value;

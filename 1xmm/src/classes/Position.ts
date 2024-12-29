@@ -103,7 +103,7 @@ export class Position {
 
             const index_value = await COMM.getIndex($http, this.pair.id, this.long_short, value_date);
 
-            if (!index_value) {
+            if (index_value == undefined) {
                 toast.error("Issues with position's timestamps");
                 return {
                     amount_adjustment: 0,
@@ -164,7 +164,7 @@ export class Position {
         const value_date = await Utils.getLastFixingTimestamp();
         const index_value = await COMM.getIndex($http, this.pair.id, this.long_short, this.last_update_timestamp);
 
-        if (!index_value) {
+        if (index_value == undefined) {
             toast.error("Issues with position's timestamps");
 
             return {

@@ -99,10 +99,10 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
         realized_pnl: res.realized_pnl
       };
     } else {
-      const value_date = await Utils.getPositionTimestamp();
+      const value_date = await Utils.getLastFixingTimestamp();
       const index_at_start = await COMM.getIndex($http, pair.id, ls, value_date);
-
-      if (!index_at_start) {
+      
+      if (index_at_start == undefined) {
         toast.error('Failed to get index for the pair');
         return {
           success: false,
@@ -158,7 +158,7 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
     let total_change_in_pnl = 0;
 
     const positions = get().positions;
-    const value_date = await Utils.getPositionTimestamp();
+    const value_date = await Utils.getLastFixingTimestamp();
 
     for (let i = 0; i < positions.length; i++) {
       const index_value = indices.find(v => v.pair_id === positions[i].pair.id && v.long_short === positions[i].long_short)?.value;
