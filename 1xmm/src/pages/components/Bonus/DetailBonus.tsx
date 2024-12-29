@@ -31,7 +31,7 @@ export default function DetailBonus({
             const response = await $http.post('/buy-bonus', { bonus: bonus });
             if (response.status === 200) {
                 toast.success('Bonus bought successfully!');
-                const telegramResponse = await $http.get("/user_bonuses");
+                // const telegramResponse = await $http.get("/user_bonuses");
                 //I will add bonus to the store later, after review new code about index and ticks
             } else if (response.status === 202) {
                 console.log(response);

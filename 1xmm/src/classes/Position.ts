@@ -83,7 +83,6 @@ export class Position {
             this.leverage = (lev_amt + new_lev_amt) / this.amount;
 
             bonuses.forEach(b => this.attach_bonus(b));
-            toast.success("Position updated successfully");
 
             // No PnL has been generated
             return {
@@ -121,7 +120,6 @@ export class Position {
                 }
                 this.amount -= amt;
                 bonuses.forEach(b => this.attach_bonus(b));
-                toast.success("Position updated successfully");
 
                 return {
                     amount_adjustment: amt,
@@ -149,7 +147,6 @@ export class Position {
                 this.min_end_date = value_date + 21600;
 
                 bonuses.forEach(b => this.attach_bonus(b));
-                toast.success("Position updated successfully");
 
                 return {
                     amount_adjustment: prev_amt - this.amount,

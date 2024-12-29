@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('user_game_data', function (Blueprint $table) {
-            $table->dropColumn('user_id');
-
+        Schema::table('positions', function (Blueprint $table) {
+            $table->decimal('index_start')->default(0);
         });
     }
 
@@ -22,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('user_game_data', function (Blueprint $table) {
+        Schema::table('positions', function (Blueprint $table) {
             //
         });
     }

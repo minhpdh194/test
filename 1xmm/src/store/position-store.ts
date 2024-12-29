@@ -87,9 +87,17 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
 
       try {
         if (existing_position.amount == 0) {
-          await $http.post('clicker/close-position', existing_position);
+          const response = await $http.post('clicker/close-position', existing_position);
+          if (response) {
+            toast.success("Position closed successfully");
+
+          }
         } else {
-          await $http.post('/clicker/update-position', existing_position);
+          const response = await $http.post('/clicker/update-position', existing_position);
+          if (response) {
+            toast.success("Position updated successfully");
+
+          }
         }
       } catch (error) {
         console.error('Failed to add position:', error);
@@ -117,7 +125,11 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
       const position: Position = new Position(get().next_position_id!, pair, ls, Number(amt), index_at_start!, lev, value_date + 21600, bonuses);
       
       try {
-        await $http.post('/clicker/add-position', position);
+        const response = await $http.post('/clicker/add-position', position);
+        if (response) {
+          toast.success("Position added successfully");
+
+        }
         get().positions.push(position);
 
         set((state) => ({
@@ -154,7 +166,7 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
     }
   },
 
-  RefreshPositions: async (indices: PusherIndex[]): Promise<PositionsUpdate> => {
+  RefreshPositions: async (indices: Index[]): Promise<PositionsUpdate> => {
     let pnl_results: PnLResult[] = [];
     let positions_to_remove: number[] = [];
     let total_change_in_amount_of_tokens = 0;
