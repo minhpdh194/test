@@ -96,23 +96,12 @@ function App() {
           $http.$get<SyncData>("/clicker/sync"),
           $http.$get<UserBonus[]>("/user_bonuses"),
           $http.$get<{ next_position_id: number; positions: UserPosition[]; }>("/user_positions"),
-          $http.$get<Index[]>("/get-indices"),
+          $http.$get<PusherIndex[]>("/get-indices-perf"),
           $http.$get<Friend[]>("/referred-users"),
           //$http.get("/user_tasks")
         ]);
-        $http.get("/clicker/load-spots");
-        console.log(indices); //unnessary variable, need to check later
-        setProgress(45);
 
-        let pusherIndices: PusherIndex[] = [];
-        const subsriber = pusher.subscribe("indices");
-        subsriber.bind("data", (data: any) => {
-          const unlockedIndices = data.indices.filter((index: PusherIndex) =>
-            userProfile.unlocked_pair_ids.map(Number).includes(Number(index.pair_id))
-          );
-          console.log(unlockedIndices)
-          pusherIndices = unlockedIndices;
-        });
+        setProgress(45);
 
         // We update the userProfileStore
         syncData['login_streak'] = streak;
@@ -128,7 +117,7 @@ function App() {
         positionStore!.UpdateAvailableBonuses(availableBonuses);
         positionStore!.SetUserPositions(cleanedPositions);
         positionStore!.next_position_id = user_positions.next_position_id;
-        await positionStore.RefreshPositions(pusherIndices);
+        await positionStore.RefreshPositions(indices);
 
         setProgress(65);
         globalThis.userProfile.SetLevelBenefits();
@@ -137,6 +126,8 @@ function App() {
 
         globalThis.userProfile.SetFriends(referredUsers);
         globalThis.starPackage = StarPackages;
+        $http.get("/clicker/load-spots");
+
       } catch (error) {
         console.error('Error loading data:', error);
         toast.error('Failed to load game data');

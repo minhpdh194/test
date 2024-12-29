@@ -12,6 +12,7 @@ use App\Http\Traits\MarketData;
 use App\Models\MarketData\Fixing;
 use App\Models\MarketData\Pair;
 use App\Models\MarketData\Index;
+use Illuminate\Support\Facades\Storage;
 
 class MarketDataController extends Controller
 {
@@ -40,6 +41,14 @@ class MarketDataController extends Controller
         return response()->json($pairs);
     }
 
+    public function getIndicesPerf() {
+        $indices_perf = [];
+        if (Storage::exists('indices_perf.json')) {
+            $indices_perf = json_decode(Storage::get('indices_perf.json'), true);
+        }
+        return response()->json($indices_perf);
+    }
+
     public function getIndices()
     {
         $pairs = Pair::select('id')->get();
@@ -49,7 +58,7 @@ class MarketDataController extends Controller
             $index = Index::where(['pair_id' => $pair->id, 'long_short' => 'long'])
                 ->orderBy('created_at', 'desc')
                 ->first();
-                
+
             $indices[] = [
                 'pair_id' => $pair->id,
                 'long_short' => 'long',

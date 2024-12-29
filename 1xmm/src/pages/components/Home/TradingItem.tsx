@@ -132,7 +132,12 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
             const amt = Number(amounts[pairId]);
             const balanceAdjustment = await userProfile.AddPosition(pair, selectedOptions[pairId]!, amt || 0, leverages[pairId], selectedBonuses);
 
-            onValidatePosition(balanceAdjustment);
+            if (balanceAdjustment == undefined) {
+                toast.info("Error validating position");
+                return;
+            }
+
+            onValidatePosition(balanceAdjustment);    
 
             // Reset states
             setAmounts((prev) => ({ ...prev, [pairId]: 0 }));
@@ -152,7 +157,6 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
             await fetchLatestPositions();
 
         } catch (error) {
-            console.error('Error validating position:', error);
             toast.error('Failed to validate position');
         } finally {
             setIsLoading(false);
