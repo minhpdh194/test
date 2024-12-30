@@ -52,7 +52,7 @@ class MarketDataController extends Controller
                 
             $indices[] = [
                 'pair_id' => $pair->id,
-                'long_short' => 'Long',
+                'long_short' => 'long',
                 'value' => $index->value,
                 'timestamp' => $index->created_at
             ];
@@ -63,7 +63,7 @@ class MarketDataController extends Controller
 
             $indices[] = [
                 'pair_id' => $pair->id,
-                'long_short' => 'Short',
+                'long_short' => 'short',
                 'value' => $index->value,
                 'timestamp' => $index->created_at
             ];

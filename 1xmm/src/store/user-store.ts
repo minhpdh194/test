@@ -16,7 +16,6 @@ import { levelConditions } from "@/referential/levelConditions";
 export type UserProfileStore = UserProfile & {
   SetLevelBenefits: () => void;
   UpdateProfile: (syncData: SyncData) => void;
-  UpdateUserOpenedPosition: (positionStore: PositionStore) => void;
   UserTap: () => boolean;
   UserLevelUp: () => void;
   AddPosition: (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]) => Promise<number|undefined>;
@@ -104,11 +103,6 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
     }));
   },
 
-  UpdateUserOpenedPosition: (positionStore: PositionStore) => {
-    const currentStore = get().positionStore;
-    get().positionStore = { ...currentStore, ...positionStore };
-  },
-
   UpdateProfile: (syncData: SyncData) => {
     set((state) => ({
       id: syncData.user.id,
@@ -116,6 +110,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       first_name: syncData.user.first_name,
       last_name: syncData.user.last_name,
       username: syncData.user.username,
+      start_date: syncData.user.start_date,
       last_login: syncData.user.last_login,
       level: Number(syncData.gameData.level),
       login_streak: Number(syncData.user.login_streak),

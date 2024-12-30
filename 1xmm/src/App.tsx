@@ -41,9 +41,8 @@ declare global {
 }
 
 function App() {
-  globalThis.globalIndices = [];
   globalThis.userProfile = userProfileStore();
-  const positionStore = getPositionStore();
+  globalThis.userProfile.positionStore = getPositionStore();
   const data = useTelegramInitData();
   const user = data.user;
   const start_param = data.start_param;
@@ -81,12 +80,12 @@ function App() {
           setBearerToken(response.token);
           setIsFirstLoad(response.first_login);
         }
-
+        
         setProgress(25);
 
         const pairs = await $http.$get<Pair[]>("/pairs");
         localStorage.setItem("PairReferential", JSON.stringify(pairs));
-
+        
         const [syncData,
           user_bonuses,
           user_positions,
@@ -103,20 +102,24 @@ function App() {
         ]);
 
         setProgress(45);
-        
-        // We convert the indices into globalIndices
-        indices.forEach(index => {
-          const globalIndex = globalThis.globalIndices.find(i => i.pair_id == index.pair_id);
 
+        const update: PusherIndex[] = [];
+
+        // We convert the indices into globalIndices
+        indices.forEach(indexToAdd => {
+          const globalIndex = update.find(globInd => globInd.pair_id == indexToAdd.pair_id);
+          const isLong = indexToAdd.long_short.toString().toLowerCase() == LongShort.Long.toString().toLowerCase();
+        
           if (globalIndex) {
-            if (index.long_short == LongShort.Long) globalIndex.long = index.value;
-            else globalIndex.short = index.value;
+            if (isLong) globalIndex.long = indexToAdd.value;
+            else { globalIndex.short = indexToAdd.value; }
           } else {
-            globalThis.globalIndices.push({
-              pair_id: index.pair_id,
-              long: index.long_short == LongShort.Long ? index.value : 0,
-              short: index.long_short == LongShort.Short ? index.value : 0,
-              time: index.timestamp
+            const ts = new Date(indexToAdd.timestamp).getTime() / 1000
+            update.push({
+              pair_id: indexToAdd.pair_id,
+              long: isLong ? indexToAdd.value : 0,
+              short: isLong ? 0 : indexToAdd.value,
+              time: ts
             })
           }
         });
@@ -124,22 +127,22 @@ function App() {
         // We update the userProfileStore
         syncData['login_streak'] = streak;
 
+        globalThis.globalIndices = update;
         globalThis.userProfile.UpdateProfile(syncData);
 
-        //const [availableBonuses, cleanedPositions, bonusToDelete] = syncBonusesAndPositions(user_bonuses, user_positions.positions, pairs);
         const [availableBonuses, cleanedPositions] = syncBonusesAndPositions(user_bonuses, user_positions.positions, pairs);
 
         setProgress(65);
         // await COMM.bonusExpiry($http, userProfile.id, bonusesToDelete);
-        // await COMM.updatePositions(cleanedPositions);
-        positionStore!.UpdateAvailableBonuses(availableBonuses);
-        positionStore!.SetUserPositions(cleanedPositions);
-        positionStore!.next_position_id = user_positions.next_position_id;
-        await positionStore.RefreshPositions();
+        COMM.updatePositions(cleanedPositions);
+        
+        globalThis.userProfile.positionStore!.UpdateAvailableBonuses(availableBonuses);
+        globalThis.userProfile.positionStore!.SetUserPositions(cleanedPositions);
+        globalThis.userProfile.positionStore!.next_position_id = user_positions.next_position_id;
 
         setProgress(75);
         globalThis.userProfile.SetLevelBenefits();
-        globalThis.userProfile.UpdateUserOpenedPosition(positionStore);
+
         setProgress(95);
 
         globalThis.userProfile.SetFriends(referredUsers);
@@ -169,7 +172,9 @@ function syncBonusesAndPositions(userBonuses: UserBonus[], userPositions: UserPo
 
   userPositions.forEach(p => {
     const date = new Date(p.min_end_date).getTime() / 1000;
-    const open_position: Position = new Position(p.id, pairs.find(e => e.id == p.pair_id)!, p.long_short, p.amount, p.index_start, p.average_leverage, date, []);
+    const isLong = p.long_short.toString().toLowerCase() == LongShort.Long.toString().toLowerCase();
+
+    const open_position: Position = new Position(p.pair_id, pairs.find(e => e.id == p.pair_id)!, isLong ? LongShort.Long : LongShort.Short, p.amount, p.index_start, p.average_leverage, date, []);
     //need to use the userProfile in this part, because when this function is called, the global.userProfile is not set, so all of it is default data, which is wrong
 
     // p?.bonuses.forEach(element => { 

@@ -190,7 +190,6 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
 
     const printPositionAmount = (positionId: number): string => {
         const p = positions.find((pos) => pos.position_id === positionId);
-
         if (p) {
             return Utils.toCamelFormat(String(p.long_short)) + " " + p.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }

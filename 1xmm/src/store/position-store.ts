@@ -65,11 +65,6 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
 
   SetUserPositions: (positions: Position[]): void => {
     const current_positions = get().positions;
-
-    // Sanity check
-    // If we sent the positions, the current positions length must always be 0
-    // if (current_positions.length > 0) throw new Error();
-
     current_positions.push(...positions);
   },
 
@@ -162,10 +157,10 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
     for (let i = 0; i < positions.length; i++) {
       const index = globalThis.globalIndices.find(v => v.pair_id === positions[i].pair.id);
       if (!index) continue;
-
+      
       const index_value =  positions[i].long_short == LongShort.Long ? index.long : index.short;
-
       const pnlResult = positions[i].update(value_date, index_value);
+
       pnl_results.push(pnlResult);
       total_change_in_pnl += pnlResult.pnl;
 

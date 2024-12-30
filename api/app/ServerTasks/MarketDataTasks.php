@@ -283,7 +283,7 @@ class MarketDataTasks
     public function computeFixings($pairs, $T)
     {
         $dt = 1.0 / ($T * 262800);
-        $indices_perf = [];
+        $last_indices = [];
         $mult = (float)Settings::where('name', 'prem_mult')->first()->value;
         $timestamp = ToolsUtil::getFixingTimestamp();
 
@@ -324,13 +324,6 @@ class MarketDataTasks
                     'value' => $prev_short_index->value - $premium,
                     'created_at' => $timestamp
                 ]);
-
-                $indices_perf[] = [
-                    'pair_id' => $pair->id,
-                    'long' => $longPerf->value - $prev_long_index->value,
-                    'short' => -$premium,
-                    'time' => $timestamp
-                ];
             } else if ($spot->current_value < $spot->prev_value) {
                 $put = MathUtil::put($T, $spot->prev_value, $spot->current_value, $vol_fwd->yield, $vol_fwd->volatility);
                 $premium = $put / $spot->prev_value * $mult * $dt;
@@ -352,13 +345,6 @@ class MarketDataTasks
                     'value' => $prev_short_index->value + $premium * $adj,
                     'created_at' => $timestamp
                 ]);
-
-                $indices_perf[] = [
-                    'pair_id' => $pair->id,
-                    'long' => -$premium,
-                    'short' => $shortPerf->value - $prev_short_index->value,
-                    'time' => $timestamp
-                ];
             } else {
                 $longPerf = Index::create([
                     'pair_id' => $pair->id,
@@ -373,14 +359,14 @@ class MarketDataTasks
                     'value' => $prev_short_index->value,
                     'created_at' => $timestamp
                 ]);
+            }
 
-                $indices_perf[] = [
+            $last_indices[] = [
                     'pair_id' => $pair->id,
-                    'long' => 0,
-                    'short' => 0,
+                'long' => $longPerf->value,
+                'short' => $shortPerf->value,
                     'time' => $timestamp
                 ];
-            }
 
             $fixing = Fixing::updateOrCreate(['pair_id' => $pair->id],[
                 'prev_spot' => $spot->prev_value,
@@ -390,7 +376,7 @@ class MarketDataTasks
             ]);
         }
 
-        return $indices_perf;
+        return $last_indices;
     }
 
     public function integration()
@@ -403,7 +389,7 @@ class MarketDataTasks
         $this->getCorrelatedParameters($natural_pairs);
         if ($xpairs) $this->getXPairsParameters($xpairs, $T);
 
-        $indices_perf = $this->computeFixings(Pair::all(), $T);
+        $last_indices = $this->computeFixings(Pair::all(), $T);
 
         $options = array(
             'cluster' => 'ap2',
@@ -421,14 +407,14 @@ class MarketDataTasks
             $pusher->trigger('pairs', 'data', ['pairs' => $createdSpots]);
             \Log::info('test pusher', ['result' => $createdSpots]);
 
-            $pusher->trigger('indices', 'data', ['indices' => $indices_perf]);
-            \Log::info('test pusher', ['result' => $indices_perf]);
+            $pusher->trigger('indices', 'data', ['indices' => $last_indices]);
+            \Log::info('test pusher', ['result' => $last_indices]);
         } catch (\Throwable $e) {
             $notify[] = ['warning', 'Pusher Not Properly Set'];
             \Log::info('error pusher', ['error' => $e->getMessage()]);
         }
 
-        return response()->json(['spots' => $createdSpots, 'indices' => $indices_perf]);
+        return true;
     }
 
     private function getOptionSymbol($coin, $opt_symb, $expiry, $new_spot_value)
