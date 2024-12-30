@@ -103,6 +103,7 @@ function App() {
         ]);
 
         setProgress(45);
+        
         // We convert the indices into globalIndices
         indices.forEach(index => {
           const globalIndex = globalThis.globalIndices.find(i => i.pair_id == index.pair_id);

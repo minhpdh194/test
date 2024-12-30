@@ -43,7 +43,7 @@ class AuthController extends Controller
     public function telegramUser(Request $request)
     {
         $validated = $request->validate([
-            'telegram_user_id' => 'required',
+            'telegram_user_id' => 'required|string',
             'first_name' => 'required|string',
             'last_name' => 'nullable|string',
             'username' => 'nullable|string',
