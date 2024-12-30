@@ -52,8 +52,9 @@ class MarketDataController extends Controller
                 
             $indices[] = [
                 'pair_id' => $pair->id,
-                'long_short' => 'long',
+                'long_short' => 'Long',
                 'value' => $index->value,
+                'timestamp' => $index->created_at
             ];
 
             $index = Index::where(['pair_id' => $pair->id, 'long_short' => 'short'])
@@ -62,8 +63,9 @@ class MarketDataController extends Controller
 
             $indices[] = [
                 'pair_id' => $pair->id,
-                'long_short' => 'short',
+                'long_short' => 'Short',
                 'value' => $index->value,
+                'timestamp' => $index->created_at
             ];
         }
 

@@ -31,6 +31,7 @@ export default function Home() {
         userProfile.unlocked_pair_ids.map(Number).includes(Number(index.pair_id))
       );
       globalThis.globalIndices = unlockedIndices;
+      globalThis.userProfile.positionStore?.RefreshPositions();
     });
     
     if (globalThis.spots) {
