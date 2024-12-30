@@ -20,8 +20,10 @@ import { Friend } from "./types/Friend";
 import { getPositionStore } from "./store/position-store";
 import { StarPackage } from "./types/StarPackage";
 import { StarPackages } from "./referential/starPackages";
+import { Index } from "./types/Index";
 import { PusherIndex } from "./types/PusherIndex";
 import { SpotType } from "./types/SpotType";
+import { LongShort } from "./enums";
 //import { UserProfile } from "./types/UserProfile";
 //import { SpotType } from "./types/SpotType";
 //import pusher from "./lib/pusher";
@@ -39,6 +41,7 @@ declare global {
 }
 
 function App() {
+  globalThis.globalIndices = [];
   globalThis.userProfile = userProfileStore();
   const positionStore = getPositionStore();
   const data = useTelegramInitData();
@@ -94,12 +97,28 @@ function App() {
           $http.$get<SyncData>("/clicker/sync"),
           $http.$get<UserBonus[]>("/user_bonuses"),
           $http.$get<{ next_position_id: number; positions: UserPosition[]; }>("/user_positions"),
-          $http.$get<PusherIndex[]>("/get-indices-perf"),
+          $http.$get<Index[]>("/get-indices"),
           $http.$get<Friend[]>("/referred-users"),
           //$http.get("/user_tasks")
         ]);
 
         setProgress(45);
+        // We convert the indices into globalIndices
+        indices.forEach(index => {
+          const globalIndex = globalThis.globalIndices.find(i => i.pair_id == index.pair_id);
+
+          if (globalIndex) {
+            if (index.long_short == LongShort.Long) globalIndex.long = index.value;
+            else globalIndex.short = index.value;
+          } else {
+            globalThis.globalIndices.push({
+              pair_id: index.pair_id,
+              long: index.long_short == LongShort.Long ? index.value : 0,
+              short: index.long_short == LongShort.Short ? index.value : 0,
+              time: index.timestamp
+            })
+          }
+        });
 
         // We update the userProfileStore
         syncData['login_streak'] = streak;
@@ -109,15 +128,15 @@ function App() {
         //const [availableBonuses, cleanedPositions, bonusToDelete] = syncBonusesAndPositions(user_bonuses, user_positions.positions, pairs);
         const [availableBonuses, cleanedPositions] = syncBonusesAndPositions(user_bonuses, user_positions.positions, pairs);
 
-        setProgress(55);
+        setProgress(65);
         // await COMM.bonusExpiry($http, userProfile.id, bonusesToDelete);
         // await COMM.updatePositions(cleanedPositions);
         positionStore!.UpdateAvailableBonuses(availableBonuses);
         positionStore!.SetUserPositions(cleanedPositions);
         positionStore!.next_position_id = user_positions.next_position_id;
-        await positionStore.RefreshPositions(indices);
+        await positionStore.RefreshPositions();
 
-        setProgress(65);
+        setProgress(75);
         globalThis.userProfile.SetLevelBenefits();
         globalThis.userProfile.UpdateUserOpenedPosition(positionStore);
         setProgress(95);
@@ -125,7 +144,6 @@ function App() {
         globalThis.userProfile.SetFriends(referredUsers);
         globalThis.starPackage = StarPackages;
         $http.get("/clicker/load-spots");
-
       } catch (error) {
         console.error('Error loading data:', error);
         toast.error('Failed to load game data');

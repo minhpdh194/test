@@ -74,7 +74,7 @@ export class Position {
         return pnlUpdate;
     }
 
-    public async add(ls: LongShort, amt: number, lev: Leverages, bonuses: Bonus[]): Promise<PositionChange> {
+    public add(ls: LongShort, amt: number, lev: Leverages, bonuses: Bonus[]): PositionChange {
         if (ls === this.long_short) {
             const lev_amt = this.amount * this.leverage;
             const new_lev_amt = amt * (lev as number);
@@ -147,6 +147,7 @@ export class Position {
                 this.min_end_date = value_date + 21600;
 
                 bonuses.forEach(b => this.attach_bonus(b));
+                toast.success("Position updated successfully");
 
                 return {
                     amount_adjustment: prev_amt - this.amount,

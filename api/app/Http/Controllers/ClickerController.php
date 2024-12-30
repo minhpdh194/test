@@ -47,10 +47,9 @@ class ClickerController extends Controller
         ]);
     }
 
-    public function initPusherData() {
+    public function getSpots() {
         $userService = new UserService();
         $userService->getNewestSpots();
-        $userService->getNewestIndices();
     }
 
     public function tap(Request $request)

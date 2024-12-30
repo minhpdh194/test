@@ -1,14 +1,11 @@
 import { create } from 'zustand';
 import { $http } from "@/lib/http";
-import { UserProfile } from '@/types/UserProfile';
 import { PnLResult, Position } from '@/classes/Position';
 import { Pair } from '@/types/Pair';
 import { LongShort } from '@/enums';
 import { Bonus } from '@/classes/Bonus';
 import { Utils } from '@/lib/utils';
 import { COMM } from '@/lib/comm';
-import { toast } from 'react-toastify';
-import { PusherIndex } from '@/types/PusherIndex';
 
 export type AddingDetails = {
   success: boolean;
@@ -33,13 +30,13 @@ export type PositionStore = {
   available_bonuses: Bonus[];
   positions: Position[];
 
-  AddPosition: (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[], userProfile: UserProfile) => Promise<AddingDetails>;
+  AddPosition: (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]) => Promise<AddingDetails>;
   UpdatePosition: (position_id: number) => Promise<void>;
   ClosePosition: (position_id: number) => Promise<ClosingDetails>;
   UpdateAvailableBonuses: (available_bonuses: Bonus[]) => void;
   AddNewBonus: (bonus: Bonus) => void;
   SetUserPositions: (positions: Position[]) => void;
-  RefreshPositions: (indices: PusherIndex[]) => Promise<PositionsUpdate>;
+  RefreshPositions: () => Promise<PositionsUpdate>;
 }
 
 export const getPositionStore = create<PositionStore>()((set, get) => ({
@@ -82,25 +79,18 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
 
     if (existing_position) {
       // hence the code below should update the position in positions directly
-      const res = await existing_position.add(ls, amt, lev, bonuses);
+      const res = existing_position.add(ls, amt, lev, bonuses);
 
       try {
         if (existing_position.amount == 0) {
-          const response = await $http.post('clicker/close-position', existing_position);
-          if (response) {
-            toast.success("Position closed successfully");
-
-          }
+          await $http.post('clicker/close-position', existing_position);
         } else {
-          const response = await $http.post('/clicker/update-position', existing_position);
-          if (response) {
-            toast.success("Position updated successfully");
-
-          }
+          await $http.post('/clicker/update-position', existing_position);
         }
       } catch (error) {
         console.error('Failed to add position:', error);
       }
+
       return {
         success: true,
         amount_adjustment: res.amount_adjustment,
@@ -110,7 +100,6 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
       const index_value = COMM.getIndex(pair.id, ls);
       
       if (index_value == undefined) {
-        toast.error('Failed to get index for the pair');
         return {
           success: false,
           amount_adjustment: 0,
@@ -122,17 +111,21 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
       const value_date = index_value.timestamp;
 
       const position: Position = new Position(get().next_position_id!, pair, ls, Number(amt), index_at_start!, lev, value_date + 21600, bonuses);
-      
-      try {
-        const response = await $http.post('/clicker/add-position', position);
-        if (response) {
-          toast.success("Position added successfully");
 
-        }
+      try {
+        await $http.post('/clicker/add-position', position);
+      } catch (error) {
+        return {
+          success: false,
+          amount_adjustment: 0,
+          realized_pnl: 0
+        };
+      }
+
         get().positions.push(position);
 
         set((state) => ({
-          next_position_id: state.next_position_id! + 1,
+        next_position_id: state.next_position_id + 1,
         }));
         
         return {
@@ -140,14 +133,6 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
           amount_adjustment: -amt,
           realized_pnl: 0
         };
-      } catch (error) {
-        console.error('Failed to add position:', error);
-        return {
-          success: false,
-          amount_adjustment: 0,
-          realized_pnl: 0
-        };
-      }
     }
   },
 
@@ -165,7 +150,7 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
     }
   },
 
-  RefreshPositions: async (indices: PusherIndex[]): Promise<PositionsUpdate> => {
+  RefreshPositions: async (): Promise<PositionsUpdate> => {
     let pnl_results: PnLResult[] = [];
     let positions_to_remove: number[] = [];
     let total_change_in_amount_of_tokens = 0;
@@ -175,7 +160,7 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
     const value_date = await Utils.getLastFixingTimestamp();
 
     for (let i = 0; i < positions.length; i++) {
-      const index = indices.find(v => v.pair_id === positions[i].pair.id);
+      const index = globalThis.globalIndices.find(v => v.pair_id === positions[i].pair.id);
       if (!index) continue;
 
       const index_value =  positions[i].long_short == LongShort.Long ? index.long : index.short;
@@ -213,7 +198,7 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
       position_pnl: 0
     };
 
-    const pnl = await position.get_PnL();
+    const pnl = position.get_PnL();
     const index = get().positions.indexOf(position);
 
     try {

@@ -19,7 +19,7 @@ export type UserProfileStore = UserProfile & {
   UpdateUserOpenedPosition: (positionStore: PositionStore) => void;
   UserTap: () => boolean;
   UserLevelUp: () => void;
-  AddPosition: (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]) => Promise<number>;
+  AddPosition: (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]) => Promise<number|undefined>;
   ClosePosition: (position_id: number) => Promise<number>;
   SetFriends: (friends: Friend[]) => void;
 
@@ -201,11 +201,11 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
     }
   },
 
-  AddPosition: async (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]): Promise<number> => {
+  AddPosition: async (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]): Promise<number|undefined> => {
     const userProfile = get();
     if (!userProfile.positionStore) return 0;
     
-    const addDetails = await userProfile.positionStore!.AddPosition(pair, ls, amt, lev, bonuses, userProfile);
+    const addDetails = await userProfile.positionStore!.AddPosition(pair, ls, amt, lev, bonuses);
 
     if (addDetails.success) {
       set((state) => ({
@@ -224,7 +224,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       return addDetails.amount_adjustment + addDetails.realized_pnl;
     }
 
-    return 0;
+    return undefined;
   },
 
   ClosePosition: async (position_id: number): Promise<number> => {

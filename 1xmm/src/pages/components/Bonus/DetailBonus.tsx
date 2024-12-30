@@ -10,13 +10,13 @@ import { BonusDefinition } from "@/types/BonusDefinition";
 interface DetailBonusProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    // onBuySuccess: any;
+    //onBuySuccess: any;
 }
 
 export default function DetailBonus({
     open,
     onOpenChange,
-    // onBuySuccess,
+    //onBuySuccess,
     ...props
 }: DetailBonusProps) {
     const handleBuyClick = async (bonus: BonusDefinition) => {
@@ -31,8 +31,10 @@ export default function DetailBonus({
             const response = await $http.post('/buy-bonus', { bonus: bonus });
             if (response.status === 200) {
                 toast.success('Bonus bought successfully!');
-                // const telegramResponse = await $http.get("/user_bonuses");
-                //I will add bonus to the store later, after review new code about index and ticks
+
+                //const telegramResponse = await $http.get("/user_bonuses");
+                // Reminder to add bonus to store later
+                toast.info("add bonus to the store later");
             } else if (response.status === 202) {
                 console.log(response);
                 toast.warning(response.data.success);
