@@ -20,13 +20,13 @@ export default function Bonus() {
     const [tonConnectUI] = useTonConnectUI();
     const [openStarDrawer, setOpenStarDrawer] = useState(false);
 
-    // const updateBonusData = async () => {
+    //const updateBonusData = async () => {
     //     try {
     //         throw new Error("Need to send update of buying purchase to server");
     //     } catch (error) {
     //         console.error("Error fetching bonus data:", error);
     //     }
-    // };
+    //};
 
     useEffect(() => {
         const fetchBonusData = async () => {
@@ -235,7 +235,7 @@ export default function Bonus() {
                     open={openBonusDrawer}
                     // bonusData={bonusData}  
                     onOpenChange={setOpenBonusDrawer}
-                    // onBuySuccess={updateBonusData} //we dont need this anymore, it throw unnessary error
+                    //onBuySuccess={updateBonusData}
                 />
             )}
 
