@@ -169,11 +169,18 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
             const pair = pairs.find(pair => pair.id === pairId);
 
             if (positions.find((pos: Position) => pos.position_id === pairId)) {
-                userProfile.ClosePosition(pairId);
+                const balanceAdjustment = await userProfile.ClosePosition(pairId);
+
+                if (balanceAdjustment == undefined) {
+                    toast.info("Error cancelling position");
+                    return;
+                }
 
                 // Reset states
                 setAmounts((prev) => ({ ...prev, [pairId]: 0 }));
                 setLeverages((prev) => ({ ...prev, [pairId]: 0 }));
+                
+                onValidatePosition(balanceAdjustment);  
 
                 // Fetch updated positions
                 await fetchLatestPositions();

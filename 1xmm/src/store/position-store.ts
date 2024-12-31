@@ -78,9 +78,9 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
 
       try {
         if (existing_position.amount == 0) {
-          await $http.post('clicker/close-position', existing_position);
+          await $http.post('clicker/close-position', { position: existing_position, pnl: res.realized_pnl });
         } else {
-          await $http.post('/clicker/update-position', existing_position);
+          await $http.post('/clicker/update-position', {position: existing_position, pnl: res.realized_pnl });
         }
       } catch (error) {
         console.error('Failed to add position:', error);
@@ -136,7 +136,7 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
     if (!position) return;
 
     try {
-      await $http.post(`/clicker/update-position`, position);
+      await $http.post(`/clicker/update-position`, {position: position, pnl: 0 });
       set((state) => ({
         positions: state.positions.map((pos) => (pos.position_id === position_id ? position : pos)),
       }));
@@ -165,7 +165,7 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
       total_change_in_pnl += pnlResult.pnl;
 
       if (pnlResult.is_zero) {
-        await $http.post(`/clicker/close-position`, positions[i]);
+        await $http.post(`/clicker/close-position`, { position: positions[i], pnl: pnlResult.pnl });
         total_change_in_amount_of_tokens -= positions[i].amount;
         positions_to_remove.push(i);
       }
@@ -186,7 +186,9 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
   },
 
   ClosePosition: async (position_id: number): Promise<ClosingDetails> => {
-    const position = get().positions.find(pos => pos.position_id === position_id);
+    const index = get().positions.findIndex(pos => pos.position_id === position_id);
+    const position = get().positions[index];
+    
     if (!position) return {
       success: false, 
       position_amount: 0,
@@ -194,10 +196,9 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
     };
 
     const pnl = position.get_PnL();
-    const index = get().positions.indexOf(position);
 
     try {
-      await $http.post(`/clicker/close-position`, position);
+      await $http.post(`/clicker/close-position`, { position: position, pnl: pnl.pnl });
 
       set((state) => ({
         positions: state.positions.splice(index, 1),

@@ -122,27 +122,15 @@ class PositionController extends Controller
     public function updatePosition(Request $request)
     {
         $user = $request->user();
+
         if (!$user) {
             return response()->json('User not found', 404);
         }
 
-        $validatedData = $request->only([
-            'pair',
-            'position_id',
-            'long_short',
-            'index_at_start',
-            'amount',
-            // 'pnl',
-            'leverage',
-            // 'open_date',
-            //'bonuses',
-            'min_end_date',
-            'userId',
-        ]);
-        \Log::info($request);
-        \Log::info($validatedData);
+        $updated_position = $request->get('position');
+        $pnl = $request->get('pnl');
 
-        $position = Position::where(['position_id' => $validatedData['position_id'], 'telegram_user_id' => $user->telegram_user_id])->first();
+        $position = Position::where(['position_id' => $updated_position['position_id'], 'telegram_user_id' => $user->telegram_user_id])->first();
         $userGameData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
 
         if (!$position || !$userGameData) {
@@ -150,43 +138,59 @@ class PositionController extends Controller
             return response()->json(['message' => 'Position not found'], 404);
         }
 
-        $position_change = $validatedData['amount'] - $position->amount;
+        $position_change = $updated_position['amount'] - $position->amount;
 
-        $positionData['amount'] = $validatedData['amount'];
-        $positionData['index_start'] = $validatedData['index_at_start'];
-        $positionData['average_leverage'] = $validatedData['leverage'];
-        $positionData['long_short'] = $validatedData['long_short'];
-        // $positionData['performance'] = $validatedData['performance'];
-        $positionData['min_end_date'] = Carbon::createFromTimestamp($validatedData['min_end_date'])->toDateTimeString();
-        $positionData['alive'] = $validatedData['amount'] != 0;
+        $positionData['amount'] = $updated_position['amount'];
+        $positionData['index_start'] = $updated_position['index_at_start'];
+        $positionData['average_leverage'] = $updated_position['leverage'];
+        $positionData['long_short'] = $updated_position['long_short'];
+        $positionData['min_end_date'] = Carbon::createFromTimestamp($updated_position['min_end_date'])->toDateTimeString();
+        $positionData['alive'] = $updated_position['amount'] != 0;
 
         $position->update($positionData);
-        $userGameData->balance = $userGameData->balance - $position_change;
+
+        $userGameData->amount_of_tokens += $pnl;
+        $userGameData->total_pnl += $pnl;
+        $userGameData->perf_from_start_date += ($pnl / $position->amount);
+        $userGameData->balance = $userGameData->balance - $position_change + $pnl;
         $userGameData->save();
+
         return response()->json(['message' => 'Position updated successfully'], 200);
     }
 
     public function closePosition(Request $request)
     {
-        \Log::info($request);
         $user = $request->user();
 
-        $position_id = $request->position_id;
+        $position_id = $request->get('position')["position_id"];
+        $pnl = $request->get('pnl');
+
         $position = Position::where('id', $position_id)
             ->where('telegram_user_id', $user->telegram_user_id)
             ->first();
 
+        $userGameData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
+
+        if (!$position || !$userGameData) {
+            $pos_issue = !$position;
+            return response()->json(['message' => 'Position not found'], 404);
+        }
+
+        // We delete the bonuses which were attached
         $positionBonuses = UserBonuses::where('position_id', $position_id)->get();
         foreach ($positionBonuses as $bonus) {
             $bonus->delete();
         }
 
-        if ($position) {
+        $userGameData->balance += ($position->amount + $pnl);
+        $userGameData->amount_of_tokens += $pnl;
+        $userGameData->total_pnl += $pnl;
+        $userGameData->perf_from_start_date += ($pnl / $position->amount);
+
+        $userGameData->save();
             $position->delete();
-            Log::info('Position deleted successfully');
+
+        \Log::info('Position deleted successfully');
             return response()->json(['message' => 'Position closed successfully'], 200);
         }
-
-        return response()->json(['message' => 'Position closed successfully'], 201);
-    }
 }

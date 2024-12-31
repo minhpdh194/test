@@ -59,8 +59,6 @@ class MarketDataService
                         'daily_return' => (($new_spot_value - $cur_spot->day_open_value) / $cur_spot->day_open_value),
                     ]);
                 }
-                    
-                $isSpotCreatedOrUpdated = true;
             } else {
                 // Create a new record if we are not the same day
                 Spot::create([
@@ -73,7 +71,6 @@ class MarketDataService
                     'period_return' => 0,
                     'daily_return' => 0,
                 ]);
-                $isSpotCreatedOrUpdated = true;
             }
         // If we are the same day, we update the latest spot value
         } else {
@@ -88,18 +85,12 @@ class MarketDataService
                 'period_return' => 0,
                 'daily_return' => 0,
             ]);
-            $isSpotCreatedOrUpdated = true;
         }
 
-        // Eagerly load the 'pair' relationship
-        if ($isSpotCreatedOrUpdated) {
             $createdSpot = Spot::where('pair_id', $pair->id)->orderBy('created_at', 'desc')->first();
             $createdSpot->load('pair');
             return $createdSpot;
         }
-
-        return null; //should never happen
-    }
 
     public function getLatestSpotFilteredByPairFormat($coin_symbol, $counter_symbol)
     {

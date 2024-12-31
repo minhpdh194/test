@@ -76,9 +76,20 @@ export class Position {
 
     public add(ls: LongShort, amt: number, lev: Leverages, bonuses: Bonus[]): PositionChange {
         if (ls === this.long_short) {
+            const index_value = COMM.getIndex(this.pair.id, this.long_short);
             const lev_amt = this.amount * this.leverage;
             const new_lev_amt = amt * (lev as number);
-            this.performance = this.performance * lev_amt / (lev_amt + new_lev_amt);
+
+            if (!index_value) return {
+                amount_adjustment: 0,
+                realized_pnl: 0
+            };
+
+            const pnl = this.computePnL(index_value.timestamp, index_value.value);
+
+            this.index_at_start = index_value.value;
+            this.last_update_timestamp = index_value.timestamp;
+            this.performance = 0;
             this.amount += amt;
             this.leverage = (lev_amt + new_lev_amt) / this.amount;
 
@@ -87,7 +98,7 @@ export class Position {
             // No PnL has been generated
             return {
                 amount_adjustment: -amt,
-                realized_pnl: 0
+                realized_pnl: pnl.pnl
             };
         } else {
             let penalty = 0.0;
