@@ -16,11 +16,11 @@ export enum LongShort {
 }
 
 export enum BonusTypes {
-  Leverage,
-  PositiveLeverage,
-  CapitalProtection,
-  TimeReduction,
-  Friends
+  Leverage = "Leverage",
+  PositiveLeverage = "PositiveLeverage",
+  CapitalProtection = "CapitalProtection",
+  TimeReduction = "TimeReduction",
+  Friends = "Friends"
 }
 
 

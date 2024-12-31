@@ -1,12 +1,15 @@
 import React from 'react';
 import Drawer from "../../../components/ui/drawer";
 import '../../../bonus.css'; // Import CSS for custom styles
+import { Bonus } from '@/classes/Bonus';
+import { BonusTerms, BonusTypes } from '@/enums';
+import { Button } from '@/components/ui/button';
 
 interface DetailBonusProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    bonusData: any[];  // Add bonusData prop to receive available bonuses
-    onSelectBonuses: (selectedBonuses: any[]) => void;  // New prop for sending selected bonuses back
+    bonusData: Bonus[];  // Add bonusData prop to receive available bonuses
+    onSelectBonuses: (selectedBonuses: Bonus[]) => void;  // New prop for sending selected bonuses back
 }
 
 export default function ListBonus({
@@ -17,23 +20,19 @@ export default function ListBonus({
     ...props
 }: DetailBonusProps) {
 
-    const [selectedBonuses, setSelectedBonuses] = React.useState<any[]>([]);
+    const [selectedBonuses, setSelectedBonuses] = React.useState<Bonus[]>([]);
 
-    const handleCheckboxChange = (bonusId: number) => {
-        const updatedSelected = selectedBonuses.includes(bonusId)
-            ? selectedBonuses.filter(id => id !== bonusId)
-            : [...selectedBonuses, bonusId];
-
+    const handleCheckboxChange = (bonus: Bonus) => {
+        if (selectedBonuses.includes(bonus)) return;
+        const updatedSelected = [...selectedBonuses, bonus];
         setSelectedBonuses(updatedSelected);
+    };
 
-        // Send selected bonuses back to parent with their full details
-        const selectedBonusObjects = updatedSelected.map(id => {
-            const bonus = bonusData.find(bonus => bonus.id === id);
-            return bonus ? { id: bonus.id, duration: bonus.duration, bonus_type:bonus.bonus_type, benefit:bonus.benefit, cost:bonus.cost } : null; // Include id and duration
-        });
-
-        // Ensure only valid bonuses are sent
-        onSelectBonuses(selectedBonusObjects.filter(bonus => bonus !== null));
+    const getBenefitMeasure = (bonusType: BonusTypes): string => {
+        if (bonusType == BonusTypes.CapitalProtection) return '%';
+        if (bonusType == BonusTypes.TimeReduction) return 'h';
+        if (bonusType == BonusTypes.Friends) return '';
+        return 'x';
     };
 
     return (
@@ -42,7 +41,7 @@ export default function ListBonus({
                 Select Bonuses
             </h2>
             <div className="flex flex-col justify-start pb-6 h-[calc(100vh-200px)] overflow-y-auto">
-                {bonusData.map((bonus) => (
+                {bonusData.sort((a,b) => a.id - b.id).map((bonus) => (
                     <div
                         key={bonus.id}
                         className="p-2 flex justify-between mb-2"
@@ -54,24 +53,30 @@ export default function ListBonus({
                     >
                         <div className="flex flex-col mt-1 w-full pl-2">
                             <div className="flex space-x-2 items-center">
-                                <span className="text-xl">{bonus.bonus_type || 'N/A'}</span>
+                                <span className="text-xl">{bonus.bonus_definition.bonus_type.toString()}</span>
                                 <span className="text-xs flex space-x-1 items-center mt-1">
-                                    <img src="/images/home/triangle.png" alt="coin" className="h-3" />
-                                    <span>{bonus.cost || '0'}%</span>
+                                    <span>+{bonus.bonus_definition.benefit}{getBenefitMeasure(bonus.bonus_definition.bonus_type)}</span>
                                 </span>
                             </div>
                             <div className="text-sm mt-1 text-gray-400">
-                                Duration: {bonus.duration || 'N/A'}
+                                Duration: {bonus.bonus_definition.duration == BonusTerms.Short ? '3h' : '6h'}
                             </div>
                         </div>
                         <input
                             type="checkbox"
-                            className={`checkbox-custom ${selectedBonuses.includes(bonus.id) ? 'checked' : ''}`}
-                            onChange={() => handleCheckboxChange(bonus.id)}
+                            className={`checkbox-custom ${selectedBonuses.includes(bonus) ? 'checked' : ''}`}
+                            onChange={() => handleCheckboxChange(bonus)}
                         />
                     </div>
                 ))}
             </div>
+            <div />
+            <Button
+                className="rounded flex w-full fw-semibold py-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)]"
+                onClick={() => onSelectBonuses(selectedBonuses)}
+                >
+                <span className="font-normal text-lg">Add</span>
+            </Button>
         </Drawer>
     );
 }

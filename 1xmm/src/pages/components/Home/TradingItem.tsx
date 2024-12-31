@@ -8,6 +8,7 @@ import ListBonus from "./ListBonus";
 import { Utils } from '@/lib/utils';
 import { SpotType } from '@/types/SpotType';
 import { Pair } from '@/types/Pair';
+import { Bonus } from '@/classes/Bonus';
 
 type TradingItemProps = {
     spots: SpotType[];
@@ -16,7 +17,7 @@ type TradingItemProps = {
 
 const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
     // const [, setTimeBonus] = useState(null);
-    const [bonusData, setBonusData] = useState<any[]>([]);
+    //const [bonusData, setBonusData] = useState<any[]>([]);
     const [openBonusDrawer, setOpenBonusDrawer] = useState(false);
     const [selectedBonuses, setSelectedBonuses] = useState<any[]>([]); // Store selected bonuses
     const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: LongShort | undefined }>({});
@@ -112,8 +113,9 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
         }));
     };
 
-    const handleSelectedBonusesChange = (bonuses: any[]) => {
+    const handleSelectedBonusesChange = (bonuses: Bonus[]) => {
         setSelectedBonuses(bonuses);
+        setOpenBonusDrawer(false);
     };
 
     const handleValidate = async (pairId: number): Promise<void> => {
@@ -147,11 +149,11 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
             setSelectedBonuses([]); // Reset selected bonuses
 
             // Update available bonuses by filtering out the used ones
-            setBonusData(prevBonuses =>
-                prevBonuses.filter(bonus =>
-                    !selectedBonuses.some(selected => selected.id === bonus.id)
-                )
-            );
+            //setBonusData(prevBonuses =>
+            //    prevBonuses.filter(bonus =>
+            //        !selectedBonuses.some(selected => selected.id === bonus.id)
+            //    )
+            //);
 
             // Fetch updated positions
             await fetchLatestPositions();
@@ -179,7 +181,7 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
                 // Reset states
                 setAmounts((prev) => ({ ...prev, [pairId]: 0 }));
                 setLeverages((prev) => ({ ...prev, [pairId]: 0 }));
-                
+
                 onValidatePosition(balanceAdjustment);  
 
                 // Fetch updated positions
@@ -334,7 +336,7 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
                                                 : 'bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)] flex items-center justify-center'
                                             }`}
                                         onClick={() => setOpenBonusDrawer(true)}
-                                        disabled={amounts[pair.id] === 0 || leverages[pair.id] === 0}>
+                                        disabled={amounts[pair.id] === 0 && !positions.find((pos) => pos.position_id === pair.id)}>
 
                                         <div className="flex items-center space-x-1"> {/* Add a container to align items horizontally */}
                                             <img
@@ -373,11 +375,11 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
                 </div>
             ))}
 
-            {openBonusDrawer && bonusData.length > 0 && (
+            {openBonusDrawer && globalThis.userProfile.positionStore!.available_bonuses.length > 0 && (
                 <ListBonus
                     open={openBonusDrawer}
                     onOpenChange={setOpenBonusDrawer}
-                    bonusData={bonusData}
+                    bonusData={globalThis.userProfile.positionStore!.available_bonuses}
                     onSelectBonuses={handleSelectedBonusesChange} // Pass the selected bonuses handler
                 />
             )}

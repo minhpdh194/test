@@ -32,7 +32,7 @@ const XTap: React.FC<XTapProps> = ({ changeInBalance = 0, updateAmountOfTokens, 
 
         addClick({
             id: new Date().getTime(),
-            value: userProfile.earn_per_tap,
+            value: userProfile.available_energy > 0 ? userProfile.earn_per_tap : 0,
             style: {
                 insetBlockStart: e.clientY,
                 insetInlineStart: e.clientX + (Math.random() > 0.5 ? 5 : -5),

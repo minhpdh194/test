@@ -21,11 +21,6 @@ class PositionController extends Controller
      *
      * @return void
      */
-    //public function __construct(PositionService $positionService, FixingService $fixingService)
-    //{
-    //    $this->positionService = $positionService;
-    //    $this->fixingService = $fixingService;
-    //}
 
     public function getPositions(Request $request)
     {
@@ -165,8 +160,7 @@ class PositionController extends Controller
         $position_id = $request->get('position')["position_id"];
         $pnl = $request->get('pnl');
 
-        $position = Position::where('id', $position_id)
-            ->where('telegram_user_id', $user->telegram_user_id)
+        $position = Position::where(['position_id' => $position_id, 'telegram_user_id' => $user->telegram_user_id])
             ->first();
 
         $userGameData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
