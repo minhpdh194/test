@@ -8,6 +8,7 @@ import { bonusDefinitions } from "@/referential/bonusDefinitions";
 import { BonusDefinition } from "@/types/BonusDefinition";
 import { BonusTerms, BonusTypes } from "@/enums";
 import DetailStar from "@/components/partials/components/Star/DetailStar";
+import WalletList from "./components/Wallet/WalletList";
 
 export default function Bonus() {
     const [openBonusDrawer, setOpenBonusDrawer] = useState(false);
@@ -19,6 +20,7 @@ export default function Bonus() {
     const [friendData, setFriendData] = useState<any[]>([]);
     const [tonConnectUI] = useTonConnectUI();
     const [openStarDrawer, setOpenStarDrawer] = useState(false);
+    const [openWalletUI, setOpenWalletUI] = useState(false);
 
     //const updateBonusData = async () => {
     //     try {
@@ -92,21 +94,22 @@ export default function Bonus() {
 
     const getBonusDuration = (bonusTerm: BonusTerms) => {
         return (
-        <span className="flex text-sm space-x-1 items-center text-white">
-            <img
-                src="/images/home/time.png"
-                alt="time"
-                className="w-4 h-4"
-            />
-            <span>{bonusTerm == BonusTerms.Short ? "3 hours" : "6 hours"}</span>
-        </span>);
+            <span className="flex text-sm space-x-1 items-center text-white">
+                <img
+                    src="/images/home/time.png"
+                    alt="time"
+                    className="w-4 h-4"
+                />
+                <span>{bonusTerm == BonusTerms.Short ? "3 hours" : "6 hours"}</span>
+            </span>);
     }
 
     const handleBuyStarsAction = async () => {
         if (tonConnectUI.connected) {
             setOpenStarDrawer(true);
         } else {
-            await tonConnectUI.openModal();
+            // await tonConnectUI.openModal();
+            setOpenWalletUI(true);
         }
     }
 
@@ -114,7 +117,8 @@ export default function Bonus() {
         if (tonConnectUI.connected || globalThis.userProfile.number_of_stars > 0) {
             setOpenBonusDrawer(true);
         } else {
-            await tonConnectUI.openModal();
+            // await tonConnectUI.openModal();
+            setOpenWalletUI(true);
         }
     }
 
@@ -138,7 +142,7 @@ export default function Bonus() {
                     type="button"
                     className="rounded flex fw-semibold py-2 px-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)]"
                     onClick={() => handleBuyBonusAction()}
-                    >
+                >
                     <img
                         src="/images/home/star.png"
                         alt="coin"
@@ -235,7 +239,7 @@ export default function Bonus() {
                     open={openBonusDrawer}
                     // bonusData={bonusData}  
                     onOpenChange={setOpenBonusDrawer}
-                    //onBuySuccess={updateBonusData}
+                //onBuySuccess={updateBonusData}
                 />
             )}
 
@@ -243,6 +247,13 @@ export default function Bonus() {
                 <DetailStar
                     open={openStarDrawer}
                     onOpenChange={setOpenStarDrawer}
+                />
+            )}
+
+            {openWalletUI && (
+                <WalletList
+                    open={openWalletUI}
+                    onOpenChange={setOpenWalletUI}
                 />
             )}
         </div>
