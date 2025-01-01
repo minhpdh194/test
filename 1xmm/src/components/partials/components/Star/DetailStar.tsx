@@ -1,8 +1,7 @@
-import { toast } from 'react-toastify';
-import { $http } from "@/lib/http";
 import Drawer from '@/components/ui/drawer';
-import { useTonConnectUI } from '@tonconnect/ui-react';
 import { StarPackage } from '@/types/StarPackage';
+import { useState } from 'react';
+import WalletList from '@/pages/components/Wallet/WalletList';
 
 interface DetailStarProps {
     open: boolean;
@@ -14,58 +13,13 @@ export default function DetailStar({
     onOpenChange,
     ...props
 }: DetailStarProps) {
-    const [tonConnectUI] = useTonConnectUI();
-    const receiveAccountAddress = import.meta.env.VITE_RECEIVER_WALLET_ADDRESS;
-    
-    const buyStarPackage = async (amount: number) => {
-        const transaction = {
-            validUntil: Math.floor(Date.now() / 1000) + 120, // Transaction valid for 120 seconds
-            messages: [
-                {
-                    address: receiveAccountAddress,
-                    amount: amount * 1e9 + '',
-                    // Optional fields:
-                    // stateInit: "base64bocblahblahblah==", // Optional state initialization
-                    // payload: "base64payload==" // Optional payload data
-                }
-            ]
-        };
+    const [openWalletUI, setOpenWalletUI] = useState(false);
+    const [selectedStarPackage, setSelectedStarPackage] = useState<StarPackage | undefined>();
 
-        try {
-            const result = await tonConnectUI.sendTransaction(transaction);
-            console.log('Transaction sent successfully:', result);
-            return true;
-        } catch (error) {
-            console.error('Failed to send transaction:', error);
-            return false;
-        }
-    };
-
-    const calculatePackagePrice = (starPackage: StarPackage) => {
-        return starPackage.cost - (starPackage.cost * (starPackage.discount / 100));
+    const handleOpenWalletList = (starPackage: StarPackage) => {
+        setOpenWalletUI(true);
+        setSelectedStarPackage(starPackage);
     }
-
-    const handleBuyStarPackage = async (starPackage: StarPackage) => {
-        try {
-            const paidPrice = calculatePackagePrice(starPackage);
-            const transactionResult = await buyStarPackage(paidPrice);
-            if (transactionResult) {
-                const response = await $http.post('/buy-stars', { package: starPackage });
-                if (response.status === 200) {
-                    toast.success('Package bought successfully!');
-                }
-                else {
-                    toast.error('Failed to buy package!');
-                }
-            } else {
-                toast.error('Failed to buy package!');
-            }
-        } catch (error) {
-            console.error("Error buying bonus:", error);
-            toast.error('An error occurred while buying the bonus!');
-        }
-    };
-
 
     return (
         <Drawer open={open} onOpenChange={onOpenChange} {...props}>
@@ -80,12 +34,12 @@ export default function DetailStar({
                             <span className="text-sm">{starPackage.discount || 0}% discounted</span>
                         </div>
                         <div className="flex flex-col mt-1 ml-4">
-                            <span className="text-sm">{starPackage.cost || 0} TON</span>
+                            <span className="text-sm">{starPackage.cost || 0} TON/USD</span>
                         </div>
                         <div className="flex flex-col items-center">
                             <button
                                 className="bg-blue-500 text-white px-4 py-2 rounded-lg mt-1 mb-1 hover:bg-blue-600"
-                                onClick={() => handleBuyStarPackage(starPackage)}
+                                onClick={() => handleOpenWalletList(starPackage)}
                             >
                                 Buy
                             </button>
@@ -93,6 +47,13 @@ export default function DetailStar({
                     </div>
                 ))}
             </div>
+            {openWalletUI && (
+                <WalletList
+                    open={openWalletUI}
+                    onOpenChange={setOpenWalletUI}
+                    selectedStarPackage={selectedStarPackage}
+                />
+            )}
         </Drawer>
     );
 }
