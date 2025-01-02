@@ -34,7 +34,7 @@ export class Position {
     performance: number;
 
     // This opens a new position
-    public constructor(position_id: number, pair: Pair, ls: LongShort, amt: number, index_at_start: number, lev: number, min_end_date: number, bonuses: Bonus[]) {
+    public constructor(position_id: number, pair: Pair, ls: LongShort, amt: number, index_at_start: number, lev: number, min_end_date: number) {
         this.telegram_user_id = globalThis.userProfile.telegram_user_id;
         this.position_id = position_id;
         this.pair = pair;
@@ -42,13 +42,12 @@ export class Position {
         this.amount = amt;
         this.index_at_start = index_at_start;
         this.leverage = lev;
-        this.bonuses = bonuses;
         this.min_end_date = min_end_date;
         this.open_date = min_end_date - 21600;
         
         // We initialize the last_update_timestamp to 0 to indicate that the position has not been updated yet
         // When loading the positions, the update is required => the last_update_timestamp will be set to the current timestamp
-        this.last_update_timestamp = 0;
+        this.last_update_timestamp = this.open_date;
         this.performance = 0.0;
     }
 
@@ -56,15 +55,25 @@ export class Position {
         this.last_update_timestamp = timestamp;
     }
 
-    public attach_bonus(bonus: Bonus): boolean {
-        bonus.attach_to_position(this, this.last_update_timestamp + 21600);
+    public attach_new_bonus(bonus: Bonus): void {
+        bonus.attach_to_position(this, this.last_update_timestamp + bonus.bonus_definition.duration);
+        this.bonuses.push(bonus);
+    }
 
-        if (bonus.bonus_is_valid(this.last_update_timestamp)) {
+    public attach_existing_bonus(bonus: Bonus): boolean {
+        if (bonus.end_date && bonus.bonus_is_valid(new Date().getTime() / 1000)) {
             this.bonuses.push(bonus);
             return true;
         }
 
         return false;
+    }
+
+    public get_bonus_end_date(bonus: Bonus): {is_attached: boolean, end_date: number | null} {
+        const b = this.bonuses.find(b => b.id == bonus.id);
+
+        if (!b) return { is_attached: false, end_date: null };
+        return { is_attached: true, end_date: b.end_date };
     }
     
     public update(value_date: number, index_value: number): PnLResult {
@@ -93,7 +102,7 @@ export class Position {
             this.amount += amt;
             this.leverage = (lev_amt + new_lev_amt) / this.amount;
 
-            bonuses.forEach(b => this.attach_bonus(b));
+            bonuses.forEach(b => this.attach_new_bonus(b));
 
             // No PnL has been generated
             return {
@@ -130,7 +139,7 @@ export class Position {
                     pnl = bonus_factors.total_leverage * net_perf * amt * (1 - bonus_factors.total_capital_protection);
                 }
                 this.amount -= amt;
-                bonuses.forEach(b => this.attach_bonus(b));
+                bonuses.forEach(b => this.attach_new_bonus(b));
 
                 return {
                     amount_adjustment: amt,
@@ -157,7 +166,7 @@ export class Position {
                 // We also update the min_end_date since it is a new position
                 this.min_end_date = value_date + 21600;
 
-                bonuses.forEach(b => this.attach_bonus(b));
+                bonuses.forEach(b => this.attach_new_bonus(b));
                 toast.success("Position updated successfully");
 
                 return {

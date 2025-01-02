@@ -3,7 +3,6 @@ import Header from "../components/Header";
 //import { $http } from "@/lib/http";
 import DetailBonus from "./components/Bonus/DetailBonus";
 //import { toast } from "react-toastify";
-import { useTonConnectUI } from "@tonconnect/ui-react";
 import { bonusDefinitions } from "@/referential/bonusDefinitions";
 import { BonusDefinition } from "@/types/BonusDefinition";
 import { BonusTerms, BonusTypes } from "@/enums";
@@ -17,15 +16,14 @@ export default function Bonus() {
     const [capitalProtectionData, setCapitalProtectionData] = useState<any[]>([]);
     const [timeReductionData, setTimeReductionData] = useState<any[]>([]);
     const [friendData, setFriendData] = useState<any[]>([]);
-    const [tonConnectUI] = useTonConnectUI();
     const [openStarDrawer, setOpenStarDrawer] = useState(false);
 
     //const updateBonusData = async () => {
-    //     try {
-    //         throw new Error("Need to send update of buying purchase to server");
-    //     } catch (error) {
-    //         console.error("Error fetching bonus data:", error);
-    //     }
+    //    try {
+    //        throw new Error("Need to send update of buying purchase to server");
+    //    } catch (error) {
+    //        console.error("Error fetching bonus data:", error);
+    //    }
     //};
 
     useEffect(() => {
@@ -103,18 +101,12 @@ export default function Bonus() {
     }
 
     const handleBuyStarsAction = async () => {
-        if (tonConnectUI.connected) {
             setOpenStarDrawer(true);
-        } else {
-            await tonConnectUI.openModal();
-        }
     }
 
     const handleBuyBonusAction = async () => {
-        if (tonConnectUI.connected || globalThis.userProfile.number_of_stars > 0) {
+        if (globalThis.userProfile.number_of_stars > 0) {
             setOpenBonusDrawer(true);
-        } else {
-            await tonConnectUI.openModal();
         }
     }
 

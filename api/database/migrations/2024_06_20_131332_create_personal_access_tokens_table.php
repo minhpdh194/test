@@ -11,14 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('indices', function (Blueprint $table) {
+        Schema::create('personal_access_tokens', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('pair_id')->references('id')->on('pairs');
-            $table->enum('long_short', ['long', 'short']);
-            $table->double('value')->default(0);
+            $table->morphs('tokenable');
+            $table->string('name');
+            $table->string('token', 64)->unique();
+            $table->text('abilities')->nullable();
+            $table->timestamp('last_used_at')->nullable();
+            $table->timestamp('expires_at')->nullable();
             $table->timestamps();
-
-            $table->unique(['pair_id', 'long_short', 'created_at']);
         });
     }
 
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('indices');
+        Schema::dropIfExists('personal_access_tokens');
     }
 };

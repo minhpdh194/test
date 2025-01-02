@@ -62,7 +62,7 @@ class MarketDataTasks
     {
         $yields = [];
         $expiry_date_options = MathUtil::getOptionDateExpiry();
-        $expiry_options = strtoupper(date_format($expiry_date_options, "dMy"));
+        $expiry_options = ToolsUtil::getDeribitOptionName($expiry_date_options);
 
         // We don't use perps... it gives weird yields
         $perps_symbols = [
@@ -138,10 +138,7 @@ class MarketDataTasks
             else
             {
                 $last = VolAndFwd::where('pair_id', $pair->id)->first();
-
-                if (!$last) {
-                    throw new \Exception('VolAndFwd could not be initiated for ' . $coin);
-                }
+                if (!$last) throw new \Exception('VolAndFwd could not be initiated for ' . $coin);
 
                 $vol = $last->volatility;
                 $yield = $last->yield;
@@ -362,11 +359,11 @@ class MarketDataTasks
             }
 
             $last_indices[] = [
-                    'pair_id' => $pair->id,
+                'pair_id' => $pair->id,
                 'long' => $longPerf->value,
                 'short' => $shortPerf->value,
-                    'time' => $timestamp
-                ];
+                'time' => $timestamp
+            ];
 
             $fixing = Fixing::updateOrCreate(['pair_id' => $pair->id],[
                 'prev_spot' => $spot->prev_value,

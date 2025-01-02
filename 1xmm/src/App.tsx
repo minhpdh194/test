@@ -24,6 +24,7 @@ import { Index } from "./types/Index";
 import { PusherIndex } from "./types/PusherIndex";
 import { SpotType } from "./types/SpotType";
 import { LongShort } from "./enums";
+import { Utils } from "./lib/utils";
 
 const webApp = window.Telegram.WebApp;
 const isDesktop = import.meta.env.DEV
@@ -106,7 +107,7 @@ function App() {
         indices.forEach(indexToAdd => {
           const globalIndex = update.find(globInd => globInd.pair_id == indexToAdd.pair_id);
           const isLong = indexToAdd.long_short.toString().toLowerCase() == LongShort.Long.toString().toLowerCase();
-        
+          
           if (globalIndex) {
             if (isLong) globalIndex.long = indexToAdd.value;
             else { globalIndex.short = indexToAdd.value; }
@@ -126,13 +127,13 @@ function App() {
 
         globalThis.globalIndices = update;
         globalThis.userProfile.UpdateProfile(syncData);
-
-        const [availableBonuses, cleanedPositions] = syncBonusesAndPositions(user_bonuses, user_positions.positions, pairs);
+        
+        const [availableBonuses, cleanedPositions] = await filterBonusesAndPositions(user_bonuses, user_positions.positions, pairs);
 
         setProgress(75);
         // await COMM.bonusExpiry($http, userProfile.id, bonusesToDelete);
         COMM.updatePositions(cleanedPositions);
-        
+
         globalThis.userProfile.positionStore!.UpdateAvailableBonuses(availableBonuses);
         globalThis.userProfile.positionStore!.SetUserPositions(cleanedPositions);
         globalThis.userProfile.positionStore!.next_position_id = user_positions.next_position_id;
@@ -162,33 +163,39 @@ function App() {
   return <RouterProvider router={router} />;
 }
 
-function syncBonusesAndPositions(userBonuses: UserBonus[], userPositions: UserPosition[], pairs: Pair[]): [Bonus[], Position[], number[]] {
+async function filterBonusesAndPositions(userBonuses: UserBonus[], userPositions: UserPosition[], pairs: Pair[]): Promise<[Bonus[], Position[], number[]]> {
   const availableBonuses: Bonus[] = [];
   const openPositions: Position[] = [];
   const bonusesToDelete: number[] = [];
-  
+
+  const timestamp = await Utils.getLastFixingTimestamp();
+
   userPositions.forEach(p => {
-    const date = new Date(p.min_end_date).getTime() / 1000;
-    const isLong = p.long_short.toString().toLowerCase() == LongShort.Long.toString().toLowerCase();
+    const date = new Date(p.min_end_date + 'Z').getTime() / 1000;
+    const isLong = p.long_short == 'long';
 
-    const open_position: Position = new Position(p.pair_id, pairs.find(e => e.id == p.pair_id)!, isLong ? LongShort.Long : LongShort.Short, p.amount, p.index_start, p.average_leverage, date, []);
-    //need to use the userProfile in this part, because when this function is called, the global.userProfile is not set, so all of it is default data, which is wrong
+    const open_position: Position = new Position(p.pair_id, pairs.find(e => e.id == p.pair_id)!, isLong ? LongShort.Long : LongShort.Short, p.amount, p.index_start, p.average_leverage, date);
+    open_position.set_last_update_timestamp(timestamp);
 
-    p.bonuses?.forEach(element => { 
-        const userBonus = userBonuses.find(b => b.id == element);
-        if (!userBonus) throw new Error('Bonus storage mismatch');
-        const bonusDef = bonusDefinitions.find(def => def.id == userBonus.bonus_id);
-        if (!bonusDef) throw new Error('Bonus definition error');
+    const bonusForPosition: number[] = JSON.parse(p.bonuses_id);
 
-    //    // We delete the attached bonus from the list of userBonuses
-    //    // This process ensures that the bonus is used only 1 time
-        const index = userBonuses.indexOf(userBonus);
-        userBonuses[index] = userBonuses[userBonuses.length - 1];
-        userBonuses.pop();
+    bonusForPosition.forEach(element => {
+      const userBonus = userBonuses.find(b => b.id == element);
+      if (!userBonus) throw new Error('Bonus storage mismatch');
 
-    //    // We attach the bonus to the Position p
-        if (!open_position.attach_bonus(new Bonus(element, bonusDef))) { bonusesToDelete.push(element); }
-       });
+      const bonusDef = bonusDefinitions.find(def => def.id == userBonus.bonus_id);
+      if (!bonusDef) throw new Error('Bonus definition error');
+      
+      const index = userBonuses.indexOf(userBonus);
+      userBonuses[index] = userBonuses[userBonuses.length - 1];
+      userBonuses.pop();
+      
+      const bonus = new Bonus(element, bonusDef);
+      const bonus_end_date = new Date(userBonus.end_date! + 'Z').getTime() / 1000;
+      bonus.attach_to_position(open_position, bonus_end_date);
+
+      if (!open_position.attach_existing_bonus(bonus)) { bonusesToDelete.push(element); }
+    });
 
     openPositions.push(open_position);
   });

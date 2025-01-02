@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_tasks', function (Blueprint $table) {
-            $table->string('telegram_user_id')->references('telegram_user_id')->on('user_profile')->onDelete('cascade');
-            $table->integer('task_id')->references('id')->on('tasks');
-            $table->boolean('completed')->default(false);
+        Schema::create('stars_definition', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('number_of_stars')->default(0);
+            $table->double('price')->default(0);
+            $table->double('discount')->default(0);
             $table->timestamps();
         });
     }
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tasks');
+        Schema::dropIfExists('stars_definition');
     }
 };

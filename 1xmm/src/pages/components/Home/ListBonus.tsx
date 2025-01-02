@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Drawer from "../../../components/ui/drawer";
 import '../../../bonus.css'; // Import CSS for custom styles
 import { Bonus } from '@/classes/Bonus';
@@ -7,25 +7,34 @@ import { Button } from '@/components/ui/button';
 
 interface DetailBonusProps {
     open: boolean;
+    alreadySelectedBonuses: Bonus[];
     onOpenChange: (open: boolean) => void;
-    bonusData: Bonus[];  // Add bonusData prop to receive available bonuses
-    onSelectBonuses: (selectedBonuses: Bonus[]) => void;  // New prop for sending selected bonuses back
+    bonusData: Bonus[];
+    onSelectBonuses: (selectedBonuses: Bonus[]) => void;
 }
 
 export default function ListBonus({
     open,
+    alreadySelectedBonuses,
     onOpenChange,
     bonusData,
     onSelectBonuses,
     ...props
 }: DetailBonusProps) {
-
     const [selectedBonuses, setSelectedBonuses] = React.useState<Bonus[]>([]);
 
+    useEffect(() => {
+        setSelectedBonuses(alreadySelectedBonuses);
+    }, [alreadySelectedBonuses]);
+
     const handleCheckboxChange = (bonus: Bonus) => {
-        if (selectedBonuses.includes(bonus)) return;
-        const updatedSelected = [...selectedBonuses, bonus];
-        setSelectedBonuses(updatedSelected);
+        if (selectedBonuses.includes(bonus)) {
+            const updatedSelected = selectedBonuses.filter((b) => b.id !== bonus.id);
+            setSelectedBonuses(updatedSelected);
+        } else {
+            const updatedSelected = [...selectedBonuses, bonus];
+            setSelectedBonuses(updatedSelected);
+        }
     };
 
     const getBenefitMeasure = (bonusType: BonusTypes): string => {
@@ -33,6 +42,15 @@ export default function ListBonus({
         if (bonusType == BonusTypes.TimeReduction) return 'h';
         if (bonusType == BonusTypes.Friends) return '';
         return 'x';
+    };
+
+    const prettyPrint = (bonusType: BonusTypes): string => {
+        if (bonusType == BonusTypes.Leverage) return 'Leverage';
+        if (bonusType == BonusTypes.PositiveLeverage) return 'Positive Leverage';
+        if (bonusType == BonusTypes.CapitalProtection) return 'Capital Protection';
+        if (bonusType == BonusTypes.TimeReduction) return 'Time Reduction';
+        if (bonusType == BonusTypes.Friends) return 'Friends';
+        return 'N/A';
     };
 
     return (
@@ -53,7 +71,7 @@ export default function ListBonus({
                     >
                         <div className="flex flex-col mt-1 w-full pl-2">
                             <div className="flex space-x-2 items-center">
-                                <span className="text-xl">{bonus.bonus_definition.bonus_type.toString()}</span>
+                                <span className="text-xl">{prettyPrint(bonus.bonus_definition.bonus_type)}</span>
                                 <span className="text-xs flex space-x-1 items-center mt-1">
                                     <span>+{bonus.bonus_definition.benefit}{getBenefitMeasure(bonus.bonus_definition.bonus_type)}</span>
                                 </span>

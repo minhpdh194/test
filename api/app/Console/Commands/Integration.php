@@ -26,8 +26,6 @@ class Integration extends Command
      */
     public function handle(MarketDataTasks $task)
     {
-        \Log::info("start");
         $task->integration();
-        \Log::info("end");
     }
 }

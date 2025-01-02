@@ -9,6 +9,8 @@ interface ImportMetaEnv {
   readonly VITE_PUSHER_APP_KEY: string;
   readonly VITE_PUSHER_APP_SECRET: string;
   readonly VITE_PUSHER_APP_CLUSTER: string;
+  readonly VITE_GATEWAY_MERCHANT_ID: string;
+  readonly VITE_MERCHANT_ID: string;
 }
 
 interface ImportMeta {

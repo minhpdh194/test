@@ -31,7 +31,7 @@ export type PositionStore = {
   positions: Position[];
 
   AddPosition: (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]) => Promise<AddingDetails>;
-  UpdatePosition: (position_id: number) => Promise<void>;
+  UpdatePosition: (position_id: number, new_bonuses: Bonus[]) => Promise<void>;
   ClosePosition: (position_id: number) => Promise<ClosingDetails>;
   UpdateAvailableBonuses: (available_bonuses: Bonus[]) => void;
   AddNewBonus: (bonus: Bonus) => void;
@@ -76,11 +76,18 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
       // hence the code below should update the position in positions directly
       const res = existing_position.add(ls, amt, lev, bonuses);
 
+      const new_bonuses = bonuses.map(b => {
+        const check_bonus = existing_position.get_bonus_end_date(b);
+
+        if (!check_bonus.is_attached || !check_bonus.end_date) throw new Error('Bonus not attached to position');
+        return { id: b.id, end_date: check_bonus.end_date! };
+      });
+
       try {
         if (existing_position.amount == 0) {
           await $http.post('clicker/close-position', { position: existing_position, pnl: res.realized_pnl });
         } else {
-          await $http.post('/clicker/update-position', {position: existing_position, pnl: res.realized_pnl });
+          await $http.post('/clicker/update-position', {position: existing_position, new_bonuses: new_bonuses, pnl: res.realized_pnl });
         }
       } catch (error) {
         console.error('Failed to add position:', error);
@@ -105,10 +112,14 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
       const index_at_start = index_value.value;
       const value_date = index_value.timestamp;
 
-      const position: Position = new Position(get().next_position_id!, pair, ls, Number(amt), index_at_start!, lev, value_date + 21600, bonuses);
+      const position: Position = new Position(get().next_position_id!, pair, ls, Number(amt), index_at_start!, lev, value_date + 21600);
+      position.set_last_update_timestamp(value_date);
+      bonuses.forEach(b => position.attach_new_bonus(b));
 
+      console.log(position);
+      
       try {
-        await $http.post('/clicker/add-position', position);
+        await $http.post('/clicker/add-position', {position: position, bonus_end_dates: position.bonuses.map(b => b.end_date!) });
       } catch (error) {
         return {
           success: false,
@@ -117,26 +128,35 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
         };
       }
 
-        get().positions.push(position);
+      get().positions.push(position);
 
-        set((state) => ({
+      set((state) => ({
         next_position_id: state.next_position_id + 1,
-        }));
+      }));
         
-        return {
-          success: true,
-          amount_adjustment: -amt,
-          realized_pnl: 0
-        };
+      return {
+        success: true,
+        amount_adjustment: -amt,
+        realized_pnl: 0
+      };
     }
   },
 
-  UpdatePosition: async (position_id: number) => {
+  UpdatePosition: async (position_id: number, new_bonuses: Bonus[]) => {
     const position = get().positions.find(pos => pos.position_id === position_id);
     if (!position) return;
 
+    position.set_last_update_timestamp(await Utils.getLastFixingTimestamp());
+
+    const newly_attached_bonuses = new_bonuses.map(b => {
+      const check_bonus = position.get_bonus_end_date(b);
+
+      if (!check_bonus.is_attached || !check_bonus.end_date) throw new Error('Bonus not attached to position');
+      return { id: b.id, end_date: check_bonus.end_date! };
+    });
+
     try {
-      await $http.post(`/clicker/update-position`, {position: position, pnl: 0 });
+      await $http.post(`/clicker/update-position`, {position: position, new_bonuses: newly_attached_bonuses, pnl: 0 });
       set((state) => ({
         positions: state.positions.map((pos) => (pos.position_id === position_id ? position : pos)),
       }));
@@ -152,12 +172,12 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
     let total_change_in_pnl = 0;
 
     const positions = get().positions;
-    const value_date = await Utils.getLastFixingTimestamp();
 
     for (let i = 0; i < positions.length; i++) {
       const index = globalThis.globalIndices.find(v => v.pair_id === positions[i].pair.id);
       if (!index) continue;
       
+      const value_date = index.time;
       const index_value =  positions[i].long_short == LongShort.Long ? index.long : index.short;
       const pnlResult = positions[i].update(value_date, index_value);
 

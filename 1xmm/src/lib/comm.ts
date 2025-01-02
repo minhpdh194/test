@@ -27,11 +27,11 @@ export namespace COMM {
       if (!index) return undefined;
 
       return {
-          pair_id: pairId,
-          long_short: ls,
+        pair_id: pairId,
+        long_short: ls,
         value: ls == LongShort.Long ? index.long : index.short,
         timestamp: index.time
-        }
+      }
     }
 
     export function updatePositions(positions: Position[]): void {
@@ -40,8 +40,8 @@ export namespace COMM {
         if (index) {
           position.update(index.time, position.long_short == LongShort.Long ? index.long : index.short);
         }
-        });
-      }
+      });
+    }
     
     export async function bonusExpiry(http: AxiosInstance, telegram_user_id: number, bonusesToDelete: number[]): Promise<void> {
         await http.post<{success: boolean}, any>("expire_bonuses", {

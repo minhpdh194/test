@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('positions', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('position_id')->nullable(false);
-            $table->integer('telegram_user_id')->references('telegram_user_id')->on('user_profile')->onDelete('cascade');
+            $table->string('telegram_user_id')->references('telegram_user_id')->on('user_profile')->onDelete('cascade');
             $table->integer('pair_id')->nullable(false);
             $table->enum('long_short', ['long', 'short']);
             $table->double('index_start')->nullable(false);

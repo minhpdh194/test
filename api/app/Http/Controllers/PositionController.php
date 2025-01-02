@@ -57,29 +57,38 @@ class PositionController extends Controller
         }
         $userGameData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
         $validatedData = $request->only([
-            'position_id',
-            'pair',
-            'long_short',
-            'amount',
-            'index_at_start',
-            'leverage',
-            'bonuses',
-            'min_end_date',
+            'position',
+            'bonus_end_dates'
         ]);
 
-        $positionData['position_id'] = $validatedData['position_id'];
-        $positionData['amount'] = $validatedData['amount'];
-        $positionData['index_start'] = $validatedData['index_at_start'];
-        $positionData['average_leverage'] = $validatedData['leverage'];
-        $positionData['min_end_date'] = Carbon::createFromTimestamp($validatedData['min_end_date'])->toDateTimeString();
-        $positionData['long_short'] = $validatedData['long_short'];
-        $positionData['telegram_user_id'] = $user->telegram_user_id;
-        $positionData['pair_id'] = $validatedData['pair']['id'];
+        $position = $validatedData['position'];
 
-        if (!empty($validatedData['bonuses']) && count($validatedData['bonuses']) > 0) {
-            $bonuses_id = array_map(fn($bonus) => (string) $bonus['id'], $validatedData['bonuses']);
-            $positionData['bonuses_id'] = json_encode($bonuses_id);
+        $positionData['position_id'] = $position['position_id'];
+        $positionData['amount'] = $position['amount'];
+        $positionData['index_start'] = $position['index_at_start'];
+        $positionData['average_leverage'] = $position['leverage'];
+        $positionData['min_end_date'] = Carbon::createFromTimestamp($position['min_end_date'])->toDateTimeString();
+        $positionData['long_short'] = $position['long_short'];
+        $positionData['telegram_user_id'] = $user->telegram_user_id;
+        $positionData['pair_id'] = $position['pair']['id'];
+
+        if (!empty($position['bonuses']) && count($position['bonuses']) > 0) {
+            $bonuses_ids = array_map(fn($bonus) => (integer)$bonus['id'], $position['bonuses']);
+            $index = 0;
+
+            // We update the user bonuses
+            foreach ($bonuses_ids as $bonus_id) {
+                $bonus = UserBonuses::where('id', $bonus_id)->first();
+                $bonus->position_id = $positionData['position_id'];
+                $bonus->end_date = Carbon::createFromTimestamp($validatedData['bonus_end_dates'][$index])->toDateTimeString();
+                $bonus->save();
+
+                $index++;
+            }
+            
+            $positionData['bonuses_id'] = json_encode($bonuses_ids);
         }
+
         $totalPositionValue = TotalOpenPositionValue::where('pair_id', $positionData['pair_id'])->first();
         if (!$totalPositionValue) {
             $totalPositionValue = TotalOpenPositionValue::create([
@@ -99,13 +108,9 @@ class PositionController extends Controller
         );
 
         if ($userGameData) {
-            $newBalance = $userGameData->balance - $validatedData['amount'];
+            $newBalance = $userGameData->balance - $positionData['amount'];
             $userGameData->balance = $newBalance;
             $userGameData->save();
-        }
-
-        if (isset($validatedData['bonuses']) && is_array($validatedData['bonuses']) && count($validatedData['bonuses']) > 0) {
-            $this->positionService->addBonuses($validatedData['bonuses'], $userGameData->id, $position->id);
         }
 
         return response()->json([
@@ -123,6 +128,9 @@ class PositionController extends Controller
         }
 
         $updated_position = $request->get('position');
+        // new_bonuses is an array of bonus->id and their corresponding end_date
+        // empty if no new bonus
+        $new_bonuses = $request->get('new_bonuses');
         $pnl = $request->get('pnl');
 
         $position = Position::where(['position_id' => $updated_position['position_id'], 'telegram_user_id' => $user->telegram_user_id])->first();
@@ -141,6 +149,26 @@ class PositionController extends Controller
         $positionData['long_short'] = $updated_position['long_short'];
         $positionData['min_end_date'] = Carbon::createFromTimestamp($updated_position['min_end_date'])->toDateTimeString();
         $positionData['alive'] = $updated_position['amount'] != 0;
+
+        if (!empty($updated_position['bonuses']) && count($updated_position['bonuses']) > 0) {
+            $bonuses_ids = array_map(fn($bonus) => (integer)$bonus['id'], $updated_position['bonuses']);
+            
+            if (!empty($new_bonuses) && count($new_bonuses) > 0) {
+                $new_bonus_ids = array_map(fn($bonus) => (integer)$bonus['id'], $new_bonuses);
+                $index = 0;
+
+                foreach ($new_bonus_ids as $new_bonus_id) {
+                    $bonus = UserBonuses::where('id', $new_bonus_id)->first();
+                    $bonus->position_id = $updated_position['position_id'];
+                    $bonus->end_date = Carbon::createFromTimestamp($new_bonuses[$index]['end_date'])->toDateTimeString();
+                    $bonus->save();
+
+                    $index++;
+                }
+            }
+            
+            $positionData['bonuses_id'] = json_encode($bonuses_ids);
+        }
 
         $position->update($positionData);
 
@@ -182,9 +210,9 @@ class PositionController extends Controller
         $userGameData->perf_from_start_date += ($pnl / $position->amount);
 
         $userGameData->save();
-            $position->delete();
+        $position->delete();
 
         \Log::info('Position deleted successfully');
-            return response()->json(['message' => 'Position closed successfully'], 200);
-        }
+        return response()->json(['message' => 'Position closed successfully'], 200);
+    }
 }

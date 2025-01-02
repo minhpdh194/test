@@ -87,10 +87,10 @@ class MarketDataService
             ]);
         }
 
-            $createdSpot = Spot::where('pair_id', $pair->id)->orderBy('created_at', 'desc')->first();
-            $createdSpot->load('pair');
-            return $createdSpot;
-        }
+        $createdSpot = Spot::where('pair_id', $pair->id)->orderBy('created_at', 'desc')->first();
+        $createdSpot->load('pair');
+        return $createdSpot;
+    }
 
     public function getLatestSpotFilteredByPairFormat($coin_symbol, $counter_symbol)
     {

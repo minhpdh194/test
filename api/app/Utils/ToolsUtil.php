@@ -11,6 +11,14 @@ class ToolsUtil
         return "{$coin}/{$base}";
     }
 
+    public static function getDeribitOptionName($expiry_date)
+    {
+        $expiry_name = date_format($expiry_date, "dMy");
+        if ($expiry_name[0] == '0') $expiry_name = substr($expiry_name, 1);
+
+        return strtoupper($expiry_name);
+    }
+
     // We use this function to make sure that all users are sync with the server
     public static function getFixingTimestamp()
     {

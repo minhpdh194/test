@@ -19,7 +19,7 @@ export class Bonus {
         this.end_date = end_date;
     }
 
-    public bonus_is_valid(position_last_update_timestamp: number): boolean {
-        return this.end_date == null || this.end_date >= position_last_update_timestamp;
+    public bonus_is_valid(asof: number): boolean {
+        return this.end_date != null && this.end_date >= asof;
     }
 }

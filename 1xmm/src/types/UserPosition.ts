@@ -7,6 +7,6 @@ export type UserPosition = {
     index_start: number;
     amount: number,
     average_leverage: number,
-    bonuses: number[],
+    bonuses_id: string,
     min_end_date: number
 }

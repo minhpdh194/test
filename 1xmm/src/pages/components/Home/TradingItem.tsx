@@ -9,6 +9,7 @@ import { Utils } from '@/lib/utils';
 import { SpotType } from '@/types/SpotType';
 import { Pair } from '@/types/Pair';
 import { Bonus } from '@/classes/Bonus';
+import { DateCountDown } from '@/classes/CountDown';
 
 type TradingItemProps = {
     spots: SpotType[];
@@ -18,8 +19,11 @@ type TradingItemProps = {
 const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
     // const [, setTimeBonus] = useState(null);
     //const [bonusData, setBonusData] = useState<any[]>([]);
+    const pairs = JSON.parse(localStorage.getItem("PairReferential") || "[]") as Pair[];
+
+    const [selectedBonuses, setBonusesForPosition] = useState<{ [key: number]: { bonus: Bonus, countdown: DateCountDown|undefined}[] }>({});
     const [openBonusDrawer, setOpenBonusDrawer] = useState(false);
-    const [selectedBonuses, setSelectedBonuses] = useState<any[]>([]); // Store selected bonuses
+    const [bonusPositionId, setPositionIdForBonus] = useState<number>(-1);
     const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: LongShort | undefined }>({});
     const [amounts, setAmounts] = useState<{ [key: number]: number }>({});
     const [leverages, setLeverages] = useState<{ [key: number]: number }>({});
@@ -28,12 +32,6 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
     const allowedLeverages = [0, 1, 2, 3, 5, 7, 10];  // Valid leverage options
     const [positions, setPositions] = useState<Position[]>([]);
     const [, setIsLoading] = useState(false);
-
-    const pairs = JSON.parse(localStorage.getItem("PairReferential") || "[]") as Pair[];
-
-    useEffect(() => {
-        fetchLatestPositions();
-    }, []);
 
     useEffect(() => {
         const defaultOptions: { [key: number]: LongShort } = {};
@@ -57,10 +55,35 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
         setLeverages(initialLeverages);
     }, [spots]);  // Re-run when pairs change
 
+    useEffect(() => {
+        fetchLatestPositions();
+    }, []);
+
     const fetchLatestPositions = async () => {
         try {
             setIsLoading(true);
             setPositions(userProfile.positionStore?.positions ?? []);
+
+            userProfile.positionStore?.positions.forEach((pos) => {
+                if (pos.bonuses && pos.bonuses.length > 0) {
+                    pos.bonuses.forEach(b => {
+                        const bonusAndTimer = { bonus: b, countdown: new DateCountDown(b.end_date!) }
+
+                        setExpandedBonuses((prev) => ({ 
+                            ...prev, 
+                            [pos.position_id]: true 
+                        }));
+
+                        if (!selectedBonuses[pos.position_id]) selectedBonuses[pos.position_id] = [];
+                        selectedBonuses[pos.position_id].push(bonusAndTimer);
+
+                        setBonusesForPosition((prev) => ({
+                            ...prev,
+                            [pos.position_id]: selectedBonuses[pos.position_id]
+                        }));
+                    });
+                }
+            });
         } catch (error) {
             console.error('Failed to fetch latest positions:', error);
         } finally {
@@ -114,8 +137,23 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
     };
 
     const handleSelectedBonusesChange = (bonuses: Bonus[]) => {
-        setSelectedBonuses(bonuses);
+        if (positions[bonusPositionId]) { 
+            bonuses.forEach(b => positions[bonusPositionId].attach_new_bonus(b));
+        }
+
+        const bonusAndTimer = bonuses.map(b => {
+            if(b.end_date) return { bonus: b, countdown: new DateCountDown(b.end_date) };
+            return { bonus: b, countdown: undefined };
+        });
+        
+        setBonusesForPosition((prev) => ({
+            ...prev,
+            [bonusPositionId]: bonusAndTimer
+        }));
+
+        // We reset bonus related variables
         setOpenBonusDrawer(false);
+        setPositionIdForBonus(-1);
     };
 
     const handleValidate = async (pairId: number): Promise<void> => {
@@ -132,21 +170,20 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
             }
 
             const amt = Number(amounts[pairId]);
-            const balanceAdjustment = await userProfile.AddPosition(pair, selectedOptions[pairId]!, amt || 0, leverages[pairId], selectedBonuses);
+            const balanceAdjustment = await userProfile.AddPosition(pair, selectedOptions[pairId]!, amt || 0, leverages[pairId], selectedBonuses[pairId]?.map(b => b.bonus) ?? []);
 
             if (balanceAdjustment == undefined) {
                 toast.info("Error validating position");
                 return;
             }
 
-            onValidatePosition(balanceAdjustment);    
+            onValidatePosition(balanceAdjustment);            
 
             // Reset states
             setAmounts((prev) => ({ ...prev, [pairId]: 0 }));
             setSelectedOptions((prev) => ({ ...prev, [pairId]: undefined }));
             setLeverages((prev) => ({ ...prev, [pairId]: 0 }));
             setExpandedBonuses((prev) => ({ ...prev, [pairId]: false }));
-            setSelectedBonuses([]); // Reset selected bonuses
 
             // Update available bonuses by filtering out the used ones
             //setBonusData(prevBonuses =>
@@ -263,7 +300,7 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
                                         <button
                                             onClick={() => toggleExpandBonuses(pair.id)}
                                             className="text-sm text-white font-bold"
-                                            disabled={selectedBonuses.length === 0}
+                                            disabled={!selectedBonuses[pair.id] || selectedBonuses[pair.id].length === 0}
                                         >
                                             {expandedBonuses[pair.id] ? '-' : '+'}
                                         </button>
@@ -272,19 +309,15 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
 
                                 {expandedBonuses[pair.id] && (
                                     <>
-                                        {selectedBonuses.map((bonus) => (
-                                            <div key={bonus.id} className="flex justify-between border-b border-gray-500 pl-3 pr-3 my-0 bg-[#32363C] box-border">
+                                        {selectedBonuses[pair.id].map((b) => (
+                                            <div key={b.bonus.id} className="flex justify-between border-b border-gray-500 pl-3 pr-3 my-0 bg-[#32363C] box-border">
                                                 <div className="flex justify-between w-full">
                                                     <div className="w-1/2 mb-2 mt-2">
-                                                        <span className="font-normal text-sm block">{bonus.bonus_type}</span>
+                                                        <span className="font-normal text-sm block">{b.bonus.bonus_definition.bonus_type}</span>
                                                     </div>
                                                     <div className="w-1/2 text-right mb-2 mt-2 flex items-center justify-end space-x-2">
-                                                        <img
-                                                            src="/images/home/coin.png"
-                                                            alt="coin"
-                                                            className="object-cover w-4 h-4"
-                                                        />
-                                                        <span className="font-normal text-sm block">${bonus.cost}</span>
+                                                        <span className="font-normal text-sm block">+{b.bonus.bonus_definition.benefit}</span>
+                                                        <span className="font-normal text-sm block">{b.countdown?.toString()}</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -335,7 +368,7 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
                                                 ? 'bg-gray-400 opacity-50 cursor-not-allowed'
                                                 : 'bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)] flex items-center justify-center'
                                             }`}
-                                        onClick={() => setOpenBonusDrawer(true)}
+                                        onClick={() => { setPositionIdForBonus(pair.id); setOpenBonusDrawer(true) }}
                                         disabled={amounts[pair.id] === 0 && !positions.find((pos) => pos.position_id === pair.id)}>
 
                                         <div className="flex items-center space-x-1"> {/* Add a container to align items horizontally */}
@@ -378,13 +411,20 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
             {openBonusDrawer && globalThis.userProfile.positionStore!.available_bonuses.length > 0 && (
                 <ListBonus
                     open={openBonusDrawer}
+                    alreadySelectedBonuses={selectedBonuses[bonusPositionId]?.map(b => b.bonus) || []}
                     onOpenChange={setOpenBonusDrawer}
-                    bonusData={globalThis.userProfile.positionStore!.available_bonuses}
-                    onSelectBonuses={handleSelectedBonusesChange} // Pass the selected bonuses handler
+                    bonusData={filterAlreadySelectedBonuses(selectedBonuses[bonusPositionId]?.map(b => b.bonus) || [])}
+                    onSelectBonuses={handleSelectedBonusesChange}
                 />
             )}
         </div>
     );
 };
+
+const filterAlreadySelectedBonuses = (selectedBonuses: Bonus[]): Bonus[] => {
+    if (!selectedBonuses) return globalThis.userProfile.positionStore!.available_bonuses;
+
+    return globalThis.userProfile.positionStore!.available_bonuses.filter(bonus => !selectedBonuses.find(selected => selected.id === bonus.id));
+}
 
 export default TradingItem;
