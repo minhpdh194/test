@@ -1,36 +1,53 @@
-/* Ẩn background của checkbox, chỉ giữ border trắng */
 .checkbox-custom {
     -webkit-appearance: none;
     appearance: none;
     width: 20px;
     height: 20px;
-    border: 2px solid #FFFFFF; /* Border trắng */
-    border-radius: 4px; /* Bo tròn góc */
-    background-color: transparent; /* Ẩn nền */
-    transition: border-color 0.3s ease; /* Hiệu ứng chuyển màu border */
-    position: relative; /* Đặt position relative để chứa dấu tích */
+    border: 2px solid #FFFFFF;
+    border-radius: 4px;
+    background-color: transparent;
+    transition: border-color 0.3s ease;
+    position: relative;
 }
 
-/* Khi checkbox được chọn, đổi màu border thành xanh lá */
 .checkbox-custom:checked {
-    border-color: #4CAF50; /* Màu xanh lá */
+    border-color: #4CAF50;
 }
 
-/* Dấu tích khi checkbox được chọn */
 .checkbox-custom:checked::before {
-    content: '\2714'; /* Thêm dấu tick khi chọn */
-    color: #4CAF50; /* Màu dấu tích xanh khi chọn */
+    content: '\2714';
+    color: #4CAF50;
     position: absolute;
-    top: 50%; /* Căn giữa theo chiều dọc */
-    left: 50%; /* Căn giữa theo chiều ngang */
-    transform: translate(-50%, -50%); /* Dịch chuyển để dấu tích chính giữa */
-    font-size: 14px; /* Kích thước dấu tick */
-    line-height: 20px; /* Căn giữa dấu tick */
-    transition: color 0.3s ease; /* Hiệu ứng chuyển màu dấu tích */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 14px;
+    line-height: 20px;
+    transition: color 0.3s ease;
 }
 
-/* Dấu tích khi checkbox chưa được chọn (màu trắng) */
 .checkbox-custom::before {
-    color: white; /* Màu trắng cho dấu tích khi chưa được chọn */
-    transition: color 0.3s ease; /* Hiệu ứng chuyển màu dấu tích */
+    color: white;
+    transition: color 0.3s ease;
+}
+
+.progress-bar {
+    background: rgba(31, 31, 31, 0.7);
+    width: 100%;
+    height: 78px;
+    border-radius: 20px;
+    padding: 20px;
+}
+
+/* Hide scrollbar for Chrome, Safari, and Opera */
+.bonus-item::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge, and Firefox */
+.bonus-item {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
 }

@@ -7,6 +7,9 @@ import { bonusDefinitions } from "@/referential/bonusDefinitions";
 import { BonusDefinition } from "@/types/BonusDefinition";
 import { BonusTerms, BonusTypes } from "@/enums";
 import DetailStar from "@/components/partials/components/Star/DetailStar";
+import ProgressBar from "@/components/ui/progress-bar";
+import Star from "@/components/icons/BonusIcon/Star";
+import Present from "@/components/icons/BonusIcon/Present";
 
 export default function Bonus() {
     const [openBonusDrawer, setOpenBonusDrawer] = useState(false);
@@ -15,7 +18,7 @@ export default function Bonus() {
     const [positiveLeverageData, setPositiveLeverageData] = useState<any[]>([]);
     const [capitalProtectionData, setCapitalProtectionData] = useState<any[]>([]);
     const [timeReductionData, setTimeReductionData] = useState<any[]>([]);
-    const [friendData, setFriendData] = useState<any[]>([]);
+    // const [friendData, setFriendData] = useState<any[]>([]);
     const [openStarDrawer, setOpenStarDrawer] = useState(false);
 
     //const updateBonusData = async () => {
@@ -36,7 +39,7 @@ export default function Bonus() {
                 setPositiveLeverageData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.PositiveLeverage));
                 setCapitalProtectionData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.CapitalProtection));
                 setTimeReductionData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.TimeReduction));
-                setFriendData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.Friends));
+                // setFriendData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.Friends));
 
                 const countdownData: { [key: string]: number } = {};
                 telegramResponse.forEach((bonus: BonusDefinition) => {
@@ -54,50 +57,82 @@ export default function Bonus() {
         fetchBonusData();
     }, []);
 
-    const renderBonusItem = (bonus: BonusDefinition) => {
-        const toString = (bonusType: BonusTypes) => {
-            switch (bonusType) {
-                case BonusTypes.Leverage: return "Leverage";
-                case BonusTypes.CapitalProtection: return "Capital Protection";
-                case BonusTypes.PositiveLeverage: return "Positive Leverage";
-                case BonusTypes.TimeReduction: return "Time Reduction";
-                case BonusTypes.Friends: return "Friends";
+       const renderBenefit = (bonus: BonusDefinition) => {
+            switch (bonus.bonus_type) {
+                case BonusTypes.Leverage: return (
+                    <>+{bonus.benefit}x</>
+                );
+                case BonusTypes.CapitalProtection: return (
+                    <>+{bonus.benefit}x</>
+                );
+                case BonusTypes.PositiveLeverage: return (
+                    <>+{bonus.benefit}x</>
+                );
+                case BonusTypes.TimeReduction: return (
+                    <>+{bonus.benefit}sec</>
+                );
             }
         }
 
+    const renderBonusItem = (bonus: BonusDefinition) => {
+        // const toString = (bonusType: BonusTypes) => {
+        //     switch (bonusType) {
+        //         case BonusTypes.Leverage: return "Leverage";
+        //         case BonusTypes.CapitalProtection: return "Capital Protection";
+        //         case BonusTypes.PositiveLeverage: return "Positive Leverage";
+        //         case BonusTypes.TimeReduction: return "Time Reduction";
+        //         case BonusTypes.Friends: return "Friends";
+        //     }
+        // }
+
         return (
-            <div key={bonus.id} className="w-full bg-[#32363C] rounded-xl p-2.5 mt-3">
-                <div className="flex fw-semibold pb-1 justify-between items-center">
-                    <span className="flex items-center space-x-8">
-                        <span>{toString(bonus.bonus_type)}</span>
-                        <span className="text-md fw-light">{`+${bonus.benefit}
-                        ${bonus.bonus_type == BonusTypes.CapitalProtection ? '%' : ''}
-                        ${bonus.bonus_type == BonusTypes.TimeReduction ? 'sec' : ''}`}</span>
-                    </span>
-                    {bonus.bonus_type != BonusTypes.Friends ? getBonusDuration(bonus.duration) : ''}
-                    <span className="flex items-center space-x-1">
-                        <img
-                            src="/images/home/star.png"
-                            alt="coin"
-                            className="w-6 h-6"
-                        />
-                        <span>{bonus.cost}</span>
-                    </span>
-                </div>
+            <div
+                key={bonus.id}
+                className="flex-shrink-0 w-[calc(45%-1rem)] bg-[#32363C] rounded-xl p-2.5 mt-3"
+                style={{ flexBasis: 'calc(45% - 1rem)' }}
+            >
+                <span className="flex items-center">
+                    <div className="bg-white rounded-full min-w-10 min-h-10 mr-4">
+                        {bonus.bonus_type != BonusTypes.Friends
+                            ? getBonusDuration(bonus.duration)
+                            : ''}
+                    </div>
+                    <div className="w-full">
+                        <span className="flex gap-2"><Star /> {bonus.cost}</span>
+                        <div className="h-[1px] bg-gray-600 my-1"></div>
+                        <span className="flex gap-2"><Present /> {renderBenefit(bonus)}</span>
+                    </div>
+                </span>
             </div>
+            // <div key={bonus.id} className="w-full bg-[#32363C] rounded-xl p-2.5 mt-3">
+            //     <div className="flex fw-semibold pb-1 justify-between items-center">
+            //         <span className="flex items-center space-x-8">
+            //             <span>{toString(bonus.bonus_type)}</span>
+            //             <span className="text-md fw-light">{`+${bonus.benefit}
+            //         ${bonus.bonus_type == BonusTypes.CapitalProtection ? '%' : ''}
+            //         ${bonus.bonus_type == BonusTypes.TimeReduction ? 'sec' : ''}`}</span>
+            //         </span>
+            //         {bonus.bonus_type != BonusTypes.Friends ? getBonusDuration(bonus.duration) : ''}
+            //         <span className="flex items-center space-x-1">
+            //             <img
+            //                 src="/images/home/star.png"
+            //                 alt="coin"
+            //                 className="w-6 h-6"
+            //             />
+            //             <span>{bonus.cost}</span>
+            //         </span>
+            //     </div>
+            // </div>
         );
     };
 
     const getBonusDuration = (bonusTerm: BonusTerms) => {
         return (
-            <span className="flex text-sm space-x-1 items-center text-white">
-                <img
-                    src="/images/home/time.png"
-                    alt="time"
-                    className="w-4 h-4"
-                />
-                <span>{bonusTerm == BonusTerms.Short ? "3 hours" : "6 hours"}</span>
-            </span>);
+            <span className="flex flex-col items-center justify-center h-10 w-10">
+                <span className="text-black leading-3">{bonusTerm == BonusTerms.Short ? "3" : "6"}</span>
+                <span className="text-gray-500 text-xs font-bold">HRS</span>
+            </span>
+        );
     }
 
     const handleBuyStarsAction = async () => {
@@ -119,13 +154,31 @@ export default function Bonus() {
             }}
         >
             <Header amount_token={userProfile.amount_of_tokens} />
-            <div className="mt-5 mb-8">
+            <div className="text-xl bg-[var(--silver-white-light)] mt-3">
+                Target to Seed
+            </div>
+
+            <div className="progress-bar mt-4">
+                <div className="mb-1">
+                    <ProgressBar completed={60} />
+                </div>
+                <div className="flex justify-between">
+                    <div className="font-bold text-sm">
+                        $0
+                    </div>
+                    <div className="font-bold text-sm">
+                        {`$600.000`}
+                    </div>
+                </div>
+            </div>
+
+            {/* <div className="mt-5 mb-8">
                 <div className="italic text-sm">
                     Purchasing bonus entitles to receive 1XMM coins at a ratio of 0.30cts per token, as long as the total allocation amount has not been reached.
                     Check our website to see whether bonus allocated tokens are still available.
                 </div>
-            </div>
-            <div className="flex justify-around mt-4 mb-6">
+            </div> */}
+            <div className="flex justify-between mt-4 mb-6">
                 <button
                     type="button"
                     className="rounded flex fw-semibold py-2 px-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)]"
@@ -156,13 +209,24 @@ export default function Bonus() {
                 <div className="flex justify-between items-center">
                     <span className="fw-bold text-lg">Leverage</span>
                 </div>
-                <div className="flex flex-col">
+                <div className="w-full overflow-x-auto bonus-item">
                     {leverageData.length > 0 ? (
-                        leverageData.map(renderBonusItem)
+                        <>
+                            {/* First Row */}
+                            <div className="flex space-x-4">
+                                {leverageData.slice(0, Math.ceil(leverageData.length / 2)).map(renderBonusItem)}
+                            </div>
+
+                            {/* Second Row */}
+                            <div className="flex space-x-4">
+                                {leverageData.slice(Math.ceil(leverageData.length / 2)).map(renderBonusItem)}
+                            </div>
+                        </>
                     ) : (
                         <div className="w-full bg-[#32363C] rounded-xl p-3 mt-3">
                             <div className="text-center text-white">Data not found</div>
-                        </div>)}
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -170,13 +234,24 @@ export default function Bonus() {
                 <div className="flex justify-between items-center">
                     <span className="fw-bold text-lg">Positive Leverage</span>
                 </div>
-                <div className="flex flex-col">
+                <div className="w-full overflow-x-auto bonus-item">
                     {positiveLeverageData.length > 0 ? (
-                        positiveLeverageData.map(renderBonusItem)
+                        <>
+                            {/* First Row */}
+                            <div className="flex space-x-4">
+                                {positiveLeverageData.slice(0, Math.ceil(positiveLeverageData.length / 2)).map(renderBonusItem)}
+                            </div>
+
+                            {/* Second Row */}
+                            <div className="flex space-x-4">
+                                {positiveLeverageData.slice(Math.ceil(positiveLeverageData.length / 2)).map(renderBonusItem)}
+                            </div>
+                        </>
                     ) : (
                         <div className="w-full bg-[#32363C] rounded-xl p-3 mt-3">
                             <div className="text-center text-white">Data not found</div>
-                        </div>)}
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -184,13 +259,24 @@ export default function Bonus() {
                 <div className="flex justify-between items-center">
                     <span className="fw-bold text-lg">Capital Protection</span>
                 </div>
-                <div className="flex flex-col">
+                <div className="w-full overflow-x-auto bonus-item">
                     {capitalProtectionData.length > 0 ? (
-                        capitalProtectionData.map(renderBonusItem)
+                        <>
+                            {/* First Row */}
+                            <div className="flex space-x-4">
+                                {capitalProtectionData.slice(0, Math.ceil(capitalProtectionData.length / 2)).map(renderBonusItem)}
+                            </div>
+
+                            {/* Second Row */}
+                            <div className="flex space-x-4">
+                                {capitalProtectionData.slice(Math.ceil(capitalProtectionData.length / 2)).map(renderBonusItem)}
+                            </div>
+                        </>
                     ) : (
                         <div className="w-full bg-[#32363C] rounded-xl p-3 mt-3">
                             <div className="text-center text-white">Data not found</div>
-                        </div>)}
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -198,17 +284,28 @@ export default function Bonus() {
                 <div className="flex justify-between items-center">
                     <span className="fw-bold text-lg">Time Reduction</span>
                 </div>
-                <div className="flex flex-col">
+                <div className="w-full overflow-x-auto bonus-item">
                     {timeReductionData.length > 0 ? (
-                        timeReductionData.map(renderBonusItem)
+                        <>
+                            {/* First Row */}
+                            <div className="flex space-x-4">
+                                {timeReductionData.slice(0, Math.ceil(timeReductionData.length / 2)).map(renderBonusItem)}
+                            </div>
+
+                            {/* Second Row */}
+                            <div className="flex space-x-4">
+                                {timeReductionData.slice(Math.ceil(timeReductionData.length / 2)).map(renderBonusItem)}
+                            </div>
+                        </>
                     ) : (
                         <div className="w-full bg-[#32363C] rounded-xl p-3 mt-3">
                             <div className="text-center text-white">Data not found</div>
-                        </div>)}
+                        </div>
+                    )}
                 </div>
             </div>
 
-            <div className="mt-4 mb-6">
+            {/* <div className="mt-4 mb-6">
                 <div className="flex justify-between items-center">
                     <span className="fw-bold text-lg">Friends </span>
                 </div>
@@ -220,7 +317,7 @@ export default function Bonus() {
                             <div className="text-center text-white">Data not found</div>
                         </div>)}
                 </div>
-            </div>
+            </div> */}
 
             {openBonusDrawer && bonusDef.length > 0 && (
                 <DetailBonus
