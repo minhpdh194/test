@@ -173,7 +173,7 @@ class MarketDataTasks
             if (in_array($pair->coin_symbol, $ref_symbols)) continue;
             $correlated_pairs[] = $pair->pair_symbol;
         }
-        
+
         $n = 30;
 
         $return_matrix = null;
@@ -249,12 +249,12 @@ class MarketDataTasks
                 ->orderBy('created_at', 'desc')
                 ->take($n)
                 ->get();
-            
+
             $spots2 = Spot::where('pair_id', $pair2->id)
                 ->orderBy('created_at', 'desc')
                 ->take($n)
                 ->get();
-            
+
             $corr = MathUtil::computeCorrelation($spots1->pluck('daily_return')->toArray(), $spots2->pluck('daily_return')->toArray(), $n);
             $spot = $spots1->first()->current_value / $spots2->first()->current_value;
 
@@ -292,7 +292,7 @@ class MarketDataTasks
             $prev_long_index = Index::where(['pair_id' => $pair->id, 'long_short' => 'long'])
                 ->orderBy('created_at', 'desc')
                 ->first();
-            
+
             $prev_short_index = Index::where(['pair_id' => $pair->id, 'long_short' => 'short'])
                 ->orderBy('created_at', 'desc')
                 ->first();
@@ -378,16 +378,6 @@ class MarketDataTasks
 
     public function integration()
     {
-        $natural_pairs = Pair::where('counter_symbol', 'USD')->get();
-        $xpairs = Pair::where('counter_symbol', '!=', 'USD')->get();
-
-        $createdSpots = $this->storeSpots($natural_pairs);
-        $T = $this->getYieldsAndVolatilitiesFromMarket($createdSpots);
-        $this->getCorrelatedParameters($natural_pairs);
-        if ($xpairs) $this->getXPairsParameters($xpairs, $T);
-
-        $last_indices = $this->computeFixings(Pair::all(), $T);
-
         $options = array(
             'cluster' => 'ap2',
             'useTLS' => true
@@ -399,11 +389,28 @@ class MarketDataTasks
             env('PUSHER_APP_ID'),
             $options
         );
-        $createdSpots = array_values($createdSpots);
+
+        $natural_pairs = Pair::where('counter_symbol', 'USD')->get();
+        $createdSpots = $this->storeSpots($natural_pairs);
+
         try {
             $pusher->trigger('pairs', 'data', ['pairs' => $createdSpots]);
             \Log::info('test pusher', ['result' => $createdSpots]);
+        } catch (\Throwable $e) {
+            $notify[] = ['warning', 'Pusher Not Properly Set'];
+            \Log::info('error pusher', ['error' => $e->getMessage()]);
+        }
+        $xpairs = Pair::where('counter_symbol', '!=', 'USD')->get();
 
+
+
+        $T = $this->getYieldsAndVolatilitiesFromMarket($createdSpots);
+        $this->getCorrelatedParameters($natural_pairs);
+        if ($xpairs) $this->getXPairsParameters($xpairs, $T);
+
+        $last_indices = $this->computeFixings(Pair::all(), $T);
+        $createdSpots = array_values($createdSpots);
+        try {
             $pusher->trigger('indices', 'data', ['indices' => $last_indices]);
             \Log::info('test pusher', ['result' => $last_indices]);
         } catch (\Throwable $e) {
