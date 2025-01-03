@@ -13,7 +13,6 @@ import { LongShort } from "@/enums";
 import { levelBenefits } from "@/referential/levelBenefits";
 import { levelConditions } from "@/referential/levelConditions";
 import { BonusDefinition } from "@/types/BonusDefinition";
-import { UserBonus } from "@/types/UserBonus";
 
 export type UserProfileStore = UserProfile & {
   SetLevelBenefits: () => void;

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
 //import { $http } from "@/lib/http";
-import DetailBonus from "./components/Bonus/DetailBonus";
 //import { toast } from "react-toastify";
 import { bonusDefinitions } from "@/referential/bonusDefinitions";
 import { BonusDefinition } from "@/types/BonusDefinition";
@@ -33,10 +32,66 @@ export default function Bonus() {
         const fetchBonusData = async () => {
             try {
                 const telegramResponse = bonusDefinitions;
-                setLeverageData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.Leverage));
-                setPositiveLeverageData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.PositiveLeverage));
-                setCapitalProtectionData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.CapitalProtection));
-                setTimeReductionData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.TimeReduction));
+                setLeverageData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.Leverage).sort((a, b) => {
+                    if (a.duration === BonusTerms.Short && b.duration !== BonusTerms.Short) {
+                        return -1;
+                    }
+                    if (a.duration !== BonusTerms.Short && b.duration === BonusTerms.Short) {
+                        return 1;
+                    }
+                    if (a.duration === BonusTerms.Long && b.duration !== BonusTerms.Long) {
+                        return -1;
+                    }
+                    if (a.duration !== BonusTerms.Long && b.duration === BonusTerms.Long) {
+                        return 1;
+                    }
+                    return 0;
+                }));
+                setPositiveLeverageData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.PositiveLeverage).sort((a, b) => {
+                    if (a.duration === BonusTerms.Short && b.duration !== BonusTerms.Short) {
+                        return -1;
+                    }
+                    if (a.duration !== BonusTerms.Short && b.duration === BonusTerms.Short) {
+                        return 1;
+                    }
+                    if (a.duration === BonusTerms.Long && b.duration !== BonusTerms.Long) {
+                        return -1;
+                    }
+                    if (a.duration !== BonusTerms.Long && b.duration === BonusTerms.Long) {
+                        return 1;
+                    }
+                    return 0;
+                }));
+                setCapitalProtectionData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.CapitalProtection).sort((a, b) => {
+                    if (a.duration === BonusTerms.Short && b.duration !== BonusTerms.Short) {
+                        return -1;
+                    }
+                    if (a.duration !== BonusTerms.Short && b.duration === BonusTerms.Short) {
+                        return 1;
+                    }
+                    if (a.duration === BonusTerms.Long && b.duration !== BonusTerms.Long) {
+                        return -1;
+                    }
+                    if (a.duration !== BonusTerms.Long && b.duration === BonusTerms.Long) {
+                        return 1;
+                    }
+                    return 0;
+                }));
+                setTimeReductionData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.TimeReduction).sort((a, b) => {
+                    if (a.duration === BonusTerms.Short && b.duration !== BonusTerms.Short) {
+                        return -1;
+                    }
+                    if (a.duration !== BonusTerms.Short && b.duration === BonusTerms.Short) {
+                        return 1;
+                    }
+                    if (a.duration === BonusTerms.Long && b.duration !== BonusTerms.Long) {
+                        return -1;
+                    }
+                    if (a.duration !== BonusTerms.Long && b.duration === BonusTerms.Long) {
+                        return 1;
+                    }
+                    return 0;
+                }));
                 // setFriendData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.Friends));
 
                 const countdownData: { [key: string]: number } = {};
@@ -73,26 +128,12 @@ export default function Bonus() {
     }
 
     const renderBonusItem = (bonus: BonusDefinition) => {
-        // const toString = (bonusType: BonusTypes) => {
-        //     switch (bonusType) {
-        //         case BonusTypes.Leverage: return "Leverage";
-        //         case BonusTypes.CapitalProtection: return "Capital Protection";
-        //         case BonusTypes.PositiveLeverage: return "Positive Leverage";
-        //         case BonusTypes.TimeReduction: return "Time Reduction";
-        //         case BonusTypes.Friends: return "Friends";
-        //     }
-        // }
-
         return (
             <div
                 key={bonus.id}
                 className={`flex-shrink-0 w-[calc(45%-1rem)] bg-[#32363C] rounded-xl p-2.5 mt-3 ${!bonusDefinitionIds?.includes(bonus.id) && 'hover:cursor-pointer'}`}
                 style={{ flexBasis: 'calc(45% - 1rem)' }}
-                onClick={() => {
-                    if (!bonusDefinitionIds?.includes(bonus.id)) {
-                        handleBuyBonusAction(bonus);
-                    }
-                }}
+                onClick={() => handleBuyBonusAction(bonus)}
             >
                 <span className="flex items-center">
                     <div className="bg-white rounded-full min-w-10 min-h-10 mr-4">
@@ -111,25 +152,6 @@ export default function Bonus() {
                     </div>
                 </span>
             </div>
-            // <div key={bonus.id} className="w-full bg-[#32363C] rounded-xl p-2.5 mt-3">
-            //     <div className="flex fw-semibold pb-1 justify-between items-center">
-            //         <span className="flex items-center space-x-8">
-            //             <span>{toString(bonus.bonus_type)}</span>
-            //             <span className="text-md fw-light">{`+${bonus.benefit}
-            //         ${bonus.bonus_type == BonusTypes.CapitalProtection ? '%' : ''}
-            //         ${bonus.bonus_type == BonusTypes.TimeReduction ? 'sec' : ''}`}</span>
-            //         </span>
-            //         {bonus.bonus_type != BonusTypes.Friends ? getBonusDuration(bonus.duration) : ''}
-            //         <span className="flex items-center space-x-1">
-            //             <img
-            //                 src="/images/home/star.png"
-            //                 alt="coin"
-            //                 className="w-6 h-6"
-            //             />
-            //             <span>{bonus.cost}</span>
-            //         </span>
-            //     </div>
-            // </div>
         );
     };
 
@@ -148,7 +170,7 @@ export default function Bonus() {
 
     const handleBuyBonusAction = async (bonus: BonusDefinition) => {
         if (globalThis.userProfile.number_of_stars > 0) {
-            globalThis.userProfile.BuyBonus(bonus);
+            await globalThis.userProfile.BuyBonus(bonus);
         }
     }
 
