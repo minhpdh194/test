@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import Drawer from "../../../components/ui/drawer";
 import '../../../bonus.css'; // Import CSS for custom styles
 import { Bonus } from '@/classes/Bonus';
@@ -7,25 +7,19 @@ import { Button } from '@/components/ui/button';
 
 interface DetailBonusProps {
     open: boolean;
-    alreadySelectedBonuses: Bonus[];
     onOpenChange: (open: boolean) => void;
     bonusData: Bonus[];
-    onSelectBonuses: (selectedBonuses: Bonus[]) => void;
+    onSelectBonuses: (selectedBonuses: Bonus[]) => Promise<void>;
 }
 
 export default function ListBonus({
     open,
-    alreadySelectedBonuses,
     onOpenChange,
     bonusData,
     onSelectBonuses,
     ...props
 }: DetailBonusProps) {
     const [selectedBonuses, setSelectedBonuses] = React.useState<Bonus[]>([]);
-
-    useEffect(() => {
-        setSelectedBonuses(alreadySelectedBonuses);
-    }, [alreadySelectedBonuses]);
 
     const handleCheckboxChange = (bonus: Bonus) => {
         if (selectedBonuses.includes(bonus)) {
@@ -91,7 +85,7 @@ export default function ListBonus({
             <div />
             <Button
                 className="rounded flex w-full fw-semibold py-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)]"
-                onClick={() => onSelectBonuses(selectedBonuses)}
+                onClick={async () => { await onSelectBonuses(selectedBonuses); }}
                 >
                 <span className="font-normal text-lg">Add</span>
             </Button>

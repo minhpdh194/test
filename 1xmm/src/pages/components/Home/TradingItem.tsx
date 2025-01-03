@@ -65,24 +65,24 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
             setPositions(userProfile.positionStore?.positions ?? []);
 
             userProfile.positionStore?.positions.forEach((pos) => {
+                selectedBonuses[pos.position_id] = [];
+
                 if (pos.bonuses && pos.bonuses.length > 0) {
                     pos.bonuses.forEach(b => {
                         const bonusAndTimer = { bonus: b, countdown: new DateCountDown(b.end_date!) }
-
-                        setExpandedBonuses((prev) => ({ 
-                            ...prev, 
-                            [pos.position_id]: true 
-                        }));
-
-                        if (!selectedBonuses[pos.position_id]) selectedBonuses[pos.position_id] = [];
                         selectedBonuses[pos.position_id].push(bonusAndTimer);
-
-                        setBonusesForPosition((prev) => ({
-                            ...prev,
-                            [pos.position_id]: selectedBonuses[pos.position_id]
-                        }));
                     });
+
+                    setExpandedBonuses((prev) => ({ 
+                        ...prev, 
+                        [pos.position_id]: true 
+                    }));
                 }
+
+                setBonusesForPosition((prev) => ({
+                    ...prev,
+                    [pos.position_id]: selectedBonuses[pos.position_id]
+                }));
             });
         } catch (error) {
             console.error('Failed to fetch latest positions:', error);
@@ -136,20 +136,25 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
         }));
     };
 
-    const handleSelectedBonusesChange = (bonuses: Bonus[]) => {
-        if (positions[bonusPositionId]) { 
-            bonuses.forEach(b => positions[bonusPositionId].attach_new_bonus(b));
-        }
+    const handleSelectedBonusesChange = async (bonuses: Bonus[]): Promise<void> => {
+        if (bonuses.length > 0) {
+            console.log(bonuses);
+            // If only bonuses have been added to the position
+            if (!selectedOptions[bonusPositionId] || !leverages[bonusPositionId] || leverages[bonusPositionId] == 0) {
+                // This adds the bonuses to the position and updates database
+                await userProfile.AddBonusesToPosition(bonusPositionId, bonuses);
+            } else {
+                // We set the bonus and timers for handleValidate
+                const bonusAndTimer = bonuses.map(b => {
+                    return { bonus: b, countdown: undefined };
+                });
 
-        const bonusAndTimer = bonuses.map(b => {
-            if(b.end_date) return { bonus: b, countdown: new DateCountDown(b.end_date) };
-            return { bonus: b, countdown: undefined };
-        });
-        
-        setBonusesForPosition((prev) => ({
-            ...prev,
-            [bonusPositionId]: bonusAndTimer
-        }));
+                setBonusesForPosition((prev) => ({
+                    ...prev,
+                    [bonusPositionId]: bonusAndTimer
+                }));
+            }
+        }
 
         // We reset bonus related variables
         setOpenBonusDrawer(false);
@@ -184,13 +189,6 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
             setSelectedOptions((prev) => ({ ...prev, [pairId]: undefined }));
             setLeverages((prev) => ({ ...prev, [pairId]: 0 }));
             setExpandedBonuses((prev) => ({ ...prev, [pairId]: false }));
-
-            // Update available bonuses by filtering out the used ones
-            //setBonusData(prevBonuses =>
-            //    prevBonuses.filter(bonus =>
-            //        !selectedBonuses.some(selected => selected.id === bonus.id)
-            //    )
-            //);
 
             // Fetch updated positions
             await fetchLatestPositions();
@@ -411,7 +409,7 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
             {openBonusDrawer && globalThis.userProfile.positionStore!.available_bonuses.length > 0 && (
                 <ListBonus
                     open={openBonusDrawer}
-                    alreadySelectedBonuses={selectedBonuses[bonusPositionId]?.map(b => b.bonus) || []}
+                    //={selectedBonuses[bonusPositionId]?.map(b => b.bonus) || []}
                     onOpenChange={setOpenBonusDrawer}
                     bonusData={filterAlreadySelectedBonuses(selectedBonuses[bonusPositionId]?.map(b => b.bonus) || [])}
                     onSelectBonuses={handleSelectedBonusesChange}

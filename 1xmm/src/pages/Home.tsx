@@ -39,7 +39,7 @@ export default function Home() {
     if (globalThis.spots) {
       setSpots(globalThis.spots);
     }
-    console.log(userProfile);
+    
     setLoading(false);
 
     return () => {

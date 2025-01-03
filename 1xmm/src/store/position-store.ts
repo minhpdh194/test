@@ -34,7 +34,8 @@ export type PositionStore = {
   UpdatePosition: (position_id: number, new_bonuses: Bonus[]) => Promise<void>;
   ClosePosition: (position_id: number) => Promise<ClosingDetails>;
   UpdateAvailableBonuses: (available_bonuses: Bonus[]) => void;
-  AddNewBonus: (bonus: Bonus) => void;
+  AddAvailableBonus: (bonus: Bonus) => void;
+  AddBonusesToPosition: (position_id: number, bonuses: Bonus[]) => Promise<void>;
   SetUserPositions: (positions: Position[]) => void;
   RefreshPositions: () => Promise<PositionsUpdate>;
 }
@@ -45,22 +46,38 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
   positions: [],
 
   UpdateAvailableBonuses: (available_bonuses: Bonus[]): void => {
-    const stored_available_bonuses = get().available_bonuses;
-
-    // First we remove bonuses which are no more available (i.e. not in available_bonuses)
-    for (let i = stored_available_bonuses.length - 1; i > 0; i--) {
-      if (!available_bonuses.find(ab => ab.id == stored_available_bonuses[i].id)) {
-        stored_available_bonuses[i] = stored_available_bonuses[stored_available_bonuses.length - 1];
-        stored_available_bonuses.pop();
-      };
-    }
-
-    // We add bonuses which are available but not in stored_available_bonuses
-    available_bonuses.forEach(b => { if (!stored_available_bonuses.find(sb => sb.id == b.id)) stored_available_bonuses.push(b); });
+    set(() => ({
+      available_bonuses: available_bonuses
+    }));
   },
 
-  AddNewBonus: (bonus: Bonus): void => {
+  AddAvailableBonus: (bonus: Bonus): void => {
     get().available_bonuses.push(bonus);
+  },
+
+  AddBonusesToPosition: async (position_id: number, bonuses: Bonus[]): Promise<void> => {
+    const position = get().positions.find(p => p.position_id === position_id);
+    if (!position) return;
+
+    const newly_attached_bonuses = bonuses.map(b => {
+      position.attach_new_bonus(b);
+      const check_bonus = position.get_bonus_end_date(b);
+
+      if (!check_bonus.is_attached || !check_bonus.end_date) throw new Error('Bonus not attached to position');
+      return { id: b.id, end_date: check_bonus.end_date! };
+    });
+
+    const new_available_bonuses = get().available_bonuses.filter(b => !newly_attached_bonuses.find(nb => nb.id == b.id));
+
+    try {
+      await $http.post(`/clicker/update-position`, {position: position, new_bonuses: newly_attached_bonuses, pnl: 0 });
+      set((state) => ({
+        positions: state.positions.map((pos) => (pos.position_id === position_id ? position : pos)),
+        available_bonuses: new_available_bonuses
+      }));
+    } catch (error) {
+      console.error('Failed to update position:', error);
+    }
   },
 
   SetUserPositions: (positions: Position[]): void => {

@@ -128,9 +128,9 @@ class PositionController extends Controller
         }
 
         $updated_position = $request->get('position');
-        // new_bonuses is an array of bonus->id and their corresponding end_date
+        // new_bonus_ids is an array of bonus->id and their corresponding end_date
         // empty if no new bonus
-        $new_bonuses = $request->get('new_bonuses');
+        $new_bonus_ids = $request->get('new_bonuses');
         $pnl = $request->get('pnl');
 
         $position = Position::where(['position_id' => $updated_position['position_id'], 'telegram_user_id' => $user->telegram_user_id])->first();
@@ -151,22 +151,16 @@ class PositionController extends Controller
         $positionData['alive'] = $updated_position['amount'] != 0;
 
         if (!empty($updated_position['bonuses']) && count($updated_position['bonuses']) > 0) {
-            $bonuses_ids = array_map(fn($bonus) => (integer)$bonus['id'], $updated_position['bonuses']);
-            
-            if (!empty($new_bonuses) && count($new_bonuses) > 0) {
-                $new_bonus_ids = array_map(fn($bonus) => (integer)$bonus['id'], $new_bonuses);
-                $index = 0;
-
+            if (!empty($new_bonus_ids) && count($new_bonus_ids) > 0) {
                 foreach ($new_bonus_ids as $new_bonus_id) {
-                    $bonus = UserBonuses::where('id', $new_bonus_id)->first();
+                    $bonus = UserBonuses::where('id', $new_bonus_id['id'])->first();
                     $bonus->position_id = $updated_position['position_id'];
-                    $bonus->end_date = Carbon::createFromTimestamp($new_bonuses[$index]['end_date'])->toDateTimeString();
+                    $bonus->end_date = Carbon::createFromTimestamp($new_bonus_id['end_date'])->toDateTimeString();
                     $bonus->save();
-
-                    $index++;
                 }
             }
-            
+
+            $bonuses_ids = array_map(fn($bonus) => (integer)$bonus['id'], $updated_position['bonuses']);
             $positionData['bonuses_id'] = json_encode($bonuses_ids);
         }
 

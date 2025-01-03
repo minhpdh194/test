@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
-//import { $http } from "@/lib/http";
+import { $http } from "@/lib/http";
 //import { toast } from "react-toastify";
 import { bonusDefinitions } from "@/referential/bonusDefinitions";
 import { BonusDefinition } from "@/types/BonusDefinition";
@@ -10,25 +10,24 @@ import ProgressBar from "@/components/ui/progress-bar";
 import Star from "@/components/icons/BonusIcon/Star";
 import Present from "@/components/icons/BonusIcon/Present";
 import Purchased from "@/components/icons/BonusIcon/Purchased";
+import { COMM } from "@/lib/comm";
 
 export default function Bonus() {
     const [leverageData, setLeverageData] = useState<any[]>([]);
     const [positiveLeverageData, setPositiveLeverageData] = useState<any[]>([]);
     const [capitalProtectionData, setCapitalProtectionData] = useState<any[]>([]);
     const [timeReductionData, setTimeReductionData] = useState<any[]>([]);
-    // const [friendData, setFriendData] = useState<any[]>([]);
+    const [starsTarget, setStarsTarget] = useState<number>(0);
     const [openStarDrawer, setOpenStarDrawer] = useState(false);
 
     const bonusDefinitionIds = userProfile.positionStore?.available_bonuses.map(item => item.bonus_definition.id);
-    //const updateBonusData = async () => {
-    //     try {
-    //         throw new Error("Need to send update of buying purchase to server");
-    //     } catch (error) {
-    //         console.error("Error fetching bonus data:", error);
-    //     }
-    //};
 
     useEffect(() => {
+        setInterval(async () => {
+            const total_stars = await COMM.getStarsTarget($http);
+            setStarsTarget(total_stars);
+        }, 2500);
+
         const fetchBonusData = async () => {
             try {
                 const telegramResponse = bonusDefinitions;
@@ -110,22 +109,22 @@ export default function Bonus() {
         fetchBonusData();
     }, []);
 
-    const renderBenefit = (bonus: BonusDefinition) => {
-        switch (bonus.bonus_type) {
-            case BonusTypes.Leverage: return (
-                <>+{bonus.benefit}x</>
-            );
-            case BonusTypes.CapitalProtection: return (
-                <>+{bonus.benefit}x</>
-            );
-            case BonusTypes.PositiveLeverage: return (
-                <>+{bonus.benefit}x</>
-            );
-            case BonusTypes.TimeReduction: return (
-                <>+{bonus.benefit}sec</>
-            );
+       const renderBenefit = (bonus: BonusDefinition) => {
+            switch (bonus.bonus_type) {
+                case BonusTypes.Leverage: return (
+                    <>+{bonus.benefit}x</>
+                );
+                case BonusTypes.CapitalProtection: return (
+                    <>+{bonus.benefit}x</>
+                );
+                case BonusTypes.PositiveLeverage: return (
+                    <>+{bonus.benefit}x</>
+                );
+                case BonusTypes.TimeReduction: return (
+                    <>+{bonus.benefit}sec</>
+                );
+            }
         }
-    }
 
     const renderBonusItem = (bonus: BonusDefinition) => {
         return (
@@ -149,7 +148,7 @@ export default function Bonus() {
 
                         <div className="h-[1px] bg-gray-600 my-1"></div>
                         <span className="flex gap-2"><Present /> {renderBenefit(bonus)}</span>
-                    </div>
+                </div>
                 </span>
             </div>
         );
@@ -165,7 +164,7 @@ export default function Bonus() {
     }
 
     const handleBuyStarsAction = async () => {
-        setOpenStarDrawer(true);
+            setOpenStarDrawer(true);
     }
 
     const handleBuyBonusAction = async (bonus: BonusDefinition) => {
@@ -189,14 +188,14 @@ export default function Bonus() {
 
             <div className="progress-bar mt-4">
                 <div className="mb-1">
-                    <ProgressBar completed={60} />
+                    <ProgressBar completed={starsTarget / 2000000} />
                 </div>
                 <div className="flex justify-between">
                     <div className="font-bold text-sm">
                         $0
                     </div>
                     <div className="font-bold text-sm">
-                        {`$600.000`}
+                        {starsTarget}
                     </div>
                 </div>
             </div>
@@ -212,7 +211,7 @@ export default function Bonus() {
                     type="button"
                     className="rounded flex fw-semibold py-2 px-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)]"
                     onClick={() => handleBuyBonusAction()}
-                >
+                    >
                     <img
                         src="/images/home/star.png"
                         alt="coin"
@@ -353,7 +352,7 @@ export default function Bonus() {
                     open={openBonusDrawer}
                     // bonusData={bonusData}  
                     onOpenChange={setOpenBonusDrawer}
-                //onBuySuccess={updateBonusData}
+                    //onBuySuccess={updateBonusData}
                 />
             )} */}
 

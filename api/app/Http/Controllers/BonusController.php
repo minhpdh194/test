@@ -6,12 +6,11 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
-use App\Models\TelegramUser;
-use App\Models\Spot;
 use App\Models\UserBonuses;
 use App\Models\UserGameData;
-use Carbon\Carbon;
+use App\Models\MarketData\Position;
 
 class BonusController extends Controller
 {
@@ -53,11 +52,10 @@ class BonusController extends Controller
     public function expiry(Request $request)
     {
         $validated = $request->validate([
-            'telegram_user_id' => 'required',
             'bonus_ids' => 'required'
         ]);
 
-        $telegram_user_id = $validated['telegram_user_id'];
+        $telegram_user_id = $request->user()->telegram_user_id;
 
         foreach ($validated['bonus_ids'] as $bonusId) {
             $bonus = UserBonuses::where(['id' => $bonusId, 'telegram_user_id' => $telegram_user_id])->first();
@@ -65,8 +63,15 @@ class BonusController extends Controller
                 Log::info(`Issue with bonus Id $bonusId for user $telegram_user_id`);
                 continue;
             }
+
+            $position = Position::where(['telegram_user_id' => $telegram_user_id, 'position_id' => $bonus->position_id])->first();
+            $position->bonuses_id = array_diff($position->bonuses_id, [$bonusId]);
+
+            // We keep track of the bonuses used by the user
+            // SHOULD WE?
             $bonus->is_expired = true;
             $bonus->save();
+            $position->save();
         }
     }
 }

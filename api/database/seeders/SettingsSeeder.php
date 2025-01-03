@@ -15,7 +15,8 @@ class SettingsSeeder extends Seeder
     {
         $settings = [
             ['name' => 'star_price', 'value' => '0.025'],
-            ['name' => 'prem_mult', 'value' => '5']
+            ['name' => 'prem_mult', 'value' => '5'],
+            ['name' => 'stars_purchased', 'value' => '0']
         ];
 
         foreach ($settings as $setting) {

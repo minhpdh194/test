@@ -15,6 +15,8 @@ use App\Http\Controllers\PopupController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\BonusController;
 
+use App\Models\Settings;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -27,6 +29,10 @@ use App\Http\Controllers\BonusController;
 */
 
 // Public routes
+Route::get('/total-stars', function () {
+    $response = Settings::where('name', 'stars_purchased')->first()->value;
+    return response()->json(['total_stars' => $response]);
+});
 Route::post('/auth/telegram-user', [AuthController::class, 'telegramUser']);
 Route::get('/popups', [PopupController::class, 'index']);
 
@@ -50,7 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/buy-bonus', [BonusController::class, 'buyBonus']);
     Route::get('/user_bonuses', [BonusController::class, 'getBonuses']);
-    Route::post('/expire_bonuses', [BonusController::class, 'expiry']);
+    Route::post('/expiry_bonuses', [BonusController::class, 'expiry']);
 
     require base_path('routes/clicker.php');
 

@@ -21,6 +21,7 @@ export type UserProfileStore = UserProfile & {
   UserLevelUp: () => void;
   AddPosition: (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]) => Promise<number | undefined>;
   ClosePosition: (position_id: number) => Promise<number>;
+  AddBonusesToPosition: (position_id: number, bonuses: Bonus[]) => Promise<void>;
   SetFriends: (friends: Friend[]) => void;
   BuyBonus: (bonus: BonusDefinition) => void;
   unlocked_pair_ids: Array<number>;
@@ -114,7 +115,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
           const responseBonus = response.data.bonus;
           if (responseBonus) {
             const addedBonus = new Bonus(responseBonus.id, responseBonus);
-            userProfile.positionStore.AddNewBonus(addedBonus);
+            userProfile.positionStore.AddAvailableBonus(addedBonus);
           }
         }
       } else if (response.status === 202) {
@@ -164,7 +165,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
     if (currentAvailableEnergy < gainPerTap) { return false; }
 
     set((state) => ({
-      available_energy: state.available_energy - gainPerTap,
+      available_energy:  state.available_energy - gainPerTap,
       amount_of_tokens: state.amount_of_tokens + gainPerTap,
       trading_info: {
         balance: state.trading_info.balance + gainPerTap,
@@ -195,7 +196,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       const unlocked_pair_ids = get().unlocked_pair_ids;
       getUnlockedPairIds(matchedCondition.level).forEach(id => { if (!unlocked_pair_ids.find(nid => nid == id)) unlocked_pair_ids.push(id) });
 
-      const unlocked_pairs = get().unlocked_pairs;
+    const unlocked_pairs = get().unlocked_pairs;
       getUnlockedPairs(pairsInReferential, matchedCondition.level).forEach(p => { if (!unlocked_pairs.find(np => np.id == p.id)) unlocked_pairs.push(p) });
 
       await updateUserLevel(matchedCondition.level);
@@ -247,6 +248,13 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
     return undefined;
   },
 
+  AddBonusesToPosition: async (position_id: number, bonuses: Bonus[]): Promise<void> => {
+    const userProfile = get();
+    if (!userProfile.positionStore) return;
+
+    await userProfile.positionStore.AddBonusesToPosition(position_id, bonuses);
+  },
+
   ClosePosition: async (position_id: number): Promise<number> => {
     const positionStore = get().positionStore;
     if (!positionStore) return 0;
@@ -296,16 +304,16 @@ function getUnlockedPairIds(level: number): number[] {
   const pairs: number[] = [];
 
   levelBenefits.filter((benefit) => benefit.level <= level)
-    .forEach((benefit) => {
-      pairs.push(...benefit.pairs_unlocked)
-    });
+      .forEach((benefit) => {
+        pairs.push(...benefit.pairs_unlocked)
+      });
 
   return pairs;
 }
 
 function getUnlockedPairs(pairsInReferential: Pair[], level: number): Pair[] {
-  let pairs: Pair[] = [];
-  const pairIds = getUnlockedPairIds(level);
-  pairIds.forEach(id => pairs.push(pairsInReferential.find(p => p.id == id)!))
-  return pairs;
+   let pairs: Pair[] = [];
+   const pairIds = getUnlockedPairIds(level);
+   pairIds.forEach(id => pairs.push(pairsInReferential.find(p => p.id == id)!))
+   return pairs;
 }

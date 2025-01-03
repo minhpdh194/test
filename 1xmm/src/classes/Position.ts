@@ -200,7 +200,7 @@ export class Position {
         let total_time_reduction = userProfile.trading_info.time_reduction;
 
         const bonusToDelete = this.check_bonuses();
-        if (bonusToDelete.length > 0) { COMM.bonusExpiry($http, this.telegram_user_id, bonusToDelete); }
+        if (bonusToDelete.length > 0) { COMM.bonusExpiry($http, bonusToDelete); }
 
         this.bonuses.forEach(b => {
             switch (b.bonus_definition.bonus_type) {
