@@ -93,7 +93,7 @@ function App() {
         ] = await Promise.all([
           $http.$get<SyncData>("/clicker/sync"),
           $http.$get<UserBonus[]>("/user_bonuses"),
-          $http.$get<{ next_position_id: number; positions: UserPosition[]; }>("/user_positions"),
+          $http.$get<{positions: UserPosition[]}>("/user_positions"),
           $http.$get<Index[]>("/get-indices"),
           $http.$get<Friend[]>("/referred-users"),
           //$http.get("/user_tasks")
@@ -134,10 +134,9 @@ function App() {
         
         await COMM.bonusExpiry($http, bonusesToDelete);
         COMM.updatePositions(cleanedPositions);
-
+console.log(cleanedPositions);
         globalThis.userProfile.positionStore!.UpdateAvailableBonuses(availableBonuses);
         globalThis.userProfile.positionStore!.SetUserPositions(cleanedPositions);
-        globalThis.userProfile.positionStore!.next_position_id = user_positions.next_position_id;
 
         setProgress(85);
         globalThis.userProfile.SetLevelBenefits();
@@ -175,8 +174,9 @@ async function filterBonusesAndPositions(userBonuses: UserBonus[], userPositions
     const date = new Date(p.min_end_date + 'Z').getTime() / 1000;
     const isLong = p.long_short == 'long';
 
-    const open_position: Position = new Position(p.pair_id, pairs.find(e => e.id == p.pair_id)!, isLong ? LongShort.Long : LongShort.Short, p.amount, p.index_start, p.average_leverage, date);
+    const open_position: Position = new Position(pairs.find(e => e.id == p.pair_id)!, isLong ? LongShort.Long : LongShort.Short, p.amount, p.index_start, p.average_leverage, date);
     open_position.set_last_update_timestamp(timestamp);
+    open_position.set_id(p.id);
 
     if (p.bonuses_id) {
     const bonusForPosition: number[] = JSON.parse(p.bonuses_id);

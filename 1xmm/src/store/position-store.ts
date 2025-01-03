@@ -6,6 +6,7 @@ import { LongShort } from '@/enums';
 import { Bonus } from '@/classes/Bonus';
 import { Utils } from '@/lib/utils';
 import { COMM } from '@/lib/comm';
+import { toast } from 'react-toastify';
 
 export type AddingDetails = {
   success: boolean;
@@ -26,7 +27,6 @@ export type PositionsUpdate = {
 }
 
 export type PositionStore = {
-  next_position_id: number;
   available_bonuses: Bonus[];
   positions: Position[];
 
@@ -41,7 +41,6 @@ export type PositionStore = {
 }
 
 export const getPositionStore = create<PositionStore>()((set, get) => ({
-  next_position_id: -1,
   available_bonuses: [],
   positions: [],
 
@@ -55,8 +54,8 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
     get().available_bonuses.push(bonus);
   },
 
-  AddBonusesToPosition: async (position_id: number, bonuses: Bonus[]): Promise<void> => {
-    const position = get().positions.find(p => p.position_id === position_id);
+  AddBonusesToPosition: async (pair_id: number, bonuses: Bonus[]): Promise<void> => {
+    const position = get().positions.find(p => p.pair.id === pair_id);
     if (!position) return;
 
     const newly_attached_bonuses = bonuses.map(b => {
@@ -70,19 +69,21 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
     const new_available_bonuses = get().available_bonuses.filter(b => !newly_attached_bonuses.find(nb => nb.id == b.id));
 
     try {
-      await $http.post(`/clicker/update-position`, {position: position, new_bonuses: newly_attached_bonuses, pnl: 0 });
+      await $http.post(`/clicker/update-position`, { position: position, new_bonuses: newly_attached_bonuses, pnl: 0 });
       set((state) => ({
-        positions: state.positions.map((pos) => (pos.position_id === position_id ? position : pos)),
+        positions: state.positions.map((pos) => (pos.pair.id === pair_id ? position : pos)),
         available_bonuses: new_available_bonuses
       }));
+      toast.success(`${position.pair.pair_symbol} updated successfully`);
     } catch (error) {
       console.error('Failed to update position:', error);
     }
   },
 
   SetUserPositions: (positions: Position[]): void => {
-    const current_positions = get().positions;
-    current_positions.push(...positions);
+    set(() => ({
+      positions: positions
+    }));
   },
 
   AddPosition: async (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]): Promise<AddingDetails> => {
@@ -103,8 +104,10 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
       try {
         if (existing_position.amount == 0) {
           await $http.post('clicker/close-position', { position: existing_position, pnl: res.realized_pnl });
+          toast(`${pair.pair_symbol} has been closed`);
         } else {
-          await $http.post('/clicker/update-position', {position: existing_position, new_bonuses: new_bonuses, pnl: res.realized_pnl });
+          await $http.post('/clicker/update-position', { position: existing_position, new_bonuses: new_bonuses, pnl: res.realized_pnl });
+          toast.success(`${pair.pair_symbol} updated successfully`);
         }
       } catch (error) {
         console.error('Failed to add position:', error);
@@ -117,7 +120,7 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
       };
     } else {
       const index_value = COMM.getIndex(pair.id, ls);
-      
+
       if (index_value == undefined) {
         return {
           success: false,
@@ -129,14 +132,16 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
       const index_at_start = index_value.value;
       const value_date = index_value.timestamp;
 
-      const position: Position = new Position(get().next_position_id!, pair, ls, Number(amt), index_at_start!, lev, value_date + 21600);
+      const position: Position = new Position(pair, ls, Number(amt), index_at_start!, lev, value_date + 21600);
       position.set_last_update_timestamp(value_date);
       bonuses.forEach(b => position.attach_new_bonus(b));
 
-      console.log(position);
-      
       try {
-        await $http.post('/clicker/add-position', {position: position, bonus_end_dates: position.bonuses.map(b => b.end_date!) });
+        const response = await $http.post('/clicker/add-position', { position: position, bonus_end_dates: position.bonuses.map(b => b.end_date!) });
+        if (response) {
+          position.set_id(response.data.data.id);
+        }
+        toast.success(`${position.pair.pair_symbol} opened successfully`);
       } catch (error) {
         return {
           success: false,
@@ -144,13 +149,10 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
           realized_pnl: 0
         };
       }
-
-      get().positions.push(position);
-
       set((state) => ({
-        next_position_id: state.next_position_id + 1,
+        positions: [...state.positions, position],
       }));
-        
+
       return {
         success: true,
         amount_adjustment: -amt,
@@ -159,8 +161,8 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
     }
   },
 
-  UpdatePosition: async (position_id: number, new_bonuses: Bonus[]) => {
-    const position = get().positions.find(pos => pos.position_id === position_id);
+  UpdatePosition: async (pair_id: number, new_bonuses: Bonus[]) => {
+    const position = get().positions.find(pos => pos.pair.id === pair_id);
     if (!position) return;
 
     position.set_last_update_timestamp(await Utils.getLastFixingTimestamp());
@@ -173,10 +175,11 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
     });
 
     try {
-      await $http.post(`/clicker/update-position`, {position: position, new_bonuses: newly_attached_bonuses, pnl: 0 });
+      await $http.post(`/clicker/update-position`, { position: position, new_bonuses: newly_attached_bonuses, pnl: 0 });
       set((state) => ({
-        positions: state.positions.map((pos) => (pos.position_id === position_id ? position : pos)),
+        positions: state.positions.map((pos) => (pos.pair.id === pair_id ? position : pos)),
       }));
+      toast.success(`${position.pair.pair_symbol} updated successfully`);
     } catch (error) {
       console.error('Failed to update position:', error);
     }
@@ -193,9 +196,9 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
     for (let i = 0; i < positions.length; i++) {
       const index = globalThis.globalIndices.find(v => v.pair_id === positions[i].pair.id);
       if (!index) continue;
-      
+
       const value_date = index.time;
-      const index_value =  positions[i].long_short == LongShort.Long ? index.long : index.short;
+      const index_value = positions[i].long_short == LongShort.Long ? index.long : index.short;
       const pnlResult = positions[i].update(value_date, index_value);
 
       pnl_results.push(pnlResult);
@@ -223,33 +226,34 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
   },
 
   ClosePosition: async (position_id: number): Promise<ClosingDetails> => {
-    const index = get().positions.findIndex(pos => pos.position_id === position_id);
-    const position = get().positions[index];
-    
-    if (!position) return {
-      success: false, 
+    const removedPosition = get().positions.find(pos => pos.id === position_id);
+    if (!removedPosition) return {
+      success: false,
       position_amount: 0,
       position_pnl: 0
     };
 
-    const pnl = position.get_PnL();
+    const pnl = removedPosition.get_PnL();
 
     try {
-      await $http.post(`/clicker/close-position`, { position: position, pnl: pnl.pnl });
+      await $http.post(`/clicker/close-position`, { position: removedPosition, pnl: pnl.pnl });
 
       set((state) => ({
-        positions: state.positions.splice(index, 1),
+        positions: state.positions.filter((position) => position.id !== removedPosition.id),
       }));
+
+      toast.success(`${removedPosition.pair.pair_symbol} closed successfully`);
+
       return {
-        success: true, 
-        position_amount: position.amount,
+        success: true,
+        position_amount: removedPosition.amount,
         position_pnl: pnl.pnl
       };
-      
+
     } catch (error) {
       console.error('Failed to close position:', error);
       return {
-        success: false, 
+        success: false,
         position_amount: 0,
         position_pnl: 0
       };

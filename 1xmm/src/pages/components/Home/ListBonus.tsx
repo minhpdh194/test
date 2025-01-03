@@ -53,7 +53,7 @@ export default function ListBonus({
                 Select Bonuses
             </h2>
             <div className="flex flex-col justify-start pb-6 h-[calc(100vh-200px)] overflow-y-auto">
-                {bonusData.sort((a,b) => a.id - b.id).map((bonus) => (
+                {bonusData.sort((a, b) => a.id - b.id).map((bonus) => (
                     <div
                         key={bonus.id}
                         className="p-2 flex justify-between mb-2"
@@ -86,7 +86,7 @@ export default function ListBonus({
             <Button
                 className="rounded flex w-full fw-semibold py-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)]"
                 onClick={async () => { await onSelectBonuses(selectedBonuses); }}
-                >
+            >
                 <span className="font-normal text-lg">Add</span>
             </Button>
         </Drawer>

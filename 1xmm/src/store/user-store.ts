@@ -13,6 +13,7 @@ import { LongShort } from "@/enums";
 import { levelBenefits } from "@/referential/levelBenefits";
 import { levelConditions } from "@/referential/levelConditions";
 import { BonusDefinition } from "@/types/BonusDefinition";
+import { Position } from "@/classes/Position";
 
 export type UserProfileStore = UserProfile & {
   SetLevelBenefits: () => void;
@@ -20,7 +21,7 @@ export type UserProfileStore = UserProfile & {
   UserTap: () => boolean;
   UserLevelUp: () => void;
   AddPosition: (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]) => Promise<number | undefined>;
-  ClosePosition: (position_id: number) => Promise<number>;
+  ClosePosition: (position: Position) => Promise<number>;
   AddBonusesToPosition: (position_id: number, bonuses: Bonus[]) => Promise<void>;
   SetFriends: (friends: Friend[]) => void;
   BuyBonus: (bonus: BonusDefinition) => void;
@@ -255,11 +256,11 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
     await userProfile.positionStore.AddBonusesToPosition(position_id, bonuses);
   },
 
-  ClosePosition: async (position_id: number): Promise<number> => {
+  ClosePosition: async (position: Position): Promise<number> => {
     const positionStore = get().positionStore;
     if (!positionStore) return 0;
 
-    const closingDetails = await positionStore!.ClosePosition(position_id);
+    const closingDetails = await positionStore!.ClosePosition(position.id);
 
     if (closingDetails.success) {
       set((state) => ({

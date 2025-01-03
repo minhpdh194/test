@@ -11,12 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('stars_definition', function (Blueprint $table) {
-            $table->increments('id');
-            $table->integer('number_of_stars')->default(0);
-            $table->double('price')->default(0);
-            $table->double('discount')->default(0);
-            $table->timestamps();
+        Schema::table('positions', function (Blueprint $table) {
+            $table->dropUnique('positions_position_id_telegram_user_id_pair_id_unique');
+            $table->dropColumn('position_id');
         });
     }
 
@@ -25,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('stars_definition');
+        Schema::table('positions', function (Blueprint $table) {
+            //
+        });
     }
 };

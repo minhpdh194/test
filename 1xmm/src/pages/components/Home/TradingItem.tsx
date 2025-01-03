@@ -21,7 +21,7 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
     //const [bonusData, setBonusData] = useState<any[]>([]);
     const pairs = JSON.parse(localStorage.getItem("PairReferential") || "[]") as Pair[];
 
-    const [selectedBonuses, setBonusesForPosition] = useState<{ [key: number]: { bonus: Bonus, countdown: DateCountDown|undefined}[] }>({});
+    const [selectedBonuses, setBonusesForPosition] = useState<{ [key: number]: { bonus: Bonus, countdown: DateCountDown | undefined }[] }>({});
     const [openBonusDrawer, setOpenBonusDrawer] = useState(false);
     const [bonusPositionId, setPositionIdForBonus] = useState<number>(-1);
     const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: LongShort | undefined }>({});
@@ -65,23 +65,23 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
             setPositions(userProfile.positionStore?.positions ?? []);
 
             userProfile.positionStore?.positions.forEach((pos) => {
-                selectedBonuses[pos.position_id] = [];
+                selectedBonuses[pos.id] = [];
 
                 if (pos.bonuses && pos.bonuses.length > 0) {
                     pos.bonuses.forEach(b => {
                         const bonusAndTimer = { bonus: b, countdown: new DateCountDown(b.end_date!) }
-                        selectedBonuses[pos.position_id].push(bonusAndTimer);
+                        selectedBonuses[pos.id].push(bonusAndTimer);
                     });
 
-                    setExpandedBonuses((prev) => ({ 
-                        ...prev, 
-                        [pos.position_id]: true 
+                    setExpandedBonuses((prev) => ({
+                        ...prev,
+                        [pos.id]: true
                     }));
                 }
 
                 setBonusesForPosition((prev) => ({
                     ...prev,
-                    [pos.position_id]: selectedBonuses[pos.position_id]
+                    [pos.id]: selectedBonuses[pos.id]
                 }));
             });
         } catch (error) {
@@ -142,6 +142,7 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
             // If only bonuses have been added to the position
             if (!selectedOptions[bonusPositionId] || !leverages[bonusPositionId] || leverages[bonusPositionId] == 0) {
                 // This adds the bonuses to the position and updates database
+                console.log("call")
                 await userProfile.AddBonusesToPosition(bonusPositionId, bonuses);
             } else {
                 // We set the bonus and timers for handleValidate
@@ -182,7 +183,7 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
                 return;
             }
 
-            onValidatePosition(balanceAdjustment);            
+            onValidatePosition(balanceAdjustment);
 
             // Reset states
             setAmounts((prev) => ({ ...prev, [pairId]: 0 }));
@@ -203,10 +204,9 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
     const handleClose = async (pairId: number) => {
         try {
             setIsLoading(true);
-            const pair = pairs.find(pair => pair.id === pairId);
-
-            if (positions.find((pos: Position) => pos.position_id === pairId)) {
-                const balanceAdjustment = await userProfile.ClosePosition(pairId);
+            const closedPosition = positions.find((pos: Position) => pos.pair.id === pairId);
+            if (closedPosition) {
+                const balanceAdjustment = await userProfile.ClosePosition(closedPosition);
 
                 if (balanceAdjustment == undefined) {
                     toast.info("Error cancelling position");
@@ -217,12 +217,10 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
                 setAmounts((prev) => ({ ...prev, [pairId]: 0 }));
                 setLeverages((prev) => ({ ...prev, [pairId]: 0 }));
 
-                onValidatePosition(balanceAdjustment);  
+                onValidatePosition(balanceAdjustment);
 
                 // Fetch updated positions
                 await fetchLatestPositions();
-
-                toast.success(`${pair!.pair_symbol} closed successfully`);
             }
         } catch (error) {
             console.error('Error closing position:', error);
@@ -232,9 +230,10 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
         }
     };
 
-    const printPositionAmount = (positionId: number): string => {
-        const p = positions.find((pos) => pos.position_id === positionId);
+    const printPositionAmount = (selectedPairId: number): string => {
+        const p = positions.find((pos) => pos.pair.id === selectedPairId);
         if (p) {
+            console.log(p);
             return Utils.toCamelFormat(String(p.long_short)) + " " + p.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
 
@@ -287,7 +286,7 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
                                         <span className="font-normal text-sm block">Performance to Date</span>
                                     </div>
                                     <div className="w-1/2 text-right mb-2">
-                                        <span className="font-normal text-sm block">{((positions.find((pos) => pos.position_id === pair.id)?.performance ?? 0) * 100).toFixed(2)}%</span>
+                                        <span className="font-normal text-sm block">{((positions.find((pos) => pos.id === pair.id)?.performance ?? 0) * 100).toFixed(2)}%</span>
                                     </div>
                                 </div>
                                 <div className={`flex justify-between pl-3 pr-3 border-b border-gray-500 my-0 ${expandedBonuses[pair.id] ? 'bg-[#32363C]' : ''}`}>
@@ -367,7 +366,7 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
                                                 : 'bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)] flex items-center justify-center'
                                             }`}
                                         onClick={() => { setPositionIdForBonus(pair.id); setOpenBonusDrawer(true) }}
-                                        disabled={amounts[pair.id] === 0 && !positions.find((pos) => pos.position_id === pair.id)}>
+                                        disabled={amounts[pair.id] === 0 && !positions.find((pos) => pos.id === pair.id)}>
 
                                         <div className="flex items-center space-x-1"> {/* Add a container to align items horizontally */}
                                             <img
@@ -394,8 +393,8 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
 
                                     <button
                                         type="button"
-                                        className={`rounded flex-1 py-1 px-2 ${!positions.find((pos) => pos.position_id === pair.id) ? 'bg-gray-400 opacity-50 cursor-not-allowed' : 'bg-[#F27A83]'}`}
-                                        onClick={() => { if (!positions.find((pos) => pos.position_id === pair.id)) return; handleClose(pair.id); }}
+                                        className={`rounded flex-1 py-1 px-2 ${!positions.find((pos) => pos.pair.id === pair.id) ? 'bg-gray-400 opacity-50 cursor-not-allowed' : 'bg-[#F27A83]'}`}
+                                        onClick={() => { if (!positions.find((pos) => pos.pair.id === pair.id)) return; handleClose(pair.id); }}
                                     >
                                         <span className="font-bold text-xs">Close</span>
                                     </button>
