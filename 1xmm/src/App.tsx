@@ -171,7 +171,6 @@ async function filterBonusesAndPositions(userBonuses: UserBonus[], userPositions
   const timestamp = await Utils.getLastFixingTimestamp();
 
   userPositions.forEach(p => {
-    console.log(p);
     const date = new Date(p.min_end_date + 'Z').getTime() / 1000;
     const isLong = p.long_short == 'long';
 

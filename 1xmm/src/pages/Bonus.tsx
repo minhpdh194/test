@@ -10,10 +10,9 @@ import DetailStar from "@/components/partials/components/Star/DetailStar";
 import ProgressBar from "@/components/ui/progress-bar";
 import Star from "@/components/icons/BonusIcon/Star";
 import Present from "@/components/icons/BonusIcon/Present";
+import Purchased from "@/components/icons/BonusIcon/Purchased";
 
 export default function Bonus() {
-    const [openBonusDrawer, setOpenBonusDrawer] = useState(false);
-    const [bonusDef, setBonusDef] = useState<any[]>([]);
     const [leverageData, setLeverageData] = useState<any[]>([]);
     const [positiveLeverageData, setPositiveLeverageData] = useState<any[]>([]);
     const [capitalProtectionData, setCapitalProtectionData] = useState<any[]>([]);
@@ -21,6 +20,7 @@ export default function Bonus() {
     // const [friendData, setFriendData] = useState<any[]>([]);
     const [openStarDrawer, setOpenStarDrawer] = useState(false);
 
+    const bonusDefinitionIds = userProfile.positionStore?.available_bonuses.map(item => item.bonus_definition.id);
     //const updateBonusData = async () => {
     //     try {
     //         throw new Error("Need to send update of buying purchase to server");
@@ -33,8 +33,6 @@ export default function Bonus() {
         const fetchBonusData = async () => {
             try {
                 const telegramResponse = bonusDefinitions;
-                setBonusDef([...telegramResponse]);
-
                 setLeverageData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.Leverage));
                 setPositiveLeverageData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.PositiveLeverage));
                 setCapitalProtectionData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.CapitalProtection));
@@ -57,22 +55,22 @@ export default function Bonus() {
         fetchBonusData();
     }, []);
 
-       const renderBenefit = (bonus: BonusDefinition) => {
-            switch (bonus.bonus_type) {
-                case BonusTypes.Leverage: return (
-                    <>+{bonus.benefit}x</>
-                );
-                case BonusTypes.CapitalProtection: return (
-                    <>+{bonus.benefit}x</>
-                );
-                case BonusTypes.PositiveLeverage: return (
-                    <>+{bonus.benefit}x</>
-                );
-                case BonusTypes.TimeReduction: return (
-                    <>+{bonus.benefit}sec</>
-                );
-            }
+    const renderBenefit = (bonus: BonusDefinition) => {
+        switch (bonus.bonus_type) {
+            case BonusTypes.Leverage: return (
+                <>+{bonus.benefit}x</>
+            );
+            case BonusTypes.CapitalProtection: return (
+                <>+{bonus.benefit}x</>
+            );
+            case BonusTypes.PositiveLeverage: return (
+                <>+{bonus.benefit}x</>
+            );
+            case BonusTypes.TimeReduction: return (
+                <>+{bonus.benefit}sec</>
+            );
         }
+    }
 
     const renderBonusItem = (bonus: BonusDefinition) => {
         // const toString = (bonusType: BonusTypes) => {
@@ -88,8 +86,13 @@ export default function Bonus() {
         return (
             <div
                 key={bonus.id}
-                className="flex-shrink-0 w-[calc(45%-1rem)] bg-[#32363C] rounded-xl p-2.5 mt-3"
+                className={`flex-shrink-0 w-[calc(45%-1rem)] bg-[#32363C] rounded-xl p-2.5 mt-3 ${!bonusDefinitionIds?.includes(bonus.id) && 'hover:cursor-pointer'}`}
                 style={{ flexBasis: 'calc(45% - 1rem)' }}
+                onClick={() => {
+                    if (!bonusDefinitionIds?.includes(bonus.id)) {
+                        handleBuyBonusAction(bonus);
+                    }
+                }}
             >
                 <span className="flex items-center">
                     <div className="bg-white rounded-full min-w-10 min-h-10 mr-4">
@@ -98,7 +101,11 @@ export default function Bonus() {
                             : ''}
                     </div>
                     <div className="w-full">
-                        <span className="flex gap-2"><Star /> {bonus.cost}</span>
+                        <div className="flex justify-between">
+                            <span className="flex gap-2"><Star /> {bonus.cost} </span>
+                            {bonusDefinitionIds?.includes(bonus.id) && <Purchased />}
+                        </div>
+
                         <div className="h-[1px] bg-gray-600 my-1"></div>
                         <span className="flex gap-2"><Present /> {renderBenefit(bonus)}</span>
                     </div>
@@ -139,9 +146,9 @@ export default function Bonus() {
         setOpenStarDrawer(true);
     }
 
-    const handleBuyBonusAction = async () => {
+    const handleBuyBonusAction = async (bonus: BonusDefinition) => {
         if (globalThis.userProfile.number_of_stars > 0) {
-            setOpenBonusDrawer(true);
+            globalThis.userProfile.BuyBonus(bonus);
         }
     }
 
@@ -179,7 +186,7 @@ export default function Bonus() {
                 </div>
             </div> */}
             <div className="flex justify-between mt-4 mb-6">
-                <button
+                {/* <button
                     type="button"
                     className="rounded flex fw-semibold py-2 px-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)]"
                     onClick={() => handleBuyBonusAction()}
@@ -189,8 +196,8 @@ export default function Bonus() {
                         alt="coin"
                         className="object-cover w-4 h-4"
                     />
-                    <span className="font-normal text-xs">Purchase Bonuses</span>
-                </button>
+                    <span className="font-normal text-xs">Purchased Bonuses</span>
+                </button> */}
 
                 <button
                     type="button"
@@ -319,14 +326,14 @@ export default function Bonus() {
                 </div>
             </div> */}
 
-            {openBonusDrawer && bonusDef.length > 0 && (
+            {/* {openBonusDrawer && bonusDef.length > 0 && (
                 <DetailBonus
                     open={openBonusDrawer}
                     // bonusData={bonusData}  
                     onOpenChange={setOpenBonusDrawer}
                 //onBuySuccess={updateBonusData}
                 />
-            )}
+            )} */}
 
             {openStarDrawer && starPackage.length > 0 && (
                 <DetailStar

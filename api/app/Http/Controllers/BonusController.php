@@ -30,13 +30,13 @@ class BonusController extends Controller
             }
             $userData->number_of_stars = $ownedStars - $boughtBonus["cost"];
             $userData->save();
-            UserBonuses::create([
+            $bonus = UserBonuses::create([
                 'bonus_id' => $boughtBonus['id'],
                 'telegram_user_id' => $user->telegram_user_id,
                 'purchase_time' => Carbon::now(),
                 'position_id' => 0,
             ]);
-            return response()->json(['success' => 'Bonus list updated successfully'], 200);
+            return response()->json(['success' => 'Bonus list updated successfully', 'bonus' => $bonus], 200);
         }
     }
 
