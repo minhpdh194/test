@@ -22,7 +22,7 @@ export type PnLResult = {
 export class Position {
     last_update_timestamp: number;
     telegram_user_id: number;
-    id: number;
+    position_id: number;
     pair: Pair;
     long_short: LongShort;
     amount: number;
@@ -34,8 +34,9 @@ export class Position {
     performance: number;
 
     // This opens a new position
-    public constructor(pair: Pair, ls: LongShort, amt: number, index_at_start: number, lev: number, min_end_date: number) {
+    public constructor(position_id: number, pair: Pair, ls: LongShort, amt: number, index_at_start: number, lev: number, min_end_date: number) {
         this.telegram_user_id = globalThis.userProfile.telegram_user_id;
+        this.position_id = position_id;
         this.pair = pair;
         this.long_short = ls;
         this.amount = amt;
@@ -43,16 +44,11 @@ export class Position {
         this.leverage = lev;
         this.min_end_date = min_end_date;
         this.open_date = min_end_date - 21600;
-        this.id = 0;
+        
         // We initialize the last_update_timestamp to 0 to indicate that the position has not been updated yet
         // When loading the positions, the update is required => the last_update_timestamp will be set to the current timestamp
         this.last_update_timestamp = this.open_date;
         this.performance = 0.0;
-    }
-
-    //Used for init added positions
-    public set_id(id: number) {
-        this.id = id;
     }
 
     public set_last_update_timestamp(timestamp: number) {
@@ -171,6 +167,7 @@ export class Position {
                 this.min_end_date = value_date + 21600;
 
                 bonuses.forEach(b => this.attach_new_bonus(b));
+                toast.success("Position updated successfully");
 
                 return {
                     amount_adjustment: prev_amt - this.amount,

@@ -61,6 +61,7 @@ class PositionController extends Controller
 
         $position = $validatedData['position'];
 
+        $positionData['position_id'] = $position['position_id'];
         $positionData['amount'] = $position['amount'];
         $positionData['index_start'] = $position['index_at_start'];
         $positionData['average_leverage'] = $position['leverage'];
@@ -68,6 +69,23 @@ class PositionController extends Controller
         $positionData['long_short'] = $position['long_short'];
         $positionData['telegram_user_id'] = $user->telegram_user_id;
         $positionData['pair_id'] = $position['pair']['id'];
+
+        if (!empty($position['bonuses']) && count($position['bonuses']) > 0) {
+            $bonuses_ids = array_map(fn($bonus) => (integer)$bonus['id'], $position['bonuses']);
+            $index = 0;
+
+            // We update the user bonuses
+            foreach ($bonuses_ids as $bonus_id) {
+                $bonus = UserBonuses::where('id', $bonus_id)->first();
+                $bonus->position_id = $positionData['position_id'];
+                $bonus->end_date = Carbon::createFromTimestamp($validatedData['bonus_end_dates'][$index])->toDateTimeString();
+                $bonus->save();
+
+                $index++;
+            }
+            
+            $positionData['bonuses_id'] = json_encode($bonuses_ids);
+        }
 
         $totalPositionValue = TotalOpenPositionValue::where('pair_id', $positionData['pair_id'])->first();
         if (!$totalPositionValue) {
@@ -86,23 +104,6 @@ class PositionController extends Controller
         $position = Position::create(
             $positionData
         );
-
-        if (!empty($position['bonuses']) && count($position['bonuses']) > 0) {
-            $bonuses_ids = array_map(fn($bonus) => (integer)$bonus['id'], $position['bonuses']);
-            $index = 0;
-
-            // We update the user bonuses
-            foreach ($bonuses_ids as $bonus_id) {
-                $bonus = UserBonuses::where('id', $bonus_id)->first();
-                $bonus->position_id = $position['id'];
-                $bonus->end_date = Carbon::createFromTimestamp($validatedData['bonus_end_dates'][$index])->toDateTimeString();
-                $bonus->save();
-
-                $index++;
-            }
-
-            $positionData['bonuses_id'] = json_encode($bonuses_ids);
-        }
 
         if ($userGameData) {
             $newBalance = $userGameData->balance - $positionData['amount'];
@@ -123,14 +124,14 @@ class PositionController extends Controller
         if (!$user) {
             return response()->json('User not found', 404);
         }
-\Log::info($request);
+
         $updated_position = $request->get('position');
         // new_bonus_ids is an array of bonus->id and their corresponding end_date
         // empty if no new bonus
         $new_bonus_ids = $request->get('new_bonuses');
         $pnl = $request->get('pnl');
 
-        $position = Position::where(['id' => $updated_position['id'], 'telegram_user_id' => $user->telegram_user_id])->first();
+        $position = Position::where(['position_id' => $updated_position['position_id'], 'telegram_user_id' => $user->telegram_user_id])->first();
         $userGameData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
 
         if (!$position || !$userGameData) {
@@ -151,7 +152,7 @@ class PositionController extends Controller
             if (!empty($new_bonus_ids) && count($new_bonus_ids) > 0) {
                 foreach ($new_bonus_ids as $new_bonus_id) {
                     $bonus = UserBonuses::where('id', $new_bonus_id['id'])->first();
-                    $bonus->position_id = $updated_position['id'];
+                    $bonus->position_id = $updated_position['position_id'];
                     $bonus->end_date = Carbon::createFromTimestamp($new_bonus_id['end_date'])->toDateTimeString();
                     $bonus->save();
                 }
@@ -176,10 +177,10 @@ class PositionController extends Controller
     {
         $user = $request->user();
 
-        $position_id = $request->get('position')["id"];
+        $position_id = $request->get('position')["position_id"];
         $pnl = $request->get('pnl');
 
-        $position = Position::where(['id' => $position_id, 'telegram_user_id' => $user->telegram_user_id])
+        $position = Position::where(['position_id' => $position_id, 'telegram_user_id' => $user->telegram_user_id])
             ->first();
 
         $userGameData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
@@ -203,6 +204,7 @@ class PositionController extends Controller
         $userGameData->save();
         $position->delete();
 
+        \Log::info('Position deleted successfully');
         return response()->json(['message' => 'Position closed successfully'], 200);
     }
 }

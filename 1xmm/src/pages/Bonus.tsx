@@ -188,14 +188,14 @@ export default function Bonus() {
 
             <div className="progress-bar mt-4">
                 <div className="mb-1">
-                    <ProgressBar completed={starsTarget / 2000000} />
+                    <ProgressBar completed={starsTarget / 2_000_000} />
                 </div>
                 <div className="flex justify-between">
                     <div className="font-bold text-sm">
-                        $0
+                        {starsTarget}
                     </div>
                     <div className="font-bold text-sm">
-                        {starsTarget}
+                        2,000,000
                     </div>
                 </div>
             </div>

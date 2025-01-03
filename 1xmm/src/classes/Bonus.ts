@@ -15,7 +15,7 @@ export class Bonus {
     }
 
     public attach_to_position(p: Position, end_date: number) {
-        this.position_id = p.id;
+        this.position_id = p.position_id;
         this.end_date = end_date;
     }
 
