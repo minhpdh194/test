@@ -11,6 +11,7 @@ interface ImportMetaEnv {
   readonly VITE_PUSHER_APP_CLUSTER: string;
   readonly VITE_GATEWAY_MERCHANT_ID: string;
   readonly VITE_MERCHANT_ID: string;
+  readonly VITE_REFERRAL_LINK: string;
 }
 
 interface ImportMeta {

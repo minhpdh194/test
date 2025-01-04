@@ -31,7 +31,8 @@ class AuthController extends Controller
         if ($userSession) {
             $userSession->update($request->get('chat_id'));
         } else {
-            $userSession = ActiveSessions::firstOrCreate(['telegram_id' => $request->get('telegram_user_id')],
+            $userSession = ActiveSessions::firstOrCreate(
+                ['telegram_id' => $request->get('telegram_user_id')],
                 [
                     'chat_id' => $request->get('chat_id'),
                     'last_activity' => now()
@@ -65,17 +66,22 @@ class AuthController extends Controller
         $baseBalance = 100000;
 
         if ($request->get('referral_code') != null) {
-            $referralData = FriendsInvitation::where(['invitee_id' => $request->get('telegram_user_id'), 'referral_code' => $request->get('referral_code')])->first();
-            $referredBy = TelegramUser::where('telegram_user_id', $referralData->inviter_id)->first();
+            $referredBy = TelegramUser::where('telegram_user_id', $request->get('referral_code'))->first();
 
             if ($referredBy) {
+                // $referralData = FriendsInvitation::where(['invitee_id' => $request->get('telegram_user_id'), 'referral_code' => $request->get('referral_code')])->first();
+                $referralData = FriendsInvitation::create([
+                    'inviter_id' => $request->get('referral_code'),
+                    'invitee_id' => $request->get('telegram_user_id'),
+                    'referral_code' => $request->get('referral_code')
+                ]);
                 // We first update the referral, to specify that invitee has connected
                 $referralData->updateFirstConnection();
                 // We send message to the inviter, for live update of user's balance
                 // sendMessage($referralData->inviter_id, 'referral: ' . $request->get('first_name'));
                 //later, comment it to avoid error
                 // We update the database
-                $inviterGameData = UserGameData::where('telegram_user_id', $referredBy->id)->first()->referralUpdate();
+                $inviterGameData = UserGameData::where('telegram_user_id', $referredBy->telegram_user_id)->first()->referralUpdate();
             }
         }
 
@@ -86,7 +92,8 @@ class AuthController extends Controller
             $validated
         );
 
-        $gameData = UserGameData::firstOrCreate(['telegram_user_id' => $user->telegram_user_id],
+        $gameData = UserGameData::firstOrCreate(
+            ['telegram_user_id' => $user->telegram_user_id],
             [
                 'telegram_user_id' => $user->telegram_user_id,
                 'amount_of_tokens' => $baseBalance,

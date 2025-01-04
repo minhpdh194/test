@@ -25,8 +25,13 @@ export default function Friends() {
     fetchReferedFriends();
   }, []);
 
-  const referralLink = useMemo(
+  const appLink = useMemo(
     () => `${import.meta.env.VITE_BOT_URL}/?startapp=ref${userProfile.telegram_user_id}`,
+    [userProfile.telegram_user_id]
+  );
+
+  const referralLink = useMemo(
+    () => `${import.meta.env.VITE_REFERRAL_LINK}/?startapp=ref${userProfile.telegram_user_id}`,
     [userProfile.telegram_user_id]
   );
 
@@ -36,7 +41,7 @@ export default function Friends() {
         backgroundColor: `#064C7D`,
         backgroundImage: `url(/images/friends/bg.png)`,
       }}>
-      <Header amount_token={userProfile.amount_of_tokens}/>
+      <Header amount_token={userProfile.amount_of_tokens} />
       <div className="mt-6 w-100">
         <span className="flex justify-center fw-bolder text-2xl">Invite Friends!</span>
         <span className="flex text-center text-sm">Lorem Ipsum has been the industry's standard dummy text ever since the 1500s</span>
@@ -72,7 +77,7 @@ export default function Friends() {
           <div className="border-[#ffffff] border-1 py-2 rounded-lg w-48 h-30 text-center">
             <button className="fw-bold text-sm" onClick={() =>
               Telegram.WebApp.openTelegramLink(
-                `https://t.me/share/url?text=${shareMessage}&url=${referralLink}`
+                `https://t.me/share/url?text=${shareMessage}&url=${appLink}`
               )
             }>Share invite link</button>
           </div>
@@ -87,7 +92,7 @@ export default function Friends() {
           <div className="p-3 rounded-lg w-100 text-center" style={{ background: `linear-gradient(142.18deg, #5155DA 21.85%, #2B2D74 78.15%)` }}>
             <button className="fw-bold text-sm" onClick={() =>
               Telegram.WebApp.openTelegramLink(
-                `https://t.me/share/url?text=${shareMessage}&url=${referralLink}`
+                `https://t.me/share/url?text=${shareMessage}&url=${appLink}`
               )
             }>Invite Friend</button>
           </div>
