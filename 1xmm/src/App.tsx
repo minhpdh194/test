@@ -174,7 +174,7 @@ async function filterBonusesAndPositions(userBonuses: UserBonus[], userPositions
     const date = new Date(p.min_end_date + 'Z').getTime() / 1000;
     const isLong = p.long_short == 'long';
 
-    const open_position: Position = new Position(p.pair_id, pairs.find(e => e.id == p.pair_id)!, isLong ? LongShort.Long : LongShort.Short, p.amount, p.index_start, p.average_leverage, date);
+    const open_position: Position = new Position(pairs.find(e => e.id == p.pair_id)!, isLong ? LongShort.Long : LongShort.Short, p.amount, p.index_start, p.average_leverage, date);
     open_position.set_last_update_timestamp(timestamp);
 
     if (p.bonuses_id) {

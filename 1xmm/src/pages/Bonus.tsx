@@ -11,6 +11,7 @@ import Star from "@/components/icons/BonusIcon/Star";
 import Present from "@/components/icons/BonusIcon/Present";
 import Purchased from "@/components/icons/BonusIcon/Purchased";
 import { COMM } from "@/lib/comm";
+import { toast } from "react-toastify";
 
 export default function Bonus() {
     const [leverageData, setLeverageData] = useState<any[]>([]);
@@ -115,7 +116,7 @@ export default function Bonus() {
                     <>+{bonus.benefit}x</>
                 );
                 case BonusTypes.CapitalProtection: return (
-                    <>+{bonus.benefit}x</>
+                    <>{bonus.benefit}%</>
                 );
                 case BonusTypes.PositiveLeverage: return (
                     <>+{bonus.benefit}x</>
@@ -130,8 +131,7 @@ export default function Bonus() {
         return (
             <div
                 key={bonus.id}
-                className={`flex-shrink-0 w-[calc(45%-1rem)] bg-[#32363C] rounded-xl p-2.5 mt-3 ${!bonusDefinitionIds?.includes(bonus.id) && 'hover:cursor-pointer'}`}
-                style={{ flexBasis: 'calc(45% - 1rem)' }}
+                className={`flex-shrink-0 w-44 bg-[#32363C] rounded-xl p-2.5 mt-3 ${!bonusDefinitionIds?.includes(bonus.id) && 'hover:cursor-pointer'}`}
                 onClick={() => handleBuyBonusAction(bonus)}
             >
                 <span className="flex items-center">
@@ -168,8 +168,10 @@ export default function Bonus() {
     }
 
     const handleBuyBonusAction = async (bonus: BonusDefinition) => {
-        if (globalThis.userProfile.number_of_stars > 0) {
+        if (starsTarget > bonus.cost) {
             await globalThis.userProfile.BuyBonus(bonus);
+        } else {
+            toast.warning(`You dont have enough stars to buy this bonus`);
         }
     }
 

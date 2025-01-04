@@ -127,7 +127,7 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
       const index_at_start = index_value.value;
       const value_date = index_value.timestamp;
 
-      const position: Position = new Position(pair.id, pair, ls, Number(amt), index_at_start!, lev, value_date + 21600);
+      const position: Position = new Position(pair, ls, Number(amt), index_at_start!, lev, value_date + 21600);
       position.set_last_update_timestamp(value_date);
       bonuses.forEach(b => position.attach_new_bonus(b));
       
@@ -196,16 +196,16 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
       if (pnlResult.is_zero) {
         await $http.post(`/clicker/close-position`, { position: positions[i], pnl: pnlResult.pnl });
         total_change_in_amount_of_tokens -= positions[i].amount;
-        positions_to_remove.push(i);
+        positions_to_remove.push(positions[i].position_id);
       }
     }
 
     // Going backwards to avoid index shifting
-    for (let i = positions_to_remove.length - 1; i > 0; i--) {
-      set((state) => ({
-        positions: state.positions.splice(positions_to_remove[i], 1),
-      }));
-    }
+    set((state) => ({
+      positions: state.positions.filter(pos => {
+        if (!positions_to_remove.find(id => id == pos.position_id)) return pos; 
+      }),
+    }));
 
     return {
       pnl_results,

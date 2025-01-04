@@ -34,9 +34,9 @@ export class Position {
     performance: number;
 
     // This opens a new position
-    public constructor(position_id: number, pair: Pair, ls: LongShort, amt: number, index_at_start: number, lev: number, min_end_date: number) {
+    public constructor(pair: Pair, ls: LongShort, amt: number, index_at_start: number, lev: number, min_end_date: number) {
         this.telegram_user_id = globalThis.userProfile.telegram_user_id;
-        this.position_id = position_id;
+        this.position_id = pair.id;
         this.pair = pair;
         this.long_short = ls;
         this.amount = amt;
