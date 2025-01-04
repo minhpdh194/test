@@ -12,6 +12,7 @@ import Present from "@/components/icons/BonusIcon/Present";
 import Purchased from "@/components/icons/BonusIcon/Purchased";
 import { COMM } from "@/lib/comm";
 import { toast } from "react-toastify";
+import pusher from "@/lib/pusher";
 
 export default function Bonus() {
     const [leverageData, setLeverageData] = useState<any[]>([]);
@@ -24,10 +25,15 @@ export default function Bonus() {
     const bonusDefinitionIds = userProfile.positionStore?.available_bonuses.map(item => item.bonus_definition.id);
 
     useEffect(() => {
-        setInterval(async () => {
-            const total_stars = await COMM.getStarsTarget($http);
-            setStarsTarget(total_stars);
-        }, 2500);
+        // setInterval(async () => {
+        //     const total_stars = await COMM.getStarsTarget($http);
+        //     setStarsTarget(total_stars);
+        // }, 2500);
+        const totalStars = pusher.subscribe("totalStars");
+    
+        totalStars.bind("data", (data: any) => {
+          setStarsTarget(data.totalStars);
+        });
 
         const fetchBonusData = async () => {
             try {
@@ -110,22 +116,22 @@ export default function Bonus() {
         fetchBonusData();
     }, []);
 
-       const renderBenefit = (bonus: BonusDefinition) => {
-            switch (bonus.bonus_type) {
-                case BonusTypes.Leverage: return (
-                    <>+{bonus.benefit}x</>
-                );
-                case BonusTypes.CapitalProtection: return (
-                    <>{bonus.benefit}%</>
-                );
-                case BonusTypes.PositiveLeverage: return (
-                    <>+{bonus.benefit}x</>
-                );
-                case BonusTypes.TimeReduction: return (
-                    <>+{bonus.benefit}sec</>
-                );
-            }
+    const renderBenefit = (bonus: BonusDefinition) => {
+        switch (bonus.bonus_type) {
+            case BonusTypes.Leverage: return (
+                <>+{bonus.benefit}x</>
+            );
+            case BonusTypes.CapitalProtection: return (
+                <>{bonus.benefit}%</>
+            );
+            case BonusTypes.PositiveLeverage: return (
+                <>+{bonus.benefit}x</>
+            );
+            case BonusTypes.TimeReduction: return (
+                <>+{bonus.benefit}sec</>
+            );
         }
+    }
 
     const renderBonusItem = (bonus: BonusDefinition) => {
         return (
@@ -148,7 +154,7 @@ export default function Bonus() {
 
                         <div className="h-[1px] bg-gray-600 my-1"></div>
                         <span className="flex gap-2"><Present /> {renderBenefit(bonus)}</span>
-                </div>
+                    </div>
                 </span>
             </div>
         );
@@ -164,11 +170,11 @@ export default function Bonus() {
     }
 
     const handleBuyStarsAction = async () => {
-            setOpenStarDrawer(true);
+        setOpenStarDrawer(true);
     }
 
     const handleBuyBonusAction = async (bonus: BonusDefinition) => {
-        if (starsTarget > bonus.cost) {
+        if (globalThis.userProfile.number_of_stars > bonus.cost) {
             await globalThis.userProfile.BuyBonus(bonus);
         } else {
             toast.warning(`You dont have enough stars to buy this bonus`);
