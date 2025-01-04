@@ -21,7 +21,7 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
     //const [bonusData, setBonusData] = useState<any[]>([]);
     const pairs = JSON.parse(localStorage.getItem("PairReferential") || "[]") as Pair[];
 
-    const [selectedBonuses, setBonusesForPosition] = useState<{ [key: number]: { bonus: Bonus, countdown: DateCountDown|undefined}[] }>({});
+    const [selectedBonuses, setBonusesForPosition] = useState<{ [key: number]: { bonus: Bonus, countdown: DateCountDown | undefined }[] }>({});
     const [openBonusDrawer, setOpenBonusDrawer] = useState(false);
     const [bonusPositionId, setPositionIdForBonus] = useState<number>(-1);
     const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: LongShort | undefined }>({});
@@ -73,9 +73,9 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
                         selectedBonuses[pos.position_id].push(bonusAndTimer);
                     });
 
-                    setExpandedBonuses((prev) => ({ 
-                        ...prev, 
-                        [pos.position_id]: true 
+                    setExpandedBonuses((prev) => ({
+                        ...prev,
+                        [pos.position_id]: true
                     }));
                 }
 
@@ -183,7 +183,7 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
                 return;
             }
 
-            onValidatePosition(balanceAdjustment);            
+            onValidatePosition(balanceAdjustment);
 
             // Reset states
             setAmounts((prev) => ({ ...prev, [pairId]: 0 }));
@@ -217,7 +217,7 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
                 setAmounts((prev) => ({ ...prev, [pairId]: 0 }));
                 setLeverages((prev) => ({ ...prev, [pairId]: 0 }));
 
-                onValidatePosition(balanceAdjustment);  
+                onValidatePosition(balanceAdjustment);
 
                 // Fetch updated positions
                 await fetchLatestPositions();
@@ -238,6 +238,16 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
 
         return 'No position';
     };
+
+    const [, setCurrentTime] = useState(Date.now());
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentTime(Date.now());
+        }, 1000);
+
+        return () => clearInterval(interval); // Cleanup on unmount
+    }, []);
 
     return (
         <div className="mt-3">
@@ -307,19 +317,21 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
 
                                 {expandedBonuses[pair.id] && (
                                     <>
-                                        {selectedBonuses[pair.id].map((b) => (
-                                            <div key={b.bonus.id} className="flex justify-between border-b border-gray-500 pl-3 pr-3 my-0 bg-[#32363C] box-border">
-                                                <div className="flex justify-between w-full">
-                                                    <div className="w-1/2 mb-2 mt-2">
-                                                        <span className="font-normal text-sm block">{b.bonus.bonus_definition.bonus_type}</span>
-                                                    </div>
-                                                    <div className="w-1/2 text-right mb-2 mt-2 flex items-center justify-end space-x-2">
-                                                        <span className="font-normal text-sm block">+{b.bonus.bonus_definition.benefit}</span>
-                                                        <span className="font-normal text-sm block">{b.countdown?.toString()}</span>
+                                        {selectedBonuses[pair.id].map((b) => {
+                                            return (
+                                                <div key={b.bonus.id} className="flex justify-between border-b border-gray-500 pl-3 pr-3 my-0 bg-[#32363C] box-border">
+                                                    <div className="flex justify-between w-full">
+                                                        <div className="w-1/2 mb-2 mt-2">
+                                                            <span className="font-normal text-sm block">{b.bonus.bonus_definition.bonus_type}</span>
+                                                        </div>
+                                                        <div className="w-1/2 text-right mb-2 mt-2 flex items-center justify-end space-x-2">
+                                                            <span className="font-normal text-sm block">+{b.bonus.bonus_definition.benefit}</span>
+                                                            <span className="font-normal text-sm block">{b.countdown?.toString()}</span>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            )
+                                        })}
                                     </>
                                 )}
 

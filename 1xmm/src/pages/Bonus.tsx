@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
-import { $http } from "@/lib/http";
-//import { toast } from "react-toastify";
 import { bonusDefinitions } from "@/referential/bonusDefinitions";
 import { BonusDefinition } from "@/types/BonusDefinition";
 import { BonusTerms, BonusTypes } from "@/enums";
@@ -10,7 +8,6 @@ import ProgressBar from "@/components/ui/progress-bar";
 import Star from "@/components/icons/BonusIcon/Star";
 import Present from "@/components/icons/BonusIcon/Present";
 import Purchased from "@/components/icons/BonusIcon/Purchased";
-import { COMM } from "@/lib/comm";
 import { toast } from "react-toastify";
 import pusher from "@/lib/pusher";
 

@@ -51,6 +51,10 @@ RUN echo "*/2 * * * * /usr/local/bin/php /var/www/html/artisan app:integration >
     && chmod 0644 /etc/cron.d/laravel-cron \
     && crontab /etc/cron.d/laravel-cron
 
+RUN echo "*/2 * * * * /usr/local/bin/php /var/www/html/artisan app:get-total-stars >> /var/log/cron.log 2>&1" >> /etc/cron.d/laravel-cron \
+    && chmod 0644 /etc/cron.d/laravel-cron \
+    && crontab /etc/cron.d/laravel-cron
+
 # Thêm Cronjob mới
 #RUN echo "*/2 * * * * php /var/www/html/artisan app:run-check-result-position-job >> /var/log/cron.log 2>&1" >> /etc/cron.d/laravel-cron \
 #    && chmod 0644 /etc/cron.d/laravel-cron \
