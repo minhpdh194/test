@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\TelegramUser;
+use App\Models\UserGameData;
+use App\Models\UserRanking;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,6 +14,12 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
+    public function getAllUsersInfo()
+    {
+        $userRankingData = UserRanking::orderByRaw('CAST(current_amount_of_tokens AS SIGNED) DESC')->get();
+        return response()->json($userRankingData);
+    }
+
     /**
      * Display the user's profile form.
      */

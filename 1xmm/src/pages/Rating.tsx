@@ -1,7 +1,20 @@
+import { UserRanking } from "@/types/UserRanking";
 import Header from "../components/Header";
 // import { useUserStore } from "@/store/user-store";
 export default function Profile() {
-    // const user = useUserStore();
+    const calculatePercentile = (userRanking: UserRanking) => {
+        const change = ((userRanking.current_amount_of_tokens - userRanking.last_amount_of_tokens) / userRanking.last_amount_of_tokens) * 100;
+        return change.toFixed(2);
+    }
+    const firstPositionUser = userRanking[0];
+    const secondPositionUser = userRanking[1];
+    const thirdPositionUser = userRanking[2];
+
+    const formatNumber = (userRanking: UserRanking) => {
+        const formattedNumberOfTokens = Math.trunc(userRanking.current_amount_of_tokens).toLocaleString();
+        return formattedNumberOfTokens;
+    }
+
     return (
         <div
             className="flex-1 px-3 pb-20 bg-center bg-cover"
@@ -60,15 +73,15 @@ export default function Profile() {
                                 2
                             </span>
                         </div>
-                        <span className="fw-light text-xs block pt-2">1%</span>
-                        <span className="block fw-bold">Rachel</span>
+                        <span className="fw-light text-xs block pt-2">{calculatePercentile(secondPositionUser)}%</span>
+                        <span className="block fw-bold">{secondPositionUser.first_name + " " + secondPositionUser.last_name}</span>
                         <span className="flex fw-bold items-center justify-center">
                             <img
                                 src="/images/home/coin.png"
                                 alt="coin"
                                 className="w-4 h-4"
                             />
-                            123,981
+                            {formatNumber(secondPositionUser)}
                         </span>
                     </div>
                     <div className="bg-[#2E3034] flex-1 text-center py-2 h-56 relative" style={{ borderTopRightRadius: `2rem`, borderTopLeftRadius: `2rem` }}>
@@ -107,15 +120,15 @@ export default function Profile() {
                                 top: `46%`,
                             }}>1</span>
                         </div>
-                        <span className="block fw-bold mt-3">Rachel</span>
-                        <span className="fw-light text-xs block">31%</span>
+                        <span className="block fw-bold mt-3">{firstPositionUser.first_name + " " + firstPositionUser.last_name}</span>
+                        <span className="fw-light text-xs block">{calculatePercentile(firstPositionUser)}%</span>
                         <span className="flex text-lg fw-bold items-center justify-center mt-1">
                             <img
                                 src="/images/home/coin.png"
                                 alt="coin"
                                 className="w-6 h-6"
                             />
-                            123,981
+                            {formatNumber(firstPositionUser)}
                         </span>
                     </div>
                     <div className="bg-[#32363C] flex-1 text-center py-2 h-38" style={{ borderTopRightRadius: `1rem`, borderBottomRightRadius: `1rem` }}>
@@ -153,119 +166,95 @@ export default function Profile() {
                             </span>
                         </div>
 
-                        <span className="fw-light text-xs block pt-2">1%</span>
-                        <span className="block fw-bold">Rachel</span>
+                        <span className="fw-light text-xs block pt-2">{calculatePercentile(thirdPositionUser)}%</span>
+                        <span className="block fw-bold">{thirdPositionUser.first_name + " " + thirdPositionUser.last_name}</span>
                         <span className="flex fw-bold items-center justify-center">
                             <img
                                 src="/images/home/coin.png"
                                 alt="coin"
                                 className="w-4 h-4"
                             />
-                            123,981
+                            {formatNumber(thirdPositionUser)}
                         </span>
                     </div>
                 </div>
-                <div className="w-100 text-sm p-3">
-                    <div className="row p-2 rounded-xl items-center bg-[#19203b]">
-                        <div className="col-2 flex justify-center items-center p-0">
-                            <span
-                                className="border items-center justify-center fw-light"
-                                style={{
-                                    borderRadius: '50%',
-                                    border: '2px solid #fff',
-                                    minWidth: '23px',
-                                    minHeight: '23px',
-                                    display: 'inline-flex',
-                                }}
-                            >
-                                4
-                            </span>
-                        </div>
+                {userRanking.length > 3 && userRanking.slice(3) && userRanking.slice(3).map((user, index) => {
+                    return (
+                        <div className="w-100 text-sm p-3">
+                            <div className="row p-2 rounded-xl items-center bg-[#19203b]">
+                                <div className="col-2 flex justify-center items-center p-0">
+                                    <span
+                                        className="border items-center justify-center fw-light"
+                                        style={{
+                                            borderRadius: '50%',
+                                            border: '2px solid #fff',
+                                            minWidth: '23px',
+                                            minHeight: '23px',
+                                            display: 'inline-flex',
+                                        }}
+                                    >
+                                        {index + 4}
+                                    </span>
+                                </div>
 
-                        <div className="col-2 flex justify-center items-center p-0">
-                            <img
-                                src="/images/rating/avatar.png"
-                                alt="avatar"
-                                className="p-1 w-100"
-                            />
+                                <div className="col-2 flex justify-center items-center p-0">
+                                    <img
+                                        src="/images/rating/avatar.png"
+                                        alt="avatar"
+                                        className="p-1 w-100"
+                                    />
+                                </div>
+                                <div className="col-5">
+                                    <span className="fw-bold block">{user.first_name + " " + user.last_name}</span>
+                                    <span className="fw-light block text-xs">{formatNumber(user)} points</span>
+                                </div>
+                                {user.current_amount_of_tokens >= user.last_amount_of_tokens ? (
+                                    <div className="col-3 flex items-center justify-end">
+                                        <img
+                                            src="/images/home/polygon.png"
+                                            alt="avatar"
+                                            className="h-3 w-3"
+                                        /> &nbsp;
+                                        <span
+                                            className="border items-center justify-center fw-light"
+                                            style={{
+                                                borderRadius: '50%',
+                                                border: `2px solid #fff`,
+                                                minWidth: `30px`,
+                                                minHeight: `30px`,
+                                                display: `inline-flex`,
+                                                fontSize: `10px`
+                                            }}
+                                        >
+                                            +{calculatePercentile(user)}%
+                                        </span>
+                                    </div>
+                                ) : (
+                                    <div className="col-3 flex items-center justify-end">
+                                        <img
+                                            src="/images/home/down-red.png"
+                                            alt="avatar"
+                                            className="h-3 w-3"
+                                        /> &nbsp;
+                                        <span
+                                            className="border items-center justify-center fw-light"
+                                            style={{
+                                                borderRadius: '50%',
+                                                border: `2px solid #fff`,
+                                                minWidth: `30px`,
+                                                minHeight: `30px`,
+                                                display: `inline-flex`,
+                                                fontSize: `10px`
+                                            }}
+                                        >
+                                            -{calculatePercentile(user)}%
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                        <div className="col-5">
-                            <span className="fw-bold block">Madelyn Dias</span>
-                            <span className="fw-light block text-xs">590 points</span>
-                        </div>
-                        <div className="col-3 flex items-center justify-end">
-                            <img
-                                src="/images/home/polygon.png"
-                                alt="avatar"
-                                className="h-3 w-3"
-                            /> &nbsp;
-                            <span
-                                className="border items-center justify-center fw-light"
-                                style={{
-                                    borderRadius: '50%',
-                                    border: `2px solid #fff`,
-                                    minWidth: `30px`,
-                                    minHeight: `30px`,
-                                    display: `inline-flex`,
-                                    fontSize: `10px`
-                                }}
-                            >
-                                +41%
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div className="w-100 text-sm p-3 pt-0">
-                    <div className="row p-2 rounded-xl items-center bg-[#19203b]">
-                        <div className="col-2 flex justify-center items-center p-0">
-                            <span
-                                className="border items-center justify-center fw-light"
-                                style={{
-                                    borderRadius: '50%',
-                                    border: '2px solid #fff',
-                                    minWidth: '23px',
-                                    minHeight: '23px',
-                                    display: 'inline-flex',
-                                }}
-                            >
-                                5
-                            </span>
-                        </div>
-
-                        <div className="col-2 flex justify-center items-center p-0">
-                            <img
-                                src="/images/rating/avatar.png"
-                                alt="avatar"
-                                className="p-1 w-100"
-                            />
-                        </div>
-                        <div className="col-5">
-                            <span className="fw-bold block">Madelyn Dias</span>
-                            <span className="fw-light block text-xs">590 points</span>
-                        </div>
-                        <div className="col-3 flex items-center justify-end">
-                            <img
-                                src="/images/home/down-red.png"
-                                alt="avatar"
-                                className="h-3 w-3"
-                            /> &nbsp;
-                            <span
-                                className="border items-center justify-center fw-light"
-                                style={{
-                                    borderRadius: '50%',
-                                    border: `2px solid #fff`,
-                                    minWidth: `30px`,
-                                    minHeight: `30px`,
-                                    display: `inline-flex`,
-                                    fontSize: `10px`
-                                }}
-                            >
-                                +41%
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
+                    )
+                })}
             </div>
         </div>
     );

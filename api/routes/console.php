@@ -9,4 +9,5 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote')->hourly();
 
 Schedule::command('app:integration')->everyTwoMinutes();
-Schedule::command('app:get-total-stars')->everySecond();
+
+Schedule::command('app:recalculate-user-ranking-tokens')->everySixHours();

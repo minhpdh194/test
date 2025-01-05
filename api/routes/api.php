@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
@@ -40,6 +41,8 @@ Route::get('/popups', [PopupController::class, 'index']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user_session', [AuthController::class, 'userSession']);
     Route::get('/referred-users', [FriendsController::class, 'referredUsers']);
+
+    Route::get('/top-users', [ProfileController::class, 'getAllUsersInfo']);
 
     Route::get('/timestamp', function () {
         return response()->json(['timestamp' => Carbon\Carbon::now()->timestamp]);

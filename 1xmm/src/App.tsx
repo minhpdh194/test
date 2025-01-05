@@ -25,6 +25,7 @@ import { PusherIndex } from "./types/PusherIndex";
 import { SpotType } from "./types/SpotType";
 import { LongShort } from "./enums";
 import { Utils } from "./lib/utils";
+import { UserRanking } from "./types/UserRanking";
 
 const webApp = window.Telegram.WebApp;
 const isDesktop = import.meta.env.DEV
@@ -36,6 +37,7 @@ declare global {
   var spots: SpotType[];
   var globalIndices: PusherIndex[];
   var starPackage: StarPackage[];
+  var userRanking: UserRanking[];
 }
 
 function App() {
@@ -89,6 +91,7 @@ function App() {
           user_positions,
           indices,
           referredUsers,
+          userRankingData,
           //{ data: tasks}
         ] = await Promise.all([
           $http.$get<SyncData>("/clicker/sync"),
@@ -96,6 +99,7 @@ function App() {
           $http.$get<{ positions: UserPosition[]; }>("/user_positions"),
           $http.$get<Index[]>("/get-indices"),
           $http.$get<Friend[]>("/referred-users"),
+          $http.$get<UserRanking[]>("/top-users"),
           //$http.get("/user_tasks")
         ]);
 
@@ -145,6 +149,7 @@ function App() {
 
         globalThis.userProfile.SetFriends(referredUsers);
         globalThis.starPackage = StarPackages;
+        globalThis.userRanking = userRankingData;
         $http.get("/clicker/load-spots");
       } catch (error) {
         console.error('Error loading data:', error);

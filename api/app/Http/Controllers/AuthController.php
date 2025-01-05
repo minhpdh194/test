@@ -13,6 +13,7 @@ use App\Models\ActiveSessions;
 use App\Models\TelegramUser;
 use App\Models\UserGameData;
 use App\Models\UserBonuses;
+use App\Models\UserRanking;
 
 $botToken = "";
 
@@ -98,6 +99,16 @@ class AuthController extends Controller
                 'telegram_user_id' => $user->telegram_user_id,
                 'amount_of_tokens' => $baseBalance,
                 'balance' => $baseBalance
+            ]
+        );
+
+        $UserRankingData = UserRanking::updateOrCreate(
+            ['telegram_user_id' => $user->telegram_user_id],
+            [
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'last_amount_of_tokens' => $baseBalance,
+                'current_amount_of_tokens' => $baseBalance,
             ]
         );
 
