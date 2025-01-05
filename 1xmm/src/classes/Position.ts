@@ -56,8 +56,10 @@ export class Position {
     }
 
     public attach_new_bonus(bonus: Bonus): void {
-        bonus.attach_to_position(this, this.last_update_timestamp + bonus.bonus_definition.duration);
-        this.bonuses.push(bonus);
+        if (!this.bonuses.some(b => b.id === bonus.id)) {
+            bonus.attach_to_position(this, this.last_update_timestamp + bonus.bonus_definition.duration);
+            this.bonuses.push(bonus);
+        }
     }
 
     public attach_existing_bonus(bonus: Bonus): boolean {
