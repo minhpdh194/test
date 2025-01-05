@@ -44,7 +44,7 @@ export namespace COMM {
     }
     
     export async function bonusExpiry(http: AxiosInstance, bonusesToDelete: number[]): Promise<void> {
-        if (bonusesToDelete.length > 0) await http.post("expiry_bonuses", { bonus_ids: bonusesToDelete });
+        if (bonusesToDelete.length > 0) await http.post("/expiry_bonuses", { bonus_ids: bonusesToDelete });
     }
 
     export async function getStarsTarget(http: AxiosInstance): Promise<number> {

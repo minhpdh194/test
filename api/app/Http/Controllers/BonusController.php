@@ -65,7 +65,16 @@ class BonusController extends Controller
             }
 
             $position = Position::where(['telegram_user_id' => $telegram_user_id, 'position_id' => $bonus->position_id])->first();
-            $position->bonuses_id = array_diff($position->bonuses_id, [$bonusId]);
+
+            $positionBonuses = json_decode($position->bonuses_id);
+
+            $positionBonuses = array_filter($positionBonuses, function ($value) use ($bonusId) {
+                return $value !== $bonusId;
+            });
+
+            $positionBonuses = array_values($positionBonuses);
+
+            $position->bonuses_id = $positionBonuses;
 
             // We keep track of the bonuses used by the user
             // SHOULD WE?
