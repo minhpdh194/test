@@ -1,6 +1,7 @@
 export type Friend = {
-    id: number,
     telegram_user_id: number,
-    username: string,
+    first_name: string,
+    last_name: string,
     avatar_id: number,
+    created_at: string,
 }

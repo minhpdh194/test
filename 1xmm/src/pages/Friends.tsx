@@ -1,10 +1,9 @@
 import { useCopyToClipboard } from "@uidotdev/usehooks";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import Header from "../components/Header";
 import ListFriend from "./components/Friends/ListFriend";
 import ListBonus from "./components/Friends/ListBonus";
-import { $http } from "@/lib/http";
 
 const shareMessage = encodeURI(
   "Play 1xMM with me!"
@@ -14,16 +13,6 @@ export default function Friends() {
   const [, copy] = useCopyToClipboard();
   // const { referral, levels } = uesStore();
   const [activeType, setActiveType] = useState('1');
-  const [referedUsers, setReferedUsers] = useState<any[]>([]);
-
-  useEffect(() => {
-    const fetchReferedFriends = async () => {
-      const response = await $http.get("/referred-users");
-      setReferedUsers(response.data.data)
-    }
-
-    fetchReferedFriends();
-  }, []);
 
   const appLink = useMemo(
     () => `${import.meta.env.VITE_BOT_URL}/?startapp=ref${userProfile.telegram_user_id}`,
@@ -119,8 +108,8 @@ export default function Friends() {
             <div className="p-3 pt-0">
               {activeType === '1' && (
                 <div className="tab-content">
-                  {referedUsers && referedUsers.map((user) => (
-                    <ListFriend key={user.id} referedUser={user} />
+                  {userProfile.friends && userProfile.friends.map((user) => (
+                    <ListFriend key={user.telegram_user_id} referedUser={user} />
                   ))}
                 </div>
               )}
