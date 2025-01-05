@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Models\UserGameData;
 use App\Models\Settings;
+use Pusher\Pusher;
 
 class TelegramStarController extends Controller
 {
@@ -24,6 +25,25 @@ class TelegramStarController extends Controller
 
         $settings->value += $request['package']['number_of_stars'];
         $settings->save();
+
+        $options = array(
+            'cluster' => 'ap2',
+            'useTLS' => true
+        );
+
+        $pusher = new Pusher(
+            env('PUSHER_APP_KEY'),
+            env('PUSHER_APP_SECRET'),
+            env('PUSHER_APP_ID'),
+            $options
+        );
+
+        try {
+            $pusher->trigger('totalStars', 'data', ['totalStars' => $settings->value]);
+            \Log::info('test pusher', ['result' => $settings->value]);
+        } catch (\Throwable $e) {
+            \Log::info('error pusher', ['error' => $e->getMessage()]);
+        }
 
         return response()->json(['success' => 'Buy package successfully'], 200);
     }
