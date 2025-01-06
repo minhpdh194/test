@@ -1,4 +1,3 @@
-import { Friend } from "./Friend";
 import { TradingInfo } from "./TradingInfo";
 
 export type UserProfile = {
@@ -11,7 +10,6 @@ export type UserProfile = {
   last_name: string | null;
   username: string | null;
   avatar_id: number;
-  friends: Friend[];
 
   // User level related info
   level: number;

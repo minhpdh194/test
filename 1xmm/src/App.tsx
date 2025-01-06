@@ -16,7 +16,6 @@ import { Pair } from "./types/Pair";
 import { Position } from "./classes/Position";
 import { Bonus } from "./classes/Bonus";
 import { bonusDefinitions } from "./referential/bonusDefinitions";
-import { Friend } from "./types/Friend";
 import { getPositionStore } from "./store/position-store";
 import { StarPackage } from "./types/StarPackage";
 import { StarPackages } from "./referential/starPackages";
@@ -38,6 +37,7 @@ declare global {
   var globalIndices: PusherIndex[];
   var starPackage: StarPackage[];
   var userRanking: UserRanking[];
+  var starsTarget: number;
 }
 
 function App() {
@@ -90,7 +90,6 @@ function App() {
           user_bonuses,
           user_positions,
           indices,
-          referredUsers,
           userRankingData,
           //{ data: tasks}
         ] = await Promise.all([
@@ -98,7 +97,6 @@ function App() {
           $http.$get<UserBonus[]>("/user_bonuses"),
           $http.$get<{ positions: UserPosition[]; }>("/user_positions"),
           $http.$get<Index[]>("/get-indices"),
-          $http.$get<Friend[]>("/referred-users"),
           $http.$get<UserRanking[]>("/top-users"),
           //$http.get("/user_tasks")
         ]);
@@ -147,7 +145,6 @@ function App() {
 
         setProgress(95);
 
-        globalThis.userProfile.SetFriends(referredUsers);
         globalThis.starPackage = StarPackages;
         globalThis.userRanking = userRankingData;
         $http.get("/clicker/load-spots");

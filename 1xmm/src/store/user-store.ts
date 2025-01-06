@@ -4,7 +4,6 @@ import { $http } from "../lib/http";
 import { UserProfile } from "@/types/UserProfile";
 import { PositionStore } from "./position-store";
 import { SyncData } from "@/types/SyncData";
-import { Friend } from "@/types/Friend";
 import { Bonus } from "@/classes/Bonus";
 import { Pair } from "@/types/Pair";
 import { LongShort } from "@/enums";
@@ -23,9 +22,9 @@ export type UserProfileStore = UserProfile & {
   AddPosition: (pair: Pair, ls: LongShort, amt: number, lev: number, bonuses: Bonus[]) => Promise<number | undefined>;
   ClosePosition: (position_id: number) => Promise<number>;
   AddBonusesToPosition: (position_id: number, bonuses: Bonus[]) => Promise<void>;
-  SetFriends: (friends: Friend[]) => void;
   BuyBonus: (bonus: BonusDefinition) => void;
   BuyStars: (starPackage: StarPackage) => void;
+  UpdateBalance: (newBalance: number) => void;
   unlocked_pair_ids: Array<number>;
   unlocked_pairs: Pair[];
   positionStore: PositionStore | undefined;
@@ -69,12 +68,6 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
   number_of_stars: 0,
   unlocked_pair_ids: [],
   unlocked_pairs: [],
-
-  SetFriends: (friends: Friend[]): void => {
-    set(() => ({
-      friends: friends
-    }));
-  },
 
   SetLevelBenefits: () => {
     const pairsInReferential = JSON.parse(localStorage.getItem("PairReferential") || "[]") as Pair[];
@@ -129,6 +122,15 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
     } catch (error) {
       toast.error('An error occurred while buying the bonus!');
     }
+  },
+
+  UpdateBalance: (newBalance: number) => {
+    set((state) => ({
+      trading_info: {
+        ...state.trading_info, 
+        balance: newBalance,
+      },
+    }));
   },
 
   BuyStars: async (starPackage: StarPackage) => {

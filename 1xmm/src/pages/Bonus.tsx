@@ -16,7 +16,6 @@ export default function Bonus() {
     const [positiveLeverageData, setPositiveLeverageData] = useState<any[]>([]);
     const [capitalProtectionData, setCapitalProtectionData] = useState<any[]>([]);
     const [timeReductionData, setTimeReductionData] = useState<any[]>([]);
-    const [starsTarget, setStarsTarget] = useState<number>(0);
     const [openStarDrawer, setOpenStarDrawer] = useState(false);
 
     const bonusDefinitionIds = userProfile.positionStore?.available_bonuses.map(item => item.bonus_definition.id);
@@ -29,7 +28,7 @@ export default function Bonus() {
         const totalStars = pusher.subscribe("totalStars");
     
         totalStars.bind("data", (data: any) => {
-          setStarsTarget(data.totalStars);
+            globalThis.starsTarget = data.totalStars;
         });
 
         const fetchBonusData = async () => {
@@ -193,11 +192,11 @@ export default function Bonus() {
 
             <div className="progress-bar mt-4">
                 <div className="mb-1">
-                    <ProgressBar completed={starsTarget / 2_000_000} />
+                    <ProgressBar completed={globalThis.starsTarget / 2_000_000} />
                 </div>
                 <div className="flex justify-between">
                     <div className="font-bold text-sm">
-                        {starsTarget}
+                        {globalThis.starsTarget}
                     </div>
                     <div className="font-bold text-sm">
                         2,000,000
