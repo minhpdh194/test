@@ -24,7 +24,6 @@ import { PusherIndex } from "./types/PusherIndex";
 import { SpotType } from "./types/SpotType";
 import { LongShort } from "./enums";
 import { Utils } from "./lib/utils";
-import { UserRanking } from "./types/UserRanking";
 
 const webApp = window.Telegram.WebApp;
 const isDesktop = import.meta.env.DEV
