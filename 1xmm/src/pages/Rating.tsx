@@ -1,6 +1,15 @@
 import { UserRanking } from "@/types/UserRanking";
 import Header from "../components/Header";
+import { Calendar } from "react-date-range";
+import { useState } from "react";
+import { Popover } from "@mui/material";
+import { Utils } from "@/lib/utils";
 // import { useUserStore } from "@/store/user-store";
+import { addWeeks, startOfWeek, format } from 'date-fns'; // For WeekSelector
+import { MenuItem, Select } from "@mui/material";
+import 'react-date-range/dist/styles.css';
+import 'react-date-range/dist/theme/default.css';
+
 export default function Profile() {
     const calculatePercentile = (userRanking: UserRanking) => {
         const change = ((userRanking.current_amount_of_tokens - userRanking.last_amount_of_tokens) / userRanking.last_amount_of_tokens) * 100;
@@ -15,6 +24,49 @@ export default function Profile() {
         return formattedNumberOfTokens;
     }
 
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+    const [selectedFilter, setSelectedFilter] = useState(-1);
+
+    const handleSelectDate = (ranges: any) => {
+        console.log(ranges);
+        setSelectedDate(ranges);
+    };
+
+    const handleClickPopover = (event: any) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClosePopover = () => {
+        setAnchorEl(null);
+    };
+
+    const open = Boolean(anchorEl);
+
+    const currentWeekStart = startOfWeek(new Date());
+    const currentWeekEnd = addWeeks(currentWeekStart, 1);
+
+    const [selectedWeek, setSelectedWeek] = useState({
+        start: currentWeekStart,
+        end: currentWeekEnd
+    });
+
+    const weeks = Array.from({ length: 52 }, (_, i) => {
+        const weekStart = startOfWeek(addWeeks(new Date(), i));
+        const weekEnd = addWeeks(weekStart, 1);
+        return {
+            start: weekStart,
+            end: weekEnd,
+        };
+    });
+
+    const months = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+
+    const [selectedMonth, setSelectedMonth] = useState(months[new Date().getMonth()]);
+
     return (
         <div
             className="flex-1 px-3 pb-20 bg-center bg-cover"
@@ -26,17 +78,26 @@ export default function Profile() {
             <Header amount_token={userProfile.amount_of_tokens} />
             <div className="mt-4 mb-8">
                 <div className="flex gap-2 w-100 text-sm">
-                    <div className="bg-[#32363C] flex-1 text-center py-2 rounded-lg">
+                    <div className="bg-[#32363C] flex-1 text-center py-2 rounded-lg" onClick={(event) => {
+                        handleClickPopover(event)
+                        setSelectedFilter(0)
+                    }}>
                         <span className="text-[#F79841] fw-semibold">Daily</span>
-                        <span className="fw-light block">10-12-2024</span>
+                        <span className="fw-light block">{Utils.formatDate(selectedDate.toUTCString())}</span>
                     </div>
-                    <div className="bg-[#32363C] flex-1 text-center py-2 rounded-lg">
+                    <div className="bg-[#32363C] flex-1 text-center py-2 rounded-lg" onClick={(event) => {
+                        handleClickPopover(event)
+                        setSelectedFilter(1)
+                    }}>
                         <span className="text-[#6F72E2] fw-semibold">Weekly</span>
-                        <span className="fw-light block">28 Nov - 4 Dec</span>
+                        <span className="fw-light block">{format(selectedWeek.start, 'MMM dd')} - {format(selectedWeek.end, 'MMM dd')}</span>
                     </div>
-                    <div className="bg-[#32363C] flex-1 text-center py-2 rounded-lg">
+                    <div className="bg-[#32363C] flex-1 text-center py-2 rounded-lg" onClick={(event) => {
+                        handleClickPopover(event)
+                        setSelectedFilter(2)
+                    }}>
                         <span className="text-[#84CB69] fw-semibold">Monthly</span>
-                        <span className="fw-light block">Dec</span>
+                        <span className="fw-light block">{selectedMonth}</span>
                     </div>
                 </div>
                 <div className="flex w-100 text-sm mt-5 items-end">
@@ -256,6 +317,46 @@ export default function Profile() {
                     )
                 })}
             </div>
+            <Popover
+                open={open}
+                anchorEl={anchorEl}
+                onClose={handleClosePopover}
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                }}
+            >
+                {selectedFilter === 0 && (
+                    <Calendar date={selectedDate} onChange={handleSelectDate} />
+                )}
+                {selectedFilter === 1 && (
+                    <Select
+                        value={selectedWeek ? `${selectedWeek.start}-${selectedWeek.end}` : ''}
+                        onChange={(event) => {
+                            const [start, end] = event.target.value.split('-');
+                            setSelectedWeek({ start: new Date(start), end: new Date(end) });
+                        }}
+                    >
+                        {weeks.map((week, index) => (
+                            <MenuItem key={index} value={`${week.start}-${week.end}`}>
+                                {format(week.start, 'MMM dd')} - {format(week.end, 'MMM dd')}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                )}
+                {selectedFilter === 2 && (
+                    <Select
+                        value={selectedMonth}
+                        onChange={(event) => setSelectedMonth(event.target.value)}
+                    >
+                        {months.map((month, index) => (
+                            <MenuItem key={index} value={month}>
+                                {month}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                )}
+            </Popover>
         </div>
     );
 }

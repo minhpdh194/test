@@ -10,7 +10,7 @@ export function compactNumber(num: number) {
 	return num.toLocaleString(undefined, {
 		maximumFractionDigits: 2,
 		notation: "compact",
-	});1
+	}); 1
 }
 
 // Utils module
@@ -21,7 +21,8 @@ export const Utils = {
 	// positionWasZero: (exist_position: Position): boolean =>
 	// check_position(exist_position),
 	formatString: (input: string) => format_string(input),
-	toCamelFormat: (input: string) => { return input.charAt(0).toUpperCase() + input.slice(1); }
+	toCamelFormat: (input: string) => { return input.charAt(0).toUpperCase() + input.slice(1); },
+	formatDate: (input: string) => format_date(input),
 };
 
 /*********************************
@@ -44,4 +45,14 @@ const get_nextfixing_timestamp = async (): Promise<number> => {
 
 const format_string = (input: string) => {
 	return input.replace(/([A-Z])/g, ' $1').trim();
+}
+
+const format_date = (input: string) => {
+	const date = new Date(input);
+	const day = String(date.getDate()).padStart(2, '0');
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const year = date.getFullYear();
+
+	const formattedDate = `${day}-${month}-${year}`;
+	return formattedDate;
 }

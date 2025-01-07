@@ -8,6 +8,7 @@ use App\Models\MarketData\TotalOpenPositionValue;
 use App\Models\TelegramUser;
 use App\Models\UserBonuses;
 use App\Models\UserGameData;
+use App\Models\UserTransaction;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -25,7 +26,9 @@ class PositionController extends Controller
     public function getPositions(Request $request)
     {
         $all = Position::where('telegram_user_id', $request->user()->telegram_user_id)->get();
-        $positions = $all->filter(function ($pos) { return $pos->alive; })->values();
+        $positions = $all->filter(function ($pos) {
+            return $pos->alive;
+        })->values();
 
         return response()->json([
             'positions' => $positions
@@ -71,7 +74,7 @@ class PositionController extends Controller
         $positionData['pair_id'] = $position['pair']['id'];
 
         if (!empty($position['bonuses']) && count($position['bonuses']) > 0) {
-            $bonuses_ids = array_map(fn($bonus) => (integer)$bonus['id'], $position['bonuses']);
+            $bonuses_ids = array_map(fn($bonus) => (int)$bonus['id'], $position['bonuses']);
             $index = 0;
 
             // We update the user bonuses
@@ -83,7 +86,7 @@ class PositionController extends Controller
 
                 $index++;
             }
-            
+
             $positionData['bonuses_id'] = json_encode($bonuses_ids);
         }
 
@@ -158,7 +161,7 @@ class PositionController extends Controller
                 }
             }
 
-            $bonuses_ids = array_map(fn($bonus) => (integer)$bonus['id'], $updated_position['bonuses']);
+            $bonuses_ids = array_map(fn($bonus) => (int)$bonus['id'], $updated_position['bonuses']);
             $positionData['bonuses_id'] = json_encode($bonuses_ids);
         }
 
@@ -169,6 +172,11 @@ class PositionController extends Controller
         $userGameData->perf_from_start_date += ($pnl / $position->amount);
         $userGameData->balance = $userGameData->balance - $position_change + $pnl;
         $userGameData->save();
+
+        UserTransaction::create([
+            'amount_of_tokens' => $pnl,
+            'telegram_user_id' =>  $user->telegram_user_id,
+        ]);
 
         return response()->json(['message' => 'Position updated successfully'], 200);
     }
@@ -203,6 +211,11 @@ class PositionController extends Controller
 
         $userGameData->save();
         $position->delete();
+        \Log::info($pnl);
+        UserTransaction::create([
+            'amount_of_tokens' => $pnl,
+            'telegram_user_id' =>  $user->telegram_user_id,
+        ]);
 
         \Log::info('Position deleted successfully');
         return response()->json(['message' => 'Position closed successfully'], 200);
