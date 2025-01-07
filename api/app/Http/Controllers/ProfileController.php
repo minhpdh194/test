@@ -14,12 +14,6 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-    public function getAllUsersInfo()
-    {
-        $userRankingData = UserRanking::orderByRaw('CAST(current_amount_of_tokens AS SIGNED) DESC')->get();
-        return response()->json($userRankingData);
-    }
-
     /**
      * Display the user's profile form.
      */

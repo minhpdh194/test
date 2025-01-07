@@ -1,7 +1,7 @@
 import { UserRanking } from "@/types/UserRanking";
 import Header from "../components/Header";
 import { Calendar } from "react-date-range";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Popover } from "@mui/material";
 import { Utils } from "@/lib/utils";
 // import { useUserStore } from "@/store/user-store";
@@ -9,18 +9,29 @@ import { addWeeks, startOfWeek, format } from 'date-fns'; // For WeekSelector
 import { MenuItem, Select } from "@mui/material";
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
+import { $http } from "@/lib/http";
+
+interface Week {
+    start: Date;
+    end: Date;
+}
+
+interface Payload {
+    date?: string;
+    week?: { start: string; end: string };
+    month?: string;
+}
 
 export default function Profile() {
-    const calculatePercentile = (userRanking: UserRanking) => {
-        const change = ((userRanking.current_amount_of_tokens - userRanking.last_amount_of_tokens) / userRanking.last_amount_of_tokens) * 100;
-        return change.toFixed(2);
-    }
-    const firstPositionUser = userRanking[0];
-    const secondPositionUser = userRanking[1];
-    const thirdPositionUser = userRanking[2];
+    // const calculatePercentile = (userRanking: UserRanking) => {
+    //     const change = ((userRanking.current_amount_of_tokens - userRanking.last_amount_of_tokens) / userRanking.last_amount_of_tokens) * 100;
+    //     return change.toFixed(2);
+    // }
+
+    const [userRanking, setUserRanking] = useState<UserRanking[]>([]);
 
     const formatNumber = (userRanking: UserRanking) => {
-        const formattedNumberOfTokens = Math.trunc(userRanking.current_amount_of_tokens).toLocaleString();
+        const formattedNumberOfTokens = Math.trunc(userRanking.amount_of_tokens).toLocaleString();
         return formattedNumberOfTokens;
     }
 
@@ -33,7 +44,44 @@ export default function Profile() {
         setSelectedDate(ranges);
     };
 
-    const handleClickPopover = (event: any) => {
+    useEffect(() => {
+        async function getUserRanking() {
+            try {
+                setUserRanking([]);
+                const payload: Payload = {};
+
+                if (selectedFilter === 1) {
+                    payload.week = {
+                        start: format(selectedWeek.start, "yyyy-MM-dd"),
+                        end: format(selectedWeek.end, "yyyy-MM-dd"),
+                    };
+                } else if (selectedFilter === 2) {
+                    payload.month = selectedMonth;
+                } else {
+                    payload.date = format(selectedDate, "yyyy-MM-dd");
+                }
+
+                const response = await $http.get('/top-users', { params: payload });
+                console.log('Response:', response.data);
+                response.data.forEach((transaction: any) => {
+                    const newData = {
+                        telegram_user_id: transaction.telegram_user_id,
+                        first_name: transaction.user_data.first_name,
+                        last_name: transaction.user_data.last_name,
+                        amount_of_tokens: transaction.tokens,
+                    };
+
+                    setUserRanking(prevState => [...prevState, newData]);
+                });
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        getUserRanking();
+    }, [anchorEl]);
+
+    const handleClickPopover = async (event: any) => {
         setAnchorEl(event.currentTarget);
     };
 
@@ -51,7 +99,7 @@ export default function Profile() {
         end: currentWeekEnd
     });
 
-    const weeks = Array.from({ length: 52 }, (_, i) => {
+    const weeks: Week[] = Array.from({ length: 52 }, (_, i) => {
         const weekStart = startOfWeek(addWeeks(new Date(), i));
         const weekEnd = addWeeks(weekStart, 1);
         return {
@@ -66,6 +114,10 @@ export default function Profile() {
     ];
 
     const [selectedMonth, setSelectedMonth] = useState(months[new Date().getMonth()]);
+
+    const firstPositionUser = userRanking[0];
+    const secondPositionUser = userRanking[1];
+    const thirdPositionUser = userRanking[2];
 
     return (
         <div
@@ -101,98 +153,104 @@ export default function Profile() {
                     </div>
                 </div>
                 <div className="flex w-100 text-sm mt-5 items-end">
-                    <div className="bg-[#32363C] flex-1 text-center py-2 h-38" style={{ borderTopLeftRadius: `1rem`, borderBottomLeftRadius: `1rem` }}>
-                        <div className="relative w-full">
-                            <img
-                                src="/images/rating/top2.png"
-                                alt="top2"
-                                className="w-16 absolute -top-10 left-1/2 transform -translate-x-1/2"
-                                style={{
-                                    height: `4.5rem`,
-                                }}
-                            />
-                        </div>
-                        <div className="flex justify-center w-100 mt-3 pt-1 relative">
-                            <img
-                                src="/images/rating/avatar.png"
-                                alt="avatar"
-                                className="w-16 p-1 h-16"
-                                style={{
-                                    border: `3.77px solid transparent`,
-                                    background: `linear-gradient(to bottom, #6E69F7 0%, #E496E7 100%)`,
-                                    borderRadius: `50%`,
-                                    backgroundClip: `padding-box, border-box`,
-                                    backgroundOrigin: `padding-box, border-box`,
-                                }}
-                            />
-                            <img
-                                src="/images/rating/bg-top2.png"
-                                alt="avatar"
-                                className="w-5 h-5 absolute bottom-[-5px] left-1/2 transform -translate-x-1/2"
-                            />
-                            <span className="fw-bold text-xs absolute bottom-[-5px] left-1/2 transform -translate-x-1/2">
-                                2
+                    {secondPositionUser && (
+                        <div className="bg-[#32363C] flex-1 text-center py-2 h-38" style={{ borderTopLeftRadius: `1rem`, borderBottomLeftRadius: `1rem` }}>
+                            <div className="relative w-full">
+                                <img
+                                    src="/images/rating/top2.png"
+                                    alt="top2"
+                                    className="w-16 absolute -top-10 left-1/2 transform -translate-x-1/2"
+                                    style={{
+                                        height: `4.5rem`,
+                                    }}
+                                />
+                            </div>
+                            <div className="flex justify-center w-100 mt-3 pt-1 relative">
+                                <img
+                                    src="/images/rating/avatar.png"
+                                    alt="avatar"
+                                    className="w-16 p-1 h-16"
+                                    style={{
+                                        border: `3.77px solid transparent`,
+                                        background: `linear-gradient(to bottom, #6E69F7 0%, #E496E7 100%)`,
+                                        borderRadius: `50%`,
+                                        backgroundClip: `padding-box, border-box`,
+                                        backgroundOrigin: `padding-box, border-box`,
+                                    }}
+                                />
+                                <img
+                                    src="/images/rating/bg-top2.png"
+                                    alt="avatar"
+                                    className="w-5 h-5 absolute bottom-[-5px] left-1/2 transform -translate-x-1/2"
+                                />
+                                <span className="fw-bold text-xs absolute bottom-[-5px] left-1/2 transform -translate-x-1/2">
+                                    2
+                                </span>
+                            </div>
+                            {/* <span className="fw-light text-xs block pt-2">{calculatePercentile(secondPositionUser)}%</span> */}
+                            <span className="block fw-bold">{secondPositionUser.first_name + " " + secondPositionUser.last_name}</span>
+                            <span className="flex fw-bold items-center justify-center">
+                                <img
+                                    src="/images/home/coin.png"
+                                    alt="coin"
+                                    className="w-4 h-4"
+                                />
+                                {formatNumber(secondPositionUser)}
                             </span>
                         </div>
-                        <span className="fw-light text-xs block pt-2">{calculatePercentile(secondPositionUser)}%</span>
-                        <span className="block fw-bold">{secondPositionUser.first_name + " " + secondPositionUser.last_name}</span>
-                        <span className="flex fw-bold items-center justify-center">
-                            <img
-                                src="/images/home/coin.png"
-                                alt="coin"
-                                className="w-4 h-4"
-                            />
-                            {formatNumber(secondPositionUser)}
-                        </span>
-                    </div>
-                    <div className="bg-[#2E3034] flex-1 text-center py-2 h-56 relative" style={{ borderTopRightRadius: `2rem`, borderTopLeftRadius: `2rem` }}>
-                        <div className="relative w-full">
-                            <img
-                                src="/images/rating/top1.png"
-                                alt="top1"
-                                className="w-16 absolute -top-10 left-1/2 transform -translate-x-1/2"
-                                style={{
-                                    height: `4.5rem`,
-                                }}
-                            />
+                    )}
+
+                    {firstPositionUser && (
+                        <div className="bg-[#2E3034] flex-1 text-center py-2 h-56 relative" style={{ borderTopRightRadius: `2rem`, borderTopLeftRadius: `2rem` }}>
+                            <div className="relative w-full">
+                                <img
+                                    src="/images/rating/top1.png"
+                                    alt="top1"
+                                    className="w-16 absolute -top-10 left-1/2 transform -translate-x-1/2"
+                                    style={{
+                                        height: `4.5rem`,
+                                    }}
+                                />
+                            </div>
+                            <div className="flex justify-center w-100 mt-4 pt-1">
+                                <img
+                                    src="/images/rating/avatar.png"
+                                    alt="avatar"
+                                    className="w-20 p-1 h-20"
+                                    style={{
+                                        border: `3.77px solid transparent`,
+                                        background: `linear-gradient(to bottom, #6E69F7 0%, #E496E7 100%)`,
+                                        borderRadius: `50%`,
+                                        backgroundClip: `padding-box, border-box`,
+                                        backgroundOrigin: `padding-box, border-box`,
+                                    }}
+                                />
+                                <img
+                                    src="/images/rating/bg-top1.png"
+                                    alt="avatar"
+                                    className="w-5 h-5 absolute"
+                                    style={{
+                                        top: `45%`
+                                    }}
+                                />
+                                <span className="fw-bold text-xs absolute" style={{
+                                    top: `46%`,
+                                }}>1</span>
+                            </div>
+                            <span className="block fw-bold mt-3">{firstPositionUser.first_name + " " + firstPositionUser.last_name}</span>
+                            {/* <span className="fw-light text-xs block">{calculatePercentile(firstPositionUser)}%</span> */}
+                            <span className="flex text-lg fw-bold items-center justify-center mt-1">
+                                <img
+                                    src="/images/home/coin.png"
+                                    alt="coin"
+                                    className="w-6 h-6"
+                                />
+                                {formatNumber(firstPositionUser)}
+                            </span>
                         </div>
-                        <div className="flex justify-center w-100 mt-4 pt-1">
-                            <img
-                                src="/images/rating/avatar.png"
-                                alt="avatar"
-                                className="w-20 p-1 h-20"
-                                style={{
-                                    border: `3.77px solid transparent`,
-                                    background: `linear-gradient(to bottom, #6E69F7 0%, #E496E7 100%)`,
-                                    borderRadius: `50%`,
-                                    backgroundClip: `padding-box, border-box`,
-                                    backgroundOrigin: `padding-box, border-box`,
-                                }}
-                            />
-                            <img
-                                src="/images/rating/bg-top1.png"
-                                alt="avatar"
-                                className="w-5 h-5 absolute"
-                                style={{
-                                    top: `45%`
-                                }}
-                            />
-                            <span className="fw-bold text-xs absolute" style={{
-                                top: `46%`,
-                            }}>1</span>
-                        </div>
-                        <span className="block fw-bold mt-3">{firstPositionUser.first_name + " " + firstPositionUser.last_name}</span>
-                        <span className="fw-light text-xs block">{calculatePercentile(firstPositionUser)}%</span>
-                        <span className="flex text-lg fw-bold items-center justify-center mt-1">
-                            <img
-                                src="/images/home/coin.png"
-                                alt="coin"
-                                className="w-6 h-6"
-                            />
-                            {formatNumber(firstPositionUser)}
-                        </span>
-                    </div>
-                    <div className="bg-[#32363C] flex-1 text-center py-2 h-38" style={{ borderTopRightRadius: `1rem`, borderBottomRightRadius: `1rem` }}>
+                    )}
+
+                    {thirdPositionUser && (<div className="bg-[#32363C] flex-1 text-center py-2 h-38" style={{ borderTopRightRadius: `1rem`, borderBottomRightRadius: `1rem` }}>
                         <div className="relative w-full">
                             <img
                                 src="/images/rating/top3.png"
@@ -227,7 +285,7 @@ export default function Profile() {
                             </span>
                         </div>
 
-                        <span className="fw-light text-xs block pt-2">{calculatePercentile(thirdPositionUser)}%</span>
+                        {/* <span className="fw-light text-xs block pt-2">{calculatePercentile(thirdPositionUser)}%</span> */}
                         <span className="block fw-bold">{thirdPositionUser.first_name + " " + thirdPositionUser.last_name}</span>
                         <span className="flex fw-bold items-center justify-center">
                             <img
@@ -238,6 +296,7 @@ export default function Profile() {
                             {formatNumber(thirdPositionUser)}
                         </span>
                     </div>
+                    )}
                 </div>
                 {userRanking.length > 3 && userRanking.slice(3) && userRanking.slice(3).map((user, index) => {
                     return (
@@ -269,54 +328,55 @@ export default function Profile() {
                                     <span className="fw-bold block">{user.first_name + " " + user.last_name}</span>
                                     <span className="fw-light block text-xs">{formatNumber(user)} points</span>
                                 </div>
-                                {user.current_amount_of_tokens >= user.last_amount_of_tokens ? (
-                                    <div className="col-3 flex items-center justify-end">
-                                        <img
-                                            src="/images/home/polygon.png"
-                                            alt="avatar"
-                                            className="h-3 w-3"
-                                        /> &nbsp;
-                                        <span
-                                            className="border items-center justify-center fw-light"
-                                            style={{
-                                                borderRadius: '50%',
-                                                border: `2px solid #fff`,
-                                                minWidth: `30px`,
-                                                minHeight: `30px`,
-                                                display: `inline-flex`,
-                                                fontSize: `10px`
-                                            }}
-                                        >
-                                            +{calculatePercentile(user)}%
-                                        </span>
-                                    </div>
-                                ) : (
-                                    <div className="col-3 flex items-center justify-end">
-                                        <img
-                                            src="/images/home/down-red.png"
-                                            alt="avatar"
-                                            className="h-3 w-3"
-                                        /> &nbsp;
-                                        <span
-                                            className="border items-center justify-center fw-light"
-                                            style={{
-                                                borderRadius: '50%',
-                                                border: `2px solid #fff`,
-                                                minWidth: `30px`,
-                                                minHeight: `30px`,
-                                                display: `inline-flex`,
-                                                fontSize: `10px`
-                                            }}
-                                        >
-                                            -{calculatePercentile(user)}%
-                                        </span>
-                                    </div>
-                                )}
+                                {/* {user.current_amount_of_tokens >= user.last_amount_of_tokens ? (
+                                        <div className="col-3 flex items-center justify-end">
+                                            <img
+                                                src="/images/home/polygon.png"
+                                                alt="avatar"
+                                                className="h-3 w-3"
+                                            /> &nbsp;
+                                            <span
+                                                className="border items-center justify-center fw-light"
+                                                style={{
+                                                    borderRadius: '50%',
+                                                    border: `2px solid #fff`,
+                                                    minWidth: `30px`,
+                                                    minHeight: `30px`,
+                                                    display: `inline-flex`,
+                                                    fontSize: `10px`
+                                                }}
+                                            >
+                                                +{calculatePercentile(user)}%
+                                            </span>
+                                        </div>
+                                    ) : (
+                                        <div className="col-3 flex items-center justify-end">
+                                            <img
+                                                src="/images/home/down-red.png"
+                                                alt="avatar"
+                                                className="h-3 w-3"
+                                            /> &nbsp;
+                                            <span
+                                                className="border items-center justify-center fw-light"
+                                                style={{
+                                                    borderRadius: '50%',
+                                                    border: `2px solid #fff`,
+                                                    minWidth: `30px`,
+                                                    minHeight: `30px`,
+                                                    display: `inline-flex`,
+                                                    fontSize: `10px`
+                                                }}
+                                            >
+                                                -{calculatePercentile(user)}%
+                                            </span>
+                                        </div>
+                                    )} */}
                             </div>
                         </div>
                     )
                 })}
             </div>
+
             <Popover
                 open={open}
                 anchorEl={anchorEl}

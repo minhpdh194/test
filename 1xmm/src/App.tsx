@@ -36,7 +36,6 @@ declare global {
   var spots: SpotType[];
   var globalIndices: PusherIndex[];
   var starPackage: StarPackage[];
-  var userRanking: UserRanking[];
   var starsTarget: number;
 }
 
@@ -89,15 +88,13 @@ function App() {
         const [syncData,
           user_bonuses,
           user_positions,
-          indices,
-          userRankingData,
+          indices
           //{ data: tasks}
         ] = await Promise.all([
           $http.$get<SyncData>("/clicker/sync"),
           $http.$get<UserBonus[]>("/user_bonuses"),
           $http.$get<{ positions: UserPosition[]; }>("/user_positions"),
           $http.$get<Index[]>("/get-indices"),
-          $http.$get<UserRanking[]>("/top-users"),
           //$http.get("/user_tasks")
         ]);
 
@@ -146,7 +143,6 @@ function App() {
         setProgress(95);
 
         globalThis.starPackage = StarPackages;
-        globalThis.userRanking = userRankingData;
         $http.get("/clicker/load-spots");
       } catch (error) {
         console.error('Error loading data:', error);
