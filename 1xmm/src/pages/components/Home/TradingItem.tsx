@@ -407,7 +407,8 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
                                     <button
                                         type="button"
                                         className={`rounded flex-1 py-1 px-2 ${!positions.find((pos) => pos.position_id === pair.id) ? 'bg-gray-400 opacity-50 cursor-not-allowed' : 'bg-[#F27A83]'}`}
-                                        onClick={() => { if (!positions.find((pos) => pos.position_id === pair.id)) return; handleClose(pair.id); }}
+                                        onClick={() => handleClose(pair.id) }
+                                        disabled={!positions.find((pos) => pos.position_id === pair.id)}
                                     >
                                         <span className="font-bold text-xs">Close</span>
                                     </button>

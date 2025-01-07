@@ -10,7 +10,7 @@ export function compactNumber(num: number) {
 	return num.toLocaleString(undefined, {
 		maximumFractionDigits: 2,
 		notation: "compact",
-	}); 1
+	}); 
 }
 
 // Utils module
