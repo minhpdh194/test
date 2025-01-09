@@ -13,10 +13,11 @@ import { DateCountDown } from '@/classes/CountDown';
 
 type TradingItemProps = {
     spots: SpotType[];
+    perfs: { position_id: number; perf: number }[];
     onValidatePosition: (amount: number) => void;
 };
 
-const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
+const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => {
     // const [, setTimeBonus] = useState(null);
     //const [bonusData, setBonusData] = useState<any[]>([]);
     const pairs = JSON.parse(localStorage.getItem("PairReferential") || "[]") as Pair[];
@@ -297,7 +298,7 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
                                         <span className="font-normal text-sm block">Performance to Date</span>
                                     </div>
                                     <div className="w-1/2 text-right mb-2">
-                                        <span className="font-normal text-sm block">{((positions.find((pos) => pos.position_id === pair.id)?.performance ?? 0) * 100).toFixed(2)}%</span>
+                                        <span className="font-normal text-sm block">{((perfs.find((p) => p.position_id === pair.id)?.perf ?? 0) * 100).toFixed(2)}%</span>
                                     </div>
                                 </div>
                                 <div className={`flex justify-between pl-3 pr-3 border-b border-gray-500 my-0 ${expandedBonuses[pair.id] ? 'bg-[#32363C]' : ''}`}>
@@ -319,17 +320,17 @@ const TradingItem = ({ spots, onValidatePosition }: TradingItemProps) => {
                                     <>
                                         {selectedBonuses[pair.id].map((b) => {
                                             return (
-                                                <div key={b.bonus.id} className="flex justify-between border-b border-gray-500 pl-3 pr-3 my-0 bg-[#32363C] box-border">
-                                                    <div className="flex justify-between w-full">
-                                                        <div className="w-1/2 mb-2 mt-2">
-                                                            <span className="font-normal text-sm block">{b.bonus.bonus_definition.bonus_type}</span>
-                                                        </div>
-                                                        <div className="w-1/2 text-right mb-2 mt-2 flex items-center justify-end space-x-2">
-                                                            <span className="font-normal text-sm block">+{b.bonus.bonus_definition.benefit}</span>
-                                                            <span className="font-normal text-sm block">{b.countdown?.toString()}</span>
-                                                        </div>
+                                            <div key={b.bonus.id} className="flex justify-between border-b border-gray-500 pl-3 pr-3 my-0 bg-[#32363C] box-border">
+                                                <div className="flex justify-between w-full">
+                                                    <div className="w-1/2 mb-2 mt-2">
+                                                        <span className="font-normal text-sm block">{b.bonus.bonus_definition.bonus_type}</span>
+                                                    </div>
+                                                    <div className="w-1/2 text-right mb-2 mt-2 flex items-center justify-end space-x-2">
+                                                        <span className="font-normal text-sm block">+{b.bonus.bonus_definition.benefit}</span>
+                                                        <span className="font-normal text-sm block">{b.countdown?.toString()}</span>
                                                     </div>
                                                 </div>
+                                            </div>
                                             )
                                         })}
                                     </>

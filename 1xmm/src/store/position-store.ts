@@ -189,7 +189,7 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
       if (!index) continue;
 
       const value_date = index.time;
-      const index_value = positions[i].long_short == LongShort.Long ? index.long : index.short;
+      const index_value =  positions[i].long_short == LongShort.Long ? index.long : index.short;
       const pnlResult = positions[i].update(value_date, index_value);
 
       pnl_results.push(pnlResult);

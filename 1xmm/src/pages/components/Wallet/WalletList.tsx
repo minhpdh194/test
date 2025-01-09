@@ -1,4 +1,3 @@
-import GooglePayButton from "@google-pay/button-react";
 import Drawer from "../../../components/ui/drawer";
 import { useTonConnectUI } from "@tonconnect/ui-react";
 import { StarPackage } from "@/types/StarPackage";
@@ -22,8 +21,8 @@ export default function WalletList({
 }: WalletListProps) {
     const [tonConnectUI] = useTonConnectUI();
     const receiveAccountAddress = import.meta.env.VITE_RECEIVER_WALLET_ADDRESS;
-    const gatewayMerchantId = import.meta.env.VITE_GATEWAY_MERCHANT_ID;
-    const merchantId = import.meta.env.VITE_MERCHANT_ID;
+    // const gatewayMerchantId = import.meta.env.VITE_GATEWAY_MERCHANT_ID;
+    // const merchantId = import.meta.env.VITE_MERCHANT_ID;
     const [paidPrice, setPaidPrice] = useState<number>(0);
     const [tonWalletAddress, setTonWalletAddress] = useState<string | null>(null);
 
@@ -125,50 +124,41 @@ export default function WalletList({
         }
     }
 
+    const handlePaymentTelegramStar = async () => {
+        try {
+            // Call the backend to send the invoice via Telegram bot
+            const response = await $http.post('/send-invoice', {
+                chat_id: userProfile.telegram_user_id,
+                package: selectedStarPackage,
+                price: Math.ceil(paidPrice),
+            });
+            console.log('Payment invoice sent:', response);
+            if (response.data.ok) {
+                console.log(window.Telegram.WebApp.version);
+                if (Number(window.Telegram.WebApp.version) < 6.1) {
+                    toast.error("Please update your Telegram app to the latest version to access all features.");
+                } else {
+                    window.Telegram.WebApp.openInvoice(response.data.result, (status) => {
+                        if (status === "paid") {
+                            handleBuyStarPackage();
+                        }
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Error sending payment invoice:', error);
+        }
+    };
+
     return (
         <Drawer open={open} onOpenChange={onOpenChange} {...props}>
             <div className="flex flex-col justify-start items-center gap-4 pb-6 overflow-y-auto">
-                <GooglePayButton
-                    environment="TEST"
-                    paymentRequest={{
-                        apiVersion: 2,
-                        apiVersionMinor: 0,
-                        allowedPaymentMethods: [
-                            {
-                                type: 'CARD',
-                                parameters: {
-                                    allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
-                                    allowedCardNetworks: ['MASTERCARD', 'VISA'],
-                                },
-                                tokenizationSpecification: {
-                                    type: 'PAYMENT_GATEWAY',
-                                    parameters: {
-                                        gateway: 'example',
-                                        gatewayMerchantId: gatewayMerchantId,
-                                    },
-                                },
-                            },
-                        ],
-                        merchantInfo: {
-                            merchantId: merchantId,
-                            merchantName: 'Demo Merchant',
-                        },
-                        transactionInfo: {
-                            totalPriceStatus: 'FINAL',
-                            totalPriceLabel: 'Total',
-                            totalPrice: `${paidPrice.toFixed(2)}`,
-                            currencyCode: 'USD',
-                            countryCode: 'US',
-                        }
-                    }}
-                    onLoadPaymentData={(paymentRequest: any) => {
-                        console.log('Load payment data:', paymentRequest);
-                        handleBuyStarPackage();
-                    }}
-                    onError={(error) => {
-                        console.error('Google Pay Error:', error);
-                    }}
-                />
+                <button
+                    onClick={handlePaymentTelegramStar}
+                    className='px-6 py-3 rounded-full text-white font-semibold text-lg shadow-md transition bg-green-500 cursor-default'
+                >
+                    Buy with Telegram Star
+                </button>
 
                 <button
                     onClick={handleTonAction}

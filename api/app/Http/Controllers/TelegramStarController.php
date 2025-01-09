@@ -6,11 +6,52 @@ use Illuminate\Http\Request;
 
 use App\Models\UserGameData;
 use App\Models\Settings;
+use Illuminate\Support\Facades\Http;
 use Pusher\Pusher;
 
 class TelegramStarController extends Controller
 {
-    public function buyStarPackage(Request $request) {
+    protected $botToken;
+    protected $apiUrl;
+
+    public function __construct()
+    {
+        $this->botToken = env('TELEGRAM_BOT_API_TOKEN'); // Your Telegram bot token
+        $this->apiUrl = "https://api.telegram.org/bot{$this->botToken}/";
+    }
+
+    public function sendInvoice(Request $request)
+    {
+        $chatId = $request->input('chat_id');
+        $package = $request->input('package');
+        $price = $request->input('price');
+
+        $payload = [
+            'chat_id' => $chatId,
+            'title' => 'Package with ' . $price,
+            'description' => 'Good package',
+            'payload' => 'unique_payload', // Use a unique identifier for the transaction
+            'provider_token' => "", // Payment provider token
+            'currency' => 'XTR', // Currency (can be USD, EUR, etc.)
+            'prices' => [
+                [
+                    'label' => 'Buy Now',
+                    'amount' => $price, // Price in smallest currency unit (e.g., cents)
+                ]
+            ],
+        ];
+
+        // Make a POST request to Telegram Bot API to send the invoice
+        $response = Http::post($this->apiUrl . 'createInvoiceLink', $payload);
+        if ($response->successful()) {
+            return $response->json();
+        } else {
+            return $response->failed();
+        }
+    }
+
+    public function buyStarPackage(Request $request)
+    {
         $user = $request->user();
         $telegramProfile = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
 

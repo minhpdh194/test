@@ -187,7 +187,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
     if (currentAvailableEnergy < gainPerTap) { return false; }
 
     set((state) => ({
-      available_energy: state.available_energy - gainPerTap,
+      available_energy:  state.available_energy - gainPerTap,
       amount_of_tokens: state.amount_of_tokens + gainPerTap,
       trading_info: {
         balance: state.trading_info.balance + gainPerTap,
@@ -218,7 +218,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       const unlocked_pair_ids = get().unlocked_pair_ids;
       getUnlockedPairIds(matchedCondition.level).forEach(id => { if (!unlocked_pair_ids.find(nid => nid == id)) unlocked_pair_ids.push(id) });
 
-      const unlocked_pairs = get().unlocked_pairs;
+    const unlocked_pairs = get().unlocked_pairs;
       getUnlockedPairs(pairsInReferential, matchedCondition.level).forEach(p => { if (!unlocked_pairs.find(np => np.id == p.id)) unlocked_pairs.push(p) });
 
       await updateUserLevel(matchedCondition.level);
@@ -326,16 +326,16 @@ function getUnlockedPairIds(level: number): number[] {
   const pairs: number[] = [];
 
   levelBenefits.filter((benefit) => benefit.level <= level)
-    .forEach((benefit) => {
-      pairs.push(...benefit.pairs_unlocked)
-    });
+      .forEach((benefit) => {
+        pairs.push(...benefit.pairs_unlocked)
+      });
 
   return pairs;
 }
 
 function getUnlockedPairs(pairsInReferential: Pair[], level: number): Pair[] {
-  let pairs: Pair[] = [];
-  const pairIds = getUnlockedPairIds(level);
-  pairIds.forEach(id => pairs.push(pairsInReferential.find(p => p.id == id)!))
-  return pairs;
+   let pairs: Pair[] = [];
+   const pairIds = getUnlockedPairIds(level);
+   pairIds.forEach(id => pairs.push(pairsInReferential.find(p => p.id == id)!))
+   return pairs;
 }

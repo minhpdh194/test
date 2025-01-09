@@ -43,6 +43,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user_session', [AuthController::class, 'userSession']);
     Route::get('/referred-users', [FriendsController::class, 'referredUsers']);
 
+    Route::post('/send-invoice', [TelegramStarController::class, 'sendInvoice']);
+
     Route::get('/top-users', [RatingController::class, 'getRating']);
 
     Route::get('/timestamp', function () {

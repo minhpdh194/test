@@ -19,7 +19,7 @@ export default function DetailStar({
     const handleOpenWalletList = (starPackage: StarPackage) => {
         setOpenWalletUI(true);
         setSelectedStarPackage(starPackage);
-    }
+                }
 
     return (
         <Drawer open={open} onOpenChange={onOpenChange} {...props}>
@@ -47,6 +47,7 @@ export default function DetailStar({
                     </div>
                 ))}
             </div>
+
             {openWalletUI && (
                 <WalletList
                     open={openWalletUI}

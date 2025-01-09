@@ -5,7 +5,7 @@ import Earn from "./pages/Earn";
 import Friends from "./pages/Friends";
 import Profile from "./pages/Profile";
 import Bonus from "./pages/Bonus";
-import Rating from "./pages/Rating";
+import Ranking from "./pages/Ranking";
 
 const router = createBrowserRouter([
   {
@@ -34,8 +34,8 @@ const router = createBrowserRouter([
         element: <Bonus />
       },
       {
-        path: "rating",
-        element: <Rating />
+        path: "ranking",
+        element: <Ranking />
       }
     ],
   },

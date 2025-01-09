@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('settings', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('name', 25)->nullable(false);
-            $table->string('value', 100)->nullable(false);
+        Schema::create('user_transaction', function (Blueprint $table) {
+            $table->id();
+            $table->string('amount_of_tokens')->default(0);
+            $table->string('telegram_user_id')->nullable();
+
             $table->timestamps();
         });
     }
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('settings');
+        Schema::dropIfExists('user_transaction');
     }
 };

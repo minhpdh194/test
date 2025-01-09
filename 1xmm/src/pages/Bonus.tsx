@@ -112,22 +112,22 @@ export default function Bonus() {
         fetchBonusData();
     }, []);
 
-    const renderBenefit = (bonus: BonusDefinition) => {
-        switch (bonus.bonus_type) {
-            case BonusTypes.Leverage: return (
-                <>+{bonus.benefit}x</>
-            );
-            case BonusTypes.CapitalProtection: return (
-                <>{bonus.benefit}%</>
-            );
-            case BonusTypes.PositiveLeverage: return (
-                <>+{bonus.benefit}x</>
-            );
-            case BonusTypes.TimeReduction: return (
-                <>+{bonus.benefit}sec</>
-            );
+       const renderBenefit = (bonus: BonusDefinition) => {
+            switch (bonus.bonus_type) {
+                case BonusTypes.Leverage: return (
+                    <>+{bonus.benefit}x</>
+                );
+                case BonusTypes.CapitalProtection: return (
+                    <>{bonus.benefit}%</>
+                );
+                case BonusTypes.PositiveLeverage: return (
+                    <>+{bonus.benefit}x</>
+                );
+                case BonusTypes.TimeReduction: return (
+                    <>+{bonus.benefit}sec</>
+                );
+            }
         }
-    }
 
     const renderBonusItem = (bonus: BonusDefinition) => {
         return (
@@ -150,7 +150,7 @@ export default function Bonus() {
 
                         <div className="h-[1px] bg-gray-600 my-1"></div>
                         <span className="flex gap-2"><Present /> {renderBenefit(bonus)}</span>
-                    </div>
+                </div>
                 </span>
             </div>
         );
@@ -166,7 +166,7 @@ export default function Bonus() {
     }
 
     const handleBuyStarsAction = async () => {
-        setOpenStarDrawer(true);
+            setOpenStarDrawer(true);
     }
 
     const handleBuyBonusAction = async (bonus: BonusDefinition) => {
