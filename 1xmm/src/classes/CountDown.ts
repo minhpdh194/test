@@ -21,7 +21,7 @@ export class DateCountDown {
     public toString(): string {
         this.getRemainingTime();
 
-        if (!this.remaining_time) return "";
+        if (!this.remaining_time) return "Expired";
         let output = "";
         if (this.remaining_time.days > 0) output += `${this.remaining_time.days}d:`;
         output += `${this.remaining_time.hours}h:${this.remaining_time.minutes}m:${this.remaining_time.seconds}s`;
