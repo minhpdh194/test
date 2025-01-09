@@ -299,6 +299,13 @@ class MarketDataTasks
 
             $total_positions = TotalOpenPositionValue::where('pair_id', $pair->id)->first();
             $adj = 1;
+            $histo = $prev_long_index->histo_record;
+
+            if ($histo == 5) { 
+                $histo = 1; 
+            } else {
+                $histo += 1;
+            }
 
             if ($spot->current_value > $spot->prev_value) {
                 $call = MathUtil::call($T, $spot->prev_value, $spot->current_value, $vol_fwd->yield, $vol_fwd->volatility);
@@ -308,16 +315,12 @@ class MarketDataTasks
                     $adj = max(1, $total_positions->total_short_value / $total_positions->total_long_value);
                 }
 
-                $longPerf = Index::create([
-                    'pair_id' => $pair->id,
-                    'long_short' => 'long',
+                $longPerf = Index::updateOrCreate(['pair_id' => $pair->id, 'long_short' => 'long', 'histo_record' => $histo], [
                     'value' => $prev_long_index->value + $premium * $adj,
                     'created_at' => $timestamp
                 ]);
 
-                $shortPerf = Index::create([
-                    'pair_id' => $pair->id,
-                    'long_short' => 'short',
+                $shortPerf = Index::updateOrCreate(['pair_id' => $pair->id, 'long_short' => 'short', 'histo_record' => $histo], [
                     'value' => $prev_short_index->value - $premium,
                     'created_at' => $timestamp
                 ]);
@@ -325,9 +328,7 @@ class MarketDataTasks
                 $put = MathUtil::put($T, $spot->prev_value, $spot->current_value, $vol_fwd->yield, $vol_fwd->volatility);
                 $premium = $put / $spot->prev_value * $mult * $dt;
 
-                $longPerf = Index::create([
-                    'pair_id' => $pair->id,
-                    'long_short' => 'long',
+                $longPerf = Index::updateOrCreate(['pair_id' => $pair->id, 'long_short' => 'long', 'histo_record' => $histo], [
                     'value' => $prev_long_index->value - $premium,
                     'created_at' => $timestamp
                 ]);
@@ -336,23 +337,17 @@ class MarketDataTasks
                     $adj = max(1, $total_positions->total_long_value / $total_positions->total_short_value);
                 }
 
-                $shortPerf = Index::create([
-                    'pair_id' => $pair->id,
-                    'long_short' => 'short',
+                $shortPerf = Index::updateOrCreate(['pair_id' => $pair->id, 'long_short' => 'short', 'histo_record' => $histo], [
                     'value' => $prev_short_index->value + $premium * $adj,
                     'created_at' => $timestamp
                 ]);
             } else {
-                $longPerf = Index::create([
-                    'pair_id' => $pair->id,
-                    'long_short' => 'long',
+                $longPerf = Index::updateOrCreate(['pair_id' => $pair->id, 'long_short' => 'long', 'histo_record' => $histo], [
                     'value' => $prev_long_index->value,
                     'created_at' => $timestamp
                 ]);
 
-                $shortPerf = Index::create([
-                    'pair_id' => $pair->id,
-                    'long_short' => 'short',
+                $shortPerf = Index::updateOrCreate(['pair_id' => $pair->id, 'long_short' => 'short', 'histo_record' => $histo], [
                     'value' => $prev_short_index->value,
                     'created_at' => $timestamp
                 ]);

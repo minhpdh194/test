@@ -127,7 +127,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
   UpdateBalance: (newBalance: number) => {
     set((state) => ({
       trading_info: {
-        ...state.trading_info, 
+        ...state.trading_info,
         balance: newBalance,
       },
     }));
@@ -185,7 +185,6 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
     const currentAvailableEnergy = get().available_energy;
 
     if (currentAvailableEnergy < gainPerTap) { return false; }
-
     set((state) => ({
       available_energy:  state.available_energy - gainPerTap,
       amount_of_tokens: state.amount_of_tokens + gainPerTap,
@@ -199,19 +198,18 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
         time_reduction: state.trading_info.time_reduction
       }
     }));
-
+    get().UserLevelUp();
     return true;
   },
 
   UserLevelUp: async () => {
     const pairsInReferential = JSON.parse(localStorage.getItem("PairReferential") || "[]") as Pair[];
     const userPnl = get().trading_info.total_pnl;
-    const currentLevel = get().level;
 
     const matchedCondition = levelConditions
-      .find((condition) => userPnl >= condition.from_balance && userPnl < condition.to_balance && condition.level == currentLevel + 1);
+      .find((condition) => userPnl >= condition.from_balance && userPnl < condition.to_balance);
 
-    if (matchedCondition) {
+    if (matchedCondition && get().level < matchedCondition.level) {
       const benefits = levelBenefits.find((benef) => benef.level == matchedCondition.level);
       if (!benefits) return;
 
@@ -219,12 +217,17 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       getUnlockedPairIds(matchedCondition.level).forEach(id => { if (!unlocked_pair_ids.find(nid => nid == id)) unlocked_pair_ids.push(id) });
 
     const unlocked_pairs = get().unlocked_pairs;
-      getUnlockedPairs(pairsInReferential, matchedCondition.level).forEach(p => { if (!unlocked_pairs.find(np => np.id == p.id)) unlocked_pairs.push(p) });
+      getUnlockedPairs(pairsInReferential, matchedCondition.level).forEach(p => {
 
-      await updateUserLevel(matchedCondition.level);
+        if (!unlocked_pairs.find(np => np.id == p.id)) {
+          unlocked_pairs.push(p)
+        }
+      });
 
+      const result = await updateUserLevel(matchedCondition.level);
+      if (result) {
       set((state) => ({
-        level: state.level + 1,
+          level: matchedCondition.level,
         trading_info: {
           balance: state.trading_info.balance,
           total_pnl: state.trading_info.total_pnl,
@@ -241,6 +244,10 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       }));
 
       toast.success(`You have leveled up to level ${matchedCondition.level}`);
+      } else {
+        toast.error("Unexpected error has been occurred");
+      }
+
     }
   },
 
@@ -263,6 +270,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
           time_reduction: state.trading_info.time_reduction
         },
       }))
+      get().UserLevelUp();
 
       return addDetails.amount_adjustment + addDetails.realized_pnl;
     }
@@ -296,6 +304,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
           time_reduction: state.trading_info.time_reduction
         },
       }));
+      get().UserLevelUp();
     }
 
     return closingDetails.position_amount + closingDetails.position_pnl;
@@ -303,23 +312,32 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
 }));
 
 async function updateUserLevel(newLevel: number) {
-  let response: boolean = false;
-  let count = 0;
+  // let response: boolean = false;
+  // let count = 0;
 
-  do {
-    count++;
+  // do {
+  //   count++;
 
+  //   try {
+  //     const r = await $http.post('/update-user-level', {
+  //       level: newLevel
+  //     });
+  //     response = r.data.success;
+  //   } catch (error) {
+  //     response = false;
+  //   }
+  // } while (!response && count < 10);
+
+  // if (!response) throw new Error("Issue communicating with server");
     try {
-      const r = await $http.post('/update-user-level', {
+    const response = await $http.post('/update-user-level', {
         level: newLevel
       });
-      response = r.data.success;
+    return response.data.success;
     } catch (error) {
-      response = false;
+    console.log(error);
+    return false;
     }
-  } while (!response && count < 10);
-
-  if (!response) throw new Error("Issue communicating with server");
 }
 
 function getUnlockedPairIds(level: number): number[] {

@@ -3,13 +3,16 @@ import CounterInput from './CounterInput';
 import NumberFormat from "./NumberFormat";
 import { Position } from '@/classes/Position';
 import { toast } from "react-toastify";
-import { LongShort } from '@/enums';
+import { BonusTypes, LongShort } from '@/enums';
 import ListBonus from "./ListBonus";
 import { Utils } from '@/lib/utils';
 import { SpotType } from '@/types/SpotType';
 import { Pair } from '@/types/Pair';
 import { Bonus } from '@/classes/Bonus';
 import { DateCountDown } from '@/classes/CountDown';
+import { BonusDefinition } from '@/types/BonusDefinition';
+import { COMM } from '@/lib/comm';
+import { $http } from '@/lib/http';
 
 type TradingItemProps = {
     spots: SpotType[];
@@ -69,14 +72,24 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                 selectedBonuses[pos.position_id] = [];
 
                 if (pos.bonuses && pos.bonuses.length > 0) {
+                    const now = new Date().getTime() * 0.001;
                     pos.bonuses.forEach(b => {
-                        const bonusAndTimer = { bonus: b, countdown: new DateCountDown(b.end_date!) }
+                        // Sanity check: if bonus has already expired, we skip
+                        if (b.end_date! < now) return;
+
+                        const cd = new DateCountDown(b.end_date!);
+                        cd.onExpire(() => { 
+                            COMM.bonusExpiry($http, [b.id]);
+                            pos.remove_bonus(b.id);
+                        });
+
+                        const bonusAndTimer = { bonus: b, countdown: cd }
                         selectedBonuses[pos.position_id].push(bonusAndTimer);
                     });
 
                     setExpandedBonuses((prev) => ({
                         ...prev,
-                        [pos.position_id]: true
+                        [pos.position_id]: selectedBonuses[pos.position_id].length != 0
                     }));
                 }
 
@@ -240,6 +253,17 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
         return 'No position';
     };
 
+    const printBonusBenefit = (bonusDef: BonusDefinition): string => {
+        if (bonusDef.bonus_type == BonusTypes.Leverage || bonusDef.bonus_type == BonusTypes.PositiveLeverage)
+            return `+${bonusDef.benefit}x`;
+        if (bonusDef.bonus_type == BonusTypes.CapitalProtection)
+            return `+${bonusDef.benefit}%`;
+        if (bonusDef.bonus_type == BonusTypes.TimeReduction)
+            return `${bonusDef.benefit}s`;
+
+        return "";
+    };
+
     const [, setCurrentTime] = useState(Date.now());
 
     useEffect(() => {
@@ -326,7 +350,7 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                                                         <span className="font-normal text-sm block">{b.bonus.bonus_definition.bonus_type}</span>
                                                     </div>
                                                     <div className="w-1/2 text-right mb-2 mt-2 flex items-center justify-end space-x-2">
-                                                        <span className="font-normal text-sm block">+{b.bonus.bonus_definition.benefit}</span>
+                                                        <span className="font-normal text-sm block">{printBonusBenefit(b.bonus.bonus_definition)}</span>
                                                         <span className="font-normal text-sm block">{b.countdown?.toString()}</span>
                                                     </div>
                                                 </div>

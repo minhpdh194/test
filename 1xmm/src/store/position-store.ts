@@ -37,6 +37,7 @@ export type PositionStore = {
   AddBonusesToPosition: (position_id: number, bonuses: Bonus[]) => Promise<void>;
   SetUserPositions: (positions: Position[]) => void;
   RefreshPositions: () => Promise<PositionsUpdate>;
+  CleanBonuses: () => void;
 }
 
 export const getPositionStore = create<PositionStore>()((set, get) => ({
@@ -76,6 +77,10 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
     } catch (error) {
       console.error('Failed to update position:', error);
     }
+  },
+
+  CleanBonuses: () => {
+    get().positions.forEach(p => p.remove_expired_bonuses());
   },
 
   SetUserPositions: (positions: Position[]): void => {
@@ -229,6 +234,9 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
 
     try {
       await $http.post(`/clicker/close-position`, { position: position, pnl: pnl.pnl });
+
+      console.log(position);
+      console.log(pnl);
 
       set((state) => ({
         positions: state.positions.filter((pos) => { if (pos.position_id !== position_id) return pos; }),

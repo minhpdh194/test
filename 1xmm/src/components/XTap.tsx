@@ -56,11 +56,6 @@ const XTap: React.FC<XTapProps> = ({ changeInBalance = 0, updateAmountOfTokens, 
                 timestamp: Math.floor(Date.now() / 1000),
                 earn_per_tap: userProfile.earn_per_tap,
             })
-            .then(({ data }) => {
-                if (data.leveled_up) {
-                    userProfile.UserLevelUp();
-                }
-            })
             .catch(() => setClicksCount(count));
     }, [debounceClicksCount]);
 

@@ -71,6 +71,16 @@ export class Position {
         return false;
     }
 
+    public remove_bonus(id: number) {
+        this.bonuses = this.bonuses.filter(b => b.id != id);
+    }
+
+    public remove_expired_bonuses() {
+        const now = new Date().getTime() * 0.001;
+        for (let i = this.bonuses.length - 1; i >= 0; i--)
+            if (this.bonuses[i].end_date! < now) this.bonuses.pop();
+    }
+
     public get_bonus_end_date(bonus: Bonus): {is_attached: boolean, end_date: number | null} {
         const b = this.bonuses.find(b => b.id == bonus.id);
 

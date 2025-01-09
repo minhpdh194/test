@@ -14,6 +14,7 @@ use App\Models\MarketData\Spot;
 use App\Models\BonusDefinitions\LevelBonusesDef;
 use App\Models\MarketData\Position;
 use App\Models\MarketData\VolatilityAndForward;
+use App\Models\UserGameData;
 use App\Services\TelegramUsersService;
 
 
@@ -105,7 +106,7 @@ class TelegramUserController extends Controller
     {
         $user = $request->user();
         $level = $request->input('level');
-        $userProfile = UserProfile::where('telegram_user_id', $user->id)->first();
+        $userProfile = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
         if ($userProfile) {
             $userProfile->update([
                 'level' => $level

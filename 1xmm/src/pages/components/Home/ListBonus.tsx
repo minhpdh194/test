@@ -53,7 +53,7 @@ export default function ListBonus({
                 Select Bonuses
             </h2>
             <div className="flex flex-col justify-start pb-6 h-[calc(100vh-200px)] overflow-y-auto">
-                {bonusData.sort((a,b) => a.id - b.id).map((bonus) => (
+                {bonusData.sort((a,b) => a.id - b.id).filter(b => b.bonus_definition.bonus_type != BonusTypes.Friends).map((bonus) => (
                     <div
                         key={bonus.id}
                         className="p-2 flex justify-between mb-2"
