@@ -102,15 +102,15 @@ class AuthController extends Controller
             ]
         );
 
-        $UserRankingData = UserRanking::updateOrCreate(
-            ['telegram_user_id' => $user->telegram_user_id],
-            [
-                'first_name' => $user->first_name,
-                'last_name' => $user->last_name,
-                'last_amount_of_tokens' => $baseBalance,
-                'current_amount_of_tokens' => $baseBalance,
-            ]
-        );
+        // $UserRankingData = UserRanking::updateOrCreate(
+        //     ['telegram_user_id' => $user->telegram_user_id],
+        //     [
+        //         'first_name' => $user->first_name,
+        //         'last_name' => $user->last_name,
+        //         'last_amount_of_tokens' => $baseBalance,
+        //         'current_amount_of_tokens' => $baseBalance,
+        //     ]
+        // ); //ew dont need to use it any more
 
         $token = $user->createToken($user->telegram_user_id);
 

@@ -13,6 +13,7 @@ import { levelBenefits } from "@/referential/levelBenefits";
 import { levelConditions } from "@/referential/levelConditions";
 import { BonusDefinition } from "@/types/BonusDefinition";
 import { StarPackage } from "@/types/StarPackage";
+import { bonusDefinitions } from "@/referential/bonusDefinitions";
 
 export type UserProfileStore = UserProfile & {
   SetLevelBenefits: () => void;
@@ -108,8 +109,10 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
         const userProfile = get();
         if (userProfile.positionStore) {
           const responseBonus = response.data.bonus;
-          if (responseBonus) {
-            const addedBonus = new Bonus(responseBonus.id, responseBonus);
+          const bonusDef = bonusDefinitions.find(def => def.id == responseBonus.bonus_id);
+
+          if (responseBonus && bonusDef) {
+            const addedBonus = new Bonus(bonusDef.id, bonusDef);
             userProfile.positionStore.AddAvailableBonus(addedBonus);
           }
         }

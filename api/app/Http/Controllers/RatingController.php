@@ -10,7 +10,6 @@ class RatingController extends Controller
 {
     public function getRating(Request $request)
     {
-        \Log::info($request);
         $transactions = [];
         if ($request->has('date')) {
             $transactions = UserTransaction::with('userData')
