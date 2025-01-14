@@ -15,7 +15,9 @@ return new class extends Migration
             $table->increments('id');
             $table->string('pair_symbol', 15);
             $table->string('coin_symbol', 7);
+            $table->string('cmc_id');
             $table->string('counter_symbol', 7);
+            $table->boolean('histo_init')->default(false);
             $table->timestamps();
         });
     }

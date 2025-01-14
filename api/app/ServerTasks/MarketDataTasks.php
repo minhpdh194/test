@@ -23,6 +23,7 @@ use App\Utils\ToolsUtil;
 class MarketDataTasks
 {
     private $marketDataService;
+    private $hasHisto;
     /**
      * Create a new controller instance.
      *
@@ -31,17 +32,63 @@ class MarketDataTasks
     public function __construct(MarketDataService $marketDataService)
     {
         $this->marketDataService = $marketDataService;
+        $this->hasHisto = [];
+
+        $natural_pairs = Pair::where('counter_symbol', 'USD')->get();
+
+        $now = date_create('NOW', new DateTimeZone('UTC'));
+        date_add($now, date_interval_create_from_date_string("-1 day"));
+        $time_end = date_format($now, "Y-m-d") . 'T23:59:00.000Z';
+
+        foreach ($natural_pairs as $pair) {
+            if ($pair->histo_init == false) {
+                $histo_spots = $this->getHistoricalSpots($pair, $time_end, 30);
+                $pair->histo_init = true;
+                $pair->save();
+            }
+
+            $this->hasHisto[$pair->pair_symbol] = true;
+        }
     }
 
     public function getSpotsFromMarket($pairs)
     {
         $list_of_coins = '';
-        foreach ($pairs as $pair) { $list_of_coins = $list_of_coins . ($list_of_coins !== '' ? ',' : '') . $pair->coin_symbol; }
+        foreach ($pairs as $pair) { $list_of_coins = $list_of_coins . ($list_of_coins !== '' ? ',' : '') . $pair->cmc_id; }
 
-        $apiUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest';
+        $apiUrl = 'https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest';
         // $usdComparedSpots = $this->marketDataService->pairCoin($apiUrl, 'BTC,ETH,BNB,SOL,LINK,UNI,TON,XRP', 'USD');
         $usdComparedSpots = $this->marketDataService->pairCoin($apiUrl, $list_of_coins, 'USD');
         return $usdComparedSpots['data'];
+    }
+
+    public function getHistoricalSpots($pair, $yesterday, $n)
+    {
+        $apiUrl = 'https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/historical';
+        $rawUsdHistoSpots = $this->marketDataService->getHistoPrices($apiUrl, $pair, $yesterday, 'USD', $n);
+        $quotes = $rawUsdHistoSpots['data']['quotes'];
+
+        $prev_value = 0;
+        $return = 0;
+
+        foreach ($quotes as $quote) {
+            $price = $quote['quote']['USD']['price'];
+            if ($prev_value != 0) $return = ($price / $prev_value - 1.0);
+
+            Spot::create([
+                'pair_id' => $pair->id,
+                'fixing_period' => 12,
+                'day_open_value' => $prev_value,
+                'period_open_value' => 0,
+                'prev_value' => $prev_value,
+                'current_value' => $price,
+                'period_return' => $return,
+                'daily_return' => $return,
+                'created_at' => $quote['quote']['USD']['timestamp']
+            ]);
+
+            $prev_value = $price;
+        }
     }
 
     public function storeSpots($pairs) {
@@ -49,7 +96,7 @@ class MarketDataTasks
         $crypto_data = $this->getSpotsFromMarket($pairs);
 
         foreach ($pairs as $pair) {
-            $createdSpot = $this->marketDataService->updateOrCreateSpotData($pair, $crypto_data[$pair->coin_symbol]['quote']['USD']['price']);
+            $createdSpot = $this->marketDataService->updateOrCreateSpotData($pair, $crypto_data[$pair->cmc_id]['quote']['USD']['price']);
             if ($createdSpot) {
                 $createdSpots[$pair->coin_symbol] = $createdSpot;
             }
@@ -131,6 +178,15 @@ class MarketDataTasks
                         $fwd = $data['result']['underlying_price'];
                     }
                     $yield = ($fwd / $new_spot_value - 1.0) / $option_expiry;
+                }
+
+                if ($vol < 0.05 || $yield > 1) {
+                    $last = VolAndFwd::where('pair_id', $pair->id)->first();
+                    if (!$last) throw new \Exception('VolAndFwd could not be initiated for ' . $coin);
+
+                    $vol = $last->volatility;
+                    $yield = $last->yield;
+                    $fwd = $last->forward;
                 }
 
                 $fwd = round($fwd, 5);
@@ -220,8 +276,8 @@ class MarketDataTasks
             }
 
             // We have stored yield as Yield(p.a.) * expiry
-            $fwd = $spots->first()->current_value * (1.0 + $yield);
-            $vol = sqrt($vol) + $err;
+            $fwd = $spots->first()->current_value * (1.0 + max($yield, 0.03));
+            $vol = max(sqrt($vol) + $err, 0.2);
 
             VolAndFwd::updateOrCreate(
                 ['pair_id' => $pair->id],

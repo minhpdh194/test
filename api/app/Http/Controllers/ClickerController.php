@@ -47,12 +47,6 @@ class ClickerController extends Controller
         ]);
     }
 
-    public function initDataFromPusher() {
-        $userService = new UserService();
-        $userService->getNewestSpots();
-        $userService->getCurrrentTotalStars();
-    }
-
     public function tap(Request $request)
     {
         $validated = $request->validate([

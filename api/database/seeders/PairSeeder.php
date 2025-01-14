@@ -15,13 +15,13 @@ class PairSeeder extends Seeder
     public function run(): void
     {
         $pairs = [
-            ['pair_symbol' => ToolsUtil::getPairSymbol('BTC', 'USD'), 'coin_symbol' => 'BTC', 'counter_symbol' => 'USD'],
-            ['pair_symbol' => ToolsUtil::getPairSymbol('ETH', 'USD'), 'coin_symbol' => 'ETH', 'counter_symbol' => 'USD'],
-            ['pair_symbol' => ToolsUtil::getPairSymbol('BNB', 'USD'), 'coin_symbol' => 'BNB', 'counter_symbol' => 'USD'],
-            ['pair_symbol' => ToolsUtil::getPairSymbol('SOL', 'USD'), 'coin_symbol' => 'SOL', 'counter_symbol' => 'USD'],
-            ['pair_symbol' => ToolsUtil::getPairSymbol('XRP', 'USD'), 'coin_symbol' => 'XRP', 'counter_symbol' => 'USD'],
-            ['pair_symbol' => ToolsUtil::getPairSymbol('UNI', 'USD'), 'coin_symbol' => 'UNI', 'counter_symbol' => 'USD'],
-            ['pair_symbol' => ToolsUtil::getPairSymbol('LINK', 'USD'), 'coin_symbol' => 'LINK', 'counter_symbol' => 'USD'],
+            ['pair_symbol' => ToolsUtil::getPairSymbol('BTC', 'USD'), 'coin_symbol' => 'BTC', 'cmc_id' => 1, 'counter_symbol' => 'USD'],
+            ['pair_symbol' => ToolsUtil::getPairSymbol('ETH', 'USD'), 'coin_symbol' => 'ETH', 'cmc_id' => 1027, 'counter_symbol' => 'USD'],
+            ['pair_symbol' => ToolsUtil::getPairSymbol('BNB', 'USD'), 'coin_symbol' => 'BNB', 'cmc_id' => 1839, 'counter_symbol' => 'USD'],
+            ['pair_symbol' => ToolsUtil::getPairSymbol('SOL', 'USD'), 'coin_symbol' => 'SOL', 'cmc_id' => 5426, 'counter_symbol' => 'USD'],
+            ['pair_symbol' => ToolsUtil::getPairSymbol('XRP', 'USD'), 'coin_symbol' => 'XRP', 'cmc_id' => 52, 'counter_symbol' => 'USD'],
+            ['pair_symbol' => ToolsUtil::getPairSymbol('UNI', 'USD'), 'coin_symbol' => 'UNI', 'cmc_id' => 7083, 'counter_symbol' => 'USD'],
+            ['pair_symbol' => ToolsUtil::getPairSymbol('LINK', 'USD'), 'coin_symbol' => 'LINK', 'cmc_id' => 1975, 'counter_symbol' => 'USD'],
         ];
 
         foreach ($pairs as $pair) {

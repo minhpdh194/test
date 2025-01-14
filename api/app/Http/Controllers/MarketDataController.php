@@ -12,6 +12,7 @@ use App\Http\Traits\MarketData;
 use App\Models\MarketData\Fixing;
 use App\Models\MarketData\Pair;
 use App\Models\MarketData\Index;
+use App\Models\MarketData\Spot;
 
 class MarketDataController extends Controller
 {
@@ -70,6 +71,18 @@ class MarketDataController extends Controller
         }
 
         return response()->json($indices);
+    }
+
+    public function getSpots()
+    {
+        $latest_update = Spot::select('created_at')
+            ->orderBy('created_at', 'desc')
+            ->first()->created_at;
+        $latest_spots = Spot::select('pair_id', 'day_open_value', 'prev_value', 'current_value', 'period_return')
+            ->where('created_at', $latest_update)
+            ->get();
+
+        return response()->json($latest_spots);
     }
 
     public function getIndex(Request $request)

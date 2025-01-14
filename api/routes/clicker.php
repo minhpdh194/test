@@ -17,7 +17,6 @@ use App\Http\Controllers\MarketDataController;
 Route::prefix('clicker')->group(function () {
     Route::get('/sync', [ClickerController::class, 'sync']);
     Route::post('/tap', [ClickerController::class, 'tap']);
-    Route::get('/load-spots', [ClickerController::class,'initDataFromPusher']);
 
     Route::get('/get-position-ratios', [PositionController::class, 'getPositionRatios']);
 

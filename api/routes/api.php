@@ -57,6 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/get-indices', [MarketDataController::class,'getIndices']);
     Route::get('/get-index', [MarketDataController::class,'getIndex']);
+    Route::get('/load-spots', [MarketDataController::class,'getSpots']);
 
     Route::post('/buy-stars', [TelegramStarController::class, 'buyStarPackage']);
 

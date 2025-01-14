@@ -38,6 +38,14 @@ declare global {
   var starsTarget: number;
 }
 
+type DBSpot = {
+  pair_id: number;
+  day_open_value: number;
+  prev_value: number;
+  current_value: number;
+  period_return: number;
+}
+
 function App() {
   globalThis.userProfile = userProfileStore();
   globalThis.userProfile.positionStore = getPositionStore();
@@ -142,7 +150,7 @@ function App() {
         setProgress(95);
 
         globalThis.starPackage = StarPackages;
-        $http.get("/clicker/load-spots");
+        globalThis.spots = setFirstSpots((await $http.get<DBSpot[]>("/load-spots"))['data'], pairs);
       } catch (error) {
         console.error('Error loading data:', error);
         toast.error('Failed to load game data');
@@ -160,6 +168,27 @@ function App() {
   return (
     <RouterProvider router={router} />
   );
+}
+
+function setFirstSpots(data: DBSpot[], pairs: Pair[]): SpotType[] {
+  const res: SpotType[] = [];
+
+  data.forEach(s => {
+    res.push({
+      pair_id: s.pair_id,
+      fixing_period: 0,
+      day_open_value: s.day_open_value,
+      period_open_value: s.prev_value,
+      prev_value: s.prev_value,
+      current_value: s.current_value,
+      period_return: s.period_return,
+      daily_return: 0,
+      id: 0,
+      pair: pairs.find(p => p.id == s.pair_id)
+    } as SpotType);
+  })
+
+  return res;
 }
 
 async function filterBonusesAndPositions(userBonuses: UserBonus[], userPositions: UserPosition[], pairs: Pair[]): Promise<[Bonus[], Position[], number[]]> {
