@@ -5,6 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import { $http } from "@/lib/http";
 import { PopupMessageType } from "@/types/PopupMessageType";
 import PopupMessageDialog from "../PopupMessageDialog";
+import pusher from "@/lib/pusher";
+import { toast } from "react-toastify";
 
 export default function Layout() {
   const { pathname } = useLocation();
@@ -14,6 +16,17 @@ export default function Layout() {
     queryKey: ["popup-message"],
     queryFn: () => $http.$get<PopupMessageType>("/popups"),
   });
+
+  useEffect(() => {
+    const notification = pusher.subscribe(`refer_noti_user_${userProfile.telegram_user_id}`);
+    notification.bind("data", (data: any) => {
+      const invitee = data.invitee;
+      const increasedBalance = data.increasedBalance;
+      const firstName = invitee.first_name ? invitee.first_name : ""
+      const lastName = invitee.last_name ? invitee.last_name : ""
+      toast.success(`Your friend ${firstName} ${lastName} just accept your invite. You get ${increasedBalance} balance`);
+    });
+  }, []);
 
   useEffect(() => {
     if (pathname !== "/") {
@@ -28,6 +41,7 @@ export default function Layout() {
       navigate("/");
     });
   }, []);
+
   return (
     <main className="flex flex-col w-full max-w-lg h-[--tg-viewport-height] mx-auto text-white">
       <Outlet />

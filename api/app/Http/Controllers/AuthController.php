@@ -14,6 +14,7 @@ use App\Models\TelegramUser;
 use App\Models\UserGameData;
 use App\Models\UserBonuses;
 use App\Models\UserRanking;
+use Pusher\Pusher;
 
 $botToken = "";
 
@@ -99,9 +100,27 @@ class AuthController extends Controller
                 //later, comment it to avoid error
                 // We update the database
                 $inviter = UserGameData::where('telegram_user_id', $referredBy->telegram_user_id)->first();
-                $inviter->referralUpdate();
-                $inviter->updateUserBalance();
-                $gameData->updateUserBalance();
+                $increased = $inviter->updateInviterUserBalance();
+                $gameData->updateInviteeUserBalance();
+
+                $options = array(
+                    'cluster' => 'ap2',
+                    'useTLS' => true
+                );
+
+                $pusher = new Pusher(
+                    env('PUSHER_APP_KEY'),
+                    env('PUSHER_APP_SECRET'),
+                    env('PUSHER_APP_ID'),
+                    $options
+                );
+
+                try {
+                    $pusher->trigger('refer_noti_user_' . $referredBy->telegram_user_id, 'data', ['invitee' => $user, 'increasedBalance' => $increased]);
+                    \Log::info('test pusher', ['result' => $gameData]);
+                } catch (\Throwable $e) {
+                    \Log::info('error pusher', ['error' => $e->getMessage()]);
+                }
             }
         }
 

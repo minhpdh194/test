@@ -17,25 +17,32 @@ class UserGameData extends Model
         'total_pnl' => 'array'
     ];
 
-    public function referralUpdate()
+    public function updateInviterUserBalance()
     {
+        $increasedBalance = 0;
+
         $referralData = FriendsInvitation::where(['inviter_id' => $this->telegram_user_id, 'has_connected' => true])->get();
 
         if ($referralData) {
+            $increasedBalance += 20_000;
+
             $nb_invitees = count($referralData);
 
-            if ($nb_invitees == 3) $this->balance += 25_000;
-            else if ($nb_invitees == 6) $this->balance += 50_000;
-            else if ($nb_invitees == 10) $this->balance += 100_000;
-            else if ($nb_invitees == 25) $this->balance += 250_000;
-            else if ($nb_invitees == 50) $this->balance += 500_000;
-            else if ($nb_invitees == 100) $this->balance += 1_000_000;
+            if ($nb_invitees == 3) $increasedBalance += 25_000;
+            else if ($nb_invitees == 6) $increasedBalance += 50_000;
+            else if ($nb_invitees == 10) $increasedBalance += 100_000;
+            else if ($nb_invitees == 25) $increasedBalance += 250_000;
+            else if ($nb_invitees == 50) $increasedBalance += 500_000;
+            else if ($nb_invitees == 100) $increasedBalance += 1_000_000;
 
+            $this->balance = $increasedBalance;
             $this->save();
         }
+        return $increasedBalance;
     }
 
-    public function updateUserBalance() {
+    public function updateInviteeUserBalance()
+    {
         $this->balance += 20_000;
         $this->save();
     }
