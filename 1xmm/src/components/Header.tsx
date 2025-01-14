@@ -2,9 +2,9 @@ import { cn } from "@/lib/utils";
 import React, { useState, useEffect } from "react";
 import Sidebar from "./partials/SidebarLeft";
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
-import { Button } from "@mui/material";
 import { $http } from "@/lib/http";
 import { toast } from "react-toastify";
+import { Button } from "@mui/material";
 
 type HeaderProps = React.HtmlHTMLAttributes<HTMLDivElement> & {
     amount_token?: number;
@@ -21,6 +21,14 @@ export default function Header({
 
     const images = import.meta.glob<{ default: string }>("../../public/images/avatar/*.jpg", { eager: true });
     const imagePaths = Object.values(images).map((module) => module.default);
+
+    const sortedImagePaths = imagePaths.sort((a, b) => {
+        // Extract the number from the filename using regex
+        const numberA = parseInt(a.match(/avatar_(\d+)\.jpg$/)?.[1] || "0", 10);
+        const numberB = parseInt(b.match(/avatar_(\d+)\.jpg$/)?.[1] || "0", 10);
+
+        return numberA - numberB; // Sort in ascending order
+    });
 
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
@@ -104,7 +112,7 @@ export default function Header({
                             Avatar selection
                         </DialogTitle>
                         <div className="grid grid-cols-3 gap-4">
-                            {imagePaths.map((image, index) => (
+                            {sortedImagePaths.map((image, index) => (
                                 <img
                                     key={index}
                                     src={image}
@@ -115,7 +123,7 @@ export default function Header({
                                 />
                             ))}
                         </div>
-                        <Button onClick={handleUpdateAvatarId}>Confirm</Button>
+                        <Button variant="contained" onClick={handleUpdateAvatarId}>Confirm</Button>
                     </div>
                 </DialogContent>
             </Dialog>
