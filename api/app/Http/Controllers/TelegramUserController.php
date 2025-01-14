@@ -124,4 +124,28 @@ class TelegramUserController extends Controller
             'message' => 'User profile not found'
         ], 404);
     }
+
+    public function updateUserAvatar(Request $request)
+    {
+        $user = $request->user();
+        $userProfile = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
+        $avatar_id = $request->input('avatar_id');
+
+        if ($userProfile) {
+            $userProfile->update([
+                'avatar_id' => $avatar_id
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Avatar updated successfully',
+                'avatar_id' => $avatar_id
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'User profile not found'
+        ], 404);
+    }
 }
