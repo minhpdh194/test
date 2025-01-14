@@ -1,0 +1,14 @@
+version: "3.4"
+
+services:
+  1xmm_fe:
+    container_name: 1XMM_fe
+    image: 1xmm_fe:1.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3400:4173
+    restart: unless-stopped
+networks:
+  default:
