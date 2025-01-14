@@ -34,4 +34,9 @@ class UserGameData extends Model
             $this->save();
         }
     }
+
+    public function updateInvitedUserBalance() {
+        $this->balance += 20_000;
+        $this->save();
+    }
 }
