@@ -17,8 +17,8 @@ import { Position } from "./classes/Position";
 import { Bonus } from "./classes/Bonus";
 import { bonusDefinitions } from "./referential/bonusDefinitions";
 import { getPositionStore } from "./store/position-store";
-import { StarPackage } from "./types/StarPackage";
-import { StarPackages } from "./referential/starPackages";
+// import { StarPackage } from "./types/StarPackage";
+// import { StarPackages } from "./referential/starPackages";
 import { Index } from "./types/Index";
 import { PusherIndex } from "./types/PusherIndex";
 import { SpotType } from "./types/SpotType";
@@ -34,7 +34,7 @@ declare global {
   var userProfile: UserProfileStore;
   var spots: SpotType[];
   var globalIndices: PusherIndex[];
-  var starPackage: StarPackage[];
+  // var starPackage: StarPackage[];
   var starsTarget: number;
 }
 
@@ -149,7 +149,7 @@ function App() {
 
         setProgress(95);
 
-        globalThis.starPackage = StarPackages;
+        // globalThis.starPackage = StarPackages;
         globalThis.spots = setFirstSpots((await $http.get<DBSpot[]>("/load-spots"))['data'], pairs);
       } catch (error) {
         console.error('Error loading data:', error);

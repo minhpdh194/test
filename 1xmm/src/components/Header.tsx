@@ -56,7 +56,7 @@ export default function Header({
                     <div className="flex space-x-2">
                         <div className="flex-1">
                             <div className="bg-white rounded w-12 h-12" onClick={() => setIsOpen(true)}>
-                                <img className="object-contain w-12 h-12" src={`/images/avatar/avatar_${userProfile.avatar_id}.jpg`} />
+                                <img className="object-contain w-12 h-12" src={`/images/avatar/avatar_${userProfile.avatar_id + 1}.jpg`} />
                             </div>
                         </div>
                         <div className="flex-2">
