@@ -3,20 +3,21 @@ import Header from "../components/Header";
 import { bonusDefinitions } from "@/referential/bonusDefinitions";
 import { BonusDefinition } from "@/types/BonusDefinition";
 import { BonusTerms, BonusTypes } from "@/enums";
-import DetailStar from "@/components/partials/components/Star/DetailStar";
+// import DetailStar from "@/components/partials/components/Star/DetailStar";
 import ProgressBar from "@/components/ui/progress-bar";
 import Star from "@/components/icons/BonusIcon/Star";
 import Present from "@/components/icons/BonusIcon/Present";
 import Purchased from "@/components/icons/BonusIcon/Purchased";
 import { toast } from "react-toastify";
 import pusher from "@/lib/pusher";
+import { $http } from "@/lib/http";
 
 export default function Bonus() {
     const [leverageData, setLeverageData] = useState<any[]>([]);
     const [positiveLeverageData, setPositiveLeverageData] = useState<any[]>([]);
     const [capitalProtectionData, setCapitalProtectionData] = useState<any[]>([]);
     const [timeReductionData, setTimeReductionData] = useState<any[]>([]);
-    const [openStarDrawer, setOpenStarDrawer] = useState(false);
+    // const [openStarDrawer, setOpenStarDrawer] = useState(false);
 
     const bonusDefinitionIds = userProfile.positionStore?.available_bonuses.map(item => item.bonus_definition.id);
 
@@ -26,7 +27,7 @@ export default function Bonus() {
         //     setStarsTarget(total_stars);
         // }, 2500);
         const totalStars = pusher.subscribe("totalStars");
-    
+
         totalStars.bind("data", (data: any) => {
             globalThis.starsTarget = data.totalStars;
         });
@@ -112,22 +113,22 @@ export default function Bonus() {
         fetchBonusData();
     }, []);
 
-       const renderBenefit = (bonus: BonusDefinition) => {
-            switch (bonus.bonus_type) {
-                case BonusTypes.Leverage: return (
-                    <>+{bonus.benefit}x</>
-                );
-                case BonusTypes.CapitalProtection: return (
-                    <>{bonus.benefit}%</>
-                );
-                case BonusTypes.PositiveLeverage: return (
-                    <>+{bonus.benefit}x</>
-                );
-                case BonusTypes.TimeReduction: return (
-                    <>+{bonus.benefit}sec</>
-                );
-            }
+    const renderBenefit = (bonus: BonusDefinition) => {
+        switch (bonus.bonus_type) {
+            case BonusTypes.Leverage: return (
+                <>+{bonus.benefit}x</>
+            );
+            case BonusTypes.CapitalProtection: return (
+                <>{bonus.benefit}%</>
+            );
+            case BonusTypes.PositiveLeverage: return (
+                <>+{bonus.benefit}x</>
+            );
+            case BonusTypes.TimeReduction: return (
+                <>+{bonus.benefit}sec</>
+            );
         }
+    }
 
     const renderBonusItem = (bonus: BonusDefinition) => {
         return (
@@ -150,7 +151,7 @@ export default function Bonus() {
 
                         <div className="h-[1px] bg-gray-600 my-1"></div>
                         <span className="flex gap-2"><Present /> {renderBenefit(bonus)}</span>
-                </div>
+                    </div>
                 </span>
             </div>
         );
@@ -165,15 +166,36 @@ export default function Bonus() {
         );
     }
 
-    const handleBuyStarsAction = async () => {
-            setOpenStarDrawer(true);
-    }
-
     const handleBuyBonusAction = async (bonus: BonusDefinition) => {
-        if (globalThis.userProfile.number_of_stars > bonus.cost) {
-            await globalThis.userProfile.BuyBonus(bonus);
-        } else {
-            toast.warning(`You dont have enough stars to buy this bonus`);
+        // if (globalThis.userProfile.number_of_stars > bonus.cost) {
+        //     await globalThis.userProfile.BuyBonus(bonus);
+        // } else {
+        //     toast.warning(`You dont have enough stars to buy this bonus`);
+        // }
+        try {
+            // Call the backend to send the invoice via Telegram bot
+            const response = await $http.post('/send-invoice', {
+                chat_id: userProfile.telegram_user_id,
+                package: bonus
+            });
+            console.log('Payment invoice sent:', response);
+            console.log(response.data.ok);
+            if (response.data.ok) {
+                console.log(window.Telegram.WebApp.version);
+                if (Number(window.Telegram.WebApp.version) < 6.1) {
+                    toast.error("Please update your Telegram app to the latest version to access all features.");
+                } else {
+                    window.Telegram.WebApp.openInvoice(response.data.result, async (status) => {
+                        if (status === "paid") {
+                            await globalThis.userProfile.BuyBonus(bonus);
+                        } else {
+                            toast.warning(`You dont have enough stars to buy this bonus`);
+                        }
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Error sending payment invoice:', error);
         }
     }
 
@@ -224,7 +246,7 @@ export default function Bonus() {
                     <span className="font-normal text-xs">Purchased Bonuses</span>
                 </button> */}
 
-                <button
+                {/* <button
                     type="button"
                     className="rounded flex fw-semibold py-2 px-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)]"
                     onClick={() => handleBuyStarsAction()} // Open the drawer on click
@@ -235,7 +257,7 @@ export default function Bonus() {
                         className="object-cover w-4 h-4"
                     />
                     <span className="font-normal text-xs">Purchase Stars</span>
-                </button>
+                </button> */}
             </div>
             <div className="mt-4 mb-6">
                 <div className="flex justify-between items-center">
@@ -360,12 +382,12 @@ export default function Bonus() {
                 />
             )} */}
 
-            {openStarDrawer && starPackage.length > 0 && (
+            {/* {openStarDrawer && starPackage.length > 0 && (
                 <DetailStar
                     open={openStarDrawer}
                     onOpenChange={setOpenStarDrawer}
                 />
-            )}
+            )} */}
         </div>
     );
 }

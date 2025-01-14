@@ -26,6 +26,7 @@ export type UserProfileStore = UserProfile & {
   BuyBonus: (bonus: BonusDefinition) => void;
   BuyStars: (starPackage: StarPackage) => void;
   UpdateBalance: (newBalance: number) => void;
+  UpdateUserAvatar: (avatar_id: number) => void;
   unlocked_pair_ids: Array<number>;
   unlocked_pairs: Pair[];
   positionStore: PositionStore | undefined;
@@ -69,6 +70,12 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
   number_of_stars: 0,
   unlocked_pair_ids: [],
   unlocked_pairs: [],
+
+  UpdateUserAvatar: (avatar_id: number) => {
+    set(() => ({
+      avatar_id: avatar_id,
+    }));
+  },
 
   SetLevelBenefits: () => {
     const pairsInReferential = JSON.parse(localStorage.getItem("PairReferential") || "[]") as Pair[];
@@ -189,7 +196,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
 
     if (currentAvailableEnergy < gainPerTap) { return false; }
     set((state) => ({
-      available_energy:  state.available_energy - gainPerTap,
+      available_energy: state.available_energy - gainPerTap,
       amount_of_tokens: state.amount_of_tokens + gainPerTap,
       trading_info: {
         balance: state.trading_info.balance + gainPerTap,
@@ -219,7 +226,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       const unlocked_pair_ids = get().unlocked_pair_ids;
       getUnlockedPairIds(matchedCondition.level).forEach(id => { if (!unlocked_pair_ids.find(nid => nid == id)) unlocked_pair_ids.push(id) });
 
-    const unlocked_pairs = get().unlocked_pairs;
+      const unlocked_pairs = get().unlocked_pairs;
       getUnlockedPairs(pairsInReferential, matchedCondition.level).forEach(p => {
 
         if (!unlocked_pairs.find(np => np.id == p.id)) {
@@ -229,24 +236,24 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
 
       const result = await updateUserLevel(matchedCondition.level);
       if (result) {
-      set((state) => ({
+        set((state) => ({
           level: matchedCondition.level,
-        trading_info: {
-          balance: state.trading_info.balance,
-          total_pnl: state.trading_info.total_pnl,
-          perf_from_start_date: state.trading_info.perf_from_start_date,
-          perf_since_last_fixing: state.trading_info.perf_since_last_fixing,
-          positive_leverage: benefits.cumulated_positive_leverage,
-          capital_protection: benefits.cumulated_protection_bonus,
-          time_reduction: benefits.cumulated_time_bonus
-        },
-        earn_per_tap: benefits.total_gain_per_tap,
-        energy_limit_level: benefits.cumulated_tapping_amount,
-        unlocked_pair_ids: unlocked_pair_ids,
-        unlocked_pairs: unlocked_pairs
-      }));
+          trading_info: {
+            balance: state.trading_info.balance,
+            total_pnl: state.trading_info.total_pnl,
+            perf_from_start_date: state.trading_info.perf_from_start_date,
+            perf_since_last_fixing: state.trading_info.perf_since_last_fixing,
+            positive_leverage: benefits.cumulated_positive_leverage,
+            capital_protection: benefits.cumulated_protection_bonus,
+            time_reduction: benefits.cumulated_time_bonus
+          },
+          earn_per_tap: benefits.total_gain_per_tap,
+          energy_limit_level: benefits.cumulated_tapping_amount,
+          unlocked_pair_ids: unlocked_pair_ids,
+          unlocked_pairs: unlocked_pairs
+        }));
 
-      toast.success(`You have leveled up to level ${matchedCondition.level}`);
+        toast.success(`You have leveled up to level ${matchedCondition.level}`);
       } else {
         toast.error("Unexpected error has been occurred");
       }
@@ -332,31 +339,31 @@ async function updateUserLevel(newLevel: number) {
   // } while (!response && count < 10);
 
   // if (!response) throw new Error("Issue communicating with server");
-    try {
+  try {
     const response = await $http.post('/update-user-level', {
-        level: newLevel
-      });
+      level: newLevel
+    });
     return response.data.success;
-    } catch (error) {
+  } catch (error) {
     console.log(error);
     return false;
-    }
+  }
 }
 
 function getUnlockedPairIds(level: number): number[] {
   const pairs: number[] = [];
 
   levelBenefits.filter((benefit) => benefit.level <= level)
-      .forEach((benefit) => {
-        pairs.push(...benefit.pairs_unlocked)
-      });
+    .forEach((benefit) => {
+      pairs.push(...benefit.pairs_unlocked)
+    });
 
   return pairs;
 }
 
 function getUnlockedPairs(pairsInReferential: Pair[], level: number): Pair[] {
-   let pairs: Pair[] = [];
-   const pairIds = getUnlockedPairIds(level);
-   pairIds.forEach(id => pairs.push(pairsInReferential.find(p => p.id == id)!))
-   return pairs;
+  let pairs: Pair[] = [];
+  const pairIds = getUnlockedPairIds(level);
+  pairIds.forEach(id => pairs.push(pairsInReferential.find(p => p.id == id)!))
+  return pairs;
 }

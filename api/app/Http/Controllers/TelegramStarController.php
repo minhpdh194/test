@@ -24,8 +24,8 @@ class TelegramStarController extends Controller
     {
         $chatId = $request->input('chat_id');
         $package = $request->input('package');
-        $price = $request->input('price');
-
+        $price = $package['cost'];
+        
         $payload = [
             'chat_id' => $chatId,
             'title' => 'Package with ' . $price,
