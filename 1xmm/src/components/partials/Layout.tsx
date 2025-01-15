@@ -26,11 +26,11 @@ export default function Layout() {
       const lastName = invitee.last_name ? invitee.last_name : ""
       toast.success(`Your friend ${firstName} ${lastName} just accept your invite. You get ${increasedBalance} balance`);
       userProfile.UpdateBalance(userProfile.trading_info.balance + increasedBalance);
-      await fetchFriendsData();
+      await fetchGlobalFriendsData();
     });
   }, []);
 
-  async function fetchFriendsData() {
+  async function fetchGlobalFriendsData() {
     const response = await $http.get("/referred-users");
     globalThis.userInvitedFriends = response.data.referred_friends
   }

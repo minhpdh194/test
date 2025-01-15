@@ -17,6 +17,7 @@ class RatingController extends Controller
                 ->whereDate('created_at', $request->input('date'))
                 ->select('telegram_user_id', DB::raw('SUM(amount_of_tokens) as tokens'))
                 ->groupBy('telegram_user_id')
+                ->orderBy('tokens', 'desc')
                 ->get();
         }
 
@@ -26,6 +27,7 @@ class RatingController extends Controller
                 ->whereBetween('created_at', [$week['start'], $week['end']])
                 ->select('telegram_user_id', DB::raw('SUM(amount_of_tokens) as tokens'))
                 ->groupBy('telegram_user_id')
+                ->orderBy('tokens', 'desc')
                 ->get();
         }
 
@@ -35,6 +37,7 @@ class RatingController extends Controller
                 ->whereMonth('created_at', date('m', strtotime($month)))
                 ->select('telegram_user_id', DB::raw('SUM(amount_of_tokens) as tokens'))
                 ->groupBy('telegram_user_id')
+                ->orderBy('tokens', 'desc')
                 ->get();
         }
 

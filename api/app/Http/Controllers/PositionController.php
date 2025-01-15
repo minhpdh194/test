@@ -211,7 +211,7 @@ class PositionController extends Controller
 
         $userGameData->save();
         $position->delete();
-        \Log::info($pnl);
+
         UserTransaction::create([
             'amount_of_tokens' => $pnl,
             'telegram_user_id' =>  $user->telegram_user_id,

@@ -5,6 +5,8 @@ import Header from "../components/Header";
 import ListFriend from "./components/Friends/ListFriend";
 import ListBonus from "./components/Friends/ListBonus";
 import { Friend } from "@/types/Friend";
+import { $http } from "@/lib/http";
+import pusher from "@/lib/pusher";
 
 const shareMessage = encodeURI(
   "Play 1xMM with me!"
@@ -14,7 +16,7 @@ export default function Friends() {
   const [, copy] = useCopyToClipboard();
   // const { referral, levels } = uesStore();
   const [activeType, setActiveType] = useState('1');
-  const [friends, setFriends] = useState<Friend[]>([]);
+  const [friends, setFriends] = useState<Friend[]>(globalThis.userInvitedFriends);
 
   const appLink = useMemo(
     () => `${import.meta.env.VITE_BOT_URL}/?startapp=ref${userProfile.telegram_user_id}`,
@@ -27,8 +29,16 @@ export default function Friends() {
   );
 
   useEffect(() => {
-    setFriends(userInvitedFriends);
-  }, [userInvitedFriends]);
+    const notification = pusher.subscribe(`refer_noti_user_${userProfile.telegram_user_id}`);
+    notification.bind("data", async () => {
+      fetchFriendsData();
+    });
+  }, [globalThis.userInvitedFriends]);
+
+  async function fetchFriendsData() {
+    const response = await $http.get("/referred-users");
+    setFriends(response.data.referred_friends);
+  }
 
   return (
     <div className="flex-1 px-3 pb-20 bg-center bg-cover"
@@ -114,9 +124,7 @@ export default function Friends() {
             <div className="p-3 pt-0">
               {activeType === '1' && (
                 <div className="tab-content">
-                  {friends && friends.map((user) => (
-                    <ListFriend key={user.telegram_user_id} referedUser={user} />
-                  ))}
+                  <ListFriend referedUsers={friends} />
                 </div>
               )}
               {activeType === '2' && (
