@@ -44,7 +44,7 @@ export default function Header({
     };
 
     const filterImagePath = (imagePath: string) => {
-        const match = imagePath.match(/(\d+)(?=\.\w+$)/);
+        const match = imagePath.match(/(\d+)(?=[^a-zA-Z0-9]*\.\w+$)/);
         const result = match ? parseInt(match[0], 10) : -1;
         return result;
     }
