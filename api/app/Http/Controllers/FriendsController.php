@@ -31,11 +31,7 @@ class FriendsController extends Controller
                 ];
             }
         }
-        $balance = $userGameData->balance ?? 0; // Example: Use `0` if balance is not set
 
-        return response()->json([
-            'referred_friends' => $referredFriends,
-            'balance' => $balance,
-        ]);
+        return response()->json(['referred_friends' => $referredFriends]);
     }
 }

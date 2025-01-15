@@ -19,14 +19,21 @@ export default function Layout() {
 
   useEffect(() => {
     const notification = pusher.subscribe(`refer_noti_user_${userProfile.telegram_user_id}`);
-    notification.bind("data", (data: any) => {
+    notification.bind("data", async (data: any) => {
       const invitee = data.invitee;
       const increasedBalance = data.increasedBalance;
       const firstName = invitee.first_name ? invitee.first_name : ""
       const lastName = invitee.last_name ? invitee.last_name : ""
       toast.success(`Your friend ${firstName} ${lastName} just accept your invite. You get ${increasedBalance} balance`);
+      userProfile.UpdateBalance(increasedBalance);
+      await fetchFriendsData();
     });
   }, []);
+
+  async function fetchFriendsData() {
+    const response = await $http.get("/referred-users");
+    globalThis.userInvitedFriends = response.data.referred_friends
+  }
 
   useEffect(() => {
     if (pathname !== "/") {

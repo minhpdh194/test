@@ -35,7 +35,7 @@ class UserGameData extends Model
             else if ($nb_invitees == 50) $increasedBalance += 500_000;
             else if ($nb_invitees == 100) $increasedBalance += 1_000_000;
 
-            $this->balance = $increasedBalance;
+            $this->balance += $increasedBalance;
             $this->save();
         }
         return $increasedBalance;
