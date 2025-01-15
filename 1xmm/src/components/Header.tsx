@@ -22,15 +22,11 @@ export default function Header({
     const images = import.meta.glob<{ default: string }>("../../public/images/avatar/*.jpg", { eager: true });
     const imagePaths = Object.values(images).map((module) => module.default);
 
-    const sortedImagePaths = imagePaths.sort((a, b) => {
-        // Extract the number from the filename using regex
-        const numberA = parseInt(a.match(/avatar_(\d+)\.jpg$/)?.[1] || "0", 10);
-        const numberB = parseInt(b.match(/avatar_(\d+)\.jpg$/)?.[1] || "0", 10);
-
-        return numberA - numberB; // Sort in ascending order
-    });
-
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+    useEffect(() => {
+        setSelectedImageIndex(userProfile.avatar_id);
+    }, []);
 
     const handleImageClick = (index: number) => {
         setSelectedImageIndex(index); // Update the selected image index
@@ -46,6 +42,12 @@ export default function Header({
     const toggleSidebar = () => {
         setSidebarOpen(!isSidebarOpen);
     };
+
+    const filterImagePath = (imagePath: string) => {
+        const match = imagePath.match(/(\d+)(?=\.\w+$)/);
+        const result = match ? parseInt(match[0], 10) : -1;
+        return result;
+    }
 
     const handleUpdateAvatarId = async () => {
         const response = await $http.post('/update-user-avatar', { avatar_id: selectedImageIndex });
@@ -64,7 +66,7 @@ export default function Header({
                     <div className="flex space-x-2">
                         <div className="flex-1">
                             <div className="bg-white rounded w-12 h-12" onClick={() => setIsOpen(true)}>
-                                <img className="object-contain w-12 h-12" src={`/images/avatar/avatar_${userProfile.avatar_id + 1}.jpg`} />
+                                <img className="object-contain w-12 h-12" src={`/images/avatar/avatar_${userProfile.avatar_id}.jpg`} />
                             </div>
                         </div>
                         <div className="flex-2">
@@ -112,14 +114,14 @@ export default function Header({
                             Avatar selection
                         </DialogTitle>
                         <div className="grid grid-cols-3 gap-4">
-                            {sortedImagePaths.map((image, index) => (
+                            {imagePaths.map((image) => (
                                 <img
-                                    key={index}
+                                    key={filterImagePath(image)}
                                     src={image}
-                                    alt={`img-${index}`}
-                                    className={`cursor-pointer rounded-lg ${selectedImageIndex === index ? 'border-4 border-blue-500' : 'border-none'
+                                    alt={`img-${filterImagePath(image)}`}
+                                    className={`cursor-pointer rounded-lg ${selectedImageIndex === filterImagePath(image) ? 'border-4 border-blue-500' : 'border-none'
                                         }`}
-                                    onClick={() => handleImageClick(index)} // Handle image click
+                                    onClick={() => handleImageClick(filterImagePath(image))} // Handle image click
                                 />
                             ))}
                         </div>
