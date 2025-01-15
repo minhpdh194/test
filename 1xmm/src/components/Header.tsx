@@ -19,7 +19,7 @@ export default function Header({
     const [isSidebarOpen, setSidebarOpen] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
 
-    const images = import.meta.glob<{ default: string }>("../../src/assets/avatar/*.jpg", { eager: true });
+    const images = import.meta.glob<{ default: string }>("../../public/images/avatar/*.jpg", { eager: true });
     const imagePaths = Object.values(images).map((module) => module.default);
 
     const sortedImagePaths = imagePaths.sort((a, b) => {
@@ -64,7 +64,7 @@ export default function Header({
                     <div className="flex space-x-2">
                         <div className="flex-1">
                             <div className="bg-white rounded w-12 h-12" onClick={() => setIsOpen(true)}>
-                                <img className="object-contain w-12 h-12" src={`../../src/assets/avatar/avatar_${userProfile.avatar_id + 1}.jpg`} />
+                                <img className="object-contain w-12 h-12" src={`/images/avatar/avatar_${userProfile.avatar_id + 1}.jpg`} />
                             </div>
                         </div>
                         <div className="flex-2">

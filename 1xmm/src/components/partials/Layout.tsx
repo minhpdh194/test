@@ -25,7 +25,7 @@ export default function Layout() {
       const firstName = invitee.first_name ? invitee.first_name : ""
       const lastName = invitee.last_name ? invitee.last_name : ""
       toast.success(`Your friend ${firstName} ${lastName} just accept your invite. You get ${increasedBalance} balance`);
-      userProfile.UpdateBalance(increasedBalance);
+      userProfile.UpdateBalance(userProfile.trading_info.balance + increasedBalance);
       await fetchFriendsData();
     });
   }, []);
