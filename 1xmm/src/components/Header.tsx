@@ -43,12 +43,6 @@ export default function Header({
         setSidebarOpen(!isSidebarOpen);
     };
 
-    const filterImagePath = (imagePath: string) => {
-        const match = imagePath.match(/(\d+)(?=[^a-zA-Z0-9]*\.\w+$)/);
-        const result = match ? parseInt(match[0], 10) : -1;
-        return result;
-    }
-
     const handleUpdateAvatarId = async () => {
         const response = await $http.post('/update-user-avatar', { avatar_id: selectedImageIndex });
         if (response.data.success) {
@@ -114,14 +108,14 @@ export default function Header({
                             Avatar selection
                         </DialogTitle>
                         <div className="grid grid-cols-3 gap-4">
-                            {imagePaths.map((image) => (
+                            {imagePaths.map((image, index) => (
                                 <img
-                                    key={filterImagePath(image)}
+                                    key={index}
                                     src={image}
-                                    alt={`img-${filterImagePath(image)}`}
-                                    className={`cursor-pointer rounded-lg ${selectedImageIndex === filterImagePath(image) ? 'border-4 border-blue-500' : 'border-none'
+                                    alt={`img-${index}`}
+                                    className={`cursor-pointer rounded-lg ${selectedImageIndex === index ? 'border-4 border-blue-500' : 'border-none'
                                         }`}
-                                    onClick={() => handleImageClick(filterImagePath(image))} // Handle image click
+                                    onClick={() => handleImageClick(index)} // Handle image click
                                 />
                             ))}
                         </div>
