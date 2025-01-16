@@ -1,7 +1,7 @@
 export class UserRanking {
-    telegram_user_id: string = "";
-    first_name: string = "";
-    last_name: string = "";
+  telegram_user_id: string = "";
+  first_name: string = "";
+  last_name: string = "";
   amount_of_tokens: number = 0;
 
   public constructor(telegram_user_id: string, first_name: string, last_name: string, amount_of_tokens: number) {

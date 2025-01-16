@@ -30,14 +30,8 @@ export default function Ranking() {
         return formattedNumberOfTokens;
     }
 
-    const [selectedDate, setSelectedDate] = useState(new Date());
-    const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+    const selectedDate = new Date();
     const [selectedFilter, setSelectedFilter] = useState(-1);
-
-    const handleSelectDate = (ranges: any) => {
-        console.log(ranges);
-        setSelectedDate(ranges);
-    };
 
     useEffect(() => {
         async function getUserRanking() {
@@ -61,8 +55,8 @@ export default function Ranking() {
                 response.data.forEach((transaction: any) => {
                     const newData = {
                         telegram_user_id: transaction.telegram_user_id,
-                        first_name: transaction.user_data.first_name,
-                        last_name: transaction.user_data.last_name,
+                        first_name: transaction.user_data.first_name ? transaction.user_data.first_name : "",
+                        last_name: transaction.user_data.last_name ? transaction.user_data.last_name : "",
                         amount_of_tokens: transaction.tokens,
                     };
 
@@ -74,41 +68,22 @@ export default function Ranking() {
         }
 
         getUserRanking();
-    }, [anchorEl]);
-
-    const handleClickPopover = async (event: any) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleClosePopover = () => {
-        setAnchorEl(null);
-    };
-
-    const open = Boolean(anchorEl);
+    }, [selectedFilter]);
 
     const currentWeekStart = startOfWeek(new Date());
     const currentWeekEnd = addWeeks(currentWeekStart, 1);
 
-    const [selectedWeek, setSelectedWeek] = useState({
+    const selectedWeek = {
         start: currentWeekStart,
         end: currentWeekEnd
-    });
-
-    const weeks: Week[] = Array.from({ length: 52 }, (_, i) => {
-        const weekStart = startOfWeek(addWeeks(new Date(), i));
-        const weekEnd = addWeeks(weekStart, 1);
-        return {
-            start: weekStart,
-            end: weekEnd,
-        };
-    });
+    };
 
     const months = [
         'January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December'
     ];
 
-    const [selectedMonth, setSelectedMonth] = useState(months[new Date().getMonth()]);
+    const selectedMonth = months[new Date().getMonth()];
 
     const firstPositionUser = userRanking[0];
     const secondPositionUser = userRanking[1];
@@ -125,124 +100,115 @@ export default function Ranking() {
             <Header amount_token={userProfile.amount_of_tokens} />
             <div className="mt-4 mb-8">
                 <div className="flex gap-2 w-100 text-sm">
-                    <div className="bg-[#32363C] flex-1 text-center py-2 rounded-lg" onClick={(event) => {
-                        handleClickPopover(event)
-                        setSelectedFilter(0)
-                    }}>
+                    <div className="bg-[#32363C] flex-1 text-center py-2 rounded-lg" onClick={() => setSelectedFilter(0)}>
                         <span className="text-[#F79841] fw-semibold">Daily</span>
                         <span className="fw-light block">{Utils.formatDate(selectedDate.toUTCString())}</span>
                     </div>
-                    <div className="bg-[#32363C] flex-1 text-center py-2 rounded-lg" onClick={(event) => {
-                        handleClickPopover(event)
-                        setSelectedFilter(1)
-                    }}>
+                    <div className="bg-[#32363C] flex-1 text-center py-2 rounded-lg" onClick={() => setSelectedFilter(1)}>
                         <span className="text-[#6F72E2] fw-semibold">Weekly</span>
                         <span className="fw-light block">{format(selectedWeek.start, 'MMM dd')} - {format(selectedWeek.end, 'MMM dd')}</span>
                     </div>
-                    <div className="bg-[#32363C] flex-1 text-center py-2 rounded-lg" onClick={(event) => {
-                        handleClickPopover(event)
-                        setSelectedFilter(2)
-                    }}>
+                    <div className="bg-[#32363C] flex-1 text-center py-2 rounded-lg" onClick={() => setSelectedFilter(2)}>
                         <span className="text-[#84CB69] fw-semibold">Monthly</span>
                         <span className="fw-light block">{selectedMonth}</span>
                     </div>
                 </div>
                 <div className="flex w-100 text-sm mt-5 items-end">
                     {secondPositionUser && (
-                    <div className="bg-[#32363C] flex-1 text-center py-2 h-38" style={{ borderTopLeftRadius: `1rem`, borderBottomLeftRadius: `1rem` }}>
-                        <div className="relative w-full">
-                            <img
-                                src="/images/ranking/top2.png"
-                                alt="top2"
-                                className="w-16 absolute -top-10 left-1/2 transform -translate-x-1/2"
-                                style={{
-                                    height: `4.5rem`,
-                                }}
-                            />
-                        </div>
-                        <div className="flex justify-center w-100 mt-3 pt-1 relative">
-                            <img
-                                src="/images/ranking/avatar.png"
-                                alt="avatar"
-                                className="w-16 p-1 h-16"
-                                style={{
-                                    border: `3.77px solid transparent`,
-                                    background: `linear-gradient(to bottom, #6E69F7 0%, #E496E7 100%)`,
-                                    borderRadius: `50%`,
-                                    backgroundClip: `padding-box, border-box`,
-                                    backgroundOrigin: `padding-box, border-box`,
-                                }}
-                            />
-                            <img
-                                src="/images/ranking/bg-top2.png"
-                                alt="avatar"
-                                className="w-5 h-5 absolute bottom-[-5px] left-1/2 transform -translate-x-1/2"
-                            />
-                            <span className="fw-bold text-xs absolute bottom-[-5px] left-1/2 transform -translate-x-1/2">
-                                2
+                        <div className="bg-[#32363C] flex-1 text-center py-2 h-38" style={{ borderTopLeftRadius: `1rem`, borderBottomLeftRadius: `1rem` }}>
+                            <div className="relative w-full">
+                                <img
+                                    src="/images/ranking/top2.png"
+                                    alt="top2"
+                                    className="w-16 absolute -top-10 left-1/2 transform -translate-x-1/2"
+                                    style={{
+                                        height: `4.5rem`,
+                                    }}
+                                />
+                            </div>
+                            <div className="flex justify-center w-100 mt-3 pt-1 relative">
+                                <img
+                                    src="/images/ranking/avatar.png"
+                                    alt="avatar"
+                                    className="w-16 p-1 h-16"
+                                    style={{
+                                        border: `3.77px solid transparent`,
+                                        background: `linear-gradient(to bottom, #6E69F7 0%, #E496E7 100%)`,
+                                        borderRadius: `50%`,
+                                        backgroundClip: `padding-box, border-box`,
+                                        backgroundOrigin: `padding-box, border-box`,
+                                    }}
+                                />
+                                <img
+                                    src="/images/ranking/bg-top2.png"
+                                    alt="avatar"
+                                    className="w-5 h-5 absolute bottom-[-5px] left-1/2 transform -translate-x-1/2"
+                                />
+                                <span className="fw-bold text-xs absolute bottom-[-5px] left-1/2 transform -translate-x-1/2">
+                                    2
+                                </span>
+                            </div>
+                            {/* <span className="fw-light text-xs block pt-2">{calculatePercentile(secondPositionUser)}%</span> */}
+                            <span className="block fw-bold">{secondPositionUser.first_name + " " + secondPositionUser.last_name}</span>
+                            <span className="flex fw-bold items-center justify-center">
+                                <img
+                                    src="/images/home/coin.png"
+                                    alt="coin"
+                                    className="w-4 h-4"
+                                />
+                                {formatNumber(secondPositionUser)}
                             </span>
                         </div>
-                            {/* <span className="fw-light text-xs block pt-2">{calculatePercentile(secondPositionUser)}%</span> */}
-                        <span className="block fw-bold">{secondPositionUser.first_name + " " + secondPositionUser.last_name}</span>
-                        <span className="flex fw-bold items-center justify-center">
-                            <img
-                                src="/images/home/coin.png"
-                                alt="coin"
-                                className="w-4 h-4"
-                            />
-                            {formatNumber(secondPositionUser)}
-                        </span>
-                    </div>
                     )}
 
                     {firstPositionUser && (
-                    <div className="bg-[#2E3034] flex-1 text-center py-2 h-56 relative" style={{ borderTopRightRadius: `2rem`, borderTopLeftRadius: `2rem` }}>
-                        <div className="relative w-full">
-                            <img
-                                src="/images/ranking/top1.png"
-                                alt="top1"
-                                className="w-16 absolute -top-10 left-1/2 transform -translate-x-1/2"
-                                style={{
-                                    height: `4.5rem`,
-                                }}
-                            />
-                        </div>
-                        <div className="flex justify-center w-100 mt-4 pt-1">
-                            <img
-                                src="/images/ranking/avatar.png"
-                                alt="avatar"
-                                className="w-20 p-1 h-20"
-                                style={{
-                                    border: `3.77px solid transparent`,
-                                    background: `linear-gradient(to bottom, #6E69F7 0%, #E496E7 100%)`,
-                                    borderRadius: `50%`,
-                                    backgroundClip: `padding-box, border-box`,
-                                    backgroundOrigin: `padding-box, border-box`,
-                                }}
-                            />
-                            <img
-                                src="/images/ranking/bg-top1.png"
-                                alt="avatar"
-                                className="w-5 h-5 absolute"
-                                style={{
-                                    top: `45%`
-                                }}
-                            />
-                            <span className="fw-bold text-xs absolute" style={{
-                                top: `46%`,
-                            }}>1</span>
-                        </div>
-                        <span className="block fw-bold mt-3">{firstPositionUser.first_name + " " + firstPositionUser.last_name}</span>
+                        <div className="bg-[#2E3034] flex-1 text-center py-2 h-56 relative" style={{ borderTopRightRadius: `2rem`, borderTopLeftRadius: `2rem` }}>
+                            <div className="relative w-full">
+                                <img
+                                    src="/images/ranking/top1.png"
+                                    alt="top1"
+                                    className="w-16 absolute -top-10 left-1/2 transform -translate-x-1/2"
+                                    style={{
+                                        height: `4.5rem`,
+                                    }}
+                                />
+                            </div>
+                            <div className="flex justify-center w-100 mt-4 pt-1">
+                                <img
+                                    src="/images/ranking/avatar.png"
+                                    alt="avatar"
+                                    className="w-20 p-1 h-20"
+                                    style={{
+                                        border: `3.77px solid transparent`,
+                                        background: `linear-gradient(to bottom, #6E69F7 0%, #E496E7 100%)`,
+                                        borderRadius: `50%`,
+                                        backgroundClip: `padding-box, border-box`,
+                                        backgroundOrigin: `padding-box, border-box`,
+                                    }}
+                                />
+                                <img
+                                    src="/images/ranking/bg-top1.png"
+                                    alt="avatar"
+                                    className="w-5 h-5 absolute"
+                                    style={{
+                                        top: `45%`
+                                    }}
+                                />
+                                <span className="fw-bold text-xs absolute" style={{
+                                    top: `46%`,
+                                }}>1</span>
+                            </div>
+                            <span className="block fw-bold mt-3">{firstPositionUser.first_name + " " + firstPositionUser.last_name}</span>
                             {/* <span className="fw-light text-xs block">{calculatePercentile(firstPositionUser)}%</span> */}
-                        <span className="flex text-lg fw-bold items-center justify-center mt-1">
-                            <img
-                                src="/images/home/coin.png"
-                                alt="coin"
-                                className="w-6 h-6"
-                            />
-                            {formatNumber(firstPositionUser)}
-                        </span>
-                    </div>
+                            <span className="flex text-lg fw-bold items-center justify-center mt-1">
+                                <img
+                                    src="/images/home/coin.png"
+                                    alt="coin"
+                                    className="w-6 h-6"
+                                />
+                                {formatNumber(firstPositionUser)}
+                            </span>
+                        </div>
                     )}
 
                     {thirdPositionUser && (<div className="bg-[#32363C] flex-1 text-center py-2 h-38" style={{ borderTopRightRadius: `1rem`, borderBottomRightRadius: `1rem` }}>
@@ -295,34 +261,34 @@ export default function Ranking() {
                 </div>
                 {userRanking.length > 3 && userRanking.slice(3) && userRanking.slice(3).map((user, index) => {
                     return (
-                <div className="w-100 text-sm p-3">
-                    <div className="row p-2 rounded-xl items-center bg-[#19203b]">
-                        <div className="col-2 flex justify-center items-center p-0">
-                            <span
-                                className="border items-center justify-center fw-light"
-                                style={{
-                                    borderRadius: '50%',
-                                    border: '2px solid #fff',
-                                    minWidth: '23px',
-                                    minHeight: '23px',
-                                    display: 'inline-flex',
-                                }}
-                            >
+                        <div className="w-100 text-sm p-3">
+                            <div className="row p-2 rounded-xl items-center bg-[#19203b]">
+                                <div className="col-2 flex justify-center items-center p-0">
+                                    <span
+                                        className="border items-center justify-center fw-light"
+                                        style={{
+                                            borderRadius: '50%',
+                                            border: '2px solid #fff',
+                                            minWidth: '23px',
+                                            minHeight: '23px',
+                                            display: 'inline-flex',
+                                        }}
+                                    >
                                         {index + 4}
-                            </span>
-                        </div>
+                                    </span>
+                                </div>
 
-                        <div className="col-2 flex justify-center items-center p-0">
-                            <img
-                                src="/images/ranking/avatar.png"
-                                alt="avatar"
-                                className="p-1 w-100"
-                            />
-                        </div>
-                        <div className="col-5">
+                                <div className="col-2 flex justify-center items-center p-0">
+                                    <img
+                                        src="/images/ranking/avatar.png"
+                                        alt="avatar"
+                                        className="p-1 w-100"
+                                    />
+                                </div>
+                                <div className="col-5">
                                     <span className="fw-bold block">{user.first_name + " " + user.last_name}</span>
                                     <span className="fw-light block text-xs">{formatNumber(user)} points</span>
-                        </div>
+                                </div>
                                 {/* {user.current_amount_of_tokens >= user.last_amount_of_tokens ? (
                         <div className="col-3 flex items-center justify-end">
                             <img
@@ -366,13 +332,13 @@ export default function Ranking() {
                             </span>
                         </div>
                                     )} */}
-                    </div>
-                </div>
+                            </div>
+                        </div>
                     )
                 })}
             </div>
 
-            <Popover
+            {/* <Popover
                 open={open}
                 anchorEl={anchorEl}
                 onClose={handleClosePopover}
@@ -411,7 +377,7 @@ export default function Ranking() {
                         ))}
                     </Select>
                 )}
-            </Popover>
+            </Popover> */}
         </div>
     );
 }
