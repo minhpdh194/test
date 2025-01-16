@@ -138,8 +138,9 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
     set((state) => ({
       trading_info: {
         ...state.trading_info,
-        balance: newBalance,
+        balance: state.trading_info.balance + newBalance,
       },
+      amount_of_tokens: state.amount_of_tokens + newBalance,
     }));
   },
 

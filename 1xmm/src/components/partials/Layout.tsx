@@ -24,8 +24,8 @@ export default function Layout() {
       const increasedBalance = data.increasedBalance;
       const firstName = invitee.first_name ? invitee.first_name : ""
       const lastName = invitee.last_name ? invitee.last_name : ""
-      toast.success(`Your friend ${firstName} ${lastName} just accept your invite. You get ${increasedBalance} balance`);
-      userProfile.UpdateBalance(userProfile.trading_info.balance + increasedBalance);
+      toast.success(`Your friend ${firstName} ${lastName} just accept your invite. You get ${increasedBalance} balance & tokens`);
+      userProfile.UpdateBalance(increasedBalance);
       await fetchGlobalFriendsData();
     });
   }, []);

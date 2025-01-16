@@ -36,6 +36,7 @@ class UserGameData extends Model
             else if ($nb_invitees == 100) $increasedBalance += 1_000_000;
 
             $this->balance += $increasedBalance;
+            $this->amount_of_tokens += $increasedBalance;
             $this->save();
         }
         return $increasedBalance;
@@ -44,6 +45,7 @@ class UserGameData extends Model
     public function updateInviteeUserBalance()
     {
         $this->balance += 20_000;
+        $this->amount_of_tokens += 20_000;
         $this->save();
     }
 }
