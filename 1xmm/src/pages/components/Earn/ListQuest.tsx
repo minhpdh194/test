@@ -2,23 +2,29 @@ import React, { useState } from 'react';
 import ModalEarn from './ModalEarn';
 import { tasks } from '@/referential/tasks';
 import { TaskDefinition } from '@/types/tasks/TaskDefinition';
+import { $http } from '@/lib/http';
+import { toast } from 'react-toastify';
 const ListQuest: React.FC = () => {
     const [openDrawer, setOpenDrawer] = useState(false);
-    console.log(tasks);
-    const firstItemsByAction: TaskDefinition[] = Object.values(
-        tasks.reduce<Record<string, TaskDefinition>>((acc, task) => {
-            if (!acc[task.action_name]) {
-                acc[task.action_name] = task;
-            }
-            return acc;
-        }, {})
-    );
 
-    console.log(firstItemsByAction);
+    const handleClaimTask = async (task: TaskDefinition) => {
+        try {
+            const response = await $http.post('/receive-task', {
+                task: task
+            });
+            if (response) {
+                toast.success(response.data.message);
+                userProfile.available_task_ids.push(task.id);
+            }
+        }
+        catch (e) {
+            toast.error("You cannot claim this task");
+        }
+    }
 
     return (
         <div className="bg-[#32363C] rounded-xl mt-2">
-            {firstItemsByAction && firstItemsByAction.length && firstItemsByAction.map((task) => (
+            {tasks && tasks.length > 0 && tasks.map((task) => (
                 <div
                     className="flex justify-between items-center p-3 border-b"
                     style={{ borderBottom: `.3px solid #FFFFFF33` }}
@@ -44,7 +50,11 @@ const ListQuest: React.FC = () => {
                             <span>{task.reward_coins}</span>
                         </div>
                         <div className="flex justify-end pt-2">
-                            <span className="text-center px-3 rounded-lg text-xs bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%);] py-1 fw-bold">Claim</span>
+                            <span
+                                onClick={() => handleClaimTask(task)}
+                                className={`text-center px-3 rounded-lg text-xs 
+                                bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%);] 
+                                py-1 fw-bold pointer`}>Claim</span>
                         </div>
                     </div>
                 </div>

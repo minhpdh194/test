@@ -5,17 +5,10 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 use App\Observers\TelegramUserObserver;
 use Laravel\Sanctum\HasApiTokens;
-
-use App\Models\BonusDefinitions\LevelBonusesDef;
-use App\Models\Tasks\DailyTask;
-use App\Models\Tasks\ReferralTask;
-use App\Models\Tasks\Task;
-use App\Models\Tasks\UserDailyTasks;
 
 #[ObservedBy(TelegramUserObserver::class)]
 class TelegramUser extends Authenticatable
@@ -95,8 +88,8 @@ class TelegramUser extends Authenticatable
 
         $userGameData->save();
         return [
-            'earned' => $earned, 
-            'balance' => $userGameData->balance, 
+            'earned' => $earned,
+            'balance' => $userGameData->balance,
             'amount_of_tokens' => $userGameData->amount_of_tokens,
             'energy' => $userGameData->available_energy
         ];

@@ -29,6 +29,7 @@ export type UserProfileStore = UserProfile & {
   UpdateUserAvatar: (avatar_id: number) => void;
   unlocked_pair_ids: Array<number>;
   unlocked_pairs: Pair[];
+  available_task_ids: Array<number>;
   positionStore: PositionStore | undefined;
 }
 
@@ -70,6 +71,8 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
   number_of_stars: 0,
   unlocked_pair_ids: [],
   unlocked_pairs: [],
+
+  available_task_ids: [],
 
   UpdateUserAvatar: (avatar_id: number) => {
     set(() => ({

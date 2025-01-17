@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RatingController;
+use App\Http\Controllers\UserTaskController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
@@ -70,5 +71,9 @@ Route::middleware('auth:sanctum')->group(function () {
     require base_path('routes/clicker.php');
 
     Route::post('/update-user-level', [TelegramUserController::class, 'updateUserLevel']);
+
+    Route::post('/receive-task', [UserTaskController::class, 'receiveTask']);
+    Route::get('/get-user-task', [UserTaskController::class, 'getUserTask']);
+
 });
 
