@@ -2,10 +2,9 @@ import Header from "../components/Header";
 import ListQuest from "./components/Earn/ListQuest";
 import ModalCategory from './components/Earn/ModalCategory';
 import { useState } from 'react';
-// import { useUserStore } from "@/store/user-store";
 export default function Profile() {
-  // const user = useUserStore();
   const [openDrawer, setOpenDrawer] = useState(false);
+
   return (
     <div
       className="flex-1 px-3 pb-20 bg-center bg-cover"
@@ -52,7 +51,7 @@ export default function Profile() {
             />
             <span className="text-xs" onClick={() => {
               setOpenDrawer(true);
-            }}>More Info</span> 
+            }}>More Info</span>
           </div>
         </div>
         <ListQuest />

@@ -1,10 +1,9 @@
 export type TaskDefinition = {
-    id: number,
-    name: string,
-    description: string,
-    type: string;
-    link: string;
-    image?: string;
-    reward: number;
-    action_name: string;
-}
+  id: number;
+  name: string;
+  description: string;
+  reward_coins: number;
+  link: string;
+  type: string;
+  action_name: string;
+};

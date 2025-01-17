@@ -3,7 +3,7 @@ import { cn } from "../lib/utils";
 
 const links = [
   { name: "Bonus", link: "/bonus", image: "/images/menu/bonus.png" },
-  { name: "Daily Tasks", link: "/earn", image: "/images/menu/daily-task.png" },
+  { name: "Tasks", link: "/earn", image: "/images/menu/daily-task.png" },
   { name: "Home", link: "/", image: "/images/menu/home.png" },
   { name: "Ranking", link: "/ranking", image: "/images/menu/ranking.png" },
   { name: "Friends", link: "/friends", image: "/images/menu/friend.png" },
