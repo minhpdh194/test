@@ -7,14 +7,16 @@ import { toast } from 'react-toastify';
 const ListQuest: React.FC = () => {
     const [openDrawer, setOpenDrawer] = useState(false);
 
-    const handleClaimTask = async (task: TaskDefinition) => {
+    const handleReceiveTask = async (task: TaskDefinition) => {
         try {
             const response = await $http.post('/receive-task', {
                 task: task
             });
-            if (response) {
+            if (response.data.success) {
                 toast.success(response.data.message);
                 userProfile.available_task_ids.push(task.id);
+            } else {
+                toast.warning(response.data.message);
             }
         }
         catch (e) {
@@ -26,6 +28,7 @@ const ListQuest: React.FC = () => {
         <div className="bg-[#32363C] rounded-xl mt-2">
             {tasks && tasks.length > 0 && tasks.map((task) => (
                 <div
+                    key={task.id}
                     className="flex justify-between items-center p-3 border-b"
                     style={{ borderBottom: `.3px solid #FFFFFF33` }}
                 >
@@ -51,10 +54,15 @@ const ListQuest: React.FC = () => {
                         </div>
                         <div className="flex justify-end pt-2">
                             <span
-                                onClick={() => handleClaimTask(task)}
+                                onClick={() => handleReceiveTask(task)}
                                 className={`text-center px-3 rounded-lg text-xs 
                                 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%);] 
-                                py-1 fw-bold pointer`}>Claim</span>
+                                py-1 fw-bold pointer`}>{globalThis.userProfile.available_task_ids.includes(task.id) ? (
+                                    <>In progress</>
+                                ) : (
+                                    <>Claim</>
+                                )}
+                            </span>
                         </div>
                     </div>
                 </div>

@@ -73,7 +73,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/update-user-level', [TelegramUserController::class, 'updateUserLevel']);
 
     Route::post('/receive-task', [UserTaskController::class, 'receiveTask']);
-    Route::get('/get-user-task', [UserTaskController::class, 'getUserTask']);
+    Route::get('/get-user-task', [UserTaskController::class, 'getUserTasks']);
 
 });
 

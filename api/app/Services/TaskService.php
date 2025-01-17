@@ -33,26 +33,33 @@ class TaskService
         ]);
     }
 
-    public function receiveTask($userId, $task)
+    public function receiveTask($user, $task)
     {
 
         if (!$task) {
-            return response()->json(['success' => false, 'message' => 'Task not found.'], 404);
+            return response()->json(['success' => false, 'message' => 'Task not found.']);
+        }
+
+        $checkExistReceivedTask = UserTasks::where('telegram_user_id', $user['telegram_user_id'])
+            ->where('task_id', $task['id'])->first();
+
+        if ($checkExistReceivedTask) {
+            return response()->json(['success' => false, 'message' => 'You have already receive this task.']);
         }
 
         $result = UserTasks::create([
-            'telegram_user_id' => $userId,
+            'telegram_user_id' => $user['telegram_user_id'],
             'task_id' => $task['id'],
             'task_type' => $task['type'],
         ]);
 
         if (!$result) {
-            return response()->json(['success' => false, 'message' => 'Unable to get task.'], 400);
+            return response()->json(['success' => false, 'message' => 'Unable to get task.']);
         } //should never happen
 
         return response()->json([
             'success' => true,
-            'message' => "You have successfully claimed $task->reward_coins from $task->name."
+            'message' => "You have successfully get {$task['name']}."
         ]);
     }
 }
