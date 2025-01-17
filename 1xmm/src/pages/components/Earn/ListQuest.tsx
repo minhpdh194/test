@@ -18,7 +18,7 @@ const ListQuest: React.FC = () => {
 
     return (
         <div className="bg-[#32363C] rounded-xl mt-2">
-            {firstItemsByAction && firstItemsByAction.length && firstItemsByAction.map((task, index) => (
+            {firstItemsByAction && firstItemsByAction.length && firstItemsByAction.map((task) => (
                 <div
                     className="flex justify-between items-center p-3 border-b"
                     style={{ borderBottom: `.3px solid #FFFFFF33` }}

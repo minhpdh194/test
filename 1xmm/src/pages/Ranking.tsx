@@ -1,20 +1,12 @@
 import { UserRanking } from "@/types/UserRanking";
 import Header from "../components/Header";
-import { Calendar } from "react-date-range";
 import { useEffect, useState } from "react";
-import { Popover } from "@mui/material";
 import { Utils } from "@/lib/utils";
 // import { useUserStore } from "@/store/user-store";
-import { addWeeks, startOfWeek, format } from 'date-fns'; // For WeekSelector
-import { MenuItem, Select } from "@mui/material";
+import { addWeeks, startOfWeek, format } from 'date-fns'; 
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import { $http } from "@/lib/http";
-
-interface Week {
-    start: Date;
-    end: Date;
-}
 
 interface Payload {
     date?: string;
