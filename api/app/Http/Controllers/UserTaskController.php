@@ -28,9 +28,17 @@ class UserTaskController extends Controller
         return $this->taskService->receiveTask($request->user(), $request->task);
     }
 
-    public function getUserTasks(Request $request)
+    public function getUserInProgressTasks(Request $request)
     {
-        $userTasks = UserTasks::where('telegram_user_id', $request->user()->telegram_user_id)->pluck('task_id');
+        $userTasks = UserTasks::where('telegram_user_id', $request->user()->telegram_user_id)
+            ->where('completed', false)->pluck('task_id');
+        return response()->json($userTasks);
+    }
+
+    public function getUserCompletedTasks(Request $request)
+    {
+        $userTasks = UserTasks::where('telegram_user_id', $request->user()->telegram_user_id)
+            ->where('completed', true)->pluck('task_id');
         return response()->json($userTasks);
     }
 }

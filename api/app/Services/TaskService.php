@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Tasks\UserTasks;
+use App\Models\UserGameData;
 
 class TaskService
 {
@@ -16,20 +17,21 @@ class TaskService
 
     public function claimTask($user, $task)
     {
-        $claimedTask = UserTasks::where('telegram_user_id', $user->telegram_user_id)
-            ->where('task_id', $task->id)->first();
+        $claimedTask = UserTasks::where('telegram_user_id', $user['telegram_user_id'])
+            ->where('task_id', $task['id'])->first();
         if (!$claimedTask) {
             return response()->json(['success' => false, 'message' => 'Task not found.'], 404);
         }
 
         $claimedTask->completed = 1;
         $claimedTask->save();
-        $user->balance += $task->reward_coins;
-        $user->save();
+        $userGameData = UserGameData::where('telegram_user_id', $user['telegram_user_id'])->first();
+        $userGameData->balance += $task['reward_coins'];
+        $userGameData->save();
 
         return response()->json([
             'success' => true,
-            'message' => "You have successfully claimed $task->reward_coins from $task->name."
+            'message' => "You have successfully claimed {$task['reward_coins']} from {$task['name']}."
         ]);
     }
 

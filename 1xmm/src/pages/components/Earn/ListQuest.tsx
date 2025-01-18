@@ -6,21 +6,61 @@ import { $http } from '@/lib/http';
 import { toast } from 'react-toastify';
 const ListQuest: React.FC = () => {
     const [openDrawer, setOpenDrawer] = useState(false);
+    const [inProgressTaskIds, setInProgressTaskIds] = useState<number[]>(userProfile.available_task_ids);
+    const [completedTaskIds, setCompletedTaskIds] = useState<number[]>(userProfile.completed_task_ids);
 
-    const handleReceiveTask = async (task: TaskDefinition) => {
-        try {
-            const response = await $http.post('/receive-task', {
-                task: task
-            });
-            if (response.data.success) {
-                toast.success(response.data.message);
-                userProfile.available_task_ids.push(task.id);
-            } else {
-                toast.warning(response.data.message);
-            }
+    const renderTaskStatus = (task: TaskDefinition) => {
+        let taskStatus;
+
+        if (inProgressTaskIds.includes(task.id)) {
+            taskStatus = <>Claim</>;
+        } else if (completedTaskIds.includes(task.id)) {
+            taskStatus = <>Completed</>;
+        } else {
+            taskStatus = <>Get</>;
         }
-        catch (e) {
-            toast.error("You cannot claim this task");
+
+        return taskStatus;
+    }
+
+    const handleTaskAction = async (task: TaskDefinition) => {
+        if (inProgressTaskIds.includes(task.id)) {
+            try {
+                const response = await $http.post('/claim-task', {
+                    task: task
+                });
+                if (response.data.success) {
+                    toast.success(response.data.message);
+                    setInProgressTaskIds(prev => prev.filter(id => id !== task.id));
+                    setCompletedTaskIds(prev => [...prev, task.id]);
+                    userProfile.available_task_ids = userProfile.available_task_ids.filter(id => id !== task.id);
+                    userProfile.completed_task_ids.push(task.id);
+                    userProfile.UpdateBalance(task.reward_coins);
+                } else {
+                    toast.warning(response.data.message);
+                }
+            }
+            catch (e) {
+                toast.error("You cannot claim this task");
+            }
+        } else if (!completedTaskIds.includes(task.id)) {
+            try {
+                const response = await $http.post('/receive-task', {
+                    task: task
+                });
+                if (response.data.success) {
+                    toast.success(response.data.message);
+                    setInProgressTaskIds(prev => [...prev, task.id]);
+                    userProfile.available_task_ids.push(task.id);
+                } else {
+                    toast.warning(response.data.message);
+                }
+            }
+            catch (e) {
+                toast.error("You cannot get this task");
+            }
+        } else {
+            toast.warning("You have already claim the reward");
         }
     }
 
@@ -54,14 +94,11 @@ const ListQuest: React.FC = () => {
                         </div>
                         <div className="flex justify-end pt-2">
                             <span
-                                onClick={() => handleReceiveTask(task)}
+                                onClick={() => handleTaskAction(task)}
                                 className={`text-center px-3 rounded-lg text-xs 
                                 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%);] 
-                                py-1 fw-bold pointer`}>{globalThis.userProfile.available_task_ids.includes(task.id) ? (
-                                    <>In progress</>
-                                ) : (
-                                    <>Claim</>
-                                )}
+                                py-1 fw-bold pointer`}>
+                                {renderTaskStatus(task)}
                             </span>
                         </div>
                     </div>

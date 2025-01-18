@@ -98,18 +98,21 @@ function App() {
           user_bonuses,
           user_positions,
           indices,
-          user_tasks,
+          inprogress_user_tasks,
+          completed_user_tasks,
           //{ data: tasks}
         ] = await Promise.all([
           $http.$get<SyncData>("/clicker/sync"),
           $http.$get<UserBonus[]>("/user_bonuses"),
           $http.$get<{ positions: UserPosition[]; }>("/user_positions"),
           $http.$get<Index[]>("/get-indices"),
-          $http.$get<number[]>("/get-user-task"),
+          $http.$get<number[]>("/get-user-inprogress-task"),
+          $http.$get<number[]>("/get-user-completed-task"),
           //$http.get("/user_tasks")
         ]);
 
-        globalThis.userProfile.available_task_ids = user_tasks;
+        globalThis.userProfile.available_task_ids = inprogress_user_tasks;
+        globalThis.userProfile.completed_task_ids = completed_user_tasks;
         setProgress(45);
 
         const update: PusherIndex[] = [];
