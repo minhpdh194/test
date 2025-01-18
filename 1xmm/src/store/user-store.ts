@@ -42,7 +42,6 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
   last_name: "",
   username: "",
   avatar_id: 0,
-  friends: [],
 
   // User level related info
   level: 0,
@@ -75,7 +74,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
 
   available_task_ids: [],
   completed_task_ids: [],
-  
+
   UpdateUserAvatar: (avatar_id: number) => {
     set(() => ({
       avatar_id: avatar_id,

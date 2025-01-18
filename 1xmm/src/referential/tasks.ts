@@ -8,6 +8,7 @@ const tasksList = [
     link: "https://youtube.com",
     type: "daily",
     action_name: "watch_video",
+    complete_requirement: "", //can be used later
   },
   {
     name: "Follow on Twitter",
@@ -17,6 +18,7 @@ const tasksList = [
     link: "https://twitter.com/yourgame",
     type: "life_time",
     action_name: "subscribe",
+    complete_requirement: "", //can be used later
   },
   {
     name: "Like Facebook Page",
@@ -26,6 +28,7 @@ const tasksList = [
     link: "https://facebook.com/yourgame",
     type: "life_time",
     action_name: "subscribe",
+    complete_requirement: "", //can be used later
   },
   {
     name: "Follow on Instagram",
@@ -34,6 +37,7 @@ const tasksList = [
     link: "https://instagram.com/yourgame",
     type: "life_time",
     action_name: "subscribe",
+    complete_requirement: "", //can be used later
   },
   {
     name: "Join Telegram Group",
@@ -42,6 +46,7 @@ const tasksList = [
     link: "https://t.me/yourgame",
     type: "life_time",
     action_name: "join",
+    complete_requirement: "", //can be used later
   },
   {
     name: "Join Our Discord",
@@ -51,6 +56,7 @@ const tasksList = [
     link: "https://discord.gg/yourgame",
     type: "life_time",
     action_name: "join",
+    complete_requirement: "", //can be used later
   },
   {
     name: "Invite your friends",
@@ -59,6 +65,7 @@ const tasksList = [
     link: "",
     type: "life_time",
     action_name: "invite",
+    complete_requirement: 5,
   },
   {
     name: "Invite your friends",
@@ -67,6 +74,7 @@ const tasksList = [
     link: "",
     type: "life_time",
     action_name: "invite",
+    complete_requirement: 10,
   },
   {
     name: "Invite your friends",
@@ -75,6 +83,7 @@ const tasksList = [
     link: "",
     type: "life_time",
     action_name: "invite",
+    complete_requirement: 25,
   },
   {
     name: "Invite your friends",
@@ -83,6 +92,7 @@ const tasksList = [
     link: "",
     type: "life_time",
     action_name: "invite",
+    complete_requirement: 50,
   },
   {
     name: "Invite your friends",
@@ -91,6 +101,7 @@ const tasksList = [
     link: "",
     type: "life_time",
     action_name: "invite",
+    complete_requirement: 100,
   },
   {
     name: "Invite your friends",
@@ -99,6 +110,7 @@ const tasksList = [
     link: "",
     type: "life_time",
     action_name: "invite",
+    complete_requirement: 250,
   },
   {
     name: "Invite your friends",
@@ -107,6 +119,7 @@ const tasksList = [
     link: "",
     type: "life_time",
     action_name: "invite",
+    complete_requirement: 500,
   },
   {
     name: "Invite your friends",
@@ -115,6 +128,7 @@ const tasksList = [
     link: "",
     type: "life_time",
     action_name: "invite",
+    complete_requirement: 1000,
   },
 ];
 
@@ -126,7 +140,8 @@ export const tasks: Array<TaskDefinition> = tasksList.map((task, index) =>
     task.reward_coins,
     task.link,
     task.type,
-    task.action_name
+    task.action_name,
+    task.complete_requirement
   )
 );
 
@@ -137,7 +152,8 @@ function createTask(
   reward_coins: number,
   link: string,
   type: string,
-  action_name: string
+  action_name: string,
+  complete_requirement: any,
 ): TaskDefinition {
   return {
     id,
@@ -147,5 +163,6 @@ function createTask(
     link,
     type,
     action_name,
+    complete_requirement,
   };
 }

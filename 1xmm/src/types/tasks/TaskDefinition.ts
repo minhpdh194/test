@@ -6,4 +6,5 @@ export type TaskDefinition = {
   link: string;
   type: string;
   action_name: string;
+  complete_requirement: any;
 };

@@ -57,6 +57,9 @@ RUN echo "*/2 * * * * /usr/local/bin/php /var/www/html/artisan app:integration >
 #    && chmod 0644 /etc/cron.d/laravel-cron \
 #    && crontab /etc/cron.d/laravel-cron
 
+RUN echo "* * * * * /usr/local/bin/php /var/www/html/artisan app:clear-daily-tasks >> /var/log/cron.log 2>&1" >> /etc/cron.d/laravel-cron \
+    && chmod 0644 /etc/cron.d/laravel-cron \
+    && crontab /etc/cron.d/laravel-cron
 
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
