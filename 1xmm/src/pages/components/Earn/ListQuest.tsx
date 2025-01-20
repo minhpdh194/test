@@ -10,26 +10,43 @@ const ListQuest: React.FC = () => {
     const [completedTaskIds, setCompletedTaskIds] = useState<number[]>(userProfile.completed_task_ids);
     const [availableTasks, setAvailableTasks] = useState<TaskDefinition[]>([]);
 
+    const getTasksWithCompletion = (tasks: TaskDefinition[], completedIds: number[]) => {
+        const completedSet = new Set(completedIds);
+        const result: TaskDefinition[] = [];
+        const actionTypeMap: Record<string, TaskDefinition[]> = {};
+
+        for (const task of tasks) {
+            if (!actionTypeMap[task.action_name]) {
+                actionTypeMap[task.action_name] = [];
+            }
+            actionTypeMap[task.action_name].push(task);
+        }
+
+        for (const actionName in actionTypeMap) {
+            const group = actionTypeMap[actionName];
+
+            const completedTasks = group.filter((task) => completedSet.has(task.id));
+            const uncompletedTasks = group.filter((task) => !completedSet.has(task.id));
+
+            result.push(...completedTasks);
+
+            if (uncompletedTasks.length > 0) {
+                result.push(uncompletedTasks[0]);
+            }
+        }
+
+        return result;
+    };
+
     useEffect(() => {
-        const tasksToAdd: any[] = [];
+        const tasksWithIds = tasks.map((task, index) => ({
+            ...task,
+            id: task.id || index + 1,
+        }));
+        const tasksToShow = getTasksWithCompletion(tasksWithIds, completedTaskIds);
 
-        tasks.forEach((task, index) => {
-            if (task.type === "life_time") {
-                if (completedTaskIds.includes(task.id)) {
-                    const nextTask = tasks.slice(index + 1).find(next => next.type === "life_time" && !completedTaskIds.includes(next.id));
-
-                    if (nextTask) {
-                        tasksToAdd.push(nextTask);
-                    }
-                }
-            } 
-            tasksToAdd.push(task);
-        });
-
-        const uniqueTasks = Array.from(new Set(tasksToAdd.map(task => task.id)))
-            .map(id => tasksToAdd.find(task => task.id === id)).sort((a, b) => a.id - b.id);
-
-        setAvailableTasks(uniqueTasks);
+        console.log(tasksToShow);
+        setAvailableTasks(tasksToShow);
     }, []);
 
     const renderTaskStatus = (task: TaskDefinition) => {
@@ -69,7 +86,7 @@ const ListQuest: React.FC = () => {
                     userProfile.UpdateBalance(task.reward_coins);
                     if (task.type === "life_time") {
                         const nextTask = tasks.find(nextTask => nextTask.id === task.id + 1);
-                        if (nextTask) {
+                        if (nextTask && nextTask.action_name === task.action_name) {
                             setAvailableTasks(prevTasks => [...prevTasks, nextTask]);
                         }
                     }
