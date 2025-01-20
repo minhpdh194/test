@@ -17,10 +17,9 @@ services:
     #   - DB_HOST=db
     # depends_on:
     #   - db  # Đảm bảo dịch vụ database sẵn sàng trước
-    # networks:
-    #   - laravel-network
+     networks:
+       - theapp4u
 
 networks:
-  # laravel-network:
-    default:
-    # driver: bridge
+  theapp4u:
+    external: true
