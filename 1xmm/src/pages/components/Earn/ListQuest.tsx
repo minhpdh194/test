@@ -16,17 +16,14 @@ const ListQuest: React.FC = () => {
         tasks.forEach((task, index) => {
             if (task.type === "life_time") {
                 if (completedTaskIds.includes(task.id)) {
-                    tasksToAdd.push(task);
-
                     const nextTask = tasks.slice(index + 1).find(next => next.type === "life_time" && !completedTaskIds.includes(next.id));
 
                     if (nextTask) {
                         tasksToAdd.push(nextTask);
                     }
                 }
-            } else {
-                tasksToAdd.push(task);
-            }
+            } 
+            tasksToAdd.push(task);
         });
 
         const uniqueTasks = Array.from(new Set(tasksToAdd.map(task => task.id)))
