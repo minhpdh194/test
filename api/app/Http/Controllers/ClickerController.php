@@ -24,8 +24,7 @@ class ClickerController extends Controller
      *
      * @return void
      */
-    public function __construct()
-    { }
+    public function __construct() {}
 
     public function sync(Request $request)
     {
@@ -36,12 +35,13 @@ class ClickerController extends Controller
 
         if ($gameData) {
             $tasks = UserTasks::where('telegram_user_id', $gameData->telegram_user_id)->get();
+            $gameData->restoreEnergy($gameData->available_energy, $user->last_login);
         }
 
         return response()->json([
             'user' => $telegramUser,
             'gameData' => $gameData,
-            'restored_energy' => $this->restoreEnergy($gameData->available_energy, $user->last_login),
+            // 'restored_energy' => $this->restoreEnergy($gameData->available_energy, $user->last_login),
             'tasks' => $tasks
         ]);
     }
@@ -165,12 +165,5 @@ class ClickerController extends Controller
             'message' => 'TON Wallet address updated successfully',
             'ton_wallet' => $user->ton_wallet,
         ]);
-    }
-
-    private function restoreEnergy($maxEnergy, $last_login)
-    {
-        $freq = Carbon::parse($last_login)->diffInHours(Carbon::now());
-        if ($freq > 3) $freq = 3;
-        return floor($freq / 3 * $maxEnergy);
     }
 }
