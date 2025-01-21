@@ -23,7 +23,14 @@ export const Utils = {
 	formatString: (input: string) => format_string(input),
 	toCamelFormat: (input: string) => { return input.charAt(0).toUpperCase() + input.slice(1); },
 	formatDate: (input: string) => format_date(input),
+	getAvatarRef: (input: string) => get_avatar_ref(input),
 };
+
+const get_avatar_ref = (input: string): number => {
+	const startIndex = input.indexOf('__') + 2;
+	input = input.substring(startIndex);
+	return Number(input.substring(0, input.indexOf('__')));
+}
 
 /*********************************
  * Functions requiring RPC Calls *

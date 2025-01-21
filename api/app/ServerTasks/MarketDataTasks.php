@@ -94,9 +94,10 @@ class MarketDataTasks
     public function storeSpots($pairs) {
         $createdSpots = [];
         $crypto_data = $this->getSpotsFromMarket($pairs);
+        $now = Carbon::now();
 
         foreach ($pairs as $pair) {
-            $createdSpot = $this->marketDataService->updateOrCreateSpotData($pair, $crypto_data[$pair->cmc_id]['quote']['USD']['price']);
+            $createdSpot = $this->marketDataService->updateOrCreateSpotData($pair, $crypto_data[$pair->cmc_id]['quote']['USD']['price'], $now);
             if ($createdSpot) {
                 $createdSpots[$pair->coin_symbol] = $createdSpot;
             }

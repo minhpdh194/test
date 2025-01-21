@@ -1,11 +1,12 @@
-import { cn } from "@/lib/utils";
-import React, { useState, useEffect } from "react";
+import { cn, Utils } from "@/lib/utils";
+import React, { useState } from "react";
 import Sidebar from "./partials/SidebarLeft";
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
 import { $http } from "@/lib/http";
-import { toast } from "react-toastify";
 import { Button } from "@mui/material";
+import { userProfileStore } from "@/store/user-store";
 
+// deprecated - to be removed
 type HeaderProps = React.HtmlHTMLAttributes<HTMLDivElement> & {
     amount_token?: number;
 };
@@ -15,28 +16,26 @@ export default function Header({
     amount_token = 0,
     ...props
 }: HeaderProps) {
-    const [userAmount1vMM, setUserAmount1vMM] = useState<number>(userProfile.amount_of_tokens);
     const [isSidebarOpen, setSidebarOpen] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
 
-    const images = import.meta.glob<{ default: string }>("../../public/images/avatar/*.jpg", { eager: true });
+    const images = import.meta.glob<{ default: string }>("../../public/images/avatars/*.jpg", { eager: true });
     const imagePaths = Object.values(images).map((module) => module.default);
 
-    const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+    const sortedImagePaths = imagePaths.sort((a, b) => {
+        const numberA = Utils.getAvatarRef(a);
+        const numberB = Utils.getAvatarRef(b);
+        
+        return numberA - numberB;
+    });
 
-    useEffect(() => {
-        setSelectedImageIndex(userProfile.avatar_id);
-    }, []);
+    const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
     const handleImageClick = (index: number) => {
         setSelectedImageIndex(index); // Update the selected image index
     };
 
-    // Update local state when user balance changes or when validatedAmount changes
-    useEffect(() => {
-        // Subscribe to balance changes from the store
-        setUserAmount1vMM(amount_token);
-    }, [amount_token]);
+    const {amount_of_tokens: userAmount1vMM} = userProfileStore();
 
     // Toggle sidebar visibility
     const toggleSidebar = () => {
@@ -46,7 +45,6 @@ export default function Header({
     const handleUpdateAvatarId = async () => {
         const response = await $http.post('/update-user-avatar', { avatar_id: selectedImageIndex });
         if (response.data.success) {
-            toast.success(response.data.message);
             userProfile.UpdateUserAvatar(selectedImageIndex);
         }
         setIsOpen(false);
@@ -60,7 +58,7 @@ export default function Header({
                     <div className="flex space-x-2">
                         <div className="flex-1">
                             <div className="bg-white rounded w-12 h-12" onClick={() => setIsOpen(true)}>
-                                <img className="object-contain w-12 h-12" src={`/images/avatar/avatar_${userProfile.avatar_id}.jpg`} />
+                                <img className="object-contain w-12 h-12" src={`/images/avatars/avatar__${userProfile.avatar_id + 1}__.jpg`} />
                             </div>
                         </div>
                         <div className="flex-2">
@@ -108,13 +106,12 @@ export default function Header({
                             Avatar selection
                         </DialogTitle>
                         <div className="grid grid-cols-3 gap-4">
-                            {imagePaths.map((image, index) => (
+                            {sortedImagePaths.map((image, index) => (
                                 <img
                                     key={index}
                                     src={image}
                                     alt={`img-${index}`}
-                                    className={`cursor-pointer rounded-lg ${selectedImageIndex === index ? 'border-4 border-blue-500' : 'border-none'
-                                        }`}
+                                    className={`cursor-pointer rounded-lg ${selectedImageIndex === index ? 'border-4 border-blue-500' : 'border-none' }`}
                                     onClick={() => handleImageClick(index)} // Handle image click
                                 />
                             ))}

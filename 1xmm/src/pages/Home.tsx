@@ -10,16 +10,14 @@ import { PusherIndex } from "@/types/PusherIndex";
 
 export default function Home() {
   const [spots, setSpots] = useState<SpotType[]>([]);
-  const [perfs, setPerfs] = useState<{ position_id: number, perf: number }[]>([])
+  const [perfs, setPerfs] = useState<{position_id: number, perf: number}[]>([])
   const [amtOfTokens, setAmountOfTokens] = useState<number>(userProfile.amount_of_tokens);
   const [loading, setLoading] = useState(true);
   const [changeInBalance, setChangeInBalance] = useState(0);
 
   useEffect(() => {
-    const savedPerfs = localStorage.getItem("perfs");
-    if (savedPerfs) {
-      setPerfs(JSON.parse(savedPerfs)); // Restore saved data
-    }
+    const updatedPerfs = globalThis.userProfile.positionStore!.positions.map(p => { return { position_id: p.position_id, perf: p.performance } });
+    setPerfs(updatedPerfs);
   }, []);
 
   useEffect(() => {
@@ -44,14 +42,13 @@ export default function Home() {
       if (globalThis.userProfile.positionStore) {
         const updatedPerfs = globalThis.userProfile.positionStore!.positions.map(p => { return { position_id: p.position_id, perf: p.performance } });
         setPerfs(updatedPerfs);
-        localStorage.setItem("perfs", JSON.stringify(updatedPerfs)); // Save to localStorage
       }
     });
-
+    
     if (globalThis.spots) {
       setSpots(globalThis.spots);
     }
-
+    
     setLoading(false);
 
     return () => {
