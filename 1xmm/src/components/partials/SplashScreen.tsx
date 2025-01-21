@@ -8,17 +8,10 @@ interface SplashScreenProps {
 const SplashScreen: React.FC<SplashScreenProps> = ({ progress }) => {
   return (
     <div
-      className="flex flex-col items-center justify-between pt-16 bg-[url('/images/bg-splash-white.png')] bg-cover bg-center w-full max-w-lg h-[--tg-viewport-height] mx-auto"
-      style={{ backgroundColor: `rgba(6, 76, 125, 1)` }}
+      className="flex flex-col justify-end pt-16 bg-[url('/images/splash-screen/bg-splash.png')] bg-cover bg-center w-full max-w-lg h-[--tg-viewport-height] mx-auto"
     >
-      <img src="/images/logo-1xmm.png" alt="logo" className="h-20 max-w-full" />
       <div className="flex mt-4 flex-col items-center w-full"> 
-        <img
-          src="/images/cheractor.png"
-          alt="loader"
-          className="h-80"
-        />
-        <div className="flex flex-col items-center w-full pb-6 bg-[url('/images/bg-blur.png')] bg-cover">
+        <div className="flex flex-col items-center w-full pb-6 bg-cover">
           <h1 className="text-3xl mt-4 font-bold text-center uppercase px-3 mb-2">
             Reshaping digital Finance
           </h1>
