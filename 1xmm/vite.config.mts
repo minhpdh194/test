@@ -14,12 +14,13 @@ export default defineConfig({
   optimizeDeps: {
     include: ["buffer"], // Pre-bundle the buffer package
   },
-  // server: {
+  server: {
+    allowedHosts: ["1xmm.theapp4u.com"]
   //   proxy: {
   //     "/api": {
   //       target: "http://clicker-game-api.me",
   //       changeOrigin: true,
   //     },
   //   },
-  // },
+  },
 });
