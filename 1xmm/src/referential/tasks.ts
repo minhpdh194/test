@@ -5,7 +5,7 @@ const tasksList = [
     name: "Watch Tutorial Video",
     description: "Watch our game tutorial video on YouTube.",
     reward_coins: 100,
-    link: "https://youtube.com",
+    link: "https://www.youtube.com/watch?v=ytdLaA4uN38",
     type: "daily",
     action_name: "watch_video",
     complete_requirement: "", //can be used later

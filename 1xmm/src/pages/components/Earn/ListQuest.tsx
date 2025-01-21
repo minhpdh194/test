@@ -71,6 +71,18 @@ const ListQuest: React.FC = () => {
         }
     }
 
+    const handleWatchVideo = (task: TaskDefinition) => {
+        const videoUrl = task.link;
+        if (!completedTaskIds.includes(task.id)) {
+            if (videoUrl.length > 0 && !inProgressTaskIds.includes(task.id)) {
+                window.open(videoUrl, '_blank'); // Opens the link in a new tab
+            }
+            handleTaskAction(task);
+        } else {
+            console.error("Video URL is not available");
+        }
+    }
+
     const handleTaskAction = async (task: TaskDefinition) => {
         if (inProgressTaskIds.includes(task.id)) {
             try {
@@ -152,6 +164,8 @@ const ListQuest: React.FC = () => {
                                 onClick={() => {
                                     if (task.action_name === "invite") {
                                         handleFriendInvitationTasks(task);
+                                    } else if (task.action_name === "watch_video") {
+                                        handleWatchVideo(task);
                                     } else {
                                         handleTaskAction(task);
                                     }
