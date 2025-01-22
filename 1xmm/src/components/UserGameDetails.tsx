@@ -105,7 +105,7 @@ export default function UserGameDetails({
           </span>
         </div>
       </div>
-      <div className="flex flex-col items-center justify-center flex-1 p-2 select-none rounded-xl z-10" style={{ backgroundColor: `#32363C` }}>
+      {/* <div className="flex flex-col items-center justify-center flex-1 p-2 select-none rounded-xl z-10" style={{ backgroundColor: `#32363C` }}>
         <p className="mb-1 text-xs font-medium text-center" style={{ color: `#84CB69` }}>Time to period end</p>
         <div className="inline-flex items-center space-x-1.5 text-white font-bold">
           <img className="object-contain w-5 h-5" src="/images/home/clock.png" />
@@ -113,7 +113,7 @@ export default function UserGameDetails({
             {formatTimePeriod(timeLeftPeriodEnd)}
           </span>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
