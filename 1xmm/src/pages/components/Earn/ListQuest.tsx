@@ -4,11 +4,35 @@ import { tasks } from '@/referential/tasks';
 import { TaskDefinition } from '@/types/tasks/TaskDefinition';
 import { $http } from '@/lib/http';
 import { toast } from 'react-toastify';
+import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, Radio } from '@mui/material';
+import { Question } from '@/types/tasks/Question';
+import { questions } from '@/referential/questions';
+import { answers } from '@/referential/questionAnswers';
+
 const ListQuest: React.FC = () => {
     const [openDrawer, setOpenDrawer] = useState(false);
     const [inProgressTaskIds, setInProgressTaskIds] = useState<number[]>(userProfile.available_task_ids);
     const [completedTaskIds, setCompletedTaskIds] = useState<number[]>(userProfile.completed_task_ids);
     const [availableTasks, setAvailableTasks] = useState<TaskDefinition[]>([]);
+    const [questionPopup, setQuestionPopup] = useState<boolean>(false);
+    const [selectedTask, setSelectedTask] = useState<TaskDefinition>();
+    const [currentQuestions, setCurrentQuestions] = useState<Question[]>([]);
+    const [selectedCheckboxes, setSelectedCheckboxes] = useState<number[]>([]);
+    const [selectedRadio, setSelectedRadio] = useState<number>();
+
+    function getQuestionByTaskId(arr: Question[], taskId: number) {
+        return arr.filter(item => item.task_id === taskId);
+    }
+
+    const getRandomQuestion = (arr: Question[], n: number) => {
+        const shuffled = arr.slice();
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+
+        return shuffled.slice(0, n);
+    }
 
     const getTasksWithCompletion = (tasks: TaskDefinition[], completedIds: number[]) => {
         const completedSet = new Set(completedIds);
@@ -45,7 +69,6 @@ const ListQuest: React.FC = () => {
         }));
         const tasksToShow = getTasksWithCompletion(tasksWithIds, completedTaskIds);
 
-        console.log(tasksToShow);
         setAvailableTasks(tasksToShow);
     }, []);
 
@@ -63,6 +86,17 @@ const ListQuest: React.FC = () => {
         return taskStatus;
     }
 
+    const handleCheckboxChange = (checked: any, value: number) => {
+        setSelectedCheckboxes(prev =>
+            checked ? [...prev, value] : prev.filter(val => val !== value)
+        );
+    };
+
+    const handleRadioChange = (value: number) => {
+        setSelectedRadio(value);
+    };
+
+
     const handleFriendInvitationTasks = (task: TaskDefinition) => {
         if (userInvitedFriends.length >= Number(task.complete_requirement)) {
             handleTaskAction(task);
@@ -77,7 +111,18 @@ const ListQuest: React.FC = () => {
             if (videoUrl.length > 0 && !inProgressTaskIds.includes(task.id)) {
                 window.open(videoUrl, '_blank'); // Opens the link in a new tab
             }
-            handleTaskAction(task);
+            const availableQuestions = getQuestionByTaskId(questions, task.id);
+            const filteredQuestions = getRandomQuestion(availableQuestions, 2);
+
+            if (inProgressTaskIds.includes(task.id)) {
+                handleTaskAction(task);
+            } else {
+                setCurrentQuestions(filteredQuestions);
+                setSelectedTask(task);
+                setQuestionPopup(true);
+                setSelectedCheckboxes([]);
+                setSelectedRadio(0);
+            }
         } else {
             console.error("Video URL is not available");
         }
@@ -127,6 +172,34 @@ const ListQuest: React.FC = () => {
             }
         } else {
             toast.warning("You have already claim the reward");
+        }
+    }
+
+    const handleCloseDialog = () => {
+        setQuestionPopup(false);
+    }
+
+    const handleSubmitAnswer = () => {
+        setQuestionPopup(false);
+
+        const combinedList = [
+            ...selectedCheckboxes,
+            ...(selectedRadio ? [selectedRadio] : []),
+        ];
+
+        let result = true;
+
+        combinedList.forEach(id => {
+            const answer = answers.find(answer => answer.id === id);
+            if (answer && result) {
+                result = answer.is_correct;
+            }
+        });
+
+        if (result && selectedTask && combinedList.length > 0) {
+            handleTaskAction(selectedTask);
+        } else {
+            toast.warning("Wrong answer");
         }
     }
 
@@ -184,6 +257,49 @@ const ListQuest: React.FC = () => {
                 open={openDrawer}
                 onOpenChange={setOpenDrawer}
             />
+
+            {selectedTask && currentQuestions.length > 0 && (
+                <Dialog open={questionPopup} onClose={() => handleCloseDialog()} fullWidth>
+                    <DialogTitle>{selectedTask.name}</DialogTitle>
+                    {currentQuestions.map((question, index) => (
+                        <DialogContent key={index}>
+                            {index + 1}. {question.description}
+                            {answers && answers
+                                .filter(answer => answer.question_id === question.id) // Filter answers by question_id
+                                .map((filteredAnswer, answerIndex) => (
+                                    <div key={answerIndex}>
+                                        {question.type === "multiple_choice" ? (
+                                            <>
+                                                <Checkbox
+                                                    onChange={(e) => handleCheckboxChange(e.target.checked, filteredAnswer.id)}
+                                                />
+                                                {filteredAnswer.description} {filteredAnswer.is_correct ? "yes" : "No"}
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Radio
+                                                    value={filteredAnswer}
+                                                    checked={selectedRadio === filteredAnswer.id}
+                                                    onChange={() => handleRadioChange(filteredAnswer.id)}
+                                                />
+                                                {filteredAnswer.description} {filteredAnswer.is_correct ? "yes" : "No"}
+                                            </>
+                                        )}
+                                    </div>
+                                ))
+                            }
+                        </DialogContent>
+                    ))}
+                    <DialogActions>
+                        <Button onClick={() => setQuestionPopup(false)} color="primary">
+                            Close
+                        </Button>
+                        <Button onClick={() => handleSubmitAnswer()} color="primary">
+                            Submit
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            )}
         </div>
     );
 };
