@@ -23,9 +23,6 @@ class DatabaseSeeder extends Seeder
             IndexSeeder::class,
             //HistoricalSpotSeeder::class,
             SettingsSeeder::class,
-            StarsDefinitionSeeder::class,
-            TaskSeeder::class,
-            PopupSeeder::class,
             TicksSeeder::class,
             // TelegramUserSeeder::class,
         ]);

@@ -1,10 +1,7 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import AppBar from "../AppBar";
 import { useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { $http } from "@/lib/http";
-import { PopupMessageType } from "@/types/PopupMessageType";
-import PopupMessageDialog from "../PopupMessageDialog";
 import pusher from "@/lib/pusher";
 import { toast } from "react-toastify";
 
@@ -12,10 +9,6 @@ export default function Layout() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
-  const popupMessgae = useQuery({
-    queryKey: ["popup-message"],
-    queryFn: () => $http.$get<PopupMessageType>("/popups"),
-  });
 
   useEffect(() => {
     const notification = pusher.subscribe(`refer_noti_user_${userProfile.telegram_user_id}`);
@@ -53,7 +46,6 @@ export default function Layout() {
     <main className="flex flex-col w-full max-w-lg h-[--tg-viewport-height] mx-auto text-white">
       <Outlet />
       <AppBar />
-      <PopupMessageDialog message={popupMessgae.data} />
     </main>
   );
 }

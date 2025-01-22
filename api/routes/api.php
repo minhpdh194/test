@@ -13,7 +13,6 @@ use App\Http\Controllers\MarketDataController;
 use App\Http\Controllers\TelegramUserController;
 use App\Http\Controllers\TelegramStarController;
 
-use App\Http\Controllers\PopupController;
 
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\BonusController;
@@ -37,7 +36,6 @@ Route::get('/total-stars', function () {
     return response()->json(['total_stars' => $response]);
 });
 Route::post('/auth/telegram-user', [AuthController::class, 'telegramUser']);
-Route::get('/popups', [PopupController::class, 'index']);
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
