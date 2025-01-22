@@ -15,35 +15,16 @@ const tasksList = [
     description:
       "Follow our official Twitter account and retweet our pinned tweet.",
     reward_coins: 150,
-    link: "https://twitter.com/yourgame",
+    link: "https://x.com/onexmm_official",
     type: "life_time",
-    action_name: "subscribe",
-    complete_requirement: "", //can be used later
-  },
-  {
-    name: "Like Facebook Page",
-    description:
-      "Like our Facebook page and leave a comment on our latest post.",
-    reward_coins: 100,
-    link: "https://facebook.com/yourgame",
-    type: "life_time",
-    action_name: "subscribe",
-    complete_requirement: "", //can be used later
-  },
-  {
-    name: "Follow on Instagram",
-    description: "Follow our Instagram account and like our most recent post.",
-    reward_coins: 125,
-    link: "https://instagram.com/yourgame",
-    type: "life_time",
-    action_name: "subscribe",
+    action_name: "join",
     complete_requirement: "", //can be used later
   },
   {
     name: "Join Telegram Group",
     description: "Join our Telegram group and introduce yourself.",
     reward_coins: 175,
-    link: "https://t.me/yourgame",
+    link: "https://t.me/onexmm_official",
     type: "life_time",
     action_name: "join",
     complete_requirement: "", //can be used later

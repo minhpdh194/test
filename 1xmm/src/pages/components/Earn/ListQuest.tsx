@@ -203,6 +203,30 @@ const ListQuest: React.FC = () => {
         }
     }
 
+    const handleJoin = (task: TaskDefinition) => {
+        const destinationUrl = task.link;
+        if (!completedTaskIds.includes(task.id)) {
+            if (destinationUrl.length > 0 && !inProgressTaskIds.includes(task.id)) {
+                window.open(destinationUrl, '_blank'); // Opens the link in a new tab
+            }
+            handleTaskAction(task);
+        } else {
+            console.error("Video URL is not available");
+        }
+    }
+
+    const handleTaskNavigation = (task: TaskDefinition) => {
+        if (task.action_name === "invite") {
+            handleFriendInvitationTasks(task);
+        } else if (task.action_name === "watch_video") {
+            handleWatchVideo(task);
+        } else if (task.action_name === "join") {
+            handleJoin(task);
+        } else {
+            handleTaskAction(task);
+        }
+    }
+
     return (
         <div className="bg-[#32363C] rounded-xl mt-2">
             {availableTasks && availableTasks.length > 0 && availableTasks.map((task) => (
@@ -234,15 +258,7 @@ const ListQuest: React.FC = () => {
                         </div>
                         <div className="flex justify-end pt-2">
                             <span
-                                onClick={() => {
-                                    if (task.action_name === "invite") {
-                                        handleFriendInvitationTasks(task);
-                                    } else if (task.action_name === "watch_video") {
-                                        handleWatchVideo(task);
-                                    } else {
-                                        handleTaskAction(task);
-                                    }
-                                }}
+                                onClick={() => handleTaskNavigation(task)}
                                 className={`text-center px-3 rounded-lg text-xs 
                                 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%);] 
                                 py-1 fw-bold pointer`}>
@@ -273,7 +289,7 @@ const ListQuest: React.FC = () => {
                                                 <Checkbox
                                                     onChange={(e) => handleCheckboxChange(e.target.checked, filteredAnswer.id)}
                                                 />
-                                                {filteredAnswer.description} {filteredAnswer.is_correct ? "yes" : "No"}
+                                                {filteredAnswer.description}
                                             </>
                                         ) : (
                                             <>
@@ -282,7 +298,7 @@ const ListQuest: React.FC = () => {
                                                     checked={selectedRadio === filteredAnswer.id}
                                                     onChange={() => handleRadioChange(filteredAnswer.id)}
                                                 />
-                                                {filteredAnswer.description} {filteredAnswer.is_correct ? "yes" : "No"}
+                                                {filteredAnswer.description}
                                             </>
                                         )}
                                     </div>
