@@ -9,9 +9,9 @@ export default function UserGameDetails({
   const user = userProfileStore();
 
   const [timeLeftNextFixing, setTimeLeftNextFixing] = useState(0);
-  const [timeLeftPeriodEnd, setTimeLeftPeriodEnd] = useState(0);
+  // const [timeLeftPeriodEnd, setTimeLeftPeriodEnd] = useState(0);
   const [intervalIdNextFixing, setIntervalIdNextFixing] = useState<NodeJS.Timeout | null>(null);
-  const [intervalIdPeriodEnd, setIntervalIdPeriodEnd] = useState<NodeJS.Timeout | null>(null);
+  // const [intervalIdPeriodEnd, setIntervalIdPeriodEnd] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (data && data.length > 0) {
@@ -29,16 +29,16 @@ export default function UserGameDetails({
       nextPeriodEndTime.setSeconds(0);
       nextPeriodEndTime.setMilliseconds(0);
 
-      const timeRemainingPeriodEnd = Math.max(0, Math.floor((nextPeriodEndTime.getTime() - currentTime) / 1000));
-      setTimeLeftPeriodEnd(timeRemainingPeriodEnd);
+      // const timeRemainingPeriodEnd = Math.max(0, Math.floor((nextPeriodEndTime.getTime() - currentTime) / 1000));
+      // setTimeLeftPeriodEnd(timeRemainingPeriodEnd);
 
       // Clear existing intervals
       if (intervalIdNextFixing) {
         clearInterval(intervalIdNextFixing);
       }
-      if (intervalIdPeriodEnd) {
-        clearInterval(intervalIdPeriodEnd);
-      }
+      // if (intervalIdPeriodEnd) {
+      //   clearInterval(intervalIdPeriodEnd);
+      // }
 
       // Set up interval for next fixing countdown
       const newIntervalIdNextFixing = setInterval(() => {
@@ -53,20 +53,20 @@ export default function UserGameDetails({
       setIntervalIdNextFixing(newIntervalIdNextFixing);
 
       // Set up interval for period end countdown
-      const newIntervalIdPeriodEnd = setInterval(() => {
-        setTimeLeftPeriodEnd((prevTime) => {
-          if (prevTime <= 1) {
-            clearInterval(newIntervalIdPeriodEnd);
-            return 0;
-          }
-          return prevTime - 1;
-        });
-      }, 1000);
-      setIntervalIdPeriodEnd(newIntervalIdPeriodEnd);
+      // const newIntervalIdPeriodEnd = setInterval(() => {
+      //   setTimeLeftPeriodEnd((prevTime) => {
+      //     if (prevTime <= 1) {
+      //       clearInterval(newIntervalIdPeriodEnd);
+      //       return 0;
+      //     }
+      //     return prevTime - 1;
+      //   });
+      // }, 1000);
+      // setIntervalIdPeriodEnd(newIntervalIdPeriodEnd);
 
       return () => {
         clearInterval(newIntervalIdNextFixing);
-        clearInterval(newIntervalIdPeriodEnd);
+        // clearInterval(newIntervalIdPeriodEnd);
       };
     }
   }, [data]);
@@ -77,12 +77,12 @@ export default function UserGameDetails({
     return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
-  const formatTimePeriod = (seconds: number): string => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-  };
+  // const formatTimePeriod = (seconds: number): string => {
+  //   const hours = Math.floor(seconds / 3600);
+  //   const minutes = Math.floor((seconds % 3600) / 60);
+  //   const secs = seconds % 60;
+  //   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  // };
 
   return (
     <div

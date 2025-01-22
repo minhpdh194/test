@@ -146,6 +146,7 @@ function App() {
 
         setProgress(75);
 
+        globalThis.starsTarget = await COMM.getStarsTarget($http);
         await COMM.bonusExpiry($http, bonusesToDelete);
         COMM.updatePositions(cleanedPositions);
 
