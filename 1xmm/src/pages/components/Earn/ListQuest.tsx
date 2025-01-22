@@ -18,7 +18,7 @@ const ListQuest: React.FC = () => {
     const [selectedTask, setSelectedTask] = useState<TaskDefinition>();
     const [currentQuestions, setCurrentQuestions] = useState<Question[]>([]);
     const [selectedCheckboxes, setSelectedCheckboxes] = useState<number[]>([]);
-    const [selectedRadio, setSelectedRadio] = useState<number>();
+    const [selectedRadios, setSelectedRadios] = useState<any>({});
 
     function getQuestionByTaskId(arr: Question[], taskId: number) {
         return arr.filter(item => item.task_id === taskId);
@@ -92,10 +92,13 @@ const ListQuest: React.FC = () => {
         );
     };
 
-    const handleRadioChange = (value: number) => {
-        setSelectedRadio(value);
+    const handleRadioChange = (questionId: number, value: number) => {
+        console.log(questionId, value);
+        setSelectedRadios((prev: any) => ({
+            ...prev,
+            [questionId]: value,
+        }));
     };
-
 
     const handleFriendInvitationTasks = (task: TaskDefinition) => {
         if (userInvitedFriends.length >= Number(task.complete_requirement)) {
@@ -110,18 +113,17 @@ const ListQuest: React.FC = () => {
         if (!completedTaskIds.includes(task.id)) {
             if (videoUrl.length > 0 && !inProgressTaskIds.includes(task.id)) {
                 window.open(videoUrl, '_blank'); // Opens the link in a new tab
+                handleTaskAction(task);
             }
             const availableQuestions = getQuestionByTaskId(questions, task.id);
             const filteredQuestions = getRandomQuestion(availableQuestions, 2);
 
             if (inProgressTaskIds.includes(task.id)) {
-                handleTaskAction(task);
-            } else {
                 setCurrentQuestions(filteredQuestions);
                 setSelectedTask(task);
                 setQuestionPopup(true);
                 setSelectedCheckboxes([]);
-                setSelectedRadio(0);
+                setSelectedRadios({});
             }
         } else {
             console.error("Video URL is not available");
@@ -183,10 +185,11 @@ const ListQuest: React.FC = () => {
         setQuestionPopup(false);
 
         const combinedList = [
-            ...selectedCheckboxes,
-            ...(selectedRadio ? [selectedRadio] : []),
+            ...Object.values(selectedCheckboxes).flat(),
+            ...Object.values(selectedRadios),
         ];
 
+        console.log(combinedList);
         let result = true;
 
         combinedList.forEach(id => {
@@ -222,8 +225,6 @@ const ListQuest: React.FC = () => {
             handleWatchVideo(task);
         } else if (task.action_name === "join") {
             handleJoin(task);
-        } else {
-            handleTaskAction(task);
         }
     }
 
@@ -280,30 +281,34 @@ const ListQuest: React.FC = () => {
                     {currentQuestions.map((question, index) => (
                         <DialogContent key={index}>
                             {index + 1}. {question.description}
-                            {answers && answers
-                                .filter(answer => answer.question_id === question.id) // Filter answers by question_id
-                                .map((filteredAnswer, answerIndex) => (
-                                    <div key={answerIndex}>
-                                        {question.type === "multiple_choice" ? (
-                                            <>
-                                                <Checkbox
-                                                    onChange={(e) => handleCheckboxChange(e.target.checked, filteredAnswer.id)}
-                                                />
-                                                {filteredAnswer.description}
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Radio
-                                                    value={filteredAnswer}
-                                                    checked={selectedRadio === filteredAnswer.id}
-                                                    onChange={() => handleRadioChange(filteredAnswer.id)}
-                                                />
-                                                {filteredAnswer.description}
-                                            </>
-                                        )}
-                                    </div>
-                                ))
-                            }
+                            {answers &&
+                                answers
+                                    .filter((answer) => answer.question_id === question.id) // Filter answers by question_id
+                                    .map((filteredAnswer, answerIndex) => (
+                                        <div key={answerIndex}>
+                                            {question.type === "multiple_choice" ? (
+                                                <>
+                                                    <Checkbox
+                                                        onChange={(e) =>
+                                                            handleCheckboxChange(e.target.checked, filteredAnswer.id)
+                                                        }
+                                                    />
+                                                    {filteredAnswer.description}
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Radio
+                                                        value={filteredAnswer.id}
+                                                        checked={selectedRadios[question.id] === filteredAnswer.id}
+                                                        onChange={() =>
+                                                            handleRadioChange(question.id, filteredAnswer.id)
+                                                        }
+                                                    />
+                                                    {filteredAnswer.description}
+                                                </>
+                                            )}
+                                        </div>
+                                    ))}
                         </DialogContent>
                     ))}
                     <DialogActions>
