@@ -277,7 +277,7 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
     return (
         <div className="mt-3">
             {globalThis.userProfile.unlocked_pairs.map((pair) => (
-                <div key={pair.id} className="bg-[#32363C] bg-opacity-60 rounded-xl mb-3">
+                <div key={pair.id} className="bg-[#32363C] bg-opacity-90 rounded-xl mb-3">
                     <div className="pt-3 pb-3 space-y-2">
                         <div className="flex justify-between items-center border-b border-gray-500 pb-2 mb-2 w-[93%] mx-auto">
                             <div className="space-x-2 flex-grow">

@@ -44,7 +44,7 @@ export default function Friends() {
     <div className="flex-1 px-3 pb-20 bg-center bg-cover"
       style={{
         backgroundColor: `#064C7D`,
-        backgroundImage: `url(/images/friends/bg.png)`,
+        backgroundImage: `url(/images/home/bg.png)`,
       }}>
       <Header amount_token={userProfile.amount_of_tokens} />
       <div className="mt-6 w-100">

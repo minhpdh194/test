@@ -10,7 +10,7 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
             <div
                 className="fixed top-0 left-0 w-100 h-full bg-center bg-cover bg-[#064C7D] text-white z-30 p-3 transition-transform transform translate-x-0"
                 style={{
-                    backgroundImage: `url(/images/home/bg-sidebar.png)`,
+                    backgroundImage: `url(/images/home/bg.png)`,
                 }}
             >
                 <button type="button" className="flex items-center fw-bold space-x-2" onClick={toggleSidebar}>
