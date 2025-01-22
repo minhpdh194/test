@@ -280,6 +280,7 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                 <div key={pair.id} className="bg-[#32363C] bg-opacity-75 rounded-xl mb-3">
                     <div className="pt-3 pb-3 space-y-2">
                         <div className="flex justify-between items-center border-b border-gray-500 pb-2 mb-2 w-[93%] mx-auto">
+                            <div>
                             <div className="space-x-2 flex-grow">
                                 <span className="fw-bold">{pair.pair_symbol}</span>
                                 <span className="space-x-2">
@@ -294,6 +295,17 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                                             : `(${(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) * 100).toFixed(2)}%)`)}
                                     </span>
                                 </span>
+                            </div>
+                                <div>
+                                    <span className="text-xs text-gray-300 mr-2">Daily perf:</span>
+                                    <span
+                                        className={`text-xs ${(spots?.find(s => s.pair_id == pair.id)?.daily_return ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}
+                                    >
+                                        {(Number(spots?.find(s => s.pair_id == pair.id)?.daily_return ?? 0) >= 0
+                                            ? `+${(Number(spots?.find(s => s.pair_id == pair.id)?.daily_return ?? 0) * 100).toFixed(2)}%`
+                                            : `${(Number(spots?.find(s => s.pair_id == pair.id)?.daily_return ?? 0) * 100).toFixed(2)}%`)}
+                                    </span>
+                                </div>
                             </div>
                             <button
                                 className="text-sm text-white font-bold"

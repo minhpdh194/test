@@ -259,9 +259,14 @@ export default function Bonus() {
                     <span className="font-normal text-xs">Purchase Stars</span>
                 </button> */}
             </div>
-            <div className="mt-4 mb-6">
-                <div className="flex justify-between items-center">
+            <div className="mt-4 mb-10">
+                <div className="flex flex-col justify-between items-center">
                     <span className="fw-bold text-lg">Leverage</span>
+                    <div className="text-center">
+                        <span className="text-xs italic"><span className="fw-bold">Increase your perf.</span>: each +1x leverage increases your performance by 100%.
+                        Be careful, leverage applies for positive <span className="fw-bold">and negative</span> performance.
+                        </span>
+                    </div>
                 </div>
                 <div className="w-full overflow-x-auto bonus-item">
                     {leverageData.length > 0 ? (
@@ -284,9 +289,13 @@ export default function Bonus() {
                 </div>
             </div>
 
-            <div className="mt-4 mb-6">
-                <div className="flex justify-between items-center">
+            <div className="mt-4 mb-10">
+                <div className="flex flex-col justify-between items-center">
                     <span className="fw-bold text-lg">Positive Leverage</span>
+                    <div className="text-center">
+                        <span className="text-xs italic"><span className="fw-bold">Increase your profit</span>: each +1x positive leverage increases your positive 
+                            performance by 100%. Losses are not impacted by positive leverage.</span>
+                    </div>
                 </div>
                 <div className="w-full overflow-x-auto bonus-item">
                     {positiveLeverageData.length > 0 ? (
@@ -309,9 +318,12 @@ export default function Bonus() {
                 </div>
             </div>
 
-            <div className="mt-4 mb-6">
-                <div className="flex justify-between items-center">
+            <div className="mt-4 mb-10">
+                <div className="flex flex-col justify-between items-center">
                     <span className="fw-bold text-lg">Capital Protection</span>
+                    <div className="text-center">
+                        <span className="text-xs italic"><span className="fw-bold">Protect your position</span>: each 1% of Capital Protection protects 1% of your position.</span>
+                    </div>
                 </div>
                 <div className="w-full overflow-x-auto bonus-item">
                     {capitalProtectionData.length > 0 ? (
@@ -334,9 +346,12 @@ export default function Bonus() {
                 </div>
             </div>
 
-            <div className="mt-4 mb-6">
-                <div className="flex justify-between items-center">
+            <div className="mt-4 mb-16">
+                <div className="flex flex-col justify-between items-center">
                     <span className="fw-bold text-lg">Time Reduction</span>
+                    <div className="text-center">
+                        <span className="text-xs italic"><span className="fw-bold">Reduce your penalty</span>: each 1s bonus helps to reduce / close your position 1s earlier.</span>
+                    </div>
                 </div>
                 <div className="w-full overflow-x-auto bonus-item">
                     {timeReductionData.length > 0 ? (
