@@ -38,6 +38,7 @@ declare global {
   // var starPackage: StarPackage[];
   var starsTarget: number;
   var userInvitedFriends: Friend[];
+  var isPositionOpenable: boolean;
 }
 
 type DBSpot = {
@@ -74,7 +75,7 @@ function App() {
       if (user.is_bot) throw new Error('No bot');
       if (user.id == null) throw new Error('No user found');
       let streak = 1;
-
+      globalThis.isPositionOpenable = true;
       try {
         // We load user data
         const response = await COMM.loadUserData($http, user, start_param);

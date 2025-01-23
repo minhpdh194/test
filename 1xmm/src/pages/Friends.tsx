@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import Header from "../components/Header";
 import ListFriend from "./components/Friends/ListFriend";
-import ListBonus from "./components/Friends/ListBonus";
 import { Friend } from "@/types/Friend";
 import { $http } from "@/lib/http";
 import pusher from "@/lib/pusher";

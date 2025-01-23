@@ -43,6 +43,11 @@ export default function UserGameDetails({
       // Set up interval for next fixing countdown
       const newIntervalIdNextFixing = setInterval(() => {
         setTimeLeftNextFixing((prevTime) => {
+          if (prevTime <= 15) {
+            isPositionOpenable = false;
+          } else {
+            isPositionOpenable = true;
+          }
           if (prevTime <= 1) {
             clearInterval(newIntervalIdNextFixing);
             return 0;
@@ -100,7 +105,7 @@ export default function UserGameDetails({
         <p className="mb-1 text-xs font-medium text-center" style={{ color: `#6F72E2` }}>Time to next fixing</p>
         <div className="inline-flex items-center space-x-1.5 text-gradient font-bold">
           <img className="object-contain w-5 h-5" src="/images/home/clock.png" />
-          <span className="text-sm">
+          <span className={`text-sm ${!isPositionOpenable && "text-red-400"}`}>
             {formatTime(timeLeftNextFixing)}
           </span>
         </div>

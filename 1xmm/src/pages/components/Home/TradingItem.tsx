@@ -281,21 +281,21 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                     <div className="pt-3 pb-3 space-y-2">
                         <div className="flex justify-between items-center border-b border-gray-500 pb-2 mb-2 w-[93%] mx-auto">
                             <div>
-                            <div className="space-x-2 flex-grow">
-                                <span className="fw-bold">{pair.pair_symbol}</span>
-                                <span className="space-x-2">
-                                    <span className="fw-bold">
-                                        <NumberFormat value={spots?.find(s => s.pair_id == pair.id)?.current_value ?? 0} decimals={2} />
+                                <div className="space-x-2 flex-grow">
+                                    <span className="fw-bold">{pair.pair_symbol}</span>
+                                    <span className="space-x-2">
+                                        <span className="fw-bold">
+                                            <NumberFormat value={spots?.find(s => s.pair_id == pair.id)?.current_value ?? 0} decimals={2} />
+                                        </span>
+                                        <span
+                                            className={`text-sm ${(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}
+                                        >
+                                            {(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) >= 0
+                                                ? `(+${(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) * 100).toFixed(2)}%)`
+                                                : `(${(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) * 100).toFixed(2)}%)`)}
+                                        </span>
                                     </span>
-                                    <span
-                                        className={`text-sm ${(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}
-                                    >
-                                        {(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) >= 0
-                                            ? `(+${(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) * 100).toFixed(2)}%)`
-                                            : `(${(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) * 100).toFixed(2)}%)`)}
-                                    </span>
-                                </span>
-                            </div>
+                                </div>
                                 <div>
                                     <span className="text-xs text-gray-300 mr-2">Daily perf:</span>
                                     <span
@@ -416,12 +416,14 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                                     <button
                                         type="button"
                                         className={`rounded w-auto py-1 px-2 space-x-1
-                                            ${(globalThis.userProfile.positionStore?.available_bonuses.length ?? 0) == 0 || !amounts[pair.id] && !leverages[pair.id] && !positions.find((pos) => pos.position_id === pair.id)
+                                            ${((globalThis.userProfile.positionStore?.available_bonuses.length ?? 0) == 0 || !amounts[pair.id]
+                                                && !leverages[pair.id] && !positions.find((pos) => pos.position_id === pair.id)) || !isPositionOpenable
                                                 ? 'bg-gray-400 opacity-50 cursor-not-allowed'
                                                 : 'bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)] flex items-center justify-center'
                                             }`}
                                         onClick={() => { setPositionIdForBonus(pair.id); setOpenBonusDrawer(true) }}
-                                        disabled={(globalThis.userProfile.positionStore?.available_bonuses.length ?? 0) == 0 || !amounts[pair.id] && !positions.find((pos) => pos.position_id === pair.id)}>
+                                        disabled={((globalThis.userProfile.positionStore?.available_bonuses.length ?? 0) == 0 || !amounts[pair.id]
+                                            && !positions.find((pos) => pos.position_id === pair.id)) || !isPositionOpenable}>
 
                                         <div className="flex items-center space-x-1"> {/* Add a container to align items horizontally */}
                                             <img
@@ -436,12 +438,12 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                                     <button
                                         type="button"
                                         className={`rounded flex-1 py-1 px-2 
-                                            ${!amounts[pair.id] || !leverages[pair.id] || !selectedOptions[pair.id]
+                                        ${!amounts[pair.id] || !leverages[pair.id] || !selectedOptions[pair.id] || !isPositionOpenable
                                                 ? 'bg-gray-400 opacity-50 cursor-not-allowed'
                                                 : 'bg-[linear-gradient(142.18deg,#3BB424_21.85%,#2AAA28_78.15%)]'
                                             }`}
                                         onClick={() => { handleValidate(pair.id); }}
-                                        disabled={!amounts[pair.id] || !leverages[pair.id] || !selectedOptions[pair.id]}
+                                        disabled={!amounts[pair.id] || !leverages[pair.id] || !selectedOptions[pair.id] || !isPositionOpenable}
                                     >
                                         <span className="font-bold text-xs">Validate</span>
                                     </button>
