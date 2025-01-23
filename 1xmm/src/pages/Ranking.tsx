@@ -3,7 +3,7 @@ import Header from "../components/Header";
 import { useEffect, useState } from "react";
 import { Utils } from "@/lib/utils";
 // import { useUserStore } from "@/store/user-store";
-import { addWeeks, startOfWeek, format } from 'date-fns'; 
+import { addWeeks, startOfWeek, format } from 'date-fns';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import { $http } from "@/lib/http";
@@ -18,8 +18,12 @@ export default function Ranking() {
     const [userRanking, setUserRanking] = useState<UserRanking[]>([]);
 
     const formatNumber = (userRanking: UserRanking) => {
-        const formattedNumberOfTokens = Math.trunc(userRanking.amount_of_tokens).toLocaleString();
-        return formattedNumberOfTokens;
+        if (userRanking.amount_of_tokens === 0) {
+            return "-";
+        } else {
+            const formattedNumberOfTokens = Math.trunc(userRanking.amount_of_tokens).toLocaleString();
+            return formattedNumberOfTokens;
+        }
     }
 
     const selectedDate = new Date();
@@ -50,6 +54,21 @@ export default function Ranking() {
                         first_name: transaction.user_data.first_name ? transaction.user_data.first_name : "",
                         last_name: transaction.user_data.last_name ? transaction.user_data.last_name : "",
                         amount_of_tokens: transaction.tokens,
+                    };
+
+                    setUserRanking(prevState => [...prevState, newData]);
+                });
+                const usersResponse = await $http.get('/get-left-users', {
+                    params: {
+                        played_users: response.data
+                    }
+                });
+                usersResponse.data.forEach((userData: any) => {
+                    const newData = {
+                        telegram_user_id: userData.telegram_user_id,
+                        first_name: userData.first_name ? userData.first_name : "",
+                        last_name: userData.last_name ? userData.last_name : "",
+                        amount_of_tokens: 0,
                     };
 
                     setUserRanking(prevState => [...prevState, newData]);
@@ -143,11 +162,14 @@ export default function Ranking() {
                             {/* <span className="fw-light text-xs block pt-2">{calculatePercentile(secondPositionUser)}%</span> */}
                             <span className="block fw-bold">{secondPositionUser.first_name + " " + secondPositionUser.last_name}</span>
                             <span className="flex fw-bold items-center justify-center">
-                                <img
-                                    src="/images/home/coin.png"
-                                    alt="coin"
-                                    className="w-4 h-4"
-                                />
+                                {secondPositionUser.amount_of_tokens !== 0 && (
+                                    <img
+                                        src="/images/home/coin.png"
+                                        alt="coin"
+                                        className="w-4 h-4"
+                                    />
+                                )}
+
                                 {formatNumber(secondPositionUser)}
                             </span>
                         </div>
@@ -193,11 +215,14 @@ export default function Ranking() {
                             <span className="block fw-bold mt-3">{firstPositionUser.first_name + " " + firstPositionUser.last_name}</span>
                             {/* <span className="fw-light text-xs block">{calculatePercentile(firstPositionUser)}%</span> */}
                             <span className="flex text-lg fw-bold items-center justify-center mt-1">
-                                <img
-                                    src="/images/home/coin.png"
-                                    alt="coin"
-                                    className="w-6 h-6"
-                                />
+                                {firstPositionUser.amount_of_tokens !== 0 && (
+                                    <img
+                                        src="/images/home/coin.png"
+                                        alt="coin"
+                                        className="w-4 h-4"
+                                    />
+                                )}
+
                                 {formatNumber(firstPositionUser)}
                             </span>
                         </div>
@@ -241,11 +266,13 @@ export default function Ranking() {
                         {/* <span className="fw-light text-xs block pt-2">{calculatePercentile(thirdPositionUser)}%</span> */}
                         <span className="block fw-bold">{thirdPositionUser.first_name + " " + thirdPositionUser.last_name}</span>
                         <span className="flex fw-bold items-center justify-center">
-                            <img
-                                src="/images/home/coin.png"
-                                alt="coin"
-                                className="w-4 h-4"
-                            />
+                            {thirdPositionUser.amount_of_tokens !== 0 && (
+                                <img
+                                    src="/images/home/coin.png"
+                                    alt="coin"
+                                    className="w-4 h-4"
+                                />
+                            )}
                             {formatNumber(thirdPositionUser)}
                         </span>
                     </div>
@@ -279,7 +306,7 @@ export default function Ranking() {
                                 </div>
                                 <div className="col-5">
                                     <span className="fw-bold block">{user.first_name + " " + user.last_name}</span>
-                                    <span className="fw-light block text-xs">{formatNumber(user)} points</span>
+                                    <span className="fw-light block text-xs">{formatNumber(user)} {user.amount_of_tokens !== 0 && "points"}</span>
                                 </div>
                                 {/* {user.current_amount_of_tokens >= user.last_amount_of_tokens ? (
                         <div className="col-3 flex items-center justify-end">
