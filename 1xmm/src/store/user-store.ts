@@ -24,6 +24,7 @@ export type UserProfileStore = UserProfile & {
   ClosePosition: (position_id: number) => Promise<number>;
   AddBonusesToPosition: (position_id: number, bonuses: Bonus[]) => Promise<void>;
   BuyBonus: (bonus: BonusDefinition) => void;
+  BuyToken: (bonus: BonusDefinition) => void;
   BuyStars: (starPackage: StarPackage) => void;
   UpdateBalance: (newBalance: number) => void;
   UpdateUserAvatar: (avatar_id: number) => void;
@@ -135,6 +136,25 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       }
     } catch (error) {
       toast.error('An error occurred while buying the bonus!');
+    }
+  },
+
+  BuyToken: async (bonus: BonusDefinition) => {
+    try {
+      const response = await $http.post('/buy-token', { bonus: bonus });
+      if (response.status === 200) {
+        toast.success('Token bought successfully!');
+        set((state) => ({
+          amount_of_tokens: state.amount_of_tokens + bonus.benefit,
+        }));
+      } else if (response.status === 202) {
+        toast.warning(response.data.success);
+      }
+      else {
+        toast.error('Failed to buy token!');
+      }
+    } catch (error) {
+      toast.error('An error occurred while buying the token!');
     }
   },
 

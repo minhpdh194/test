@@ -20,7 +20,8 @@ export enum BonusTypes {
   PositiveLeverage = "PositiveLeverage",
   CapitalProtection = "CapitalProtection",
   TimeReduction = "TimeReduction",
-  Friends = "Friends"
+  Friends = "Friends",
+  Token = "Token",
 }
 
 

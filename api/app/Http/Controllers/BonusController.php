@@ -23,12 +23,6 @@ class BonusController extends Controller
             return response()->json(['success' => 'This bonus has been purchased'], 202);
         } else {
             $userData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
-            $ownedStars = $userData->number_of_stars;
-            if ($ownedStars < $boughtBonus['cost']) {
-                return response()->json(['success' => "You don't have enough stars"], 202);
-            }
-            $userData->number_of_stars = $ownedStars - $boughtBonus["cost"];
-            $userData->save();
             $bonus = UserBonuses::create([
                 'bonus_id' => $boughtBonus['id'],
                 'telegram_user_id' => $user->telegram_user_id,
@@ -82,5 +76,16 @@ class BonusController extends Controller
             $bonus->save();
             $position->save();
         }
+    }
+
+    public function buyToken(Request $request)
+    {
+        $user = $request->user();
+        $boughtBonus = $request->bonus;
+
+        $userData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
+        $userData->amount_of_tokens += $boughtBonus->benefit;
+        $userData->save();
+        return response()->json(['success' => 'Buy token successfully'], 200);
     }
 }

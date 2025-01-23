@@ -75,5 +75,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/get-user-inprogress-task', [UserTaskController::class, 'getUserInProgressTasks']);
     Route::get('/get-user-completed-task', [UserTaskController::class, 'getUserCompletedTasks']);
 
+    Route::post('/buy-token', [BonusController::class, 'buyToken']);
 });
 

@@ -17,6 +17,7 @@ export default function Bonus() {
     const [positiveLeverageData, setPositiveLeverageData] = useState<any[]>([]);
     const [capitalProtectionData, setCapitalProtectionData] = useState<any[]>([]);
     const [timeReductionData, setTimeReductionData] = useState<any[]>([]);
+    const [tokenData, setTokenData] = useState<any[]>([]);
     // const [openStarDrawer, setOpenStarDrawer] = useState(false);
 
     const bonusDefinitionIds = userProfile.positionStore?.available_bonuses.map(item => item.bonus_definition.id);
@@ -95,6 +96,7 @@ export default function Bonus() {
                     }
                     return 0;
                 }));
+                setTokenData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.Token));
                 // setFriendData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.Friends));
 
                 const countdownData: { [key: string]: number } = {};
@@ -127,6 +129,9 @@ export default function Bonus() {
             case BonusTypes.TimeReduction: return (
                 <>+{bonus.benefit}sec</>
             );
+            case BonusTypes.Token: return (
+                <>+{bonus.benefit} token</>
+            )
         }
     }
 
@@ -138,11 +143,11 @@ export default function Bonus() {
                 onClick={() => handleBuyBonusAction(bonus)}
             >
                 <span className="flex items-center">
-                    <div className="bg-white rounded-full min-w-10 min-h-10 mr-4">
-                        {bonus.bonus_type != BonusTypes.Friends
-                            ? getBonusDuration(bonus.duration)
-                            : ''}
-                    </div>
+                    {bonus.bonus_type != BonusTypes.Token &&
+                        <div className="bg-white rounded-full min-w-10 min-h-10 mr-4">
+                            {getBonusDuration(bonus.duration)}
+                        </div>
+                    }
                     <div className="w-full">
                         <div className="flex justify-between">
                             <span className="flex gap-2"><Star /> {bonus.cost} </span>
@@ -187,7 +192,11 @@ export default function Bonus() {
                 } else {
                     window.Telegram.WebApp.openInvoice(response.data.result, async (status) => {
                         if (status === "paid") {
-                            await globalThis.userProfile.BuyBonus(bonus);
+                            if (bonus.bonus_type === BonusTypes.Token) {
+                                await globalThis.userProfile.BuyToken(bonus);
+                            } else {
+                                await globalThis.userProfile.BuyBonus(bonus);
+                            }
                         } else {
                             toast.warning(`You dont have enough stars to buy this bonus`);
                         }
@@ -264,7 +273,7 @@ export default function Bonus() {
                     <span className="fw-bold text-lg">Leverage</span>
                     <div className="text-center">
                         <span className="text-xs italic"><span className="fw-bold">Increase your perf.</span>: each +1x leverage increases your performance by 100%.
-                        Be careful, leverage applies for positive <span className="fw-bold">and negative</span> performance.
+                            Be careful, leverage applies for positive <span className="fw-bold">and negative</span> performance.
                         </span>
                     </div>
                 </div>
@@ -293,7 +302,7 @@ export default function Bonus() {
                 <div className="flex flex-col justify-between items-center">
                     <span className="fw-bold text-lg">Positive Leverage</span>
                     <div className="text-center">
-                        <span className="text-xs italic"><span className="fw-bold">Increase your profit</span>: each +1x positive leverage increases your positive 
+                        <span className="text-xs italic"><span className="fw-bold">Increase your profit</span>: each +1x positive leverage increases your positive
                             performance by 100%. Losses are not impacted by positive leverage.</span>
                     </div>
                 </div>
@@ -364,6 +373,34 @@ export default function Bonus() {
                             {/* Second Row */}
                             <div className="flex space-x-4">
                                 {timeReductionData.slice(Math.ceil(timeReductionData.length / 2)).map(renderBonusItem)}
+                            </div>
+                        </>
+                    ) : (
+                        <div className="w-full bg-[#32363C] rounded-xl p-3 mt-3">
+                            <div className="text-center text-white">Data not found</div>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            <div className="mt-4 mb-16">
+                <div className="flex flex-col justify-between items-center">
+                    <span className="fw-bold text-lg">1xMM Token Package</span>
+                    <div className="text-center">
+                        <span className="text-xs italic"><span className="fw-bold">Token</span>: lorem ipsum.</span>
+                    </div>
+                </div>
+                <div className="w-full overflow-x-auto bonus-item">
+                    {tokenData.length > 0 ? (
+                        <>
+                            {/* First Row */}
+                            <div className="flex space-x-4">
+                                {tokenData.slice(0, Math.ceil(tokenData.length / 2)).map(renderBonusItem)}
+                            </div>
+
+                            {/* Second Row */}
+                            <div className="flex space-x-4">
+                                {tokenData.slice(Math.ceil(tokenData.length / 2)).map(renderBonusItem)}
                             </div>
                         </>
                     ) : (

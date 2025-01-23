@@ -47,10 +47,14 @@ export const bonusDefinitions: Array<BonusDefinition> = [
     createBonusDef(43, BonusTypes.TimeReduction, 300, BonusTerms.Long, 120),
     createBonusDef(44, BonusTypes.TimeReduction, 330, BonusTerms.Long, 130),
     createBonusDef(45, BonusTypes.TimeReduction, 345, BonusTerms.Long, 135),
-    createBonusDef(46, BonusTypes.Friends, 5, BonusTerms.None, 100),
-    createBonusDef(47, BonusTypes.Friends, 10, BonusTerms.None, 180),
-    createBonusDef(48, BonusTypes.Friends, 20, BonusTerms.None, 340),
-    createBonusDef(49, BonusTypes.Friends, 50, BonusTerms.None, 800),
+    createBonusDef(46, BonusTypes.Token, 100, BonusTerms.None, 10),
+    createBonusDef(47, BonusTypes.Token, 200, BonusTerms.None, 20),
+    createBonusDef(48, BonusTypes.Token, 300, BonusTerms.None, 30),
+    createBonusDef(49, BonusTypes.Token, 400, BonusTerms.None, 40),
+    // createBonusDef(46, BonusTypes.Friends, 5, BonusTerms.None, 100),
+    // createBonusDef(47, BonusTypes.Friends, 10, BonusTerms.None, 180),
+    // createBonusDef(48, BonusTypes.Friends, 20, BonusTerms.None, 340),
+    // createBonusDef(49, BonusTypes.Friends, 50, BonusTerms.None, 800),
 ];
 
 function createBonusDef(id: number, bonus_type: BonusTypes, benefit: number, duration: BonusTerms, cost: number): BonusDefinition {
