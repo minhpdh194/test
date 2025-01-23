@@ -15,7 +15,6 @@ const shareMessage = encodeURI(
 export default function Friends() {
   const [, copy] = useCopyToClipboard();
   // const { referral, levels } = uesStore();
-  const [activeType, setActiveType] = useState('1');
   const [friends, setFriends] = useState<Friend[]>(globalThis.userInvitedFriends);
 
   const appLink = useMemo(
@@ -109,30 +108,15 @@ export default function Friends() {
           <div className="gap-4">
             <div className="flex p-3 pb-1 gap-2">
               <button
-                className={`p-2 text-sm w-50 rounded-xl ${activeType === '1' ? 'bg-[linear-gradient(180deg,#F79841_38.34%,#F9D838_100%)] fw-bold' : 'bg-[#1F1F1F]'}`}
-                onClick={() => setActiveType('1')}
+                className={`p-2 text-sm w-full rounded-xl bg-[linear-gradient(180deg,#F79841_38.34%,#F9D838_100%)] fw-bold`}
               >
                 Referrals
               </button>
-              <button
-                className={`w-50 text-sm p-2 rounded-xl ${activeType === '2' ? 'bg-[linear-gradient(180deg,#F79841_38.34%,#F9D838_100%)] fw-bold' : 'bg-[#1F1F1F]'}`}
-                onClick={() => setActiveType('2')}
-              >
-                Bonuses
-              </button>
             </div>
             <div className="p-3 pt-0">
-              {activeType === '1' && (
                 <div className="tab-content">
                   <ListFriend referedUsers={friends} />
                 </div>
-              )}
-              {activeType === '2' && (
-                <div className="tab-content">
-                  <ListBonus />
-                  <ListBonus />
-                </div>
-              )}
             </div>
           </div>
         </div>
