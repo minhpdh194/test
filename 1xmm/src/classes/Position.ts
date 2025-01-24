@@ -6,7 +6,7 @@ import { COMM } from "@/lib/comm";
 import { $http } from "@/lib/http";
 import { Pair } from "@/types/Pair";
 
-const penaltyFee: number = 0.001;
+const penaltyFee: number = 0.0010;
 
 export type PositionChange = {
     amount_adjustment: number;
@@ -48,7 +48,8 @@ export class Position {
         // We initialize the last_update_timestamp to 0 to indicate that the position has not been updated yet
         // When loading the positions, the update is required => the last_update_timestamp will be set to the current timestamp
         this.last_update_timestamp = this.open_date;
-        this.performance = 0.0;
+
+        this.performance = -penaltyFee;
     }
 
     public set_last_update_timestamp(timestamp: number) {
@@ -106,13 +107,13 @@ export class Position {
                 realized_pnl: 0
             };
 
-            const pnl = this.computePnL(index_value.timestamp, index_value.value);
-
             this.index_at_start = index_value.value;
             this.last_update_timestamp = index_value.timestamp;
-            this.performance = 0;
             this.amount += amt;
             this.leverage = (lev_amt + new_lev_amt) / this.amount;
+            
+            const pnl = this.computePnL(index_value.timestamp, index_value.value);
+            this.performance = pnl.perf;
 
             bonuses.forEach(b => this.attach_new_bonus(b));
 
@@ -179,7 +180,7 @@ export class Position {
                 this.min_end_date = value_date + 21600;
 
                 bonuses.forEach(b => this.attach_new_bonus(b));
-                toast.success("Position updated successfully");
+                //toast.success("Position updated successfully");
 
                 return {
                     amount_adjustment: prev_amt - this.amount,

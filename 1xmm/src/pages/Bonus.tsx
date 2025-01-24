@@ -355,7 +355,7 @@ export default function Bonus() {
                 </div>
             </div>
 
-            <div className="mt-4 mb-16">
+            <div className="mt-4 mb-10">
                 <div className="flex flex-col justify-between items-center">
                     <span className="fw-bold text-lg">Time Reduction</span>
                     <div className="text-center">
@@ -387,7 +387,7 @@ export default function Bonus() {
                 <div className="flex flex-col justify-between items-center">
                     <span className="fw-bold text-lg">1xMM Token Package</span>
                     <div className="text-center">
-                        <span className="text-xs italic"><span className="fw-bold">Token</span>: lorem ipsum.</span>
+                        <span className="text-xs italic"><span className="fw-bold">Top up your balance</span>: get some tokens to refill your balance or increase your PnL.</span>
                     </div>
                 </div>
                 <div className="w-full overflow-x-auto bonus-item">

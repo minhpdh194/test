@@ -1,8 +1,8 @@
 import { RouterProvider } from "react-router-dom";
+import { isMobile } from 'react-device-detect';
 import PlayOnYourMobile from "./pages/PlayOnYourMobile";
 import { useEffect, useState } from "react";
 import SplashScreen from "./components/partials/SplashScreen";
-import { toast } from "react-toastify";
 
 import router from "./router";
 import { $http, setBearerToken } from "./lib/http";
@@ -17,19 +17,17 @@ import { Position } from "./classes/Position";
 import { Bonus } from "./classes/Bonus";
 import { bonusDefinitions } from "./referential/bonusDefinitions";
 import { getPositionStore } from "./store/position-store";
-// import { StarPackage } from "./types/StarPackage";
-// import { StarPackages } from "./referential/starPackages";
 import { Index } from "./types/Index";
 import { PusherIndex } from "./types/PusherIndex";
 import { SpotType } from "./types/SpotType";
 import { LongShort } from "./enums";
 import { Utils } from "./lib/utils";
 import { Friend } from "./types/Friend";
+import { ToastContainer } from "react-toastify";
 
 const webApp = window.Telegram.WebApp;
-const isDesktop = import.meta.env.DEV
-  ? false
-  : Telegram.WebApp.platform === "tdesktop";
+// Developers must use VSC to launch the app
+const isDesktop = Telegram.WebApp.platform === "tdesktop" || !isMobile;
 
 declare global {
   var userProfile: UserProfileStore;
@@ -47,9 +45,12 @@ type DBSpot = {
   prev_value: number;
   current_value: number;
   period_return: number;
+  daily_return: number;
 }
 
 function App() {
+  <ToastContainer autoClose={2000} />
+  
   globalThis.userProfile = userProfileStore();
   globalThis.userProfile.positionStore = getPositionStore();
   const data = useTelegramInitData();
@@ -163,7 +164,6 @@ function App() {
         globalThis.spots = setFirstSpots((await $http.get<DBSpot[]>("/load-spots"))['data'], pairs);
       } catch (error) {
         console.error('Error loading data:', error);
-        toast.error('Failed to load game data');
       }
     };
 
@@ -172,8 +172,8 @@ function App() {
     }, 2000);
   }, [user]);
 
-  if (showSplashScreen) return <SplashScreen progress={progress} />;
   if (!user || isDesktop) return <PlayOnYourMobile />;
+  if (showSplashScreen) return <SplashScreen progress={progress} />;
 
   return (
     <RouterProvider router={router} />
@@ -197,7 +197,7 @@ function setFirstSpots(data: DBSpot[], pairs: Pair[]): SpotType[] {
       prev_value: s.prev_value,
       current_value: s.current_value,
       period_return: s.period_return,
-      daily_return: 0,
+      daily_return: s.daily_return,
       id: 0,
       pair: pairs.find(p => p.id == s.pair_id)
     } as SpotType);

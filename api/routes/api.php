@@ -32,7 +32,7 @@ use App\Models\Settings;
 
 // Public routes
 Route::get('/total-stars', function () {
-    $response = Settings::where('name', 'stars_purchased')->first()->value;
+    $response = Settings::where('name', 'stars_spent')->first()->value;
     return response()->json(['total_stars' => $response]);
 });
 Route::post('/auth/telegram-user', [AuthController::class, 'telegramUser']);

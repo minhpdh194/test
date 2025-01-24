@@ -78,7 +78,7 @@ class MarketDataController extends Controller
         $latest_update = Spot::select('created_at')
             ->orderBy('created_at', 'desc')
             ->first()->created_at;
-        $latest_spots = Spot::select('pair_id', 'day_open_value', 'prev_value', 'current_value', 'period_return')
+        $latest_spots = Spot::select('pair_id', 'day_open_value', 'prev_value', 'current_value', 'period_return', 'daily_return')
             ->where('created_at', $latest_update)
             ->get();
 

@@ -124,7 +124,7 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
         const userBalance = userProfile.trading_info.balance;
 
         if (newValue > userBalance) {
-            toast.error("You don't have enough balance");
+            //toast.error("You don't have enough balance");
             return;
         }
 

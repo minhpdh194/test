@@ -27,7 +27,7 @@ function useTelegramInitData() {
     );
 
     const initData: Record<string, string> = {};
-    console.log(firstLayerInitData);
+    
     for (const key in firstLayerInitData) {
       try {
         initData[key] = JSON.parse(firstLayerInitData[key]);

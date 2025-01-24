@@ -6,8 +6,7 @@ import { $http } from '@/lib/http';
 import { toast } from 'react-toastify';
 import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, Radio } from '@mui/material';
 import { Question } from '@/types/tasks/Question';
-import { questions } from '@/referential/questions';
-import { answers } from '@/referential/questionAnswers';
+import { getQuestions, getAnswers } from '@/referential/questionsAnswers';
 
 const ListQuest: React.FC = () => {
     const [openDrawer, setOpenDrawer] = useState(false);
@@ -20,9 +19,7 @@ const ListQuest: React.FC = () => {
     const [selectedCheckboxes, setSelectedCheckboxes] = useState<number[]>([]);
     const [selectedRadios, setSelectedRadios] = useState<any>({});
 
-    function getQuestionByTaskId(arr: Question[], taskId: number) {
-        return arr.filter(item => item.task_id === taskId);
-    }
+    function getQuestionForVideo(video_id: number): Array<Question> { return getQuestions(video_id) };
 
     const getRandomQuestion = (arr: Question[], n: number) => {
         const shuffled = arr.slice();
@@ -115,7 +112,7 @@ const ListQuest: React.FC = () => {
                 window.open(videoUrl, '_blank'); // Opens the link in a new tab
                 handleTaskAction(task);
             }
-            const availableQuestions = getQuestionByTaskId(questions, task.id);
+            const availableQuestions = getQuestionForVideo(task.complete_requirement + 1);
             const filteredQuestions = getRandomQuestion(availableQuestions, 2);
 
             if (inProgressTaskIds.includes(task.id)) {
@@ -193,7 +190,7 @@ const ListQuest: React.FC = () => {
         let result = true;
 
         combinedList.forEach(id => {
-            const answer = answers.find(answer => answer.id === id);
+            const answer = getAnswers.find(answer => answer.id === id);
             if (answer && result) {
                 result = answer.is_correct;
             }
@@ -281,8 +278,8 @@ const ListQuest: React.FC = () => {
                     {currentQuestions.map((question, index) => (
                         <DialogContent key={index}>
                             {index + 1}. {question.description}
-                            {answers &&
-                                answers
+                            {
+                                getAnswers(question.video_id)
                                     .filter((answer) => answer.question_id === question.id) // Filter answers by question_id
                                     .map((filteredAnswer, answerIndex) => (
                                         <div key={answerIndex}>

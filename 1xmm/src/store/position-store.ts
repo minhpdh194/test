@@ -235,9 +235,6 @@ export const getPositionStore = create<PositionStore>()((set, get) => ({
     try {
       await $http.post(`/clicker/close-position`, { position: position, pnl: pnl.pnl });
 
-      console.log(position);
-      console.log(pnl);
-
       set((state) => ({
         positions: state.positions.filter((pos) => { if (pos.position_id !== position_id) return pos; }),
       }));
