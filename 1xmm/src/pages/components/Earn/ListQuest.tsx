@@ -90,7 +90,6 @@ const ListQuest: React.FC = () => {
     };
 
     const handleRadioChange = (questionId: number, value: number) => {
-        console.log(questionId, value);
         setSelectedRadios((prev: any) => ({
             ...prev,
             [questionId]: value,
@@ -107,24 +106,19 @@ const ListQuest: React.FC = () => {
 
     const handleWatchVideo = (task: TaskDefinition) => {
         const videoUrl = task.link;
-        if (!completedTaskIds.includes(task.id)) {
-            if (videoUrl.length > 0 && !inProgressTaskIds.includes(task.id)) {
-                window.open(videoUrl, '_blank'); // Opens the link in a new tab
-                handleTaskAction(task);
-            }
-            const availableQuestions = getQuestionForVideo(task.complete_requirement + 1);
-            const filteredQuestions = getRandomQuestion(availableQuestions, 2);
-
-            if (inProgressTaskIds.includes(task.id)) {
-                setCurrentQuestions(filteredQuestions);
-                setSelectedTask(task);
-                setQuestionPopup(true);
-                setSelectedCheckboxes([]);
-                setSelectedRadios({});
-            }
-        } else {
-            console.error("Video URL is not available");
+        if (completedTaskIds.includes(task.id) || videoUrl.length == 0) return;
+        if (!inProgressTaskIds.includes(task.id)){
+            window.open(videoUrl, '_blank'); // Opens the link in a new tab
         }
+        
+        const availableQuestions = getQuestionForVideo(task.complete_requirement + 1);
+        const filteredQuestions = getRandomQuestion(availableQuestions, 2);
+
+        setCurrentQuestions(filteredQuestions);
+        setSelectedTask(task);
+        setQuestionPopup(true);
+        setSelectedCheckboxes([]);
+        setSelectedRadios({});
     }
 
     const handleTaskAction = async (task: TaskDefinition) => {
@@ -133,13 +127,16 @@ const ListQuest: React.FC = () => {
                 const response = await $http.post('/claim-task', {
                     task: task
                 });
+
                 if (response.data.success) {
                     toast.success(response.data.message);
                     setInProgressTaskIds(prev => prev.filter(id => id !== task.id));
                     setCompletedTaskIds(prev => [...prev, task.id]);
+
                     userProfile.available_task_ids = userProfile.available_task_ids.filter(id => id !== task.id);
                     userProfile.completed_task_ids.push(task.id);
                     userProfile.UpdateBalance(task.reward_coins);
+
                     if (task.type === "life_time") {
                         const nextTask = tasks.find(nextTask => nextTask.id === task.id + 1);
                         if (nextTask && nextTask.action_name === task.action_name) {
@@ -158,6 +155,7 @@ const ListQuest: React.FC = () => {
                 const response = await $http.post('/receive-task', {
                     task: task
                 });
+                
                 if (response.data.success) {
                     toast.success(response.data.message);
                     setInProgressTaskIds(prev => [...prev, task.id]);
@@ -178,7 +176,7 @@ const ListQuest: React.FC = () => {
         setQuestionPopup(false);
     }
 
-    const handleSubmitAnswer = () => {
+    const handleSubmitAnswer = (video_id: number) => {
         setQuestionPopup(false);
 
         const combinedList = [
@@ -186,21 +184,23 @@ const ListQuest: React.FC = () => {
             ...Object.values(selectedRadios),
         ];
 
-        console.log(combinedList);
         let result = true;
 
         combinedList.forEach(id => {
-            const answer = getAnswers.find(answer => answer.id === id);
+            const answer = getAnswers(video_id).find(answer => answer.id === id);
             if (answer && result) {
-                result = answer.is_correct;
+                result = result && answer.is_correct;
             }
         });
 
-        if (result && selectedTask && combinedList.length > 0) {
-            handleTaskAction(selectedTask);
-        } else {
-            toast.warning("Wrong answer");
-        }
+        if (selectedTask && combinedList.length > 0) {
+            if (result) {
+                handleTaskAction(selectedTask);
+            } else {
+                setInProgressTaskIds(prev => [...prev, selectedTask!.id]);
+                toast.warning("Wrong answer");
+            }
+        } 
     }
 
     const handleJoin = (task: TaskDefinition) => {
@@ -312,7 +312,7 @@ const ListQuest: React.FC = () => {
                         <Button onClick={() => setQuestionPopup(false)} color="primary">
                             Close
                         </Button>
-                        <Button onClick={() => handleSubmitAnswer()} color="primary">
+                        <Button onClick={() => handleSubmitAnswer(selectedTask.complete_requirement + 1)} color="primary">
                             Submit
                         </Button>
                     </DialogActions>

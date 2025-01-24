@@ -27,7 +27,9 @@ import { ToastContainer } from "react-toastify";
 
 const webApp = window.Telegram.WebApp;
 // Developers must use VSC to launch the app
-const isDesktop = Telegram.WebApp.platform === "tdesktop" || !isMobile;
+const isDesktop = import.meta.env.DEV
+  ? false
+  : Telegram.WebApp.platform === "tdesktop" || !isMobile;
 
 declare global {
   var userProfile: UserProfileStore;

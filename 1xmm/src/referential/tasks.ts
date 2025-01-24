@@ -11,6 +11,15 @@ const tasksList = [
     complete_requirement: 0,
   },
   {
+    name: "Watch Dummy Video",
+    description: "Watch our dummy video for test.",
+    reward_coins: 100,
+    link: "https://www.youtube.com/watch?v=ytdLaA4uN38",
+    type: "life_time",
+    action_name: "watch_video",
+    complete_requirement: 1,
+  },
+  {
     name: "Follow on Twitter",
     description:
       "Follow our official Twitter account and retweet our pinned tweet.",
