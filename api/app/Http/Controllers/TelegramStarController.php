@@ -20,6 +20,12 @@ class TelegramStarController extends Controller
         $this->apiUrl = "https://api.telegram.org/bot{$this->botToken}/";
     }
 
+    public function getStarConversionRate()
+    {
+        $conversionRate = Settings::where(['name' => 'conversion_rate'])->first();
+        return response()->json(["conversion_rate" => doubleval($conversionRate->value)]);
+    }
+
     public function sendInvoice(Request $request)
     {
         $chatId = $request->input('chat_id');
@@ -59,7 +65,7 @@ class TelegramStarController extends Controller
             return response()->json(['error' => 'User not found'], 404);
         }
 
-        $settings = Settings::where('name', 'stars_purchased')->first();
+        $settings = Settings::where('name', 'stars_spent')->first();
 
         $telegramProfile->number_of_stars += $request['package']['number_of_stars'];
         $telegramProfile->save();

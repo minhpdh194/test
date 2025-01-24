@@ -13,11 +13,11 @@ import pusher from "@/lib/pusher";
 import { $http } from "@/lib/http";
 
 export default function Bonus() {
-    const [leverageData, setLeverageData] = useState<any[]>([]);
-    const [positiveLeverageData, setPositiveLeverageData] = useState<any[]>([]);
-    const [capitalProtectionData, setCapitalProtectionData] = useState<any[]>([]);
-    const [timeReductionData, setTimeReductionData] = useState<any[]>([]);
-    const [tokenData, setTokenData] = useState<any[]>([]);
+    const [leverageData, setLeverageData] = useState<BonusDefinition[]>([]);
+    const [positiveLeverageData, setPositiveLeverageData] = useState<BonusDefinition[]>([]);
+    const [capitalProtectionData, setCapitalProtectionData] = useState<BonusDefinition[]>([]);
+    const [timeReductionData, setTimeReductionData] = useState<BonusDefinition[]>([]);
+    const [tokenData, setTokenData] = useState<BonusDefinition[]>([]);
     // const [openStarDrawer, setOpenStarDrawer] = useState(false);
 
     const bonusDefinitionIds = userProfile.positionStore?.available_bonuses.map(item => item.bonus_definition.id);
@@ -282,12 +282,12 @@ export default function Bonus() {
                         <>
                             {/* First Row */}
                             <div className="flex space-x-4">
-                                {leverageData.slice(0, Math.ceil(leverageData.length / 2)).map(renderBonusItem)}
+                                {leverageData.filter(b => b.duration == BonusTerms.Short).map(renderBonusItem)}
                             </div>
 
                             {/* Second Row */}
                             <div className="flex space-x-4">
-                                {leverageData.slice(Math.ceil(leverageData.length / 2)).map(renderBonusItem)}
+                                {leverageData.filter(b => b.duration == BonusTerms.Long).map(renderBonusItem)}
                             </div>
                         </>
                     ) : (
@@ -311,12 +311,12 @@ export default function Bonus() {
                         <>
                             {/* First Row */}
                             <div className="flex space-x-4">
-                                {positiveLeverageData.slice(0, Math.ceil(positiveLeverageData.length / 2)).map(renderBonusItem)}
+                                {positiveLeverageData.filter(b => b.duration == BonusTerms.Short).map(renderBonusItem)}
                             </div>
 
                             {/* Second Row */}
                             <div className="flex space-x-4">
-                                {positiveLeverageData.slice(Math.ceil(positiveLeverageData.length / 2)).map(renderBonusItem)}
+                                {positiveLeverageData.filter(b => b.duration == BonusTerms.Long).map(renderBonusItem)}
                             </div>
                         </>
                     ) : (
@@ -339,12 +339,12 @@ export default function Bonus() {
                         <>
                             {/* First Row */}
                             <div className="flex space-x-4">
-                                {capitalProtectionData.slice(0, Math.ceil(capitalProtectionData.length / 2)).map(renderBonusItem)}
+                                {capitalProtectionData.filter(b => b.duration == BonusTerms.Short).map(renderBonusItem)}
                             </div>
 
                             {/* Second Row */}
                             <div className="flex space-x-4">
-                                {capitalProtectionData.slice(Math.ceil(capitalProtectionData.length / 2)).map(renderBonusItem)}
+                                {capitalProtectionData.filter(b => b.duration == BonusTerms.Long).map(renderBonusItem)}
                             </div>
                         </>
                     ) : (
