@@ -1,24 +1,24 @@
 import { Question } from "@/types/tasks/Question";
-import { Answer } from "@/types/tasks/Answer";
 
 import { questionList1, answerList1 } from "./questions_answers/video_1";
 import { questionList2, answerList2 } from "./questions_answers/video_2";
+import { QuestionAnswer } from "@/types/tasks/QuestionAnswer";
 
-export const getQuestions = (video_id: number): Array<Question> => {
-    if (video_id == 1) return questionList1.map((question, index) => { 
+export const getQuestions = (taskId: number): Array<Question> => {
+    if (taskId == 1) return questionList1.map((question, index) => { 
         return {
             id: index + 1,
             description: question.description,
-            video_id: video_id,
+            video_id: taskId,
             type: question.type,
         }
     });
 
-    if (video_id == 2) return questionList2.map((question, index) => { 
+    if (taskId == 2) return questionList2.map((question, index) => { 
         return {
             id: index + 1,
             description: question.description,
-            video_id: video_id,
+            video_id: taskId,
             type: question.type,
         }
     });
@@ -26,7 +26,7 @@ export const getQuestions = (video_id: number): Array<Question> => {
     return [];
 };
 
-export const getAnswers = (video_id: number): Array<Answer> => {
+export const getAnswers = (video_id: number): Array<QuestionAnswer> => {
     if (video_id == 1) return answerList1.map((answer, index) => {
         return {
             id: index + 1,

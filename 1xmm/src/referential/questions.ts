@@ -13,42 +13,42 @@ const questionList = [
     },
     {
         description: "Description 3",
-        task_id: 1,
+        task_id: 2,
         type: "single_choice"
     },
     {
         description: "Description 4",
-        task_id: 1,
+        task_id: 2,
         type: "single_choice"
     },
     {
         description: "Description 5",
-        task_id: 1,
+        task_id: 2,
         type: "single_choice"
     },
     {
         description: "Description 6",
-        task_id: 1,
+        task_id: 2,
         type: "single_choice"
     },
     {
         description: "Description 7",
-        task_id: 1,
+        task_id: 2,
         type: "multiple_choice"
     },
     {
         description: "Description 8",
-        task_id: 1,
+        task_id: 2,
         type: "multiple_choice"
     },
     {
         description: "Description 9",
-        task_id: 1,
+        task_id: 2,
         type: "multiple_choice"
     },
     {
         description: "Description 10",
-        task_id: 1,
+        task_id: 2,
         type: "multiple_choice"
     },
 ];
@@ -65,13 +65,13 @@ export const questions: Array<Question> = questionList.map((question, index) =>
 function createQuestion(
     id: number,
     description: string,
-    task_id: number,
+    video_id: number,
     type: string,
 ): Question {
     return {
         id,
         description,
-        task_id,
+        video_id,
         type,
     };
 }

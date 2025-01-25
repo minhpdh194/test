@@ -14,7 +14,7 @@ const tasksList = [
     name: "Watch Dummy Video",
     description: "Watch our dummy video for test.",
     reward_coins: 100,
-    link: "https://www.youtube.com/watch?v=ytdLaA4uN38",
+    link: "https://www.youtube.com/watch?v=ytdLaA4uN38.",
     type: "life_time",
     action_name: "watch_video",
     complete_requirement: 1,
