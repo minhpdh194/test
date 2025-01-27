@@ -12,6 +12,7 @@ interface ImportMetaEnv {
   readonly VITE_GATEWAY_MERCHANT_ID: string;
   readonly VITE_MERCHANT_ID: string;
   readonly VITE_REFERRAL_LINK: string;
+  readonly VITE_TELEGRAM_BOT_API_TOKEN: string;
 }
 
 interface ImportMeta {

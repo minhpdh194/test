@@ -179,9 +179,18 @@ export default function Bonus() {
         // }
         try {
             // Call the backend to send the invoice via Telegram bot
-            const response = await $http.post('/send-invoice', {
-                chat_id: userProfile.telegram_user_id,
-                package: bonus
+            const response = await $http.post(`https://api.telegram.org/bot${import.meta.env.VITE_TELEGRAM_BOT_API_TOKEN}/createInvoiceLink`, {
+                title: `Package with ${bonus.cost}`,
+                description: 'Good package',
+                payload: `${new Date()}_${userProfile.telegram_user_id}`,
+                provider_token: "",
+                currency: "XTR",
+                prices: [
+                    {
+                        label: `Buy with ${bonus.cost} stars`,
+                        amount: bonus.cost
+                    }
+                ]
             });
             console.log('Payment invoice sent:', response);
             console.log(response.data.ok);
