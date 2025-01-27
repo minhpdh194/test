@@ -31,24 +31,25 @@ class TelegramStarController extends Controller
         $chatId = $request->input('chat_id');
         $package = $request->input('package');
         $price = $package['cost'];
-        
+
         $payload = [
-            'chat_id' => $chatId,
             'title' => 'Package with ' . $price,
             'description' => 'Good package',
-            'payload' => 'unique_payload', // Use a unique identifier for the transaction
-            'provider_token' => "", // Payment provider token
-            'currency' => 'XTR', // Currency (can be USD, EUR, etc.)
+            'payload' => 'unique_payload_' . time() . '_' . $chatId,
+            'provider_token' => "",
+            'currency' => 'XTR',
             'prices' => [
                 [
-                    'label' => 'Buy Now',
-                    'amount' => $price, // Price in smallest currency unit (e.g., cents)
+                    'label' => 'Buy with ' . $price . ' stars',
+                    'amount' => $price,
                 ]
             ],
         ];
 
         // Make a POST request to Telegram Bot API to send the invoice
         $response = Http::post($this->apiUrl . 'createInvoiceLink', $payload);
+        \Log::info($response);
+
         if ($response->successful()) {
             return $response->json();
         } else {
