@@ -174,7 +174,7 @@ function App() {
     }, 2000);
   }, [user]);
 
-  if (!user || isDesktop) return <PlayOnYourMobile />;
+  // if (!user || isDesktop) return <PlayOnYourMobile />;
   if (showSplashScreen) return <SplashScreen progress={progress} />;
 
   return (
