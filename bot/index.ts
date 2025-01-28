@@ -37,11 +37,19 @@ bot.command("start", (ctx) => {
   });
 });
 
+bot.command("test", (ctx) => ctx.reply("Welcome! Up and running."));
+
+bot.on("pre_checkout_query", (ctx) => {
+  return ctx.answerPreCheckoutQuery(true).catch(() => {
+    console.error("answerPreCheckoutQuery failed");
+  });
+});
+
 function saveUserChatId(userId: number, chatId: number) {
   fetch(`https://${APP_URL}:${PORT}/auth/user_session`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({telegram_id: userId, chat_id: chatId })
+    body: JSON.stringify({ telegram_id: userId, chat_id: chatId })
   });
 }
 
