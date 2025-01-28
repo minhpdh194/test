@@ -1,8 +1,8 @@
 import { APP_URL, PORT, TELEGRAM_TOKEN } from "./constants";
 import express, { Application } from "express";
-import { Telegraf } from "telegraf";
+import { Bot } from "grammy";
 
-const bot = new Telegraf(TELEGRAM_TOKEN);
+const bot = new Bot(TELEGRAM_TOKEN);
 const app: Application = express();
 
 app.use(express.static("static"));
@@ -17,27 +17,22 @@ app.listen(PORT, () => {
 });
 
 bot.command("start", (ctx) => {
-  if (ctx.from.is_bot) return;
-  const chatId = ctx.chat.id;
-  const userId = ctx.from.id;
-
-  saveUserChatId(userId, chatId);
-
-  return ctx.reply(`Play 1xmm!`, {
-    reply_markup: {
-      inline_keyboard: [
-        [
-          {
-            text: `Play Game`,
-            web_app: { url: `${APP_URL}/` },
-          },
+  if (ctx.from) {
+    if (ctx.from.is_bot) return;
+    return ctx.reply(`Play 1xmm!`, {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: `Play Game`,
+              web_app: { url: `${APP_URL}/` },
+            },
+          ],
         ],
-      ],
-    },
-  });
+      },
+    });
+  }
 });
-
-bot.command("test", (ctx) => ctx.reply("Welcome! Up and running."));
 
 bot.on("pre_checkout_query", (ctx) => {
   return ctx.answerPreCheckoutQuery(true).catch(() => {
@@ -45,14 +40,6 @@ bot.on("pre_checkout_query", (ctx) => {
   });
 });
 
-function saveUserChatId(userId: number, chatId: number) {
-  fetch(`https://${APP_URL}:${PORT}/auth/user_session`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ telegram_id: userId, chat_id: chatId })
-  });
-}
-
-bot.launch();
+bot.start();
 
 export default app;
