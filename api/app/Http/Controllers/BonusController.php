@@ -84,7 +84,7 @@ class BonusController extends Controller
         $boughtBonus = $request->bonus;
 
         $userData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
-        $userData->amount_of_tokens += $boughtBonus->benefit;
+        $userData->amount_of_tokens += $boughtBonus['benefit'];
         $userData->save();
         return response()->json(['success' => 'Buy token successfully'], 200);
     }
