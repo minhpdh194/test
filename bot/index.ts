@@ -1,4 +1,4 @@
-import { APP_URL, PORT, TELEGRAM_TOKEN } from "./constants";
+import { APP_URL, TELEGRAM_TOKEN } from "./constants";
 import express, { Application } from "express";
 import { Bot } from "grammy";
 
@@ -10,10 +10,6 @@ app.use(express.json());
 
 app.get("/", (_, res) => {
   res.send("Hello World");
-});
-
-app.listen(PORT, () => {
-  console.log(`Server is Fire at http://localhost:${PORT}`);
 });
 
 bot.command("start", (ctx) => {
