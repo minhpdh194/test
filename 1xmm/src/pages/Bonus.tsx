@@ -115,25 +115,25 @@ export default function Bonus() {
         fetchBonusData();
     }, []);
 
-       const renderBenefit = (bonus: BonusDefinition) => {
-            switch (bonus.bonus_type) {
-                case BonusTypes.Leverage: return (
-                    <>+{bonus.benefit}x</>
-                );
-                case BonusTypes.CapitalProtection: return (
-                    <>{bonus.benefit}%</>
-                );
-                case BonusTypes.PositiveLeverage: return (
-                    <>+{bonus.benefit}x</>
-                );
-                case BonusTypes.TimeReduction: return (
-                    <>+{bonus.benefit}sec</>
-                );
+    const renderBenefit = (bonus: BonusDefinition) => {
+        switch (bonus.bonus_type) {
+            case BonusTypes.Leverage: return (
+                <>+{bonus.benefit}x</>
+            );
+            case BonusTypes.CapitalProtection: return (
+                <>{bonus.benefit}%</>
+            );
+            case BonusTypes.PositiveLeverage: return (
+                <>+{bonus.benefit}x</>
+            );
+            case BonusTypes.TimeReduction: return (
+                <>+{bonus.benefit}sec</>
+            );
             case BonusTypes.Token: return (
                 <>+{bonus.benefit} token</>
             )
-            }
         }
+    }
 
     const renderBonusItem = (bonus: BonusDefinition) => {
         return (
@@ -144,9 +144,9 @@ export default function Bonus() {
             >
                 <span className="flex items-center">
                     {bonus.bonus_type != BonusTypes.Token &&
-                    <div className="bg-white rounded-full min-w-10 min-h-10 mr-4">
+                        <div className="bg-white rounded-full min-w-10 min-h-10 mr-4">
                             {getBonusDuration(bonus.duration)}
-                    </div>
+                        </div>
                     }
                     <div className="w-full">
                         <div className="flex justify-between">
@@ -156,7 +156,7 @@ export default function Bonus() {
 
                         <div className="h-[1px] bg-gray-600 my-1"></div>
                         <span className="flex gap-2"><Present /> {renderBenefit(bonus)}</span>
-                </div>
+                    </div>
                 </span>
             </div>
         );
@@ -179,19 +179,24 @@ export default function Bonus() {
         // }
         try {
             // Call the backend to send the invoice via Telegram bot
-            const response = await $http.post(`https://api.telegram.org/bot${import.meta.env.VITE_TELEGRAM_BOT_API_TOKEN}/createInvoiceLink`, {
-                title: `Package with ${bonus.cost}`,
-                description: 'Good package',
-                payload: `${new Date()}_${userProfile.telegram_user_id}`,
-                provider_token: "",
-                currency: "XTR",
-                prices: [
-                    {
-                        label: `Buy with ${bonus.cost} stars`,
-                        amount: bonus.cost
-                    }
-                ]
+            const response = await $http.post("send-invoice", {
+                telegram_user_id: userProfile.telegram_user_id,
+                bonus: bonus
             });
+            // const response = await $http.post(`https://api.telegram.org/bot${import.meta.env.VITE_TELEGRAM_BOT_API_TOKEN}/createInvoiceLink`, {
+            //     title: `Package with ${bonus.cost}`,
+            //     description: 'Good package',
+            //     payload: `${new Date()}_${userProfile.telegram_user_id}`,
+            //     provider_token: "",
+            //     currency: "XTR",
+            //     prices: [
+            //         {
+            //             label: `Buy with ${bonus.cost} stars`,
+            //             amount: bonus.cost
+            //         }
+            //     ]
+            // });
+            
             console.log('Payment invoice sent:', response);
             console.log(response.data.ok);
             if (response.data.ok) {
@@ -204,17 +209,23 @@ export default function Bonus() {
                             if (bonus.bonus_type === BonusTypes.Token) {
                                 await globalThis.userProfile.BuyToken(bonus);
                             } else {
-            await globalThis.userProfile.BuyBonus(bonus);
+                                await globalThis.userProfile.BuyBonus(bonus);
                             }
-        } else {
-            toast.warning(`You dont have enough stars to buy this bonus`);
-        }
+                        } else {
+                            toast.warning(`You dont have enough stars to buy this bonus`);
+                        }
                     });
                 }
+            } else {
+                toast.warning("This bonus has been purchased");
             }
         } catch (error) {
             console.error('Error sending payment invoice:', error);
         }
+    }
+
+    const handleOpenBuyStarPackage = () => {
+        window.Telegram.WebApp.openTelegramLink("https://t.me/PremiumBot/PremiumBot")
     }
 
     return (
@@ -251,18 +262,18 @@ export default function Bonus() {
                 </div>
             </div> */}
             <div className="flex justify-between mt-4 mb-6">
-                {/* <button
+                <button
                     type="button"
                     className="rounded flex fw-semibold py-2 px-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)]"
-                    onClick={() => handleBuyBonusAction()}
-                    >
+                    onClick={handleOpenBuyStarPackage}
+                >
                     <img
                         src="/images/home/star.png"
                         alt="coin"
                         className="object-cover w-4 h-4"
                     />
-                    <span className="font-normal text-xs">Purchased Bonuses</span>
-                </button> */}
+                    <span className="font-normal text-xs">Purchase Star here</span>
+                </button>
 
                 {/* <button
                     type="button"
@@ -282,7 +293,7 @@ export default function Bonus() {
                     <span className="fw-bold text-lg">Leverage</span>
                     <div className="text-center">
                         <span className="text-xs italic"><span className="fw-bold">Increase your perf.</span>: each +1x leverage increases your performance by 100%.
-                        Be careful, leverage applies for positive <span className="fw-bold">and negative</span> performance.
+                            Be careful, leverage applies for positive <span className="fw-bold">and negative</span> performance.
                         </span>
                     </div>
                 </div>

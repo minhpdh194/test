@@ -2,22 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\TelegramStarService;
 use Illuminate\Http\Request;
 
 use App\Models\UserGameData;
 use App\Models\Settings;
+use App\Models\UserBonuses;
 use Illuminate\Support\Facades\Http;
 use Pusher\Pusher;
 
 class TelegramStarController extends Controller
 {
-    protected $botToken;
-    protected $apiUrl;
+    private $telegramStarService;
 
-    public function __construct()
+    public function __construct(TelegramStarService $telegramStarService)
     {
-        $this->botToken = env('TELEGRAM_BOT_API_TOKEN'); // Your Telegram bot token
-        $this->apiUrl = "https://api.telegram.org/bot{$this->botToken}/";
+        $this->telegramStarService = $telegramStarService;
     }
 
     public function getStarConversionRate()
@@ -26,34 +26,16 @@ class TelegramStarController extends Controller
         return response()->json(["conversion_rate" => doubleval($conversionRate->value)]);
     }
 
-    public function sendInvoice(Request $request)
+    public function sendTelegramInvoice(Request $request)
     {
-        $chatId = $request->input('chat_id');
-        $package = $request->input('package');
-        $price = $package['cost'];
+        $bonus = $request->input('bonus');
+        $user = $request->user();
 
-        $payload = [
-            'title' => 'Package with ' . $price,
-            'description' => 'Good package',
-            'payload' => 'unique_payload_' . time() . '_' . $chatId,
-            'provider_token' => "",
-            'currency' => 'XTR',
-            'prices' => [
-                [
-                    'label' => 'Buy with ' . $price . ' stars',
-                    'amount' => $price,
-                ]
-            ],
-        ];
-
-        // Make a POST request to Telegram Bot API to send the invoice
-        $response = Http::post($this->apiUrl . 'createInvoiceLink', $payload);
-        \Log::info($response);
-
-        if ($response->successful()) {
-            return $response->json();
+        $isBonusBought = UserBonuses::where('bonus_id', $bonus['id'])->where('telegram_user_id', $user->telegram_user_id)->first();
+        if ($isBonusBought) {
+            return response()->json(['ok' => false], 202);
         } else {
-            return $response->failed();
+            return $this->telegramStarService->sendInvoice($bonus, $user->telegram_user_id);
         }
     }
 
