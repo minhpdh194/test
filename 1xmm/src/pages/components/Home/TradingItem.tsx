@@ -281,21 +281,21 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                     <div className="pt-3 pb-3 space-y-2">
                         <div className="flex justify-between items-center border-b border-gray-500 pb-2 mb-2 w-[93%] mx-auto">
                             <div>
-                                <div className="space-x-2 flex-grow">
-                                    <span className="fw-bold">{pair.pair_symbol}</span>
-                                    <span className="space-x-2">
-                                        <span className="fw-bold">
-                                            <NumberFormat value={spots?.find(s => s.pair_id == pair.id)?.current_value ?? 0} decimals={2} />
-                                        </span>
-                                        <span
-                                            className={`text-sm ${(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}
-                                        >
-                                            {(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) >= 0
-                                                ? `(+${(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) * 100).toFixed(2)}%)`
-                                                : `(${(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) * 100).toFixed(2)}%)`)}
-                                        </span>
+                            <div className="space-x-2 flex-grow">
+                                <span className="fw-bold">{pair.pair_symbol}</span>
+                                <span className="space-x-2">
+                                    <span className="fw-bold">
+                                        <NumberFormat value={spots?.find(s => s.pair_id == pair.id)?.current_value ?? 0} decimals={2} />
                                     </span>
-                                </div>
+                                    <span
+                                        className={`text-sm ${(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}
+                                    >
+                                        {(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) >= 0
+                                            ? `(+${(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) * 100).toFixed(2)}%)`
+                                            : `(${(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) * 100).toFixed(2)}%)`)}
+                                    </span>
+                                </span>
+                            </div>
                                 <div>
                                     <span className="text-xs text-gray-300 mr-2">Daily perf:</span>
                                     <span
@@ -361,17 +361,17 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                                     <>
                                         {selectedBonuses[pair.id].map((b) => {
                                             return (
-                                                <div key={b.bonus.id} className="flex justify-between border-b border-gray-500 pl-3 pr-3 my-0 bg-[#32363C] box-border">
-                                                    <div className="flex justify-between w-full">
-                                                        <div className="w-1/2 mb-2 mt-2">
-                                                            <span className="font-normal text-sm block">{b.bonus.bonus_definition.bonus_type}</span>
-                                                        </div>
-                                                        <div className="w-1/2 text-right mb-2 mt-2 flex items-center justify-end space-x-2">
-                                                            <span className="font-normal text-sm block">{printBonusBenefit(b.bonus.bonus_definition)}</span>
-                                                            <span className="font-normal text-sm block">{b.countdown?.toString()}</span>
-                                                        </div>
+                                            <div key={b.bonus.id} className="flex justify-between border-b border-gray-500 pl-3 pr-3 my-0 bg-[#32363C] box-border">
+                                                <div className="flex justify-between w-full">
+                                                    <div className="w-1/2 mb-2 mt-2">
+                                                        <span className="font-normal text-sm block">{b.bonus.bonus_definition.bonus_type}</span>
+                                                    </div>
+                                                    <div className="w-1/2 text-right mb-2 mt-2 flex items-center justify-end space-x-2">
+                                                        <span className="font-normal text-sm block">{printBonusBenefit(b.bonus.bonus_definition)}</span>
+                                                        <span className="font-normal text-sm block">{b.countdown?.toString()}</span>
                                                     </div>
                                                 </div>
+                                            </div>
                                             )
                                         })}
                                     </>

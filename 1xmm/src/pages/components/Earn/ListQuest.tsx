@@ -1,80 +1,32 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import ModalEarn from './ModalEarn';
-import { tasks } from '@/referential/tasks';
-import { TaskDefinition } from '@/types/tasks/TaskDefinition';
 import { $http } from '@/lib/http';
+import { TaskDefinition } from '@/types/tasks/TaskDefinition';
 import { toast } from 'react-toastify';
 import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, Radio } from '@mui/material';
+import { getRandomQuestions } from './TaskUtils';
 import { Question } from '@/types/tasks/Question';
 import { getQuestions, getAnswers } from '@/referential/questionsAnswers';
+import { Tasks } from '@/classes/Tasks';
+import { TaskActionNames } from '@/enums';
 
 const ListQuest: React.FC = () => {
+    //const TWITTER_CLIENT_ID: string = import.meta.env.VITE_TWITTER_CLIENT_ID;
+    //const TWITTER_REDIRECT_URI: string = import.meta.env.VITE_TWITTER_REDIRECT_URI;
+    const [tasks, updateTasks] = useState<Tasks>(new Tasks(userProfile.completed_task_ids));
     const [openDrawer, setOpenDrawer] = useState(false);
-    const [inProgressTaskIds, setInProgressTaskIds] = useState<number[]>(userProfile.available_task_ids);
-    const [completedTaskIds, setCompletedTaskIds] = useState<number[]>(userProfile.completed_task_ids);
-    const [availableTasks, setAvailableTasks] = useState<TaskDefinition[]>([]);
     const [questionPopup, setQuestionPopup] = useState<boolean>(false);
     const [selectedTask, setSelectedTask] = useState<TaskDefinition>();
     const [currentQuestions, setCurrentQuestions] = useState<Question[]>([]);
     const [selectedCheckboxes, setSelectedCheckboxes] = useState<number[]>([]);
     const [selectedRadios, setSelectedRadios] = useState<any>({});
 
-    function getQuestionForVideo(taskId: number): Array<Question> { return getQuestions(taskId) }
-
-    const getRandomQuestion = (arr: Question[], n: number) => {
-        const shuffled = arr.slice();
-        for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-
-        return shuffled.slice(0, n);
-    }
-
-    const getTasksWithCompletion = (tasks: TaskDefinition[], completedIds: number[]) => {
-        const completedSet = new Set(completedIds);
-        const result: TaskDefinition[] = [];
-        const actionTypeMap: Record<string, TaskDefinition[]> = {};
-
-        for (const task of tasks) {
-            if (!actionTypeMap[task.action_name]) {
-                actionTypeMap[task.action_name] = [];
-            }
-            actionTypeMap[task.action_name].push(task);
-        }
-
-        for (const actionName in actionTypeMap) {
-            const group = actionTypeMap[actionName];
-
-            const completedTasks = group.filter((task) => completedSet.has(task.id));
-            const uncompletedTasks = group.filter((task) => !completedSet.has(task.id));
-
-            result.push(...completedTasks);
-
-            if (uncompletedTasks.length > 0) {
-                result.push(uncompletedTasks[0]);
-            }
-        }
-
-        return result;
-    };
-
-    useEffect(() => {
-        const tasksWithIds = tasks.map((task, index) => ({
-            ...task,
-            id: task.id || index + 1,
-        }));
-        const tasksToShow = getTasksWithCompletion(tasksWithIds, completedTaskIds);
-
-        setAvailableTasks(tasksToShow);
-    }, []);
-
     const renderTaskStatus = (task: TaskDefinition) => {
         let taskStatus;
 
-        if (inProgressTaskIds.includes(task.id)) {
+        if ((task.action_name == TaskActionNames.Watch1XMMVideo || task.action_name == TaskActionNames.WatchExtVideo) && tasks.CurrentVideoTaskInProgress) {
             taskStatus = <>Claim</>;
-        } else if (completedTaskIds.includes(task.id)) {
+        } else if (tasks.CompletedTaskIds.includes(task.id)) {
             taskStatus = <>Completed</>;
         } else {
             taskStatus = <>Get</>;
@@ -96,84 +48,112 @@ const ListQuest: React.FC = () => {
         }));
     };
 
-    const handleFriendInvitationTasks = (task: TaskDefinition) => {
-        if (userInvitedFriends.length >= Number(task.complete_requirement)) {
-            handleTaskAction(task);
+    const handleTaskNavigation = (task: TaskDefinition) => {
+        try {
+            const markTask = $http.post('/task-in-progress', { task: task });
+            setSelectedTask(task);
+
+            markTask.then(() => {
+                switch (task.action_name) {
+                    case TaskActionNames.Watch1XMMVideo:
+                    case TaskActionNames.WatchExtVideo:
+                        handleWatchVideo(task);
+                        break;
+                    case TaskActionNames.Invite:
+                        handleFriendInvitationTasks(task);
+                        break;
+                    case TaskActionNames.JoinX:
+                    case TaskActionNames.JoinTelegram:
+                    case TaskActionNames.JoinDiscord:
+                        handleJoin(task);
+                        break;
+                }
+            });
+        } catch (e) {}
+    }
+
+    const handleFriendInvitationTasks = async (task: TaskDefinition) => {
+        if (globalThis.userInvitedFriends.length >= Number(task.complete_requirement)) {
+            claimTask(task);
+            setSelectedTask(undefined);
         } else {
-            toast.error("You cannot claim this task");
+            toast.info("You need to invite more friends to claim this task");
         }
+    }
+
+    const handleJoin = (task: TaskDefinition) => {
+        if (tasks.IsWaitingToJoin(task)) return;
+        tasks.WaitToJoin(task);
+
+        const destinationUrl = task.link;
+
+        if (destinationUrl.length > 0) {
+            window.open(destinationUrl, '_blank')!;
+        }
+
+        tasks.CheckIfUserHasJoined(task);
+        let count = 0;
+
+        const checkThread = setInterval(() => {
+            if (tasks.CompletedTaskIds.find(id => id === task.id)) {
+                clearInterval(checkThread);
+                claimTask(task);
+                tasks.StopWaitingToJoin(task);
+                setSelectedTask(undefined);
+            } else if (count > 3) {
+                clearInterval(checkThread);
+                tasks.StopWaitingToJoin(task);
+            }
+
+            count++;
+        }, 2500);
     }
 
     const handleWatchVideo = (task: TaskDefinition) => {
         const videoUrl = task.link;
-        if (completedTaskIds.includes(task.id) || videoUrl.length == 0) return;
-        if (!inProgressTaskIds.includes(task.id)) {
-            window.open(videoUrl, '_blank'); // Opens the link in a new tab
-            const availableQuestions = getQuestionForVideo(task.id);
-            const filteredQuestions = getRandomQuestion(availableQuestions, 2);
-
-            setCurrentQuestions(filteredQuestions);
-            setSelectedTask(task);
-            setQuestionPopup(true);
-            setSelectedCheckboxes([]);
-            setSelectedRadios({});
-        } else {
-            handleTaskAction(task);
+        
+        // Sanity check
+        if (tasks.CompletedTaskIds.includes(task.id) || videoUrl.length == 0) return;
+        
+        if (!tasks.CurrentVideoTaskInProgress){
+            window.open(videoUrl, '_blank');
+            tasks.CurrentVideoTaskInProgress = true;
         }
+        
+        const selectedQuestions = getRandomQuestions(getQuestions(task.complete_requirement + 1), 2);
+        setCurrentQuestions(selectedQuestions);
+        setQuestionPopup(true);
+
+        // We initialize the checkboxes and radio buttons to check answers
+        setSelectedCheckboxes([]);
+        setSelectedRadios({});
     }
 
-    const handleTaskAction = async (task: TaskDefinition) => {
-        if (inProgressTaskIds.includes(task.id)) {
-            try {
-                const response = await $http.post('/claim-task', {
-                    task: task
-                });
+    const claimTask = async (task: TaskDefinition) => {
+        try {
+            const response = await $http.post('/claim-task', { task: task });
 
-                if (response.data.success) {
-                    toast.success(response.data.message);
-                    setInProgressTaskIds(prev => prev.filter(id => id !== task.id));
-                    setCompletedTaskIds(prev => [...prev, task.id]);
-                    userProfile.available_task_ids = userProfile.available_task_ids.filter(id => id !== task.id);
-                    userProfile.completed_task_ids.push(task.id);
-                    userProfile.UpdateBalance(task.reward_coins);
+            if (response.data.success) {
+                tasks.TaskHasBeenCompleted(task);
+                updateTasks(new Tasks(userProfile.completed_task_ids));
 
-                    if (task.type === "life_time") {
-                        const nextTask = tasks.find(nextTask => nextTask.id === task.id + 1);
-                        if (nextTask && nextTask.action_name === task.action_name) {
-                            setAvailableTasks(prevTasks => [...prevTasks, nextTask]);
-                        }
-                    }
-                } else {
-                    toast.warning(response.data.message);
-                }
-            }
-            catch (e) {
-                toast.error("You cannot claim this task");
-            }
-        } else if (!completedTaskIds.includes(task.id)) {
-            try {
-                const response = await $http.post('/receive-task', {
-                    task: task
-                });
+                userProfile.available_task_ids = tasks.AvailableTasks.map(t => t.id);
+                userProfile.completed_task_ids.push(task.id);
+                userProfile.UpdateBalance(task.reward_coins);
 
-                if (response.data.success) {
-                    toast.success(response.data.message);
-                    setInProgressTaskIds(prev => [...prev, task.id]);
-                    userProfile.available_task_ids.push(task.id);
-                } else {
-                    toast.warning(response.data.message);
-                }
+                setSelectedTask(undefined);
+            } else {
+                toast.warning(response.data.message);
             }
-            catch (e) {
-                toast.error("You cannot get this task");
-            }
-        } else {
-            toast.warning("You have already claim the reward");
+        }
+        catch (e) {
+            toast.error("Task could not be claimed");
         }
     }
 
     const handleCloseDialog = () => {
         setQuestionPopup(false);
+        setSelectedTask(undefined);
     }
 
     const handleSubmitAnswer = (video_id: number) => {
@@ -195,195 +175,54 @@ const ListQuest: React.FC = () => {
 
         if (selectedTask && combinedList.length > 0) {
             if (result) {
-                handleTaskAction(selectedTask);
+                claimTask(selectedTask);
             } else {
-                setInProgressTaskIds(prev => [...prev, selectedTask!.id]);
                 toast.warning("Wrong answer");
             }
-        }
-    }
-
-    const handleJoin = (task: TaskDefinition) => {
-        const destinationUrl = task.link;
-        if (!completedTaskIds.includes(task.id)) {
-            if (destinationUrl.length > 0 && !inProgressTaskIds.includes(task.id)) {
-                window.open(destinationUrl, '_blank'); // Opens the link in a new tab
-            }
-            handleTaskAction(task);
-        } else {
-            console.error("Video URL is not available");
-        }
-    }
-
-    const handleTaskNavigation = (task: TaskDefinition) => {
-        if (task.action_name === "invite") {
-            handleFriendInvitationTasks(task);
-        } else if (task.action_name === "watch_video") {
-            handleWatchVideo(task);
-        } else if (task.action_name === "join") {
-            handleJoin(task);
-        }
-    }
-
-    const handleWatchVideoClick = (task: TaskDefinition) => {
-        const destinationUrl = task.link;
-        if (destinationUrl.length > 0) {
-            window.open(destinationUrl, '_blank'); // Opens the link in a new tab
-        }
+        } 
     }
 
     return (
-        <div>
-            {availableTasks && availableTasks.length > 0 && (
-                <>
-                    <div className="flex justify-between items-center">
-                        <div className="fw-bold">
-                            Quests to do
-                        </div>
-                        <div className="flex items-center space-x-1">
+        <div className="bg-[#32363C] rounded-xl mt-2">
+            {tasks.AvailableTasks.map((task) => (
+                <div
+                    key={task.id}
+                    className="flex justify-between items-center p-3 border-b"
+                    style={{ borderBottom: `.3px solid #FFFFFF33` }}
+                >
+                    <div className="flex items-center w-1/6">
+                        <img
+                            src="/images/earn/coinmarket.png"
+                            alt="coinmarket"
+                            className="w-8 h-8"
+                        />
+                    </div>
+                    <div className="flex flex-col w-3/6">
+                        <p className="text-sm">{task.name}</p>
+                        <p className="text-xs">{task.description}</p>
+                    </div>
+                    <div className="w-2/6 justify-end">
+                        <div className="flex items-center space-x-1 text-xs justify-end">
+                            <span className="opacity-50">Bonus</span>
                             <img
-                                src="/images/earn/more.png"
-                                alt="more"
+                                src="/images/home/coin.png"
+                                alt="coin"
                                 className="w-4 h-4"
                             />
-                            <span className="text-xs" onClick={() => {
-                                setOpenDrawer(true);
-                            }}>More Info</span>
+                            <span>{task.reward_coins}</span>
                         </div>
-                    </div>
-                    <div className="bg-[#32363C] rounded-xl mt-2">
-                        {availableTasks.map((task) => {
-                            if (!completedTaskIds.includes(task.id)) {
-                                return (
-                                    <div
-                                        key={task.id}
-                                        className="flex justify-between items-center p-3 border-b"
-                                        style={{ borderBottom: `.3px solid #FFFFFF33` }}
-                                    >
-                                        <div className="flex items-center w-1/6">
-                                            <img
-                                                src="/images/earn/coinmarket.png"
-                                                alt="coinmarket"
-                                                className="w-8 h-8"
-                                            />
-                                        </div>
-                                        <div className="flex flex-col w-3/6">
-                                            <p className="text-sm">{task.name}</p>
-                                            {task.action_name === "watch_video" ? (
-                                                <>
-                                                    <div className="text-xs">{task.description}
-                                                        <div
-                                                            className="hover:text-blue-500 cursor-pointer"
-                                                            onClick={() => handleWatchVideoClick(task)}
-                                                        >
-                                                            Click here to watch our video again
-                                                        </div>
-                                                    </div>
-                                                </>
-                                            ) : (
-                                                <p className="text-xs">{task.description}</p>
-                                            )}
-                                        </div>
-                                        <div className="w-2/6 justify-end">
-                                            <div className="flex items-center space-x-1 text-xs justify-end">
-                                                <span className="opacity-50">Bonus</span>
-                                                <img
-                                                    src="/images/home/coin.png"
-                                                    alt="coin"
-                                                    className="w-4 h-4"
-                                                />
-                                                <span>{task.reward_coins}</span>
-                                            </div>
-                                            <div className="flex justify-end pt-2">
-                                                <span
-                                                    onClick={() => handleTaskNavigation(task)}
-                                                    className={`text-center px-3 rounded-lg text-xs 
+                        <div className="flex justify-end pt-2">
+                            <span
+                                onClick={() => handleTaskNavigation(task)}
+                                className={`text-center px-3 rounded-lg text-xs 
                                 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%);] 
-                                py-1 fw-bold pointer`}
-                                                >
-                                                    {renderTaskStatus(task)}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            }
-                            return null; // Handle cases where task is not found
-                        })}
-                    </div>
-                </>
-            )}
-
-            <div className='my-4'></div>
-
-            {completedTaskIds && completedTaskIds.length > 0 && (
-                <>
-                    <div className="flex justify-between items-center">
-                        <div className="fw-bold">
-                            Completed Quests
-                        </div>
-                        <div className="flex items-center space-x-1">
-                            <img
-                                src="/images/earn/more.png"
-                                alt="more"
-                                className="w-4 h-4"
-                            />
-                            <span className="text-xs" onClick={() => {
-                                setOpenDrawer(true);
-                            }}>More Info</span>
+                                py-1 fw-bold pointer`}>
+                                {renderTaskStatus(task)}
+                            </span>
                         </div>
                     </div>
-                    <div className="bg-[#32363C] rounded-xl mt-2">
-                        {[...new Set(completedTaskIds)].map((taskId) => {
-                            const task = availableTasks.find(task => task.id === taskId);
-                            if (task) {
-                                return (
-                                    <div
-                                        key={taskId}
-                                        className="flex justify-between items-center p-3 border-b"
-                                        style={{ borderBottom: `.3px solid #FFFFFF33` }}
-                                    >
-                                        <div className="flex items-center w-1/6">
-                                            <img
-                                                src="/images/earn/coinmarket.png"
-                                                alt="coinmarket"
-                                                className="w-8 h-8"
-                                            />
-                                        </div>
-                                        <div className="flex flex-col w-3/6">
-                                            <p className="text-sm">{task.name}</p>
-                                            <p className="text-xs">{task.description}</p>
-                                        </div>
-                                        <div className="w-2/6 justify-end">
-                                            <div className="flex items-center space-x-1 text-xs justify-end">
-                                                <span className="opacity-50">Bonus</span>
-                                                <img
-                                                    src="/images/home/coin.png"
-                                                    alt="coin"
-                                                    className="w-4 h-4"
-                                                />
-                                                <span>{task.reward_coins}</span>
-                                            </div>
-                                            <div className="flex justify-end pt-2">
-                                                <span
-                                                    onClick={() => handleTaskNavigation(task)}
-                                                    className={`text-center px-3 rounded-lg text-xs 
-                                bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%);] 
-                                py-1 fw-bold pointer`}
-                                                >
-                                                    {renderTaskStatus(task)}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            }
-                            return null; // Handle cases where task is not found
-                        })}
-                    </div>
-
-                </>
-            )}
+                </div>
+            ))}
 
             <ModalEarn
                 open={openDrawer}
@@ -404,7 +243,7 @@ const ListQuest: React.FC = () => {
                                             {question.type === "multiple_choice" ? (
                                                 <>
                                                     <Checkbox
-                                                        onChange={(e) =>
+                                                        onChange={(e: any) =>
                                                             handleCheckboxChange(e.target.checked, filteredAnswer.id)
                                                         }
                                                     />

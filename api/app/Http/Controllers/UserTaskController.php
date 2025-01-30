@@ -23,9 +23,9 @@ class UserTaskController extends Controller
         return $this->taskService->claimTask($request->user(), $request->task);
     }
 
-    public function receiveTask(Request $request)
+    public function taskInProgress(Request $request)
     {
-        return $this->taskService->receiveTask($request->user(), $request->task);
+        return $this->taskService->taskInProgress($request->user(), $request->task);
     }
 
     public function getUserInProgressTasks(Request $request)

@@ -1,51 +1,33 @@
+import { TaskActionNames } from "@/enums";
 import { TaskDefinition } from "@/types/tasks/TaskDefinition";
 
 const tasksList = [
   {
-    name: "Watch Tutorial Video",
-    description: "Watch our game tutorial video on YouTube.",
-    reward_coins: 100,
+    name: "Watch 1xMM Video",
+    description: "Watch our introduction video on YouTube.",
+    reward_coins: 20_000,
     link: "https://www.youtube.com/watch?v=ytdLaA4uN38",
     type: "life_time",
-    action_name: "watch_video",
+    action_name: TaskActionNames.Watch1XMMVideo,
     complete_requirement: 0,
   },
   {
-    name: "Watch Dummy Video",
-    description: "Watch our dummy video for test.",
-    reward_coins: 100,
-    link: "https://www.youtube.com/watch?v=ytdLaA4uN38.",
-    type: "life_time",
-    action_name: "watch_video",
-    complete_requirement: 1,
-  },
-  {
-    name: "Follow on Twitter",
+    name: "Follow us on Twitter",
     description:
       "Follow our official Twitter account and retweet our pinned tweet.",
-    reward_coins: 150,
+    reward_coins: 15_000,
     link: "https://x.com/onexmm_official",
     type: "life_time",
-    action_name: "join",
+    action_name: TaskActionNames.JoinX,
     complete_requirement: "", //can be used later
   },
   {
-    name: "Join Telegram Group",
+    name: "Join our Telegram Group",
     description: "Join our Telegram group and introduce yourself.",
     reward_coins: 175,
     link: "https://t.me/onexmm_official",
     type: "life_time",
-    action_name: "join",
-    complete_requirement: "", //can be used later
-  },
-  {
-    name: "Join Our Discord",
-    description:
-      "Join our official Discord server and say hello in the #welcome channel.",
-    reward_coins: 100,
-    link: "https://discord.gg/yourgame",
-    type: "life_time",
-    action_name: "join",
+    action_name: TaskActionNames.JoinTelegram,
     complete_requirement: "", //can be used later
   },
   {
@@ -54,7 +36,7 @@ const tasksList = [
     reward_coins: 100,
     link: "",
     type: "life_time",
-    action_name: "invite",
+    action_name: TaskActionNames.Invite,
     complete_requirement: 5,
   },
   {
@@ -63,7 +45,7 @@ const tasksList = [
     reward_coins: 100,
     link: "",
     type: "life_time",
-    action_name: "invite",
+    action_name: TaskActionNames.Invite,
     complete_requirement: 10,
   },
   {
@@ -72,7 +54,7 @@ const tasksList = [
     reward_coins: 100,
     link: "",
     type: "life_time",
-    action_name: "invite",
+    action_name: TaskActionNames.Invite,
     complete_requirement: 25,
   },
   {
@@ -81,7 +63,7 @@ const tasksList = [
     reward_coins: 100,
     link: "",
     type: "life_time",
-    action_name: "invite",
+    action_name: TaskActionNames.Invite,
     complete_requirement: 50,
   },
   {
@@ -90,7 +72,7 @@ const tasksList = [
     reward_coins: 100,
     link: "",
     type: "life_time",
-    action_name: "invite",
+    action_name: TaskActionNames.Invite,
     complete_requirement: 100,
   },
   {
@@ -99,7 +81,7 @@ const tasksList = [
     reward_coins: 100,
     link: "",
     type: "life_time",
-    action_name: "invite",
+    action_name: TaskActionNames.Invite,
     complete_requirement: 250,
   },
   {
@@ -108,7 +90,7 @@ const tasksList = [
     reward_coins: 100,
     link: "",
     type: "life_time",
-    action_name: "invite",
+    action_name: TaskActionNames.Invite,
     complete_requirement: 500,
   },
   {
@@ -117,42 +99,28 @@ const tasksList = [
     reward_coins: 100,
     link: "",
     type: "life_time",
-    action_name: "invite",
+    action_name: TaskActionNames.Invite,
     complete_requirement: 1000,
+  },
+  {
+    name: "Watch Dummy Video",
+    description: "Watch our dummy video for test.",
+    reward_coins: 100,
+    link: "https://www.youtube.com/watch?v=ytdLaA4uN38",
+    type: "life_time",
+    action_name: TaskActionNames.Watch1XMMVideo,
+    complete_requirement: 1,
   },
 ];
 
-export const tasks: Array<TaskDefinition> = tasksList.map((task, index) =>
-  createTask(
-    index + 1,
-    task.name,
-    task.description,
-    task.reward_coins,
-    task.link,
-    task.type,
-    task.action_name,
-    task.complete_requirement
-  )
-);
-
-function createTask(
-  id: number,
-  name: string,
-  description: string,
-  reward_coins: number,
-  link: string,
-  type: string,
-  action_name: string,
-  complete_requirement: any,
-): TaskDefinition {
+export const getAllTasks: Array<TaskDefinition> = tasksList.map((task, index) => {
   return {
-    id,
-    name,
-    description,
-    reward_coins,
-    link,
-    type,
-    action_name,
-    complete_requirement,
-  };
-}
+    id: index + 1,
+    name: task.name,
+    description: task.description,
+    reward_coins: task.reward_coins,
+    link: task.link,
+    type: task.type,
+    action_name: task.action_name,
+    complete_requirement: task.complete_requirement,
+  }});

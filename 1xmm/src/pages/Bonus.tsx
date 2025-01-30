@@ -115,25 +115,25 @@ export default function Bonus() {
         fetchBonusData();
     }, []);
 
-    const renderBenefit = (bonus: BonusDefinition) => {
-        switch (bonus.bonus_type) {
-            case BonusTypes.Leverage: return (
-                <>+{bonus.benefit}x</>
-            );
-            case BonusTypes.CapitalProtection: return (
-                <>{bonus.benefit}%</>
-            );
-            case BonusTypes.PositiveLeverage: return (
-                <>+{bonus.benefit}x</>
-            );
-            case BonusTypes.TimeReduction: return (
-                <>+{bonus.benefit}sec</>
-            );
+       const renderBenefit = (bonus: BonusDefinition) => {
+            switch (bonus.bonus_type) {
+                case BonusTypes.Leverage: return (
+                    <>+{bonus.benefit}x</>
+                );
+                case BonusTypes.CapitalProtection: return (
+                    <>{bonus.benefit}%</>
+                );
+                case BonusTypes.PositiveLeverage: return (
+                    <>+{bonus.benefit}x</>
+                );
+                case BonusTypes.TimeReduction: return (
+                    <>+{bonus.benefit}sec</>
+                );
             case BonusTypes.Token: return (
                 <>+{bonus.benefit} token</>
             )
+            }
         }
-    }
 
     const renderBonusItem = (bonus: BonusDefinition) => {
         return (
@@ -144,9 +144,9 @@ export default function Bonus() {
             >
                 <span className="flex items-center">
                     {bonus.bonus_type != BonusTypes.Token &&
-                        <div className="bg-white rounded-full min-w-10 min-h-10 mr-4">
+                    <div className="bg-white rounded-full min-w-10 min-h-10 mr-4">
                             {getBonusDuration(bonus.duration)}
-                        </div>
+                    </div>
                     }
                     <div className="w-full">
                         <div className="flex justify-between">
@@ -156,7 +156,7 @@ export default function Bonus() {
 
                         <div className="h-[1px] bg-gray-600 my-1"></div>
                         <span className="flex gap-2"><Present /> {renderBenefit(bonus)}</span>
-                    </div>
+                </div>
                 </span>
             </div>
         );
@@ -204,11 +204,11 @@ export default function Bonus() {
                             if (bonus.bonus_type === BonusTypes.Token) {
                                 await globalThis.userProfile.BuyToken(bonus);
                             } else {
-                                await globalThis.userProfile.BuyBonus(bonus);
+            await globalThis.userProfile.BuyBonus(bonus);
                             }
-                        } else {
-                            toast.warning(`You dont have enough stars to buy this bonus`);
-                        }
+        } else {
+            toast.warning(`You dont have enough stars to buy this bonus`);
+        }
                     });
                 }
             }
@@ -282,7 +282,7 @@ export default function Bonus() {
                     <span className="fw-bold text-lg">Leverage</span>
                     <div className="text-center">
                         <span className="text-xs italic"><span className="fw-bold">Increase your perf.</span>: each +1x leverage increases your performance by 100%.
-                            Be careful, leverage applies for positive <span className="fw-bold">and negative</span> performance.
+                        Be careful, leverage applies for positive <span className="fw-bold">and negative</span> performance.
                         </span>
                     </div>
                 </div>
@@ -394,7 +394,7 @@ export default function Bonus() {
 
             <div className="mt-4 mb-16">
                 <div className="flex flex-col justify-between items-center">
-                    <span className="fw-bold text-lg">1xMM Token Package</span>
+                    <span className="fw-bold text-lg">Token Package</span>
                     <div className="text-center">
                         <span className="text-xs italic"><span className="fw-bold">Top up your balance</span>: get some tokens to refill your balance or increase your PnL.</span>
                     </div>

@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_tasks', function (Blueprint $table) {
+        Schema::create('personal_access_tokens', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('telegram_user_id')->references('telegram_user_id')->on('user_profile')->onDelete('cascade');
-            $table->integer('task_id')->references('id')->on('tasks');
-            $table->boolean('completed')->default(false);
-            $table->string('task_type')->nullable();
+            $table->morphs('tokenable');
+            $table->string('name');
+            $table->string('token', 64)->unique();
+            $table->text('abilities')->nullable();
+            $table->timestamp('last_used_at')->nullable();
+            $table->timestamp('expires_at')->nullable();
             $table->timestamps();
         });
     }
@@ -26,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_tasks');
+        Schema::dropIfExists('personal_access_tokens');
     }
 };

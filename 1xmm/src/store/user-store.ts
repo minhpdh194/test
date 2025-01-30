@@ -57,7 +57,6 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
     balance: 0,
     total_pnl: 0,
     perf_from_start_date: 0,
-    perf_since_last_fixing: 0,
     positive_leverage: 0,
     capital_protection: 0,
     time_reduction: 0
@@ -103,7 +102,6 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
         balance: state.trading_info.balance,
         total_pnl: state.trading_info.total_pnl,
         perf_from_start_date: state.trading_info.perf_from_start_date,
-        perf_since_last_fixing: state.trading_info.perf_since_last_fixing,
         positive_leverage: benefits.cumulated_positive_leverage,
         capital_protection: benefits.cumulated_protection_bonus,
         time_reduction: benefits.cumulated_time_bonus
@@ -204,12 +202,11 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
         balance: parseFloat(syncData.gameData.balance),
         total_pnl: parseFloat(syncData.gameData.total_pnl),
         perf_from_start_date: parseFloat(syncData.gameData.perf_from_start_date),
-        perf_since_last_fixing: parseFloat(syncData.gameData.perf_since_last_fixing),
         positive_leverage: Number(state.trading_info.positive_leverage),
         capital_protection: state.trading_info.capital_protection,
         time_reduction: Number(state.trading_info.time_reduction),
       },
-      number_of_stars: Number(syncData.gameData.number_of_stars)
+      number_of_stars: Number(syncData.gameData.number_of_stars),
     }));
 
     globalThis.userProfile = get(); //assign newest data to global
@@ -221,13 +218,12 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
 
     if (currentAvailableEnergy < gainPerTap) { return false; }
     set((state) => ({
-      available_energy: state.available_energy - gainPerTap,
+      available_energy:  state.available_energy - gainPerTap,
       amount_of_tokens: state.amount_of_tokens + gainPerTap,
       trading_info: {
         balance: state.trading_info.balance + gainPerTap,
         total_pnl: state.trading_info.total_pnl,
         perf_from_start_date: state.trading_info.perf_from_start_date,
-        perf_since_last_fixing: state.trading_info.perf_since_last_fixing,
         positive_leverage: state.trading_info.positive_leverage,
         capital_protection: state.trading_info.capital_protection,
         time_reduction: state.trading_info.time_reduction
@@ -251,7 +247,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       const unlocked_pair_ids = get().unlocked_pair_ids;
       getUnlockedPairIds(matchedCondition.level).forEach(id => { if (!unlocked_pair_ids.find(nid => nid == id)) unlocked_pair_ids.push(id) });
 
-      const unlocked_pairs = get().unlocked_pairs;
+    const unlocked_pairs = get().unlocked_pairs;
       getUnlockedPairs(pairsInReferential, matchedCondition.level).forEach(p => {
 
         if (!unlocked_pairs.find(np => np.id == p.id)) {
@@ -261,24 +257,23 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
 
       const result = await updateUserLevel(matchedCondition.level);
       if (result) {
-        set((state) => ({
+      set((state) => ({
           level: matchedCondition.level,
-          trading_info: {
-            balance: state.trading_info.balance,
-            total_pnl: state.trading_info.total_pnl,
-            perf_from_start_date: state.trading_info.perf_from_start_date,
-            perf_since_last_fixing: state.trading_info.perf_since_last_fixing,
-            positive_leverage: benefits.cumulated_positive_leverage,
-            capital_protection: benefits.cumulated_protection_bonus,
-            time_reduction: benefits.cumulated_time_bonus
-          },
-          earn_per_tap: benefits.total_gain_per_tap,
-          energy_limit_level: benefits.cumulated_tapping_amount,
-          unlocked_pair_ids: unlocked_pair_ids,
-          unlocked_pairs: unlocked_pairs
-        }));
+        trading_info: {
+          balance: state.trading_info.balance,
+          total_pnl: state.trading_info.total_pnl,
+          perf_from_start_date: state.trading_info.perf_from_start_date,
+          positive_leverage: benefits.cumulated_positive_leverage,
+          capital_protection: benefits.cumulated_protection_bonus,
+          time_reduction: benefits.cumulated_time_bonus
+        },
+        earn_per_tap: benefits.total_gain_per_tap,
+        energy_limit_level: benefits.cumulated_tapping_amount,
+        unlocked_pair_ids: unlocked_pair_ids,
+        unlocked_pairs: unlocked_pairs
+      }));
 
-        toast.success(`You have leveled up to level ${matchedCondition.level}`);
+      toast.success(`You have leveled up to level ${matchedCondition.level}`);
       } else {
         toast.error("Unexpected error has been occurred");
       }
@@ -299,7 +294,6 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
           balance: state.trading_info.balance + addDetails.amount_adjustment + addDetails.realized_pnl,
           total_pnl: state.trading_info.total_pnl + addDetails.realized_pnl,
           perf_from_start_date: (state.trading_info.perf_from_start_date * state.amount_of_tokens + addDetails.realized_pnl) / state.amount_of_tokens,
-          perf_since_last_fixing: (state.trading_info.perf_since_last_fixing * state.amount_of_tokens + addDetails.realized_pnl) / state.amount_of_tokens,
           positive_leverage: state.trading_info.positive_leverage,
           capital_protection: state.trading_info.capital_protection,
           time_reduction: state.trading_info.time_reduction
@@ -333,7 +327,6 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
           balance: state.trading_info.balance + closingDetails.position_amount + closingDetails.position_pnl,
           total_pnl: state.trading_info.total_pnl + closingDetails.position_pnl,
           perf_from_start_date: state.trading_info.perf_from_start_date + closingDetails.position_pnl / state.amount_of_tokens,
-          perf_since_last_fixing: state.trading_info.perf_since_last_fixing + closingDetails.position_pnl / state.amount_of_tokens,
           positive_leverage: state.trading_info.positive_leverage,
           capital_protection: state.trading_info.capital_protection,
           time_reduction: state.trading_info.time_reduction
@@ -364,31 +357,31 @@ async function updateUserLevel(newLevel: number) {
   // } while (!response && count < 10);
 
   // if (!response) throw new Error("Issue communicating with server");
-  try {
+    try {
     const response = await $http.post('/update-user-level', {
-      level: newLevel
-    });
+        level: newLevel
+      });
     return response.data.success;
-  } catch (error) {
+    } catch (error) {
     console.log(error);
     return false;
-  }
+    }
 }
 
 function getUnlockedPairIds(level: number): number[] {
   const pairs: number[] = [];
 
   levelBenefits.filter((benefit) => benefit.level <= level)
-    .forEach((benefit) => {
-      pairs.push(...benefit.pairs_unlocked)
-    });
+      .forEach((benefit) => {
+        pairs.push(...benefit.pairs_unlocked)
+      });
 
   return pairs;
 }
 
 function getUnlockedPairs(pairsInReferential: Pair[], level: number): Pair[] {
-  let pairs: Pair[] = [];
-  const pairIds = getUnlockedPairIds(level);
-  pairIds.forEach(id => pairs.push(pairsInReferential.find(p => p.id == id)!))
-  return pairs;
+   let pairs: Pair[] = [];
+   const pairIds = getUnlockedPairIds(level);
+   pairIds.forEach(id => pairs.push(pairsInReferential.find(p => p.id == id)!))
+   return pairs;
 }

@@ -4,17 +4,17 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
-        "deploy:dev": "git pull origin develop_fb --no-edit  && cp .env.production .env && docker-compose -f docker-compose.pro.yml build && docker-compose -f docker-compose.pro.yml up -d",
+        "deploy:dev": "git pull origin develop --no-edit  && cp .env.production .env && docker-compose -f docker-compose.pro.yml build && docker-compose -f docker-compose.pro.yml up -d",
         "deploy:main": "git pull origin main --no-edit  && cp .env.main .env && docker-compose -f docker-compose.main.yml build && docker-compose -f docker-compose.main.yml up -d"
     },
     "devDependencies": {
-        "@tailwindcss/forms": "^0.5.9",
+        "@tailwindcss/forms": "^0.5.10",
         "alpinejs": "^3.14.8",
         "autoprefixer": "^10.4.20",
         "axios": "^1.7.9",
         "husky": "^9.1.7",
         "laravel-vite-plugin": "^1.1.1",
-        "postcss": "^8.4.49",
+        "postcss": "^8.5.1",
         "tailwindcss": "^3.4.17",
         "vite": "^5.4.11"
     }

@@ -5,7 +5,7 @@ FROM node:18 AS build
 WORKDIR /app
 
 # Sao chép package.json và package-lock.json vào container
-COPY package.json ./
+COPY package.json package-lock.json ./
 
 # Cài đặt các phụ thuộc
 RUN npm install

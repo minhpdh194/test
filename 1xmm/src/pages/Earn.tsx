@@ -39,6 +39,21 @@ export default function Profile() {
         </div>
       </div>
       <div className="mt-28 mb-8">
+        <div className="flex justify-between items-center">
+          <div className="fw-bold">
+            Quests To Do
+          </div>
+          <div className="flex items-center space-x-1">
+            <img
+              src="/images/earn/more.png"
+              alt="more"
+              className="w-4 h-4"
+            />
+            <span className="text-xs" onClick={() => {
+              setOpenDrawer(true);
+            }}>More Info</span>
+          </div>
+        </div>
         <ListQuest />
       </div>
       <ModalCategory

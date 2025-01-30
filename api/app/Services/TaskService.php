@@ -18,7 +18,9 @@ class TaskService
     public function claimTask($user, $task)
     {
         $claimedTask = UserTasks::where('telegram_user_id', $user['telegram_user_id'])
-            ->where('task_id', $task['id'])->first();
+            ->where('task_id', $task['id'])
+            ->first();
+
         if (!$claimedTask) {
             return response()->json(['success' => false, 'message' => 'Task not found.'], 404);
         }
@@ -27,6 +29,7 @@ class TaskService
         $claimedTask->save();
         $userGameData = UserGameData::where('telegram_user_id', $user['telegram_user_id'])->first();
         $userGameData->balance += $task['reward_coins'];
+        $userGameData->amount_of_tokens += $task['reward_coins'];
         $userGameData->save();
 
         return response()->json([
@@ -35,17 +38,16 @@ class TaskService
         ]);
     }
 
-    public function receiveTask($user, $task)
+    public function taskInProgress($user, $task)
     {
-
         if (!$task) {
             return response()->json(['success' => false, 'message' => 'Task not found.']);
         }
 
-        $checkExistReceivedTask = UserTasks::where('telegram_user_id', $user['telegram_user_id'])
+        $exists = UserTasks::where('telegram_user_id', $user['telegram_user_id'])
             ->where('task_id', $task['id'])->first();
 
-        if ($checkExistReceivedTask) {
+        if ($exists) {
             return response()->json(['success' => false, 'message' => 'You have already receive this task.']);
         }
 
@@ -57,7 +59,7 @@ class TaskService
 
         if (!$result) {
             return response()->json(['success' => false, 'message' => 'Unable to get task.']);
-        } //should never happen
+        }
 
         return response()->json([
             'success' => true,

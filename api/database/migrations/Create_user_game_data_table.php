@@ -22,7 +22,6 @@ return new class extends Migration
             $table->integer('available_energy')->default(500);
             $table->json('bonuses')->nullable();
             $table->double('perf_from_start_date')->default(0);
-            $table->double('perf_since_last_fixing')->default(0);
             $table->integer('number_of_stars')->default(0);
             $table->timestamps();
         });

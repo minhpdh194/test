@@ -31,3 +31,12 @@ export enum BonusTerms {
   Short = 10800,
   Long = 21600
 }
+
+export enum TaskActionNames {
+  Watch1XMMVideo = "watch_1xmm_video",
+  WatchExtVideo = "watch_ext_video",
+  Invite = "invite",
+  JoinX = "join_x",
+  JoinTelegram = "join_telegram",
+  JoinDiscord = "join_discord",
+}

@@ -16,11 +16,16 @@ class CustomHeaders extends SetCacheHeaders
     {
         $response = $next($request);
 
-        $response->header('Access-Control-Allow-Origin', '*');
-        $response->header('Access-Control-Allow-Methods', 'GET, POST');
-        $response->header('Access-Control-Allow-Headers', 'Origin, Content-Type, Content-Range, Content-Disposition, Content-Description, X-Auth-Token');
-        
-        return $response;
+        if ($request->isMethod('OPTIONS')) {
+            return response('', 204)
+                ->header('Access-Control-Allow-Origin', '*')
+                ->header('Access-Control-Allow-Methods', 'HEAD,GET,PUT,POST,OPTIONS,DELETE')
+                ->header('Access-Control-Allow-Headers', 'X-Requested-With,Origin,Content-Type,Authorization,Content-Range,Content-Disposition,Content-Description,X-Auth-Token');
+        }
+
+        return $response->header('Access-Control-Allow-Origin', '*')
+            ->header('Access-Control-Allow-Methods', 'HEAD,GET,PUT,POST,OPTIONS,DELETE')
+            ->header('Access-Control-Allow-Headers', 'X-Requested-With, Origin,Content-Type,Authorization,Content-Range,Content-Disposition,Content-Description,X-Auth-Token');
     }
 }
 

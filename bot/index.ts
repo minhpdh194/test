@@ -14,19 +14,19 @@ app.get("/", (_, res) => {
 
 bot.command("start", (ctx) => {
   if (ctx.from) {
-    if (ctx.from.is_bot) return;
-    return ctx.reply(`Play 1xmm!`, {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: `Play Game`,
-              web_app: { url: `${APP_URL}/` },
-            },
-          ],
+  if (ctx.from.is_bot) return;
+  return ctx.reply(`Play 1xmm!`, {
+    reply_markup: {
+      inline_keyboard: [
+        [
+          {
+            text: `Play Game`,
+            web_app: { url: `${APP_URL}/` },
+          },
         ],
-      },
-    });
+      ],
+    },
+  });
   }
 });
 

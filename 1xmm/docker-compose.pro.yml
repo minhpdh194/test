@@ -8,9 +8,5 @@ services:
     ports:
       - 3400:4173
     restart: unless-stopped
-    networks:
-      - theapp4u
-
 networks:
-  theapp4u:
-    external: true
+  default:

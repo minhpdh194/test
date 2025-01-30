@@ -71,7 +71,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/update-user-level', [TelegramUserController::class, 'updateUserLevel']);
 
     Route::post('/claim-task', [UserTaskController::class, 'claimTask']);
-    Route::post('/receive-task', [UserTaskController::class, 'receiveTask']);
+    Route::post('/task-in-progress', [UserTaskController::class, 'taskInProgress']);
     Route::get('/get-user-inprogress-task', [UserTaskController::class, 'getUserInProgressTasks']);
     Route::get('/get-user-completed-task', [UserTaskController::class, 'getUserCompletedTasks']);
 
