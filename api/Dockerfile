@@ -41,8 +41,13 @@ RUN npm install
 RUN npm run build
 
 # WHEN WILL WE GET THE CI/CD???????
+#<<<<<<< HEAD
 #RUN php artisan migrate --force
 #RUN php artisan db:seed --class=DatabaseSeeder --force
+#=======
+# RUN php artisan migrate --force
+# RUN php artisan db:seed --class=DatabaseSeeder --force
+#>>>>>>> c310e990b7dea8523a8819538b098e6b400d8a56
 
 
 

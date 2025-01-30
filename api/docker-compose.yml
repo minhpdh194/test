@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  #mysql:
+  #  image: mysql
+  #  container_name: 1XMM_mysql
+  #  restart: always
+  #  environment:
+  #    MYSQL_ROOT_PASSWORD: dataB@se.2O25
+  #  volumes:
+  #    - /root/DOCKER_DATA/1XMM_mysql:/var/lib/mysql
+  #  command:
+  #    --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+  #  networks:
+  #    - 1xmm_network
+
+  1xmm_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: 1XMM_api
+    volumes:
+      - ./storage:/var/www/html/storage
+      - ./bootstrap/cache:/var/www/html/bootstrap/cache
+    ports:
+      - "4400:8000"
+    networks:
+      - 1xmm_network
+
+networks:
+  1xmm_network:
+    driver: bridge
