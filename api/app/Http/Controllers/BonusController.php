@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use App\Models\UserBonuses;
 use App\Models\UserGameData;
 use App\Models\MarketData\Position;
+use App\Models\Settings;
 
 class BonusController extends Controller
 {
@@ -18,19 +19,18 @@ class BonusController extends Controller
     {
         $user = $request->user();
         $boughtBonus = $request->bonus;
-        $isBonusBought = UserBonuses::where('bonus_id', $boughtBonus['id'])->where('telegram_user_id', $user->telegram_user_id)->first();
-        if ($isBonusBought) {
-            return response()->json(['success' => 'This bonus has been purchased'], 202);
-        } else {
-            $userData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
-            $bonus = UserBonuses::create([
-                'bonus_id' => $boughtBonus['id'],
-                'telegram_user_id' => $user->telegram_user_id,
-                'purchase_time' => Carbon::now(),
-                'position_id' => 0,
-            ]);
-            return response()->json(['success' => 'Bonus list updated successfully', 'bonus' => $bonus], 200);
-        }
+
+        $settings = Settings::where('name', 'stars_spent')->first();
+        $settings->value += $boughtBonus['cost'];
+        $settings->save();
+        $bonus = UserBonuses::create([
+            'bonus_id' => $boughtBonus['id'],
+            'telegram_user_id' => $user->telegram_user_id,
+            'purchase_time' => Carbon::now(),
+            'position_id' => 0,
+        ]);
+        
+        return response()->json(['success' => 'Bonus list updated successfully', 'bonus' => $bonus], 200);
     }
 
     public function getBonuses(Request $request)
@@ -82,6 +82,10 @@ class BonusController extends Controller
     {
         $user = $request->user();
         $boughtBonus = $request->bonus;
+
+        $settings = Settings::where('name', 'stars_spent')->first();
+        $settings->value += $boughtBonus['cost'];
+        $settings->save();
 
         $userData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
         $userData->amount_of_tokens += $boughtBonus['benefit'];
