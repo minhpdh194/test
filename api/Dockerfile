@@ -13,8 +13,8 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install pdo pdo_mysql zip
 
 # Cài đặt Node.js và npm
-RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
-    && apt-get install -y nodejs
+#RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
+#    && apt-get install -y nodejs
 
 # Cài đặt Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -35,10 +35,10 @@ RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/p
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public/build
 
 # Cài đặt các phụ thuộc frontend qua npm
-RUN npm install
+#RUN npm install
 
 # Build các tài nguyên frontend bằng Vite
-RUN npm run build
+#RUN npm run build
 
 # WHEN WILL WE GET THE CI/CD???????
 #<<<<<<< HEAD

@@ -26,7 +26,8 @@ WORKDIR /app
 COPY --from=build /app .
 
 # Cài đặt lại các phụ thuộc (nếu cần)
-RUN npm install --production
+RUN npm install
+#--production
 
 # Cài riêng Vite cho preview
 RUN npm install vite
