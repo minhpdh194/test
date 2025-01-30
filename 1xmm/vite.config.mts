@@ -15,7 +15,7 @@ export default defineConfig({
     include: ["buffer"], // Pre-bundle the buffer package
   },
   server: {
-    allowedHosts: ["bot.onexmm.com", "api.onexmm.com"],
+    allowedHosts: ["bot.onexmm.com", "api.onexmm.com", "1xmm.theapp4u.com"],
   //   proxy: {
   //     "/api": {
   //       target: "http://clicker-game-api.me",
