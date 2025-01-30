@@ -16,15 +16,15 @@ class TelegramStarService
         $apiUrl = "https://api.telegram.org/bot{$botToken}/";
 
         $payload = [
-            'title' => 'Package with ' . $bonus['price'],
+            'title' => 'Package with ' . $bonus['cost'],
             'description' => 'Good package',
             'payload' => 'unique_payload_' . time() . '_' . $telegram_user_id,
             'provider_token' => "",
             'currency' => 'XTR',
             'prices' => [
                 [
-                    'label' => 'Buy with ' . $bonus['price'] . ' stars',
-                    'amount' => $bonus['price'],
+                    'label' => 'Buy with ' . $bonus['cost'] . ' stars',
+                    'amount' => $bonus['cost'],
                 ]
             ],
         ];
