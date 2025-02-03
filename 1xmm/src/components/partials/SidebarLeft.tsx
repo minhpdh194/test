@@ -1,8 +1,12 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import AirDrop from "../AirDrop";
-import WagmiProviderWrapper from "@/lib/useWagmi";
-import WalletConnectButton from "./components/WalletConnectButton";
+import { ConnectButton, RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import '@rainbow-me/rainbowkit/styles.css';
+import { config } from "@/lib/wagmi";
+import { WagmiProvider } from "wagmi";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+const client = new QueryClient();
 
 interface SidebarProps {
     toggleSidebar: () => void;
@@ -10,7 +14,6 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
     const [openBonusDrawer, setOpenBonusDrawer] = useState(false);
-    const projectId = import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID;
 
     const handleOpenTelegramChannel = () => {
         window.Telegram.WebApp.openTelegramLink("https://t.me/onexmm_official")
@@ -105,11 +108,15 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
                     />
                 </a>
 
-                {projectId && (
-                    <WagmiProviderWrapper>
-                        <WalletConnectButton />
-                    </WagmiProviderWrapper>
-                )}
+                <div className="mt-2">
+                    <WagmiProvider config={config}>
+                        <QueryClientProvider client={client}>
+                            <RainbowKitProvider>
+                                <ConnectButton />
+                            </RainbowKitProvider>
+                        </QueryClientProvider>
+                    </WagmiProvider>
+                </div>
 
                 {/* <WalletConnector /> */}
                 <AirDrop
