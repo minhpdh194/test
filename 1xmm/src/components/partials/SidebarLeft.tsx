@@ -1,13 +1,7 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import AirDrop from "../AirDrop";
-import { ConnectButton, RainbowKitProvider } from '@rainbow-me/rainbowkit';
-import '@rainbow-me/rainbowkit/styles.css';
-import { config } from "@/lib/wagmi";
-import { WagmiProvider } from "wagmi";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useTonConnectUI } from "@tonconnect/ui-react";
-const client = new QueryClient();
 
 interface SidebarProps {
     toggleSidebar: () => void;
@@ -15,7 +9,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
     const [tonConnectUI] = useTonConnectUI();
-
+    const [isConnected, setIsConnected] = useState<boolean>(false);
     const [openBonusDrawer, setOpenBonusDrawer] = useState(false);
 
     const handleOpenTelegramChannel = () => {
@@ -27,8 +21,49 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
     }
 
     const handleTonAction = async () => {
-        await tonConnectUI.openModal();
+        if (tonConnectUI.connected) {
+            handleDisConnectWallet();
+        } else {
+            await tonConnectUI.openModal();
+        }
     };
+
+    // Handle wallet connection
+    const handleConnectWallet = useCallback((address: string) => {
+        setIsConnected(true);
+        console.log("Wallet connected", address);
+    }, []);
+
+    // Handle wallet disconnection
+    const handleDisConnectWallet = useCallback(() => {
+        setIsConnected(false);
+        tonConnectUI.disconnect();
+        console.log("Wallet disconnected");
+    }, []);
+
+    useEffect(() => {
+        const checkWalletConnection = async () => {
+            if (tonConnectUI.account?.address) {
+                handleConnectWallet(tonConnectUI.account?.address);
+            } else {
+                handleDisConnectWallet();
+            }
+        };
+
+        checkWalletConnection();
+
+        const unsubscribe = tonConnectUI.onStatusChange((wallet) => {
+            if (wallet) {
+                handleConnectWallet(wallet.account.address);
+            } else {
+                handleDisConnectWallet();
+            }
+        });
+
+        return () => {
+            unsubscribe();
+        };
+    }, [tonConnectUI, handleConnectWallet, handleDisConnectWallet]);
 
     return (
         <div className="fixed inset-0 bg-[#064C7D] bg-opacity-50 z-20">
@@ -118,9 +153,11 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
                         className="w-3 h-6"
                     />
                 </a>
-                
+
                 <span className="flex justify-between align-center mt-3" onClick={handleTonAction}>
-                    <span className="cursor-pointer">Connect Wallet</span>
+                    <span className="cursor-pointer">
+                        {isConnected ? 'Disconnect Wallet' : 'Connect Wallet'}
+                    </span>
                     <img
                         src="/images/home/angle-right.png"
                         alt="trophy"

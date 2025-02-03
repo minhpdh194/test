@@ -165,7 +165,7 @@ export default function WalletList({
                     className={`px-6 py-3 rounded-full text-white font-semibold text-lg shadow-md transition 
                         ${tonWalletAddress ? 'bg-green-500 cursor-default' : 'bg-blue-500 hover:bg-blue-600 active:bg-blue-700'}`}
                 >
-                    {tonWalletAddress ? 'Transaction' : 'Connect Wallet'}
+                    {tonWalletAddress ? 'Disconnect Wallet' : 'Connect Wallet'}
                 </button>
             </div>
         </Drawer>
