@@ -12,7 +12,6 @@ import { LongShort } from "@/enums";
 import { levelBenefits } from "@/referential/levelBenefits";
 import { levelConditions } from "@/referential/levelConditions";
 import { BonusDefinition } from "@/types/BonusDefinition";
-import { StarPackage } from "@/types/StarPackage";
 import { bonusDefinitions } from "@/referential/bonusDefinitions";
 
 export type UserProfileStore = UserProfile & {
@@ -25,7 +24,6 @@ export type UserProfileStore = UserProfile & {
   AddBonusesToPosition: (position_id: number, bonuses: Bonus[]) => Promise<void>;
   BuyBonus: (bonus: BonusDefinition) => void;
   BuyToken: (bonus: BonusDefinition) => void;
-  BuyStars: (starPackage: StarPackage) => void;
   UpdateBalance: (newBalance: number) => void;
   UpdateUserAvatar: (avatar_id: number) => void;
   unlocked_pair_ids: Array<number>;
@@ -164,24 +162,6 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       },
       amount_of_tokens: state.amount_of_tokens + newBalance,
     }));
-  },
-
-  BuyStars: async (starPackage: StarPackage) => {
-    try {
-      const response = await $http.post('/buy-stars', { package: starPackage });
-      if (response.status === 200) {
-        toast.success('Package bought successfully!');
-        set((state) => ({
-          number_of_stars: state.number_of_stars + starPackage.number_of_stars,
-        }));
-      }
-      else {
-        toast.error('Failed to buy package!');
-      }
-    } catch (error) {
-      console.error("Error buying bonus:", error);
-      toast.error('An error occurred while buying the bonus!');
-    }
   },
 
   UpdateProfile: (syncData: SyncData) => {

@@ -5,8 +5,8 @@ const tasksList = [
   {
     name: "Watch 1xMM Video",
     description: "Watch our introduction video on YouTube.",
-    reward_coins: 20_000,
-    link: "https://www.youtube.com/watch?v=ytdLaA4uN38",
+    reward_coins: 25_000,
+    link: "https://www.youtube.com/watch?v=__pIIOcmDNM",
     type: "life_time",
     action_name: TaskActionNames.Watch1XMMVideo,
     complete_requirement: 0,
@@ -15,7 +15,7 @@ const tasksList = [
     name: "Follow us on Twitter",
     description:
       "Follow our official Twitter account and retweet our pinned tweet.",
-    reward_coins: 15_000,
+    reward_coins: 20_000,
     link: "https://x.com/onexmm_official",
     type: "life_time",
     action_name: TaskActionNames.JoinX,
@@ -24,7 +24,7 @@ const tasksList = [
   {
     name: "Join our Telegram Group",
     description: "Join our Telegram group and introduce yourself.",
-    reward_coins: 175,
+    reward_coins: 20_000,
     link: "https://t.me/onexmm_official",
     type: "life_time",
     action_name: TaskActionNames.JoinTelegram,
@@ -33,7 +33,7 @@ const tasksList = [
   {
     name: "Invite your friends",
     description: "Invite 5 users and you will be rewarded",
-    reward_coins: 100,
+    reward_coins: 50_000,
     link: "",
     type: "life_time",
     action_name: TaskActionNames.Invite,
@@ -42,7 +42,7 @@ const tasksList = [
   {
     name: "Invite your friends",
     description: "Invite 10 users and you will be rewarded",
-    reward_coins: 100,
+    reward_coins: 100_000,
     link: "",
     type: "life_time",
     action_name: TaskActionNames.Invite,
@@ -51,7 +51,7 @@ const tasksList = [
   {
     name: "Invite your friends",
     description: "Invite 25 users and you will be rewarded",
-    reward_coins: 100,
+    reward_coins: 300_000,
     link: "",
     type: "life_time",
     action_name: TaskActionNames.Invite,
@@ -60,7 +60,7 @@ const tasksList = [
   {
     name: "Invite your friends",
     description: "Invite 50 users and you will be rewarded",
-    reward_coins: 100,
+    reward_coins: 750_000,
     link: "",
     type: "life_time",
     action_name: TaskActionNames.Invite,
@@ -69,7 +69,7 @@ const tasksList = [
   {
     name: "Invite your friends",
     description: "Invite 100 users and you will be rewarded",
-    reward_coins: 100,
+    reward_coins: 2_000_000,
     link: "",
     type: "life_time",
     action_name: TaskActionNames.Invite,
@@ -78,7 +78,7 @@ const tasksList = [
   {
     name: "Invite your friends",
     description: "Invite 250 users and you will be rewarded",
-    reward_coins: 100,
+    reward_coins: 7_500_000,
     link: "",
     type: "life_time",
     action_name: TaskActionNames.Invite,
@@ -87,7 +87,7 @@ const tasksList = [
   {
     name: "Invite your friends",
     description: "Invite 500 users and you will be rewarded",
-    reward_coins: 100,
+    reward_coins: 20_000_000,
     link: "",
     type: "life_time",
     action_name: TaskActionNames.Invite,
@@ -96,20 +96,11 @@ const tasksList = [
   {
     name: "Invite your friends",
     description: "Invite 1000 users and you will be rewarded",
-    reward_coins: 100,
+    reward_coins: 50_000_000,
     link: "",
     type: "life_time",
     action_name: TaskActionNames.Invite,
     complete_requirement: 1000,
-  },
-  {
-    name: "Watch Dummy Video",
-    description: "Watch our dummy video for test.",
-    reward_coins: 100,
-    link: "https://www.youtube.com/watch?v=ytdLaA4uN38",
-    type: "life_time",
-    action_name: TaskActionNames.Watch1XMMVideo,
-    complete_requirement: 1,
   },
 ];
 
