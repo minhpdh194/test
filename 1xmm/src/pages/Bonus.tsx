@@ -224,10 +224,6 @@ export default function Bonus() {
         }
     }
 
-    const handleOpenBuyStarPackage = () => {
-        window.Telegram.WebApp.openTelegramLink("https://t.me/settings/telegram-premium");
-    }
-
     return (
         <div
             className="flex-1 px-3 pb-20 bg-center bg-cover"
@@ -262,19 +258,6 @@ export default function Bonus() {
                 </div>
             </div> */}
             <div className="flex justify-between mt-4 mb-6">
-                <button
-                    type="button"
-                    className="rounded flex fw-semibold py-2 px-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)]"
-                    onClick={handleOpenBuyStarPackage}
-                >
-                    <img
-                        src="/images/home/star.png"
-                        alt="coin"
-                        className="object-cover w-4 h-4"
-                    />
-                    <span className="font-normal text-xs">Purchase Star here</span>
-                </button>
-
                 {/* <button
                     type="button"
                     className="rounded flex fw-semibold py-2 px-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)]"

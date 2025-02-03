@@ -19,6 +19,10 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
         window.Telegram.WebApp.openTelegramLink("https://t.me/onexmm_official")
     }
 
+    const handleSendAirDrop = () => {
+        setOpenBonusDrawer(false);
+    }
+
     return (
         <div className="fixed inset-0 bg-[#064C7D] bg-opacity-50 z-20">
             <div
@@ -121,6 +125,7 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
                 {/* <WalletConnector /> */}
                 <AirDrop
                     open={openBonusDrawer}
+                    onSendAirDrop={handleSendAirDrop}
                     onOpenChange={setOpenBonusDrawer}
                 />
             </div>
