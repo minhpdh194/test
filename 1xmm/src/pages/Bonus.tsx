@@ -225,7 +225,7 @@ export default function Bonus() {
     }
 
     const handleOpenBuyStarPackage = () => {
-        window.Telegram.WebApp.openTelegramLink("https://t.me/PremiumBot/PremiumBot")
+        window.Telegram.WebApp.openTelegramLink("https://t.me/settings/telegram-premium");
     }
 
     return (
