@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useAccount, useConnect } from "wagmi";
 
@@ -6,14 +5,11 @@ const WalletConnectButton = () => {
     const { connectors, connect } = useConnect();
     const { isConnected } = useAccount();
     // const { disconnect } = useDisconnect();
-    const [walletLoading, setWalletLoading] = useState(false);
     // const chainId = useChainId();
     const [walletConnected, setWalletConnected] = useState(false);
 
     const handleConnect = async (connector: any) => {
-        setWalletLoading(true);
         connect({ connector });
-        setWalletLoading(false);
     };
 
     const handleDisconnect = async () => {
@@ -48,34 +44,36 @@ const WalletConnectButton = () => {
     return (
         <div>
             {walletConnected && isConnected ? (
-                <Button
-                    onClick={handleDisconnect}
-                    disabled={walletLoading}
-                >
-                    Remove Wallet
-                </Button>
+                <span className="flex justify-between align-center mt-3" onClick={handleDisconnect}>
+                    <span className="cursor-pointer">Remove Wallet</span>
+                    <img
+                        src="/images/home/angle-right.png"
+                        alt="trophy"
+                        className="w-3 h-6"
+                    />
+                </span>
             ) : !walletConnected && isConnected ? (
-                <Button
-                    onClick={registerWalletAddress}
-                    disabled={walletLoading}
-                >
-                    Register Wallet
-                </Button>
+                <span className="flex justify-between align-center mt-3" onClick={registerWalletAddress}>
+                    <span className="cursor-pointer">Register Wallet</span>
+                    <img
+                        src="/images/home/angle-right.png"
+                        alt="trophy"
+                        className="w-3 h-6"
+                    />
+                </span>
             ) : (
                 <div className="flex gap-2">
                     {uniqueConnectors.map((connector) => (
-                        <div className="w-full" key={connector.id}>
-                            <Button
-                                onClick={() => {
-                                    handleConnect(connector);
-                                }}
-                                className="w-full"
-                                disabled={walletLoading}
-                                color="warning"
-                            >
-                                Connect
-                            </Button>
-                        </div>
+                        <span key={connector.id} className="flex justify-between align-center mt-3" onClick={() => {
+                            handleConnect(connector);
+                        }}>
+                            <span className="cursor-pointer">Connect</span>
+                            <img
+                                src="/images/home/angle-right.png"
+                                alt="trophy"
+                                className="w-3 h-6"
+                            />
+                        </span>
                     ))}
                 </div>
             )}
