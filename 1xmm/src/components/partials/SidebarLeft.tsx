@@ -6,6 +6,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 import { config } from "@/lib/wagmi";
 import { WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useTonConnectUI } from "@tonconnect/ui-react";
 const client = new QueryClient();
 
 interface SidebarProps {
@@ -13,6 +14,8 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
+    const [tonConnectUI] = useTonConnectUI();
+
     const [openBonusDrawer, setOpenBonusDrawer] = useState(false);
 
     const handleOpenTelegramChannel = () => {
@@ -22,6 +25,10 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
     const handleSendAirDrop = () => {
         setOpenBonusDrawer(false);
     }
+
+    const handleTonAction = async () => {
+        await tonConnectUI.openModal();
+    };
 
     return (
         <div className="fixed inset-0 bg-[#064C7D] bg-opacity-50 z-20">
@@ -111,16 +118,15 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
                         className="w-3 h-6"
                     />
                 </a>
-
-                <div className="mt-2">
-                    <WagmiProvider config={config}>
-                        <QueryClientProvider client={client}>
-                            <RainbowKitProvider>
-                                <ConnectButton />
-                            </RainbowKitProvider>
-                        </QueryClientProvider>
-                    </WagmiProvider>
-                </div>
+                
+                <span className="flex justify-between align-center mt-3" onClick={handleTonAction}>
+                    <span className="cursor-pointer">Connect Wallet</span>
+                    <img
+                        src="/images/home/angle-right.png"
+                        alt="trophy"
+                        className="w-3 h-6"
+                    />
+                </span>
 
                 {/* <WalletConnector /> */}
                 <AirDrop
