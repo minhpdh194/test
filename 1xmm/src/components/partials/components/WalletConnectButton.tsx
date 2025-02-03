@@ -1,16 +1,21 @@
 import { useState } from "react";
-import { useAccount, useConnect } from "wagmi";
+import { useAccount, useChainId, useConnect, useDisconnect } from "wagmi";
 
 const WalletConnectButton = () => {
     const { connectors, connect } = useConnect();
-    const { isConnected } = useAccount();
-    // const { disconnect } = useDisconnect();
-    // const chainId = useChainId();
+    const { address, isConnected } = useAccount();
+    const { disconnect } = useDisconnect();
+    const chainId = useChainId();
     const [walletConnected, setWalletConnected] = useState(false);
 
     const handleConnect = async (connector: any) => {
         connect({ connector });
     };
+
+    console.log(chainId);
+    console.log(address);
+    console.log(isConnected);
+    console.log(disconnect);
 
     const handleDisconnect = async () => {
         // setWalletLoading(true);
@@ -40,7 +45,7 @@ const WalletConnectButton = () => {
         (connector: any) =>
             connector.name === "MetaMask" || connector.name === "walletConnect"
     );
-    console.log(uniqueConnectors);
+
     return (
         <div>
             {walletConnected && isConnected ? (
