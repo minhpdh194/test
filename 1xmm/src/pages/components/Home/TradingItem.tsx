@@ -478,7 +478,6 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
 
 const filterAlreadySelectedBonuses = (selectedBonuses: Bonus[]): Bonus[] => {
     if (!selectedBonuses) return globalThis.userProfile.positionStore!.available_bonuses;
-
     return globalThis.userProfile.positionStore!.available_bonuses.filter(bonus => !selectedBonuses.find(selected => selected.id === bonus.id));
 }
 

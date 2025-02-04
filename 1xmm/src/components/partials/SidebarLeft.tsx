@@ -85,9 +85,9 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
                     <Link className="row w-100 p-3 select-none hover:text-white" to="/profile">
                         <div className="col-3 flex justify-center px-0">
                             <img
-                                src="/images/home/change-profile.png"
+                                src={`/images/avatars/avatar__${userProfile.avatar_id + 1}__.jpg`}
                                 alt="trophy"
-                                className="w-14 h-14"
+                                className="w-14 h-14 rounded-full"
                             />
                         </div>
                         <div className="col-8 pl-0">

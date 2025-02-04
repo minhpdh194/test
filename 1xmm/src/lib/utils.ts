@@ -1,6 +1,8 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { $http } from "./http";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -10,7 +12,7 @@ export function compactNumber(num: number) {
 	return num.toLocaleString(undefined, {
 		maximumFractionDigits: 2,
 		notation: "compact",
-	}); 
+	});
 }
 
 // Utils module
@@ -23,6 +25,7 @@ export const Utils = {
 	formatString: (input: string) => format_string(input),
 	toCamelFormat: (input: string) => { return input.charAt(0).toUpperCase() + input.slice(1); },
 	formatDate: (input: string) => format_date(input),
+	getTimeDifference: (input: string) => get_time_difference(input),
 	getAvatarRef: (input: string) => get_avatar_ref(input),
 };
 
@@ -62,4 +65,22 @@ const format_date = (input: string) => {
 
 	const formattedDate = `${day}-${month}-${year}`;
 	return formattedDate;
+}
+
+const get_time_difference = (input: string) => {
+	dayjs.extend(relativeTime);
+
+	const now = dayjs();
+	const updatedAt = dayjs(input);
+	const diffInSeconds = now.diff(updatedAt, "second");
+
+	if (diffInSeconds < 60) {
+		return `${diffInSeconds} seconds ago`;
+	} else if (diffInSeconds < 3600) {
+		return `${now.diff(updatedAt, "minute")} minutes ago`;
+	} else if (diffInSeconds < 86400) {
+		return `${now.diff(updatedAt, "hour")} hours ago`;
+	} else {
+		return `${now.diff(updatedAt, "day")} days ago`;
+	}
 }

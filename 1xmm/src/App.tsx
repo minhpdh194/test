@@ -109,13 +109,16 @@ function App() {
           $http.$get<UserBonus[]>("/user_bonuses"),
           $http.$get<{ positions: UserPosition[]; }>("/user_positions"),
           $http.$get<Index[]>("/get-indices"),
-          $http.$get<number[]>("/get-user-inprogress-task"),
-          $http.$get<number[]>("/get-user-completed-task"),
+          $http.$get<number[]>("/get-user-inprogress-task-id"),
+          $http.$get<any[]>("/get-user-completed-task"),
           //$http.get("/user_tasks")
         ]);
 
+        const completedTaskIds = completed_user_tasks.map(task => task.task_id);
+
         globalThis.userProfile.available_task_ids = inprogress_user_tasks;
-        globalThis.userProfile.completed_task_ids = completed_user_tasks;
+        globalThis.userProfile.completed_task_ids = completedTaskIds;
+        globalThis.userProfile.completed_tasks = completed_user_tasks;
         setProgress(45);
 
         const update: PusherIndex[] = [];

@@ -114,4 +114,5 @@ export const getAllTasks: Array<TaskDefinition> = tasksList.map((task, index) =>
     type: task.type,
     action_name: task.action_name,
     complete_requirement: task.complete_requirement,
-  }});
+  }
+});

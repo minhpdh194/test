@@ -21,9 +21,9 @@ export default function Ranking() {
         if (userRanking.amount_of_tokens === 0) {
             return "-";
         } else {
-        const formattedNumberOfTokens = Math.trunc(userRanking.amount_of_tokens).toLocaleString();
-        return formattedNumberOfTokens;
-    }
+            const formattedNumberOfTokens = Math.trunc(userRanking.amount_of_tokens).toLocaleString();
+            return formattedNumberOfTokens;
+        }
     }
 
     const selectedDate = new Date();
@@ -47,7 +47,7 @@ export default function Ranking() {
                 }
 
                 const response = await $http.get('/top-users', { params: payload });
-                
+
                 response.data.forEach((transaction: any) => {
                     const newData = {
                         telegram_user_id: transaction.telegram_user_id,
@@ -87,7 +87,7 @@ export default function Ranking() {
     const selectedWeek = {
         start: currentWeekStart,
         end: currentWeekEnd
-        };
+    };
 
     const months = [
         'January', 'February', 'March', 'April', 'May', 'June',
@@ -126,106 +126,106 @@ export default function Ranking() {
                 </div>
                 <div className="flex w-100 text-sm mt-5 items-end">
                     {secondPositionUser && (
-                    <div className="bg-[#32363C] flex-1 text-center py-2 h-38" style={{ borderTopLeftRadius: `1rem`, borderBottomLeftRadius: `1rem` }}>
-                        <div className="relative w-full">
-                            <img
-                                src="/images/ranking/top2.png"
-                                alt="top2"
-                                className="w-16 absolute -top-10 left-1/2 transform -translate-x-1/2"
-                                style={{
-                                    height: `4.5rem`,
-                                }}
-                            />
-                        </div>
-                        <div className="flex justify-center w-100 mt-3 pt-1 relative">
-                            <img
-                                src="/images/ranking/avatar.png"
-                                alt="avatar"
-                                className="w-16 p-1 h-16"
-                                style={{
-                                    border: `3.77px solid transparent`,
-                                    background: `linear-gradient(to bottom, #6E69F7 0%, #E496E7 100%)`,
-                                    borderRadius: `50%`,
-                                    backgroundClip: `padding-box, border-box`,
-                                    backgroundOrigin: `padding-box, border-box`,
-                                }}
-                            />
-                            <img
-                                src="/images/ranking/bg-top2.png"
-                                alt="avatar"
-                                className="w-5 h-5 absolute bottom-[-5px] left-1/2 transform -translate-x-1/2"
-                            />
-                            <span className="fw-bold text-xs absolute bottom-[-5px] left-1/2 transform -translate-x-1/2">
-                                2
-                            </span>
-                        </div>
+                        <div className="bg-[#32363C] flex-1 text-center py-2 h-38" style={{ borderTopLeftRadius: `1rem`, borderBottomLeftRadius: `1rem` }}>
+                            <div className="relative w-full">
+                                <img
+                                    src="/images/ranking/top2.png"
+                                    alt="top2"
+                                    className="w-16 absolute -top-10 left-1/2 transform -translate-x-1/2"
+                                    style={{
+                                        height: `4.5rem`,
+                                    }}
+                                />
+                            </div>
+                            <div className="flex justify-center w-100 mt-3 pt-1 relative">
+                                <img
+                                    src="/images/ranking/avatar.png"
+                                    alt="avatar"
+                                    className="w-16 p-1 h-16"
+                                    style={{
+                                        border: `3.77px solid transparent`,
+                                        background: `linear-gradient(to bottom, #6E69F7 0%, #E496E7 100%)`,
+                                        borderRadius: `50%`,
+                                        backgroundClip: `padding-box, border-box`,
+                                        backgroundOrigin: `padding-box, border-box`,
+                                    }}
+                                />
+                                <img
+                                    src="/images/ranking/bg-top2.png"
+                                    alt="avatar"
+                                    className="w-5 h-5 absolute bottom-[-5px] left-1/2 transform -translate-x-1/2"
+                                />
+                                <span className="fw-bold text-xs absolute bottom-[-5px] left-1/2 transform -translate-x-1/2">
+                                    2
+                                </span>
+                            </div>
                             {/* <span className="fw-light text-xs block pt-2">{calculatePercentile(secondPositionUser)}%</span> */}
-                        <span className="block fw-bold">{secondPositionUser.first_name + " " + secondPositionUser.last_name}</span>
-                        <span className="flex fw-bold items-center justify-center">
+                            <span className="block fw-bold">{secondPositionUser.first_name + " " + secondPositionUser.last_name}</span>
+                            <span className="flex fw-bold items-center justify-center">
                                 {secondPositionUser.amount_of_tokens !== 0 && (
-                            <img
-                                src="/images/home/coin.png"
-                                alt="coin"
-                                className="w-4 h-4"
-                            />
+                                    <img
+                                        src="/images/home/coin.png"
+                                        alt="coin"
+                                        className="w-4 h-4"
+                                    />
                                 )}
 
-                            {formatNumber(secondPositionUser)}
-                        </span>
-                    </div>
+                                {formatNumber(secondPositionUser)}
+                            </span>
+                        </div>
                     )}
 
                     {firstPositionUser && (
-                    <div className="bg-[#2E3034] flex-1 text-center py-2 h-56 relative" style={{ borderTopRightRadius: `2rem`, borderTopLeftRadius: `2rem` }}>
-                        <div className="relative w-full">
-                            <img
-                                src="/images/ranking/top1.png"
-                                alt="top1"
-                                className="w-16 absolute -top-10 left-1/2 transform -translate-x-1/2"
-                                style={{
-                                    height: `4.5rem`,
-                                }}
-                            />
-                        </div>
-                        <div className="flex justify-center w-100 mt-4 pt-1">
-                            <img
-                                src="/images/ranking/avatar.png"
-                                alt="avatar"
-                                className="w-20 p-1 h-20"
-                                style={{
-                                    border: `3.77px solid transparent`,
-                                    background: `linear-gradient(to bottom, #6E69F7 0%, #E496E7 100%)`,
-                                    borderRadius: `50%`,
-                                    backgroundClip: `padding-box, border-box`,
-                                    backgroundOrigin: `padding-box, border-box`,
-                                }}
-                            />
-                            <img
-                                src="/images/ranking/bg-top1.png"
-                                alt="avatar"
-                                className="w-5 h-5 absolute"
-                                style={{
-                                    top: `45%`
-                                }}
-                            />
-                            <span className="fw-bold text-xs absolute" style={{
-                                top: `46%`,
-                            }}>1</span>
-                        </div>
-                        <span className="block fw-bold mt-3">{firstPositionUser.first_name + " " + firstPositionUser.last_name}</span>
+                        <div className="bg-[#2E3034] flex-1 text-center py-2 h-56 relative" style={{ borderTopRightRadius: `2rem`, borderTopLeftRadius: `2rem` }}>
+                            <div className="relative w-full">
+                                <img
+                                    src="/images/ranking/top1.png"
+                                    alt="top1"
+                                    className="w-16 absolute -top-10 left-1/2 transform -translate-x-1/2"
+                                    style={{
+                                        height: `4.5rem`,
+                                    }}
+                                />
+                            </div>
+                            <div className="flex justify-center w-100 mt-4 pt-1">
+                                <img
+                                    src="/images/ranking/avatar.png"
+                                    alt="avatar"
+                                    className="w-20 p-1 h-20"
+                                    style={{
+                                        border: `3.77px solid transparent`,
+                                        background: `linear-gradient(to bottom, #6E69F7 0%, #E496E7 100%)`,
+                                        borderRadius: `50%`,
+                                        backgroundClip: `padding-box, border-box`,
+                                        backgroundOrigin: `padding-box, border-box`,
+                                    }}
+                                />
+                                <img
+                                    src="/images/ranking/bg-top1.png"
+                                    alt="avatar"
+                                    className="w-5 h-5 absolute"
+                                    style={{
+                                        top: `45%`
+                                    }}
+                                />
+                                <span className="fw-bold text-xs absolute" style={{
+                                    top: `46%`,
+                                }}>1</span>
+                            </div>
+                            <span className="block fw-bold mt-3">{firstPositionUser.first_name + " " + firstPositionUser.last_name}</span>
                             {/* <span className="fw-light text-xs block">{calculatePercentile(firstPositionUser)}%</span> */}
-                        <span className="flex text-lg fw-bold items-center justify-center mt-1">
+                            <span className="flex text-lg fw-bold items-center justify-center mt-1">
                                 {firstPositionUser.amount_of_tokens !== 0 && (
-                            <img
-                                src="/images/home/coin.png"
-                                alt="coin"
+                                    <img
+                                        src="/images/home/coin.png"
+                                        alt="coin"
                                         className="w-4 h-4"
-                            />
+                                    />
                                 )}
 
-                            {formatNumber(firstPositionUser)}
-                        </span>
-                    </div>
+                                {formatNumber(firstPositionUser)}
+                            </span>
+                        </div>
                     )}
 
                     {thirdPositionUser && (<div className="bg-[#32363C] flex-1 text-center py-2 h-38" style={{ borderTopRightRadius: `1rem`, borderBottomRightRadius: `1rem` }}>
@@ -267,11 +267,11 @@ export default function Ranking() {
                         <span className="block fw-bold">{thirdPositionUser.first_name + " " + thirdPositionUser.last_name}</span>
                         <span className="flex fw-bold items-center justify-center">
                             {thirdPositionUser.amount_of_tokens !== 0 && (
-                            <img
-                                src="/images/home/coin.png"
-                                alt="coin"
-                                className="w-4 h-4"
-                            />
+                                <img
+                                    src="/images/home/coin.png"
+                                    alt="coin"
+                                    className="w-4 h-4"
+                                />
                             )}
                             {formatNumber(thirdPositionUser)}
                         </span>
@@ -280,34 +280,34 @@ export default function Ranking() {
                 </div>
                 {userRanking.length > 3 && userRanking.slice(3) && userRanking.slice(3).map((user, index) => {
                     return (
-                <div className="w-100 text-sm p-3">
-                    <div className="row p-2 rounded-xl items-center bg-[#19203b]">
-                        <div className="col-2 flex justify-center items-center p-0">
-                            <span
-                                className="border items-center justify-center fw-light"
-                                style={{
-                                    borderRadius: '50%',
-                                    border: '2px solid #fff',
-                                    minWidth: '23px',
-                                    minHeight: '23px',
-                                    display: 'inline-flex',
-                                }}
-                            >
+                        <div className="w-100 text-sm p-3" key={index}>
+                            <div className="row p-2 rounded-xl items-center bg-[#19203b]">
+                                <div className="col-2 flex justify-center items-center p-0">
+                                    <span
+                                        className="border items-center justify-center fw-light"
+                                        style={{
+                                            borderRadius: '50%',
+                                            border: '2px solid #fff',
+                                            minWidth: '23px',
+                                            minHeight: '23px',
+                                            display: 'inline-flex',
+                                        }}
+                                    >
                                         {index + 4}
-                            </span>
-                        </div>
+                                    </span>
+                                </div>
 
-                        <div className="col-2 flex justify-center items-center p-0">
-                            <img
-                                src="/images/ranking/avatar.png"
-                                alt="avatar"
-                                className="p-1 w-100"
-                            />
-                        </div>
-                        <div className="col-5">
+                                <div className="col-2 flex justify-center items-center p-0">
+                                    <img
+                                        src="/images/ranking/avatar.png"
+                                        alt="avatar"
+                                        className="p-1 w-100"
+                                    />
+                                </div>
+                                <div className="col-5">
                                     <span className="fw-bold block">{user.first_name + " " + user.last_name}</span>
                                     <span className="fw-light block text-xs">{formatNumber(user)} {user.amount_of_tokens !== 0 && "points"}</span>
-                        </div>
+                                </div>
                                 {/* {user.current_amount_of_tokens >= user.last_amount_of_tokens ? (
                         <div className="col-3 flex items-center justify-end">
                             <img
@@ -351,8 +351,8 @@ export default function Ranking() {
                             </span>
                         </div>
                                     )} */}
-                    </div>
-                </div>
+                            </div>
+                        </div>
                     )
                 })}
             </div>

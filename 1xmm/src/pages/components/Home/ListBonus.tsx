@@ -12,6 +12,22 @@ interface DetailBonusProps {
     onSelectBonuses: (selectedBonuses: Bonus[]) => Promise<void>;
 }
 
+export const getBenefitMeasure = (bonusType: BonusTypes): string => {
+    if (bonusType == BonusTypes.CapitalProtection) return '%';
+    if (bonusType == BonusTypes.TimeReduction) return 'h';
+    if (bonusType == BonusTypes.Friends) return '';
+    return 'x';
+};
+
+export const prettyPrint = (bonusType: BonusTypes): string => {
+    if (bonusType == BonusTypes.Leverage) return 'Leverage';
+    if (bonusType == BonusTypes.PositiveLeverage) return 'Positive Leverage';
+    if (bonusType == BonusTypes.CapitalProtection) return 'Capital Protection';
+    if (bonusType == BonusTypes.TimeReduction) return 'Time Reduction';
+    if (bonusType == BonusTypes.Friends) return 'Friends';
+    return 'N/A';
+};
+
 export default function ListBonus({
     open,
     onOpenChange,
@@ -31,29 +47,13 @@ export default function ListBonus({
         }
     };
 
-    const getBenefitMeasure = (bonusType: BonusTypes): string => {
-        if (bonusType == BonusTypes.CapitalProtection) return '%';
-        if (bonusType == BonusTypes.TimeReduction) return 'h';
-        if (bonusType == BonusTypes.Friends) return '';
-        return 'x';
-    };
-
-    const prettyPrint = (bonusType: BonusTypes): string => {
-        if (bonusType == BonusTypes.Leverage) return 'Leverage';
-        if (bonusType == BonusTypes.PositiveLeverage) return 'Positive Leverage';
-        if (bonusType == BonusTypes.CapitalProtection) return 'Capital Protection';
-        if (bonusType == BonusTypes.TimeReduction) return 'Time Reduction';
-        if (bonusType == BonusTypes.Friends) return 'Friends';
-        return 'N/A';
-    };
-
     return (
         <Drawer open={open} onOpenChange={onOpenChange} {...props}>
             <h2 className="text-xl font-medium uppercase p-2 text-center">
                 Select Bonuses
             </h2>
             <div className="flex flex-col justify-start pb-6 h-[calc(100vh-200px)] overflow-y-auto">
-                {bonusData.sort((a,b) => a.id - b.id).filter(b => b.bonus_definition.bonus_type != BonusTypes.Friends).map((bonus) => (
+                {bonusData.sort((a, b) => a.id - b.id).filter(b => b.bonus_definition.bonus_type != BonusTypes.Friends).map((bonus) => (
                     <div
                         key={bonus.id}
                         className="p-2 flex justify-between mb-2"
@@ -86,7 +86,7 @@ export default function ListBonus({
             <Button
                 className="rounded flex w-full fw-semibold py-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)]"
                 onClick={async () => { await onSelectBonuses(selectedBonuses); }}
-                >
+            >
                 <span className="font-normal text-lg">Add</span>
             </Button>
         </Drawer>

@@ -1,4 +1,3 @@
-import { Button } from '@/components/ui/button';
 import Drawer from './ui/drawer';
 
 interface DetailBonusProps {
@@ -13,6 +12,8 @@ export default function AirDrop({
     onSendAirDrop,
     ...props
 }: DetailBonusProps) {
+    console.log(onSendAirDrop);
+    
     return (
         <Drawer open={open} onOpenChange={onOpenChange} {...props}>
             <h2 className="text-xl font-medium uppercase p-2 text-center">
@@ -46,9 +47,9 @@ export default function AirDrop({
                 </p>
             </div>
             <div />
-            <Button className="rounded flex w-full fw-semibold py-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)]" onClick={onSendAirDrop}>
+            {/* <Button className="rounded flex w-full fw-semibold py-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)]" onClick={onSendAirDrop}>
                 <span className="font-normal text-lg">Send</span>
-            </Button>
+            </Button> */}
         </Drawer>
     );
 }

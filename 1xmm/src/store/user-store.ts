@@ -30,6 +30,7 @@ export type UserProfileStore = UserProfile & {
   unlocked_pairs: Pair[];
   available_task_ids: Array<number>;
   completed_task_ids: Array<number>;
+  completed_tasks: Array<any>;
   positionStore: PositionStore | undefined;
 }
 
@@ -72,7 +73,8 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
 
   available_task_ids: [],
   completed_task_ids: [],
-
+  completed_tasks: [],
+  
   UpdateUserAvatar: (avatar_id: number) => {
     set(() => ({
       avatar_id: avatar_id,

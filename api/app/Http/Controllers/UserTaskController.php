@@ -38,7 +38,7 @@ class UserTaskController extends Controller
     public function getUserCompletedTasks(Request $request)
     {
         $userTasks = UserTasks::where('telegram_user_id', $request->user()->telegram_user_id)
-            ->where('completed', true)->pluck('task_id');
+            ->where('completed', true)->get();
         return response()->json($userTasks);
     }
 }
