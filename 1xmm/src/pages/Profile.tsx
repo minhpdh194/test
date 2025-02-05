@@ -13,6 +13,7 @@ import { Pair } from "@/types/Pair";
 export default function Profile() {
     const [completedTasks, setCompletedTasks] = useState<TaskDefinition[]>([]);
     const [levelBenefit, setLevelBenefit] = useState<LevelBenefits>();
+
     const pairs = JSON.parse(localStorage.getItem("PairReferential") || "[]") as Pair[];
 
     useEffect(() => {
@@ -107,19 +108,16 @@ export default function Profile() {
                 <div className="w-100 bg-[#32363C] rounded-xl p-3 mt-3">
                     <div>Pairs unlocked:
                         <div className="grid grid-cols-3">
-                            {pairs && pairs.map && pairs.map((pair, index) => (
+                            {pairs && pairs.map && pairs.filter(pair => userProfile.unlocked_pair_ids.includes(pair.id)).map((pair, index) => (
                                 <div key={index}>
                                     {pair.pair_symbol}
                                 </div>
                             ))}
                         </div>
                     </div>
-                    <div>Positive Leverage Bonus: {levelBenefit?.positive_leverage}</div>
-                    <div>Cumulated Positive Bonus: {levelBenefit?.cumulated_positive_leverage}</div>
-                    <div>Protection Bonus: {levelBenefit?.protection_bonus}</div>
-                    <div>Cumulated Protection Bonus: {levelBenefit?.cumulated_protection_bonus}</div>
-                    <div>Time Bonus: {levelBenefit?.time_bonus}</div>
-                    <div>Cumulated Time Bonus: {levelBenefit?.cumulated_time_bonus}</div>
+                    <div>Cumulated Positive Leverage Bonus: +{levelBenefit?.cumulated_positive_leverage}x</div>
+                    <div>Cumulated Protection Bonus: +{levelBenefit?.cumulated_protection_bonus}%</div>
+                    <div>Cumulated Time Bonus: -{levelBenefit?.cumulated_time_bonus} min</div>
                     <div>Cumulated Tapping Amount: {levelBenefit?.cumulated_tapping_amount}</div>
                     <div>Gain Per Tap: {levelBenefit?.total_gain_per_tap}</div>
                 </div>
