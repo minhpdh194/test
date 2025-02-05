@@ -6,9 +6,19 @@ import { Utils } from "@/lib/utils";
 import { getBenefitMeasure, prettyPrint } from "./components/Home/ListBonus";
 import { BonusTerms } from "@/enums";
 import Star from "@/components/icons/BonusIcon/Star";
+import { levelBenefits } from "@/referential/levelBenefits";
+import { LevelBenefits } from "@/types/LevelBenefits";
+import { Pair } from "@/types/Pair";
 
 export default function Profile() {
     const [completedTasks, setCompletedTasks] = useState<TaskDefinition[]>([]);
+    const [levelBenefit, setLevelBenefit] = useState<LevelBenefits>();
+    const pairs = JSON.parse(localStorage.getItem("PairReferential") || "[]") as Pair[];
+
+    useEffect(() => {
+        const currentBenefits = levelBenefits.find(benefit => benefit.level === userProfile.level);
+        setLevelBenefit(currentBenefits);
+    }, [userProfile.level])
 
     useEffect(() => {
         const tasks = getAllTasks.filter(task => userProfile.completed_task_ids.includes(task.id));
@@ -85,15 +95,36 @@ export default function Profile() {
                             />
                             <span className="fw-bold">
                                 ${userProfile.trading_info.total_pnl.toFixed(2) ?? 0}
-                                <span className="text-xs">
-                                    ({userProfile.trading_info?.perf_from_start_date.toFixed(2) ?? 0}% perf)
-                                </span>
                             </span>
 
                         </div>
                     </div>
                 </div>
             </div>
+
+            <div className="mt-4">
+                <span className="fw-bold">Level Bonuses</span>
+                <div className="w-100 bg-[#32363C] rounded-xl p-3 mt-3">
+                    <div>Pairs unlocked:
+                        <div className="grid grid-cols-3">
+                            {pairs && pairs.map && pairs.map((pair, index) => (
+                                <div key={index}>
+                                    {pair.pair_symbol}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div>Positive Leverage Bonus: {levelBenefit?.positive_leverage}</div>
+                    <div>Cumulated Positive Bonus: {levelBenefit?.cumulated_positive_leverage}</div>
+                    <div>Protection Bonus: {levelBenefit?.protection_bonus}</div>
+                    <div>Cumulated Protection Bonus: {levelBenefit?.cumulated_protection_bonus}</div>
+                    <div>Time Bonus: {levelBenefit?.time_bonus}</div>
+                    <div>Cumulated Time Bonus: {levelBenefit?.cumulated_time_bonus}</div>
+                    <div>Cumulated Tapping Amount: {levelBenefit?.cumulated_tapping_amount}</div>
+                    <div>Gain Per Tap: {levelBenefit?.total_gain_per_tap}</div>
+                </div>
+            </div>
+
             <div className="mt-4">
                 <span className="fw-bold">Completed Tasks</span>
                 <div className="w-100 bg-[#32363C] rounded-xl p-3 mt-3">
