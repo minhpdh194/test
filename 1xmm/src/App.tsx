@@ -35,7 +35,7 @@ declare global {
   var userProfile: UserProfileStore;
   var spots: SpotType[];
   var globalIndices: PusherIndex[];
-  var starsTarget: number;
+  var coinTarget: number;
   var userInvitedFriends: Friend[];
   var isPositionOpenable: boolean;
 }
@@ -152,7 +152,7 @@ function App() {
 
         setProgress(75);
 
-        globalThis.starsTarget = await COMM.getStarsTarget($http);
+        globalThis.coinTarget = await COMM.getCoinTarget($http);
         await COMM.bonusExpiry($http, bonusesToDelete);
         COMM.updatePositions(cleanedPositions);
 

@@ -49,6 +49,8 @@ class TelegramStarController extends Controller
         }
 
         $settings = Settings::where('name', 'stars_spent')->first();
+        $conversion = Settings::where('name', 'conversion_rate')->first()->value;
+        $total_coins = round(floatval($settings->value) / (0.025 * floatval($conversion)), 0, PHP_ROUND_HALF_DOWN) * 0.025;
 
         $telegramProfile->number_of_stars += $request['package']['number_of_stars'];
         $telegramProfile->save();
@@ -69,8 +71,7 @@ class TelegramStarController extends Controller
         );
 
         try {
-            $pusher->trigger('totalStars', 'data', ['totalStars' => $settings->value]);
-            \Log::info('test pusher', ['result' => $settings->value]);
+            $pusher->trigger('totalCoins', 'data', ['totalCoins' => $total_coins]);
         } catch (\Throwable $e) {
             \Log::info('error pusher', ['error' => $e->getMessage()]);
         }

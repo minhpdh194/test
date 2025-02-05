@@ -28,15 +28,17 @@ class UserService
 
         try {
             $pusher->trigger('pairs', 'data', ['pairs' => $spots]);
-            \Log::info('test pusher', ['result' => $spots]);
         } catch (\Throwable $e) {
             \Log::info('error pusher', ['error' => $e->getMessage()]);
         }
     }
 
-    public function getCurrrentTotalStars()
+    public function getCurrentTotalStars()
     {
         $totalStars = Settings::where('name', 'stars_spent')->first()->value;
+        $conversion = Settings::where('name', 'conversion_rate')->first()->value;
+        $total_coins = round(floatval($totalStars) / (0.025 * floatval($conversion)), 0, PHP_ROUND_HALF_DOWN) * 0.025;
+
         $options = array(
             'cluster' => 'ap2',
             'useTLS' => true
@@ -51,7 +53,6 @@ class UserService
 
         try {
             $pusher->trigger('totalStars', 'data', ['totalStars' => $totalStars]);
-            \Log::info('test pusher', ['result' => $totalStars]);
         } catch (\Throwable $e) {
             \Log::info('error pusher', ['error' => $e->getMessage()]);
         }

@@ -31,10 +31,13 @@ use App\Models\Settings;
 */
 
 // Public routes
-Route::get('/total-stars', function () {
+Route::get('/total-coins', function () {
     $response = Settings::where('name', 'stars_spent')->first()->value;
-    return response()->json(['total_stars' => $response]);
+    $conversion = Settings::where('name', 'conversion_rate')->first()->value;
+    $total_coins = round(floatval($response) / (0.025 * floatval($conversion)), 0, PHP_ROUND_HALF_DOWN) * 0.025;
+    return response()->json(['total_coins' => $total_coins]);
 });
+
 Route::post('/auth/telegram-user', [AuthController::class, 'telegramUser']);
 
 // Protected routes

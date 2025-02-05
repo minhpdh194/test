@@ -28,7 +28,7 @@ export default function AirDrop({
                 <br />
                 <p>
                     Up to 2 million tokens will be offered in exchange of bonuses purchased through the mini-app,
-                    at a rate of US$0.30 per token (or a discount of 40% compared to sales target price).
+                    at a rate of 20 stars per token (or a discount of around 40% compared to sales target price).
                     If we try to inform users in real time when bonuses are purchased, to indicate whether
                     the limit of 2 million has been reached, we cannot guarantee that users purchasing bonuses
                     when around the 2 million limit will receive any 1XMM token in compensation. Nevertheless,

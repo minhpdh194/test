@@ -27,10 +27,10 @@ export default function Bonus() {
         //     const total_stars = await COMM.getStarsTarget($http);
         //     setStarsTarget(total_stars);
         // }, 2500);
-        const totalStars = pusher.subscribe("totalStars");
+        const totalCoins = pusher.subscribe("totalCoins");
 
-        totalStars.bind("data", (data: any) => {
-            globalThis.starsTarget = data.totalStars;
+        totalCoins.bind("data", (data: any) => {
+            globalThis.coinTarget = data.totalCoins;
         });
 
         const fetchBonusData = async () => {
@@ -239,11 +239,11 @@ export default function Bonus() {
 
             <div className="progress-bar mt-4">
                 <div className="mb-1">
-                    <ProgressBar completed={globalThis.starsTarget / 2_000_000} />
+                    <ProgressBar completed={globalThis.coinTarget / 2_000_000} />
                 </div>
                 <div className="flex justify-between">
                     <div className="font-bold text-sm">
-                        {globalThis.starsTarget}
+                        {globalThis.coinTarget}
                     </div>
                     <div className="font-bold text-sm">
                         2,000,000

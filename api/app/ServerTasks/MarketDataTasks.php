@@ -91,10 +91,9 @@ class MarketDataTasks
         }
     }
 
-    public function storeSpots($pairs) {
+    public function storeSpots($pairs, $now) {
         $createdSpots = [];
         $crypto_data = $this->getSpotsFromMarket($pairs);
-        $now = Carbon::now();
 
         foreach ($pairs as $pair) {
             $createdSpot = $this->marketDataService->updateOrCreateSpotData($pair, $crypto_data[$pair->cmc_id]['quote']['USD']['price'], $now);
@@ -163,7 +162,7 @@ class MarketDataTasks
             }
             catch (\Exception $e)
             {
-                \Log::info('Error getting data from Deribit API', ['error' => $e->getMessage()]);
+                \Log::info('error getting data from Deribit API', ['error' => $e->getMessage()]);
             }
 
             if (isset($data['result'])) {
@@ -291,7 +290,7 @@ class MarketDataTasks
         }
     }
 
-    public function getXPairsParameters($xpairs, $T)
+    public function getXPairsParameters($xpairs, $T, $now)
     {
         $n = 30;
 
@@ -321,7 +320,7 @@ class MarketDataTasks
             $fwd = $vol_fwd1->forward / $vol_fwd2->forward;
             $vol = sqrt($vol_fwd1->volatility * $vol_fwd1->volatility + $vol_fwd2->volatility * $vol_fwd2->volatility + 2.0 * $corr * $vol_fwd1->volatility * $vol_fwd2->volatility);
 
-            $this->marketDataService->updateOrCreateSpotData($pair, $spot);
+            $this->marketDataService->updateOrCreateSpotData($pair, $spot, $now);
 
             VolAndFwd::updateOrCreate(
                 ['pair_id' => $pair->id],
@@ -433,10 +432,12 @@ class MarketDataTasks
         $natural_pairs = Pair::where('counter_symbol', 'USD')->get();
         $xpairs = Pair::where('counter_symbol', '!=', 'USD')->get();
 
-        $createdSpots = $this->storeSpots($natural_pairs);
+        $now = Carbon::now();
+        
+        $createdSpots = $this->storeSpots($natural_pairs, $now);
         $T = $this->getYieldsAndVolatilitiesFromMarket($createdSpots);
         $this->getCorrelatedParameters($natural_pairs);
-        if ($xpairs) $this->getXPairsParameters($xpairs, $T);
+        if ($xpairs) $this->getXPairsParameters($xpairs, $T, $now);
 
         $last_indices = $this->computeFixings(Pair::all(), $T);
 
@@ -454,10 +455,7 @@ class MarketDataTasks
         $createdSpots = array_values($createdSpots);
         try {
             $pusher->trigger('pairs', 'data', ['pairs' => $createdSpots]);
-            \Log::info('test pusher', ['result' => $createdSpots]);
-
             $pusher->trigger('indices', 'data', ['indices' => $last_indices]);
-            \Log::info('test pusher', ['result' => $last_indices]);
         } catch (\Throwable $e) {
             $notify[] = ['warning', 'Pusher Not Properly Set'];
             \Log::info('error pusher', ['error' => $e->getMessage()]);
@@ -470,8 +468,6 @@ class MarketDataTasks
     {
         $tick = Ticks::where('coin_symbol', $coin)->first()->value;
         $pair = Pair::where('coin_symbol', $coin)->first();
-        // $spot = Spot::where('pair_id', $pair->id)->first()->current_value;
-        \Log::info($new_spot_value);
         $strike = floor($new_spot_value / $tick) * $tick;
         return sprintf("%s-%s-%s-P", $opt_symb, $expiry, $strike);
     }
