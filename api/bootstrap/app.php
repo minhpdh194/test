@@ -42,7 +42,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'cache.headers' => CustomHeaders::class,
             'abilities' => CheckAbilities::class,
             'ability' => CheckForAnyAbility::class,
-            'encrypt.response' => EncryptMiddleware::class,
             'decrypt.request' => DecryptMiddleware::class,
         ]);
     })

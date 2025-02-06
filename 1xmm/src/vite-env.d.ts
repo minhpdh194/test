@@ -14,7 +14,7 @@ interface ImportMetaEnv {
   readonly VITE_REFERRAL_LINK: string;
   readonly VITE_TELEGRAM_BOT_API_TOKEN: string;
   readonly VITE_WALLET_CONNECT_PROJECT_ID: string;
-  readonly VITE_APP_KEY: string;
+  readonly VITE_SECRET_KEY: string;
 }
 
 interface ImportMeta {

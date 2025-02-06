@@ -1,4 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
+import KJUR from 'jsrsasign';
+
+const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
 
 declare module "axios" {
   export interface AxiosInstance {
@@ -9,9 +12,13 @@ declare module "axios" {
 const token = localStorage.getItem("token");
 
 const encryptData = (data: any) => {
-  const jsonString = JSON.stringify(data);
-  return btoa(jsonString);
-};
+  const oHeader = { alg: 'HS256', typ: 'JWT' };
+  const sHeader = JSON.stringify(oHeader);
+  const sPayload = JSON.stringify(data);
+  const jwtLib = KJUR as any;
+  const jwtEncodedData = jwtLib.jws.JWS.sign("HS256", sHeader, sPayload, SECRET_KEY);
+  return jwtEncodedData;
+}
 
 const $http: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL + "/api",
@@ -29,11 +36,10 @@ $http.$get = async <T>(url: string, config?: AxiosRequestConfig) => {
 
 $http.interceptors.request.use(
   (config) => {
-    if (config.data) {
+    if (config.method !== 'get' && config.data) {
       const encryptedData = encryptData(config.data);
       config.data = encryptedData;
     }
-    console.log(config);
     return config;
   },
   (error) => {
