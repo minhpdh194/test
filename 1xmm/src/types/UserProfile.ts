@@ -2,8 +2,6 @@ import { TradingInfo } from "./TradingInfo";
 
 export type UserProfile = {
   // Main user profile info
-
-  // Main user profile info
   id: number;
   telegram_user_id: number;
   first_name: string;
@@ -27,4 +25,7 @@ export type UserProfile = {
   login_streak: number;
 
   number_of_stars: number;
+  
+  selected_crypto: number;
+  wallet_address: string
 }

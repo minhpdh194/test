@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 import AirDrop from "../AirDrop";
 import { useTonConnectUI } from "@tonconnect/ui-react";
+import WalletConnector from "../WalletConnector";
 
 interface SidebarProps {
     toggleSidebar: () => void;
@@ -10,14 +11,15 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
     const [tonConnectUI] = useTonConnectUI();
     const [isConnected, setIsConnected] = useState<boolean>(false);
-    const [openBonusDrawer, setOpenBonusDrawer] = useState(false);
+    const [openAirDropDrawer, setOpenAirDropDrawer] = useState(false);
+    const [openWalletConnectorDrawer, setOpenWalletConnectorDrawer] = useState(false);
 
     const handleOpenTelegramChannel = () => {
         window.Telegram.WebApp.openTelegramLink("https://t.me/onexmm_official")
     }
 
     const handleSendAirDrop = () => {
-        setOpenBonusDrawer(false);
+        setOpenAirDropDrawer(false);
     }
 
     const handleTonAction = async () => {
@@ -129,7 +131,7 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
                         className="w-3 h-6"
                     />
                 </a>
-                <span className="flex justify-between align-center mt-3" onClick={() => setOpenBonusDrawer(true)}>
+                <span className="flex justify-between align-center mt-3" onClick={() => setOpenAirDropDrawer(true)}>
                     <span className="cursor-pointer">Airdrop</span>
                     <img
                         src="/images/home/angle-right.png"
@@ -154,9 +156,20 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
                     />
                 </a>
 
+                <span className="flex justify-between align-center mt-3" onClick={() => setOpenWalletConnectorDrawer(true)}>
+                    <span className="cursor-pointer">
+                        Connect Wallet
+                    </span>
+                    <img
+                        src="/images/home/angle-right.png"
+                        alt="trophy"
+                        className="w-3 h-6"
+                    />
+                </span>
+
                 <span className="flex justify-between align-center mt-3" onClick={handleTonAction}>
                     <span className="cursor-pointer">
-                        {isConnected ? 'Disconnect Wallet' : 'Connect Wallet'}
+                        {isConnected ? 'Disconnect TON Wallet' : 'Connect TON Wallet'}
                     </span>
                     <img
                         src="/images/home/angle-right.png"
@@ -167,9 +180,14 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
 
                 {/* <WalletConnector /> */}
                 <AirDrop
-                    open={openBonusDrawer}
+                    open={openAirDropDrawer}
                     onSendAirDrop={handleSendAirDrop}
-                    onOpenChange={setOpenBonusDrawer}
+                    onOpenChange={setOpenAirDropDrawer}
+                />
+
+                <WalletConnector
+                    open={openWalletConnectorDrawer}
+                    onOpenChange={setOpenWalletConnectorDrawer}
                 />
             </div>
         </div>

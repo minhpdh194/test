@@ -148,4 +148,27 @@ class TelegramUserController extends Controller
             'message' => 'User profile not found'
         ], 404);
     }
+
+    public function saveUserWallet(Request $request)
+    {
+        $user = $request->user();
+        $userProfile = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
+
+        if ($userProfile) {
+            $userProfile->update([
+                'crypto' => $request->crypto_id,
+                'wallet_address' => $request->wallet_address
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Wallet updated successfully',
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'User profile not found'
+        ], 404);
+    }
 }
