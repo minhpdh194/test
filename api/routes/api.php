@@ -16,8 +16,10 @@ use App\Http\Controllers\TelegramStarController;
 
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\BonusController;
-
+use App\Http\Middleware\DecryptMiddleware;
+use App\Http\Middleware\EncryptMiddleware;
 use App\Models\Settings;
+use Illuminate\Foundation\Configuration\Middleware;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,10 +40,11 @@ Route::get('/total-coins', function () {
     return response()->json(['total_coins' => $total_coins]);
 });
 
-Route::post('/auth/telegram-user', [AuthController::class, 'telegramUser']);
+Route::post('/auth/telegram-user', [AuthController::class, 'telegramUser'])
+    ->middleware([DecryptMiddleware::class]);
 
 // Protected routes
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'decrypt.request'])->group(function () {
     Route::post('/user_session', [AuthController::class, 'userSession']);
     Route::get('/referred-users', [FriendsController::class, 'referredUsers']);
 

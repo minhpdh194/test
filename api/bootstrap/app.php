@@ -8,7 +8,8 @@ use Illuminate\Http\Middleware\SetCacheHeaders;
 use Laravel\Sanctum\Http\Middleware\CheckAbilities;
 use Laravel\Sanctum\Http\Middleware\CheckForAnyAbility;
 
-use App\Http\Middleware\CorsMiddleware;
+use App\Http\Middleware\DecryptMiddleware;
+use App\Http\Middleware\EncryptMiddleware;
 
 class CustomHeaders extends SetCacheHeaders
 {
@@ -41,6 +42,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'cache.headers' => CustomHeaders::class,
             'abilities' => CheckAbilities::class,
             'ability' => CheckForAnyAbility::class,
+            'encrypt.response' => EncryptMiddleware::class,
+            'decrypt.request' => DecryptMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
