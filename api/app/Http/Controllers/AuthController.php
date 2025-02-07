@@ -45,12 +45,13 @@ class AuthController extends Controller
 
     public function telegramUser(Request $request)
     {
-        $validated = $request->validate([
-            'telegram_user_id' => 'required|string',
-            'first_name' => 'required|string',
-            'last_name' => 'nullable|string',
-            'username' => 'nullable|string',
-        ]);
+        \Log::info($request);
+        // $validated = $request->validate([
+        //     'telegram_user_id' => 'required|string',
+        //     'first_name' => 'required|string',
+        //     'last_name' => 'nullable|string',
+        //     'username' => 'nullable|string',
+        // ]);
 
         $existUser = TelegramUser::where('telegram_user_id', $request->get('telegram_user_id'))->first();
 
@@ -71,7 +72,7 @@ class AuthController extends Controller
             [
                 'telegram_user_id' => $request->get('telegram_user_id'),
             ],
-            $validated
+            $request
         );
 
         $gameData = UserGameData::firstOrCreate(
