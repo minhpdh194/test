@@ -2,15 +2,8 @@
 
 namespace App\Http\Middleware;
 
-use App\Utils\DecryptUtil;
-use App\Utils\EncryptUtil;
 use Closure;
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Crypt;
-use phpseclib3\Crypt\RSA;
-use Symfony\Component\HttpFoundation\Response;
 
 class DecryptMiddleware
 {
