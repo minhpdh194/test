@@ -3,6 +3,8 @@ import { useCallback, useEffect, useState } from "react";
 import AirDrop from "../AirDrop";
 import { useTonConnectUI } from "@tonconnect/ui-react";
 import WalletConnector from "../WalletConnector";
+import LanguageSelection from "../LanguageSelection";
+import { useTranslation } from "react-i18next";
 
 interface SidebarProps {
     toggleSidebar: () => void;
@@ -13,7 +15,12 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
     const [isConnected, setIsConnected] = useState<boolean>(false);
     const [openAirDropDrawer, setOpenAirDropDrawer] = useState(false);
     const [openWalletConnectorDrawer, setOpenWalletConnectorDrawer] = useState(false);
+    const [openLanguageSelection, setOpenLanguageSelection] = useState(false);
 
+    const { t } = useTranslation();
+    const line1 = t("detail.line1");
+    const line2 = t("detail.line2");
+    console.log(line1, line2);
     const handleOpenTelegramChannel = () => {
         window.Telegram.WebApp.openTelegramLink("https://t.me/onexmm_official")
     }
@@ -115,7 +122,7 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
                         </div>
                     </Link>
                 </div>
-                <span className="flex justify-between align-center mt-4">
+                <span className="flex justify-between align-center mt-4" onClick={() => setOpenLanguageSelection(true)}>
                     <span className="cursor-pointer">Language</span>
                     <img
                         src="/images/home/angle-right.png"
@@ -188,6 +195,16 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
                 <WalletConnector
                     open={openWalletConnectorDrawer}
                     onOpenChange={setOpenWalletConnectorDrawer}
+                />
+
+                <WalletConnector
+                    open={openWalletConnectorDrawer}
+                    onOpenChange={setOpenWalletConnectorDrawer}
+                />
+
+                <LanguageSelection
+                    open={openLanguageSelection}
+                    onOpenChange={setOpenLanguageSelection}
                 />
             </div>
         </div>

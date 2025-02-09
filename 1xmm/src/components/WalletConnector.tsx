@@ -21,10 +21,7 @@ export default function WalletConnector({
     const handleToggle = (index: any) => {
         setSelectedItem(index === selectedItem ? null : index);
     };
-
-    console.log(selectedItem);
-    console.log(walletAddress);
-
+    
     const saveWallet = async () => {
         if (selectedItem && walletAddress) {
             const response = await $http.post('/save-user-wallet-info', {

@@ -7,5 +7,5 @@ i18next.use(LanguageDetector).use(initReactI18next).use(Backend).init({
   returnObjects: true,
   fallbackLng: "en", // Language to fallback to if the selected is not configured
   debug: true, //To enable us see errors
-  //   lng: "en", //Default language as english
+  lng: "en", //Default language as english
 });
