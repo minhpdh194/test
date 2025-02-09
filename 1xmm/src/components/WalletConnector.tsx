@@ -5,6 +5,7 @@ import { CryptoList } from '@/referential/cryptoChecklist';
 import { Button } from './ui/button';
 import { $http } from '@/lib/http';
 import { useTranslation } from 'react-i18next';
+import { menu } from '@/referential/i18nPrefixes';
 
 interface DetailBonusProps {
     open: boolean;
@@ -41,7 +42,7 @@ export default function WalletConnector({
     return (
         <Drawer open={open} onOpenChange={onOpenChange} {...props}>
             <h2 className="text-xl font-medium uppercase p-2 text-center">
-                {t("menu.wallet_connector.title")}
+                {t(`${menu}.wallet_connector.title`)}
             </h2>
             <div className="max-w-sm mx-auto rounded-lg">
                 <List>
@@ -68,7 +69,7 @@ export default function WalletConnector({
                 />
 
                 <Button className="rounded flex w-full fw-semibold py-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)] mt-4" onClick={saveWallet}>
-                    <span className="font-normal text-lg">{t("menu.wallet_connector.save")}</span>
+                    <span className="font-normal text-lg">{t(`${menu}.wallet_connector.save`)}</span>
                 </Button>
             </div>
         </Drawer>

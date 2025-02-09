@@ -8,6 +8,7 @@ import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import { $http } from "@/lib/http";
 import { useTranslation } from "react-i18next";
+import { months, ranking } from "@/referential/i18nPrefixes";
 
 interface Payload {
     date?: string;
@@ -92,22 +93,22 @@ export default function Ranking() {
         end: currentWeekEnd
     };
 
-    const months = [
-        t("months.january"),
-        t("months.february"),
-        t("months.march"),
-        t("months.april"),
-        t("months.may"),
-        t("months.june"),
-        t("months.july"),
-        t("months.august"),
-        t("months.september"),
-        t("months.october"),
-        t("months.november"),
-        t("months.december"),
+    const monthList = [
+        t(`${months}.january`),
+        t(`${months}.february`),
+        t(`${months}.march`),
+        t(`${months}.april`),
+        t(`${months}.may`),
+        t(`${months}.june`),
+        t(`${months}.july`),
+        t(`${months}.august`),
+        t(`${months}.september`),
+        t(`${months}.october`),
+        t(`${months}.november`),
+        t(`${months}.december`),
     ];
 
-    const selectedMonth = months[new Date().getMonth()];
+    const selectedMonth = monthList[new Date().getMonth()];
 
     const firstPositionUser = userRanking[0];
     const secondPositionUser = userRanking[1];
@@ -125,15 +126,15 @@ export default function Ranking() {
             <div className="mt-4 mb-8">
                 <div className="flex gap-2 w-100 text-sm">
                     <div className="bg-[#32363C] flex-1 text-center py-2 rounded-lg" onClick={() => setSelectedFilter(0)}>
-                        <span className="text-[#F79841] fw-semibold">{t("ranking.daily")}</span>
+                        <span className="text-[#F79841] fw-semibold">{t(`${ranking}.daily`)}</span>
                         <span className="fw-light block">{Utils.formatDate(selectedDate.toUTCString())}</span>
                     </div>
                     <div className="bg-[#32363C] flex-1 text-center py-2 rounded-lg" onClick={() => setSelectedFilter(1)}>
-                        <span className="text-[#6F72E2] fw-semibold">{t("ranking.weekly")}</span>
+                        <span className="text-[#6F72E2] fw-semibold">{t(`${ranking}.weekly`)}</span>
                         <span className="fw-light block">{format(selectedWeek.start, 'MMM dd')} - {format(selectedWeek.end, 'MMM dd')}</span>
                     </div>
                     <div className="bg-[#32363C] flex-1 text-center py-2 rounded-lg" onClick={() => setSelectedFilter(2)}>
-                        <span className="text-[#84CB69] fw-semibold">{t("ranking.monthly")}</span>
+                        <span className="text-[#84CB69] fw-semibold">{t(`${ranking}.monthly`)}</span>
                         <span className="fw-light block">{selectedMonth}</span>
                     </div>
                 </div>

@@ -6,6 +6,7 @@ import ListFriend from "./components/Friends/ListFriend";
 import { Friend } from "@/types/Friend";
 import { $http } from "@/lib/http";
 import pusher from "@/lib/pusher";
+import { useTranslation } from "react-i18next";
 
 const shareMessage = encodeURI(
   "Play 1xMM with me!"
@@ -15,6 +16,8 @@ export default function Friends() {
   const [, copy] = useCopyToClipboard();
   // const { referral, levels } = uesStore();
   const [friends, setFriends] = useState<Friend[]>(globalThis.userInvitedFriends);
+  const prefix = "friends";
+  const { t } = useTranslation();
 
   const appLink = useMemo(
     () => `${import.meta.env.VITE_BOT_URL}/?startapp=ref${userProfile.telegram_user_id}`,
@@ -46,8 +49,8 @@ export default function Friends() {
       }}>
       <Header amount_token={userProfile.amount_of_tokens} />
       <div className="mt-6 w-100">
-        <span className="flex justify-center fw-bolder text-2xl">Invite Friends!</span>
-        <span className="flex text-center text-sm">Lorem Ipsum has been the industry's standard dummy text ever since the 1500s</span>
+        <span className="flex justify-center fw-bolder text-2xl">{t(`${prefix}.invite_friends`)}</span>
+        <span className="flex text-center text-sm">{t(`${prefix}.description`)}</span>
         <div className="flex justify-between mt-4 gap-2">
           <div className="bg-[#32363C] rounded-lg relative w-48 h-30">
             <div className="relative w-full">
@@ -59,7 +62,7 @@ export default function Friends() {
             </div>
             <div className="text-center p-1 pt-3">
               <span className="text-[#F79841] text-xl fw-bold">+ 20,000</span>
-              <span className="text-xs block">for you & friends </span>
+              <span className="text-xs block">{t(`${prefix}.bonus_for`)}</span>
             </div>
           </div>
           <div className="w-48 bg-[#32363C] rounded-lg relative">
@@ -72,7 +75,7 @@ export default function Friends() {
             </div>
             <div className="text-center p-1 pt-3">
               <span className="text-[#F79841] text-xl fw-bold">+ 25,000</span>
-              <span className="text-xs block">for you & friends if he has account Premium </span>
+              <span className="text-xs block">{t(`${prefix}.bonus_for_premium`)}</span>
             </div>
           </div>
         </div>
@@ -82,13 +85,13 @@ export default function Friends() {
               Telegram.WebApp.openTelegramLink(
                 `https://t.me/share/url?text=${shareMessage}&url=${appLink}`
               )
-            }>Share invite link</button>
+            }>{t(`${prefix}.share_invite_link`)}</button>
           </div>
           <div className="text-center py-2 rounded-lg w-48 h-30" style={{ background: `linear-gradient(142.18deg, #5155DA 21.85%, #2B2D74 78.15%)` }}>
             <button type="button" className="fw-bold text-sm" onClick={() => {
               copy(referralLink);
               toast.success("Referral link copied to clipboard");
-            }}>Copy invite link</button>
+            }}>{t(`${prefix}.copy_invite_link`)}</button>
           </div>
         </div>
         <div className="flex justify-between mt-3">
@@ -97,25 +100,25 @@ export default function Friends() {
               Telegram.WebApp.openTelegramLink(
                 `https://t.me/share/url?text=${shareMessage}&url=${appLink}`
               )
-            }>Invite Friend</button>
+            }>{t(`${prefix}.invite_friends`)}</button>
           </div>
         </div>
       </div>
       <div className="mt-3 mb-4">
-        <span className="text-md">Friends</span>
+        <span className="text-md">{t(`${prefix}.friends`)}</span>
         <div className="bg-[#32363C] rounded-xl mt-2">
           <div className="gap-4">
             <div className="flex p-3 pb-1 gap-2">
               <button
                 className={`p-2 text-sm w-full rounded-xl bg-[linear-gradient(180deg,#F79841_38.34%,#F9D838_100%)] fw-bold`}
               >
-                Referrals
+                {t(`${prefix}.referrals`)}
               </button>
             </div>
             <div className="p-3 pt-0">
-                <div className="tab-content">
-                  <ListFriend referedUsers={friends} />
-                </div>
+              <div className="tab-content">
+                <ListFriend referedUsers={friends} />
+              </div>
             </div>
           </div>
         </div>

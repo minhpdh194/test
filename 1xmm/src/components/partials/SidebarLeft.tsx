@@ -5,6 +5,7 @@ import { useTonConnectUI } from "@tonconnect/ui-react";
 import WalletConnector from "../WalletConnector";
 import LanguageSelection from "../LanguageSelection";
 import { useTranslation } from "react-i18next";
+import { menu } from "@/referential/i18nPrefixes";
 
 interface SidebarProps {
     toggleSidebar: () => void;
@@ -82,7 +83,7 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
             >
                 <button type="button" className="flex items-center fw-bold space-x-2" onClick={toggleSidebar}>
                     <img src="/images/home/back.png" alt="back" className="w-10 h-10" />
-                    <span>{t("menu.menu")}</span>
+                    <span>{t(`${menu}.menu`)}</span>
                 </button>
 
                 <div className="w-100 bg-[#32363C] rounded-xl mt-4">
@@ -100,7 +101,7 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
                             </p>
                             <p className="text-xs font-medium flex items-center mt-3 space-x-1">
                                 <img src="/images/home/trophy.png" alt="trophy" className="w-4 h-4" />
-                                <span>{t("menu.level")} {userProfile?.level}</span>
+                                <span>{t(`${menu}.level`)} {userProfile?.level}</span>
                                 &nbsp;&nbsp;&nbsp;
                                 <img src="/images/home/play.png" alt="play" className="w-3 h-4" />
                             </p>
@@ -109,32 +110,32 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
                 </div>
 
                 <span className="flex justify-between align-center mt-4" onClick={() => setOpenLanguageSelection(true)}>
-                    <span className="cursor-pointer">{t("menu.language")}</span>
+                    <span className="cursor-pointer">{t(`${menu}.language`)}</span>
                     <img src="/images/home/angle-right.png" alt="arrow" className="w-3 h-6" />
                 </span>
 
                 <a target="blank" href="https://one-xmm.com" className="flex hover:text-white select-none justify-between align-center mt-3">
-                    <span className="cursor-pointer">{t("menu.website")}</span>
+                    <span className="cursor-pointer">{t(`${menu}.website`)}</span>
                     <img src="/images/home/angle-right.png" alt="arrow" className="w-3 h-6" />
                 </a>
 
                 <span className="flex justify-between align-center mt-3" onClick={() => setOpenAirDropDrawer(true)}>
-                    <span className="cursor-pointer">{t("menu.airdrop")}</span>
+                    <span className="cursor-pointer">{t(`${menu}.airdrop`)}</span>
                     <img src="/images/home/angle-right.png" alt="arrow" className="w-3 h-6" />
                 </span>
 
                 <span className="flex justify-between align-center mt-3" onClick={handleOpenTelegramChannel}>
-                    <span className="cursor-pointer">{t("menu.telegram_channel")}</span>
+                    <span className="cursor-pointer">{t(`${menu}.telegram_channel`)}</span>
                     <img src="/images/home/angle-right.png" alt="arrow" className="w-3 h-6" />
                 </span>
 
                 <a target="blank" href="https://www.one-xmm.com/news/1" className="flex hover:text-white select-none justify-between align-center mt-3">
-                    <span className="cursor-pointer">{t("menu.user_manual")}</span>
+                    <span className="cursor-pointer">{t(`${menu}.user_manual`)}</span>
                     <img src="/images/home/angle-right.png" alt="arrow" className="w-3 h-6" />
                 </a>
 
                 <span className="flex justify-between align-center mt-3" onClick={() => setOpenWalletConnectorDrawer(true)}>
-                    <span className="cursor-pointer">{t("menu.connect_wallet")}</span>
+                    <span className="cursor-pointer">{t(`${menu}.connect_wallet`)}</span>
                     <img src="/images/home/angle-right.png" alt="arrow" className="w-3 h-6" />
                 </span>
 

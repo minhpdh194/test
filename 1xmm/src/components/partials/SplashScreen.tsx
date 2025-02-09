@@ -1,6 +1,7 @@
 import React from 'react';
 import ProgressBar from './components/ProgressBar';
 import { useTranslation } from 'react-i18next';
+import { splash_screen } from '@/referential/i18nPrefixes';
 
 interface SplashScreenProps {
   progress: number;
@@ -21,12 +22,12 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ progress }) => {
           }}
         >
           <h1 className="text-3xl mt-4 font-bold text-center uppercase px-3 mb-2">
-            {t("splash_screen.greeting")}
+            {t(`${splash_screen}.greeting`)}
           </h1>
           <div className="flex justify-center">
             <div className="flex-1 mb-4">
               <p className="text-center text-sm">
-                {t("splash_screen.visit_msg")}
+                {t(`${splash_screen}.visit_msg`)}
               </p>
               <p className="text-center fw-bold text-lg">www.one-xmm.com</p>
             </div>

@@ -6,6 +6,7 @@ import { $http } from "@/lib/http";
 import { Button } from "@mui/material";
 import { userProfileStore } from "@/store/user-store";
 import { useTranslation } from "react-i18next";
+import { home, menu } from "@/referential/i18nPrefixes";
 
 // deprecated - to be removed
 type HeaderProps = React.HtmlHTMLAttributes<HTMLDivElement> & {
@@ -75,7 +76,7 @@ export default function Header({
                                     className="w-4 h-4"
                                 /> &nbsp;
                                 <span>
-                                    {t("menu.level")} {userProfile.level}
+                                    {t(`${menu}.level`)} {userProfile.level}
                                 </span>
                             </p>
                         </div>
@@ -106,7 +107,7 @@ export default function Header({
                 <DialogContent className="popup-body w-[calc(100%-2rem)]">
                     <div className="flex flex-col items-center justify-center text-center">
                         <DialogTitle className="text-black text-xl font-bold">
-                            {t("home.avatar_selection")}
+                            {t(`${home}.avatar_selection`)}
                         </DialogTitle>
                         <div className="grid grid-cols-3 gap-4">
                             {sortedImagePaths.map((image, index) => (
@@ -119,7 +120,7 @@ export default function Header({
                                 />
                             ))}
                         </div>
-                        <Button variant="contained" onClick={handleUpdateAvatarId}>{t("home.confirm")}</Button>
+                        <Button variant="contained" onClick={handleUpdateAvatarId}>{t(`${home}.confirm`)}</Button>
                     </div>
                 </DialogContent>
             </Dialog>

@@ -1,4 +1,5 @@
 {
+    "play_on_your_mobile": "Play on your mobile",
     "months": {
         "january": "January",
         "february": "February",
@@ -58,5 +59,16 @@
         "completed_tasks": "Completed Tasks",
         "available_bonuses": "Available Bonuses",
         "bonus_duration": "Bonus duration"
+    },
+    "friends": {
+        "invite_friends": "Invite Friends!",
+        "description": "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
+        "bonus_for": "for you & friends ",
+        "bonus_for_premium": "for you & friends if he has account Premium ",
+        "share_invite_link": "Share invite link",
+        "copy_invite_link": "Copy invite link",
+        "friends": "Friends",
+        "referrals": "Referrals",
+        "accept": "Accept"
     }
 }
