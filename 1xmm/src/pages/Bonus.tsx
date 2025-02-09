@@ -11,6 +11,8 @@ import Purchased from "@/components/icons/BonusIcon/Purchased";
 import { toast } from "react-toastify";
 import pusher from "@/lib/pusher";
 import { $http } from "@/lib/http";
+import { useTranslation } from "react-i18next";
+import { bonus } from "@/referential/i18nPrefixes";
 
 export default function Bonus() {
     const [leverageData, setLeverageData] = useState<BonusDefinition[]>([]);
@@ -21,6 +23,8 @@ export default function Bonus() {
     // const [openStarDrawer, setOpenStarDrawer] = useState(false);
 
     const bonusDefinitionIds = userProfile.positionStore?.available_bonuses.map(item => item.bonus_definition.id);
+
+    const { t } = useTranslation();
 
     useEffect(() => {
         // setInterval(async () => {
@@ -196,7 +200,7 @@ export default function Bonus() {
             //         }
             //     ]
             // });
-            
+
             console.log('Payment invoice sent:', response);
             console.log(response.data.ok);
             if (response.data.ok) {
@@ -234,7 +238,7 @@ export default function Bonus() {
         >
             <Header amount_token={userProfile.amount_of_tokens} />
             <div className="text-xl bg-[var(--silver-white-light)] mt-3">
-                Target to Seed
+                {t(`${bonus}.target_to_seed`)}
             </div>
 
             <div className="progress-bar mt-4">
@@ -273,10 +277,9 @@ export default function Bonus() {
             </div>
             <div className="mt-4 mb-10">
                 <div className="flex flex-col justify-between items-center">
-                    <span className="fw-bold text-lg">Leverage</span>
+                    <span className="fw-bold text-lg">{t(`${bonus}.leverage.name`)}</span>
                     <div className="text-center">
-                        <span className="text-xs italic"><span className="fw-bold">Increase your perf.</span>: each +1x leverage increases your performance by 100%.
-                            Be careful, leverage applies for positive <span className="fw-bold">and negative</span> performance.
+                        <span className="text-xs italic"><span className="fw-bold">{t(`${bonus}.leverage.title`)}</span>{t(`${bonus}.leverage.description`)}
                         </span>
                     </div>
                 </div>
@@ -295,7 +298,7 @@ export default function Bonus() {
                         </>
                     ) : (
                         <div className="w-full bg-[#32363C] rounded-xl p-3 mt-3">
-                            <div className="text-center text-white">Data not found</div>
+                            <div className="text-center text-white">{t(`${bonus}.data_not_found`)}</div>
                         </div>
                     )}
                 </div>
@@ -303,10 +306,9 @@ export default function Bonus() {
 
             <div className="mt-4 mb-10">
                 <div className="flex flex-col justify-between items-center">
-                    <span className="fw-bold text-lg">Positive Leverage</span>
+                    <span className="fw-bold text-lg">{t(`${bonus}.positive_leverage.name`)}</span>
                     <div className="text-center">
-                        <span className="text-xs italic"><span className="fw-bold">Increase your profit</span>: each +1x positive leverage increases your positive
-                            performance by 100%. Losses are not impacted by positive leverage.</span>
+                        <span className="text-xs italic"><span className="fw-bold">{t(`${bonus}.positive_leverage.title`)}</span>{t(`${bonus}.positive_leverage.description`)}</span>
                     </div>
                 </div>
                 <div className="w-full overflow-x-auto bonus-item">
@@ -324,7 +326,7 @@ export default function Bonus() {
                         </>
                     ) : (
                         <div className="w-full bg-[#32363C] rounded-xl p-3 mt-3">
-                            <div className="text-center text-white">Data not found</div>
+                            <div className="text-center text-white">{t(`${bonus}.data_not_found`)}</div>
                         </div>
                     )}
                 </div>
@@ -332,9 +334,9 @@ export default function Bonus() {
 
             <div className="mt-4 mb-10">
                 <div className="flex flex-col justify-between items-center">
-                    <span className="fw-bold text-lg">Capital Protection</span>
+                    <span className="fw-bold text-lg">{t(`${bonus}.capital_protection.name`)}</span>
                     <div className="text-center">
-                        <span className="text-xs italic"><span className="fw-bold">Protect your position</span>: each 1% of Capital Protection protects 1% of your position.</span>
+                        <span className="text-xs italic"><span className="fw-bold">{t(`${bonus}.capital_protection.title`)}</span>{t(`${bonus}.capital_protection.description`)}</span>
                     </div>
                 </div>
                 <div className="w-full overflow-x-auto bonus-item">
@@ -352,7 +354,7 @@ export default function Bonus() {
                         </>
                     ) : (
                         <div className="w-full bg-[#32363C] rounded-xl p-3 mt-3">
-                            <div className="text-center text-white">Data not found</div>
+                            <div className="text-center text-white">{t(`${bonus}.data_not_found`)}</div>
                         </div>
                     )}
                 </div>
@@ -360,9 +362,9 @@ export default function Bonus() {
 
             <div className="mt-4 mb-10">
                 <div className="flex flex-col justify-between items-center">
-                    <span className="fw-bold text-lg">Time Reduction</span>
+                    <span className="fw-bold text-lg">{t(`${bonus}.time_reduction.name`)}</span>
                     <div className="text-center">
-                        <span className="text-xs italic"><span className="fw-bold">Reduce your penalty</span>: each 1s bonus helps to reduce / close your position 1s earlier.</span>
+                        <span className="text-xs italic"><span className="fw-bold">{t(`${bonus}.time_reduction.title`)}</span>{t(`${bonus}.time_reduction.description`)}</span>
                     </div>
                 </div>
                 <div className="w-full overflow-x-auto bonus-item">
@@ -380,7 +382,7 @@ export default function Bonus() {
                         </>
                     ) : (
                         <div className="w-full bg-[#32363C] rounded-xl p-3 mt-3">
-                            <div className="text-center text-white">Data not found</div>
+                            <div className="text-center text-white">{t(`${bonus}.data_not_found`)}</div>
                         </div>
                     )}
                 </div>
@@ -388,9 +390,9 @@ export default function Bonus() {
 
             <div className="mt-4 mb-16">
                 <div className="flex flex-col justify-between items-center">
-                    <span className="fw-bold text-lg">Token Package</span>
+                    <span className="fw-bold text-lg">{t(`${bonus}.token_package.name`)}</span>
                     <div className="text-center">
-                        <span className="text-xs italic"><span className="fw-bold">Top up your balance</span>: get some tokens to refill your balance or increase your PnL.</span>
+                        <span className="text-xs italic"><span className="fw-bold">{t(`${bonus}.token_package.title`)}</span>{t(`${bonus}.token_package.description`)}</span>
                     </div>
                 </div>
                 <div className="w-full overflow-x-auto bonus-item">
@@ -408,7 +410,7 @@ export default function Bonus() {
                         </>
                     ) : (
                         <div className="w-full bg-[#32363C] rounded-xl p-3 mt-3">
-                            <div className="text-center text-white">Data not found</div>
+                            <div className="text-center text-white">{t(`${bonus}.data_not_found`)}</div>
                         </div>
                     )}
                 </div>

@@ -1,9 +1,13 @@
+import { earn } from "@/referential/i18nPrefixes";
 import Header from "../components/Header";
 import ListQuest from "./components/Earn/ListQuest";
 import ModalCategory from './components/Earn/ModalCategory';
 import { useState } from 'react';
+import { useTranslation } from "react-i18next";
 export default function Profile() {
   const [openDrawer, setOpenDrawer] = useState(false);
+
+  const {t} = useTranslation();
 
   return (
     <div
@@ -15,7 +19,7 @@ export default function Profile() {
     >
       <Header amount_token={userProfile.amount_of_tokens} />
       <div className="mt-4 mb-8 text-center">
-        <span className="fw-bold text-2xl">Earn more Coins</span>
+        <span className="fw-bold text-2xl">{t(`${earn}.earn_more_coins`)}</span>
         <img
           src="/images/earn/shilling.png"
           alt="money"
@@ -29,19 +33,19 @@ export default function Profile() {
             <span className="text-end fw-bold">
             </span>
             <span className="text-end fw-bold text-lg">
-              Daily reward
+              {t(`${earn}.daily_rewards`)}
             </span>
             <span className="text-end">
               <span className="fw-bold">10</span>h :  <span className="fw-bold">10</span>m : <span className="fw-bold">10</span>s
             </span>
           </div>
-          <span className="text-center text-sm">Hurry up and get it</span>
+          <span className="text-center text-sm">{t(`${earn}.hurry_up_and_get_it`)}</span>
         </div>
       </div>
       <div className="mt-28 mb-8">
         <div className="flex justify-between items-center">
           <div className="fw-bold">
-            Quests To Do
+            {t(`${earn}.quests_to_do`)}
           </div>
           <div className="flex items-center space-x-1">
             <img
@@ -51,7 +55,7 @@ export default function Profile() {
             />
             <span className="text-xs" onClick={() => {
               setOpenDrawer(true);
-            }}>More Info</span>
+            }}>{t(`${earn}.more_info`)}</span>
           </div>
         </div>
         <ListQuest />

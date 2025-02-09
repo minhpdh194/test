@@ -13,6 +13,8 @@ import { DateCountDown } from '@/classes/CountDown';
 import { BonusDefinition } from '@/types/BonusDefinition';
 import { COMM } from '@/lib/comm';
 import { $http } from '@/lib/http';
+import { useTranslation } from 'react-i18next';
+import { home } from '@/referential/i18nPrefixes';
 
 type TradingItemProps = {
     spots: SpotType[];
@@ -24,6 +26,7 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
     // const [, setTimeBonus] = useState(null);
     //const [bonusData, setBonusData] = useState<any[]>([]);
     const pairs = JSON.parse(localStorage.getItem("PairReferential") || "[]") as Pair[];
+    const { t } = useTranslation();
 
     const [selectedBonuses, setBonusesForPosition] = useState<{ [key: number]: { bonus: Bonus, countdown: DateCountDown | undefined }[] }>({});
     const [openBonusDrawer, setOpenBonusDrawer] = useState(false);
@@ -281,23 +284,23 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                     <div className="pt-3 pb-3 space-y-2">
                         <div className="flex justify-between items-center border-b border-gray-500 pb-2 mb-2 w-[93%] mx-auto">
                             <div>
-                            <div className="space-x-2 flex-grow">
-                                <span className="fw-bold">{pair.pair_symbol}</span>
-                                <span className="space-x-2">
-                                    <span className="fw-bold">
-                                        <NumberFormat value={spots?.find(s => s.pair_id == pair.id)?.current_value ?? 0} decimals={2} />
+                                <div className="space-x-2 flex-grow">
+                                    <span className="fw-bold">{pair.pair_symbol}</span>
+                                    <span className="space-x-2">
+                                        <span className="fw-bold">
+                                            <NumberFormat value={spots?.find(s => s.pair_id == pair.id)?.current_value ?? 0} decimals={2} />
+                                        </span>
+                                        <span
+                                            className={`text-sm ${(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}
+                                        >
+                                            {(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) >= 0
+                                                ? `(+${(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) * 100).toFixed(2)}%)`
+                                                : `(${(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) * 100).toFixed(2)}%)`)}
+                                        </span>
                                     </span>
-                                    <span
-                                        className={`text-sm ${(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}
-                                    >
-                                        {(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) >= 0
-                                            ? `(+${(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) * 100).toFixed(2)}%)`
-                                            : `(${(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) * 100).toFixed(2)}%)`)}
-                                    </span>
-                                </span>
-                            </div>
+                                </div>
                                 <div>
-                                    <span className="text-xs text-gray-300 mr-2">Daily perf:</span>
+                                    <span className="text-xs text-gray-300 mr-2">{t(`${home}.daily_perf`)}:</span>
                                     <span
                                         className={`text-xs ${(spots?.find(s => s.pair_id == pair.id)?.daily_return ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}
                                     >
@@ -320,7 +323,7 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                                 <div className="flex justify-between border-b pl-3 pr-3 border-gray-500 mt-2">
                                     <div className="w-1/2">
                                         <span className="font-normal text-sm mb-2 block">
-                                            Position  (lev. x{((positions.find((pos) => pos.position_id === pair.id)?.leverage ?? 0) * 1).toFixed(2)})
+                                            {t(`${home}.position`)}  (lev. x{((positions.find((pos) => pos.position_id === pair.id)?.leverage ?? 0) * 1).toFixed(2)})
                                         </span>
                                     </div>
                                     <div className="w-1/2 text-right">
@@ -331,7 +334,7 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                                 </div>
                                 <div className="flex justify-between border-b pl-3 pr-3 border-gray-500 mt-2">
                                     <div className="w-1/2 mb-2">
-                                        <span className="font-normal text-sm block">Performance to Date</span>
+                                        <span className="font-normal text-sm block">{t(`${home}.performance_to_date`)}</span>
                                     </div>
                                     <div className="w-1/2 text-right mb-2">
                                         <span className="font-normal text-sm block">
@@ -344,7 +347,7 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                                 </div>
                                 <div className={`flex justify-between pl-3 pr-3 border-b border-gray-500 my-0 ${expandedBonuses[pair.id] ? 'bg-[#32363C]' : ''}`}>
                                     <div className="w-1/2 pt-2">
-                                        <span className="font-normal text-sm block text-white mb-2">Bonuses</span>
+                                        <span className="font-normal text-sm block text-white mb-2">{t(`${home}.bonuses`)}</span>
                                     </div>
                                     <div className="w-1/2 text-right mt-1">
                                         <button
@@ -361,17 +364,17 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                                     <>
                                         {selectedBonuses[pair.id].map((b) => {
                                             return (
-                                            <div key={b.bonus.id} className="flex justify-between border-b border-gray-500 pl-3 pr-3 my-0 bg-[#32363C] box-border">
-                                                <div className="flex justify-between w-full">
-                                                    <div className="w-1/2 mb-2 mt-2">
-                                                        <span className="font-normal text-sm block">{b.bonus.bonus_definition.bonus_type}</span>
-                                                    </div>
-                                                    <div className="w-1/2 text-right mb-2 mt-2 flex items-center justify-end space-x-2">
-                                                        <span className="font-normal text-sm block">{printBonusBenefit(b.bonus.bonus_definition)}</span>
-                                                        <span className="font-normal text-sm block">{b.countdown?.toString()}</span>
+                                                <div key={b.bonus.id} className="flex justify-between border-b border-gray-500 pl-3 pr-3 my-0 bg-[#32363C] box-border">
+                                                    <div className="flex justify-between w-full">
+                                                        <div className="w-1/2 mb-2 mt-2">
+                                                            <span className="font-normal text-sm block">{b.bonus.bonus_definition.bonus_type}</span>
+                                                        </div>
+                                                        <div className="w-1/2 text-right mb-2 mt-2 flex items-center justify-end space-x-2">
+                                                            <span className="font-normal text-sm block">{printBonusBenefit(b.bonus.bonus_definition)}</span>
+                                                            <span className="font-normal text-sm block">{b.countdown?.toString()}</span>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
                                             )
                                         })}
                                     </>
@@ -384,26 +387,26 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                                         className={`w-15 text-center font-bold text-xs py-1 px-2 rounded-md cursor-pointer ${selectedOptions[pair.id] === LongShort.Short ? 'bg-[#21242980] border-1' : ''}`}
                                         onClick={() => handleSelectOption(pair.id, LongShort.Short)}
                                     >
-                                        Short
+                                        {t(`${home}.short`)}
                                     </span>
                                     <span
                                         className={`w-15 text-center font-bold text-xs py-1 px-2 rounded-md cursor-pointer ${selectedOptions[pair.id] === LongShort.Long ? 'bg-[#21242980] border-1' : ''}`}
                                         onClick={() => handleSelectOption(pair.id, LongShort.Long)}
                                     >
-                                        Long
+                                        {t(`${home}.long`)}
                                     </span>
                                 </div>
 
                                 <div className="flex justify-between space-x-4 mt-2 px-3">
                                     <div className="">
-                                        <span className="font-normal text-sm mb-2 block">Amount</span>
+                                        <span className="font-normal text-sm mb-2 block">{t(`${home}.amount`)}</span>
                                         <CounterInput
                                             value={amounts[pair.id] || 0}
                                             onChange={(value) => handleAmountChange(pair.id, value)} // Tăng giá trị
                                         />
                                     </div>
                                     <div className="">
-                                        <span className="font-normal text-sm mb-2 block">Leverage</span>
+                                        <span className="font-normal text-sm mb-2 block">{t(`${home}.leverage`)}</span>
                                         <CounterInput
                                             value={leverages[pair.id] || 0}
                                             onChange={(value) => handleLeverageChange(pair.id, value)}
@@ -431,7 +434,7 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                                                 alt="coin"
                                                 className="object-cover w-4 h-4"
                                             />
-                                            <span className="font-bold text-xs">Add Bonus</span>
+                                            <span className="font-bold text-xs">{t(`${home}.add_bonus`)}</span>
                                         </div>
                                     </button>
 
@@ -445,7 +448,7 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                                         onClick={() => { handleValidate(pair.id); }}
                                         disabled={!amounts[pair.id] || !leverages[pair.id] || !selectedOptions[pair.id] || !isPositionOpenable}
                                     >
-                                        <span className="font-bold text-xs">Validate</span>
+                                        <span className="font-bold text-xs">{t(`${home}.validate`)}</span>
                                     </button>
 
                                     <button
@@ -454,7 +457,7 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                                         onClick={() => handleClose(pair.id)}
                                         disabled={!positions.find((pos) => pos.position_id === pair.id)}
                                     >
-                                        <span className="font-bold text-xs">Close</span>
+                                        <span className="font-bold text-xs">{t(`${home}.close`)}</span>
                                     </button>
                                 </div>
                             </>

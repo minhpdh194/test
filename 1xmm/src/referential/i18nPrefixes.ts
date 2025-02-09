@@ -5,3 +5,6 @@ export const home = "home";
 export const ranking = "ranking";
 export const profile = "profile";
 export const friends = "friends";
+export const earn = "earn";
+export const bonus = "bonus";
+export const popup = "popup";

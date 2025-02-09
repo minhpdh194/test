@@ -4,6 +4,8 @@ import '../../../bonus.css'; // Import CSS for custom styles
 import { Bonus } from '@/classes/Bonus';
 import { BonusTerms, BonusTypes } from '@/enums';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from 'react-i18next';
+import { popup } from '@/referential/i18nPrefixes';
 
 interface DetailBonusProps {
     open: boolean;
@@ -36,6 +38,7 @@ export default function ListBonus({
     ...props
 }: DetailBonusProps) {
     const [selectedBonuses, setSelectedBonuses] = React.useState<Bonus[]>([]);
+    const {t} = useTranslation();
 
     const handleCheckboxChange = (bonus: Bonus) => {
         if (selectedBonuses.includes(bonus)) {
@@ -50,7 +53,7 @@ export default function ListBonus({
     return (
         <Drawer open={open} onOpenChange={onOpenChange} {...props}>
             <h2 className="text-xl font-medium uppercase p-2 text-center">
-                Select Bonuses
+                {t(`${popup}.bonus_selection.header`)}
             </h2>
             <div className="flex flex-col justify-start pb-6 h-[calc(100vh-200px)] overflow-y-auto">
                 {bonusData.sort((a, b) => a.id - b.id).filter(b => b.bonus_definition.bonus_type != BonusTypes.Friends).map((bonus) => (
@@ -87,7 +90,7 @@ export default function ListBonus({
                 className="rounded flex w-full fw-semibold py-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)]"
                 onClick={async () => { await onSelectBonuses(selectedBonuses); }}
             >
-                <span className="font-normal text-lg">Add</span>
+                <span className="font-normal text-lg">{t(`${popup}.bonus_selection.button`)}</span>
             </Button>
         </Drawer>
     );

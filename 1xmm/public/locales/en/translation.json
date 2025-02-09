@@ -38,7 +38,18 @@
         "avatar_selection": "Avatar Selection",
         "confirm": "Confirm",
         "earn_per_tap": "Earn per tap",
-        "time_to_next_fixing": "Time to next fixing"
+        "time_to_next_fixing": "Time to next fixing",
+        "daily_perf": "Daily perf",
+        "position": "Position",
+        "performance_to_date": "Performance to Date",
+        "bonuses": "Bonuses",
+        "short": "Short",
+        "long": "Long",
+        "amount": "Amount",
+        "leverage": "Leverage",
+        "add_bonus": "Add Bonus",
+        "validate": "Validate",
+        "close": "Close"
     },
     "ranking": {
         "daily": "Daily",
@@ -70,5 +81,47 @@
         "friends": "Friends",
         "referrals": "Referrals",
         "accept": "Accept"
+    },
+    "earn": {
+        "earn_more_coins": "Earn more Coins",
+        "daily_rewards": "Daily reward",
+        "hurry_up_and_get_it": "Hurry up and get it",
+        "quests_to_do": "Quests To Do",
+        "more_info": "More Info"
+    },
+    "bonus": {
+        "target_to_seed": "Target to Seed",
+        "data_not_found": "Data not found",
+        "leverage": {
+            "name": "Leverage",
+            "title": "Increase your perf",
+            "description": ": each +1x leverage increases your performance by 100%. Be careful, leverage applies for positive performance."
+        },
+        "positive_leverage": {
+            "name": "Positive Leverage",
+            "title": "Increase your profit",
+            "description": ": each +1x positive leverage increases your positive performance by 100%. Losses are not impacted by positive leverage."
+        },
+        "capital_protection": {
+            "name": "Capital Protection",
+            "title": "Protect your position",
+            "description": ": each 1% of Capital Protection protects 1% of your position."
+        },
+        "time_reduction": {
+            "name": "Time Reduction",
+            "title": "Reduce your penalty",
+            "description": ": each 1s bonus helps to reduce / close your position 1s earlier."
+        },
+        "token_package": {
+            "name": "Token Package",
+            "title": "Top up your balance",
+            "description": ": get some tokens to refill your balance or increase your PnL."
+        }
+    },
+    "popup": {
+        "bonus_selection": {
+            "header": "Select Bonuses",
+            "button": "Add"
+        }
     }
 }
