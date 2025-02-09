@@ -5,6 +5,7 @@ import { Button } from './ui/button';
 import { LanguageOption } from '@/types/LanguageOption';
 import i18next from 'i18next';
 import { useTranslation } from 'react-i18next';
+import { popup } from '@/referential/i18nPrefixes';
 
 interface DetailBonusProps {
     open: boolean;
@@ -16,6 +17,7 @@ export default function LanguageSelection({
     onOpenChange,
     ...props
 }: DetailBonusProps) {
+    const {t} = useTranslation();
     const languageOptions: LanguageOption[] = [
         {
             language: "English",
@@ -47,7 +49,7 @@ export default function LanguageSelection({
     return (
         <Drawer open={open} onOpenChange={onOpenChange} {...props}>
             <h2 className="text-xl font-medium uppercase p-2 text-center">
-                Language Selection
+                {t(`${popup}.language_selection.header`)}
             </h2>
             <div className="max-w-sm mx-auto rounded-lg">
                 <List>
@@ -65,7 +67,7 @@ export default function LanguageSelection({
                 </List>
 
                 <Button className="rounded flex w-full fw-semibold py-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)] mt-4" onClick={saveLanguage}>
-                    <span className="font-normal text-lg">Save</span>
+                    <span className="font-normal text-lg">{t(`${popup}.language_selection.button`)}</span>
                 </Button>
             </div>
         </Drawer>

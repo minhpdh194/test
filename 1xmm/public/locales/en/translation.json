@@ -119,6 +119,10 @@
         }
     },
     "popup": {
+        "language_selection": {
+            "header": "Language Selection",
+            "button": "Save"
+        },
         "bonus_selection": {
             "header": "Select Bonuses",
             "button": "Add"
