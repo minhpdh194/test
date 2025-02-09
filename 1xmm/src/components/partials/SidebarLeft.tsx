@@ -18,9 +18,7 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
     const [openLanguageSelection, setOpenLanguageSelection] = useState(false);
 
     const { t } = useTranslation();
-    const line1 = t("detail.line1");
-    const line2 = t("detail.line2");
-    console.log(line1, line2);
+
     const handleOpenTelegramChannel = () => {
         window.Telegram.WebApp.openTelegramLink("https://t.me/onexmm_official")
     }
@@ -83,19 +81,16 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
                 }}
             >
                 <button type="button" className="flex items-center fw-bold space-x-2" onClick={toggleSidebar}>
-                    <img
-                        src="/images/home/back.png"
-                        alt="trophy"
-                        className="w-10 h-10"
-                    />
-                    <span>Menu</span>
+                    <img src="/images/home/back.png" alt="back" className="w-10 h-10" />
+                    <span>{t("menu.menu")}</span>
                 </button>
+
                 <div className="w-100 bg-[#32363C] rounded-xl mt-4">
                     <Link className="row w-100 p-3 select-none hover:text-white" to="/profile">
                         <div className="col-3 flex justify-center px-0">
                             <img
                                 src={`/images/avatars/avatar__${userProfile.avatar_id + 1}__.jpg`}
-                                alt="trophy"
+                                alt="avatar"
                                 className="w-14 h-14 rounded-full"
                             />
                         </div>
@@ -104,85 +99,50 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
                                 {userProfile?.first_name} {userProfile?.last_name}
                             </p>
                             <p className="text-xs font-medium flex items-center mt-3 space-x-1">
-                                <img
-                                    src="/images/home/trophy.png"
-                                    alt="trophy"
-                                    className="w-4 h-4"
-                                />
-                                <span>
-                                    Level {userProfile?.level}
-                                </span>
+                                <img src="/images/home/trophy.png" alt="trophy" className="w-4 h-4" />
+                                <span>{t("menu.level")} {userProfile?.level}</span>
                                 &nbsp;&nbsp;&nbsp;
-                                <img
-                                    src="/images/home/play.png"
-                                    alt="play"
-                                    className="w-3 h-4"
-                                />
+                                <img src="/images/home/play.png" alt="play" className="w-3 h-4" />
                             </p>
                         </div>
                     </Link>
                 </div>
+
                 <span className="flex justify-between align-center mt-4" onClick={() => setOpenLanguageSelection(true)}>
-                    <span className="cursor-pointer">Language</span>
-                    <img
-                        src="/images/home/angle-right.png"
-                        alt="trophy"
-                        className="w-3 h-6"
-                    />
+                    <span className="cursor-pointer">{t("menu.language")}</span>
+                    <img src="/images/home/angle-right.png" alt="arrow" className="w-3 h-6" />
                 </span>
+
                 <a target="blank" href="https://one-xmm.com" className="flex hover:text-white select-none justify-between align-center mt-3">
-                    <span className="cursor-pointer">Website</span>
-                    <img
-                        src="/images/home/angle-right.png"
-                        alt="trophy"
-                        className="w-3 h-6"
-                    />
+                    <span className="cursor-pointer">{t("menu.website")}</span>
+                    <img src="/images/home/angle-right.png" alt="arrow" className="w-3 h-6" />
                 </a>
+
                 <span className="flex justify-between align-center mt-3" onClick={() => setOpenAirDropDrawer(true)}>
-                    <span className="cursor-pointer">Airdrop</span>
-                    <img
-                        src="/images/home/angle-right.png"
-                        alt="trophy"
-                        className="w-3 h-6"
-                    />
+                    <span className="cursor-pointer">{t("menu.airdrop")}</span>
+                    <img src="/images/home/angle-right.png" alt="arrow" className="w-3 h-6" />
                 </span>
+
                 <span className="flex justify-between align-center mt-3" onClick={handleOpenTelegramChannel}>
-                    <span className="cursor-pointer">Telegram Channel</span>
-                    <img
-                        src="/images/home/angle-right.png"
-                        alt="trophy"
-                        className="w-3 h-6"
-                    />
+                    <span className="cursor-pointer">{t("menu.telegram_channel")}</span>
+                    <img src="/images/home/angle-right.png" alt="arrow" className="w-3 h-6" />
                 </span>
+
                 <a target="blank" href="https://www.one-xmm.com/news/1" className="flex hover:text-white select-none justify-between align-center mt-3">
-                    <span className="cursor-pointer">User Manual</span>
-                    <img
-                        src="/images/home/angle-right.png"
-                        alt="trophy"
-                        className="w-3 h-6"
-                    />
+                    <span className="cursor-pointer">{t("menu.user_manual")}</span>
+                    <img src="/images/home/angle-right.png" alt="arrow" className="w-3 h-6" />
                 </a>
 
                 <span className="flex justify-between align-center mt-3" onClick={() => setOpenWalletConnectorDrawer(true)}>
-                    <span className="cursor-pointer">
-                        Connect Wallet
-                    </span>
-                    <img
-                        src="/images/home/angle-right.png"
-                        alt="trophy"
-                        className="w-3 h-6"
-                    />
+                    <span className="cursor-pointer">{t("menu.connect_wallet")}</span>
+                    <img src="/images/home/angle-right.png" alt="arrow" className="w-3 h-6" />
                 </span>
 
                 <span className="flex justify-between align-center mt-3" onClick={handleTonAction}>
                     <span className="cursor-pointer">
-                        {isConnected ? 'Disconnect TON Wallet' : 'Connect TON Wallet'}
+                        {isConnected ? t("menu.disconnect_ton_wallet") : t("menu.connect_ton_wallet")}
                     </span>
-                    <img
-                        src="/images/home/angle-right.png"
-                        alt="trophy"
-                        className="w-3 h-6"
-                    />
+                    <img src="/images/home/angle-right.png" alt="arrow" className="w-3 h-6" />
                 </span>
 
                 {/* <WalletConnector /> */}

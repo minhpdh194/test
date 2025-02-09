@@ -26,6 +26,7 @@ export default function LanguageSelection({
         { language: "Spanish", code: "es" },
         { language: "Arabic", code: "ar" },
         { language: "Yoruba", code: "yo" },
+        { language: "Tiếng việt", code: "vn" },
     ];
 
     const [selectedLanguage, setSelectedLanguage] = useState<string>(i18next.language);
