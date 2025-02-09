@@ -1,4 +1,22 @@
 {
+    "months": {
+        "january": "January",
+        "february": "February",
+        "march": "March",
+        "april": "April",
+        "may": "May",
+        "june": "June",
+        "july": "July",
+        "august": "August",
+        "september": "September",
+        "october": "October",
+        "november": "November",
+        "december": "December"
+    },
+    "splash_screen": {
+        "greeting": "Reshaping digital Finance",
+        "visit_msg": "visit our website"
+    },
     "menu": {
         "menu": "Menu",
         "language": "Language",
@@ -9,6 +27,36 @@
         "connect_wallet": "Connect Wallet",
         "disconnect_ton_wallet": "Disconnect TON Wallet",
         "connect_ton_wallet": "Connect TON Wallet",
-        "level": "Level"
+        "level": "Level",
+        "wallet_connector": {
+            "title": "Wallet Connector",
+            "save": "Save"
+        }
+    },
+    "home": {
+        "avatar_selection": "Avatar Selection",
+        "confirm": "Confirm",
+        "earn_per_tap": "Earn per tap",
+        "time_to_next_fixing": "Time to next fixing"
+    },
+    "ranking": {
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "monthly": "Monthly",
+        "points": "points"
+    },
+    "profile": {
+        "total_token": "Total 1vMM",
+        "total_pnl": "Total PnL",
+        "level_bonuses": "Level Bonuses",
+        "pairs_unlocked": "Pairs Unlocked",
+        "cumulated_pos_leverage_bonus": "Cumulated Positive Leverage Bonus",
+        "cumulated_protection_bonus": "Cumulated Protection Bonus",
+        "cumulated_time_bonus": "Cumulated Time Bonus",
+        "cumulated_tapping_amount": "Cumulated Tapping Amount",
+        "gain_per_tap": "Gain Per Tap",
+        "completed_tasks": "Completed Tasks",
+        "available_bonuses": "Available Bonuses",
+        "bonus_duration": "Bonus duration"
     }
 }

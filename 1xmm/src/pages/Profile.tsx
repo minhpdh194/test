@@ -9,10 +9,13 @@ import Star from "@/components/icons/BonusIcon/Star";
 import { levelBenefits } from "@/referential/levelBenefits";
 import { LevelBenefits } from "@/types/LevelBenefits";
 import { Pair } from "@/types/Pair";
+import { useTranslation } from "react-i18next";
 
 export default function Profile() {
     const [completedTasks, setCompletedTasks] = useState<TaskDefinition[]>([]);
     const [levelBenefit, setLevelBenefit] = useState<LevelBenefits>();
+
+    const { t } = useTranslation();
 
     const pairs = JSON.parse(localStorage.getItem("PairReferential") || "[]") as Pair[];
 
@@ -56,7 +59,7 @@ export default function Profile() {
                                 className="w-4 h-4"
                             />
                             <span>
-                                Level {userProfile.level}
+                                {t("menu.level")} {userProfile.level}
                             </span>
                             &nbsp;&nbsp;&nbsp;
                             <img
@@ -71,7 +74,7 @@ export default function Profile() {
             <div className="flex justify-between mt-4 gap-2">
                 <div className="bg-[linear-gradient(180deg,#F79841_38.34%,#F9D838_100%)] rounded-lg w-48 h-30">
                     <div className="text-center p-1 pt-3">
-                        <span className="text-xl fw-bold">Total 1vMM</span>
+                        <span className="text-xl fw-bold">{t("profile.total_token")}</span>
                         <div className="flex items-center justify-center mb-2 space-x-1">
                             <img
                                 src="/images/home/coin.png"
@@ -87,7 +90,7 @@ export default function Profile() {
                 </div>
                 <div className="w-48 bg-[linear-gradient(180deg,#F79841_38.34%,#F9D838_100%)] rounded-lg">
                     <div className="text-center p-1 pt-3">
-                        <span className="text-xl fw-bold">Total PnL</span>
+                        <span className="text-xl fw-bold">{t("profile.total_pnl")}</span>
                         <div className="flex items-center justify-center mb-2 space-x-1">
                             <img
                                 src="/images/home/coin.png"
@@ -104,9 +107,9 @@ export default function Profile() {
             </div>
 
             <div className="mt-4">
-                <span className="fw-bold">Level Bonuses</span>
+                <span className="fw-bold">{t("profile.level_bonuses")}</span>
                 <div className="w-100 bg-[#32363C] rounded-xl p-3 mt-3">
-                    <div>Pairs unlocked:
+                    <div>{t("profile.pairs_unlocked")}:
                         <div className="grid grid-cols-3">
                             {pairs && pairs.map && pairs.filter(pair => userProfile.unlocked_pair_ids.includes(pair.id)).map((pair, index) => (
                                 <div key={index}>
@@ -115,16 +118,16 @@ export default function Profile() {
                             ))}
                         </div>
                     </div>
-                    <div>Cumulated Positive Leverage Bonus: +{levelBenefit?.cumulated_positive_leverage}x</div>
-                    <div>Cumulated Protection Bonus: +{levelBenefit?.cumulated_protection_bonus}%</div>
-                    <div>Cumulated Time Bonus: -{levelBenefit?.cumulated_time_bonus} min</div>
-                    <div>Cumulated Tapping Amount: {levelBenefit?.cumulated_tapping_amount}</div>
-                    <div>Gain Per Tap: {levelBenefit?.total_gain_per_tap}</div>
+                    <div>{t("profile.cumulated_pos_leverage_bonus")}: +{levelBenefit?.cumulated_positive_leverage}x</div>
+                    <div>{t("profile.cumulated_protection_bonus")}: +{levelBenefit?.cumulated_protection_bonus}%</div>
+                    <div>{t("profile.cumulated_time_bonus")}: -{levelBenefit?.cumulated_time_bonus} min</div>
+                    <div>{t("profile.cumulated_tapping_amount")}: {levelBenefit?.cumulated_tapping_amount}</div>
+                    <div>{t("profile.gain_per_tap")}: {levelBenefit?.total_gain_per_tap}</div>
                 </div>
             </div>
-
+            
             <div className="mt-4">
-                <span className="fw-bold">Completed Tasks</span>
+                <span className="fw-bold">{t("profile.completed_tasks")}</span>
                 <div className="w-100 bg-[#32363C] rounded-xl p-3 mt-3">
                     {completedTasks && completedTasks.map && completedTasks.map((task, index) => (
                         <div className="flex justify-between" key={index} style={{ borderBottom: `.3px solid #FFFFFF33` }}>
@@ -144,7 +147,7 @@ export default function Profile() {
                 </div>
             </div>
             <div className="mt-4 mb-8">
-                <span className="fw-bold">Available Bonuses</span>
+                <span className="fw-bold">{t("profile.available_bonuses")}</span>
                 {globalThis.userProfile.positionStore!.available_bonuses && globalThis.userProfile.positionStore!.available_bonuses.map && globalThis.userProfile.positionStore!.available_bonuses.map((bonus, index) => (
                     <div className="w-100 bg-[#32363C] rounded-xl p-3 mt-3" key={index}>
                         <div className="flex border-b fw-bold pb-2 justify-between items-center">
@@ -162,7 +165,7 @@ export default function Profile() {
                             </span>
                         </div>
                         <div className="flex pb-2 pt-2 justify-between items-center">
-                            <span>Bonus duration</span>
+                            <span>{t("profile.bonus_duration")}</span>
                             <span className="flex text-sm space-x-1 items-center">
                                 <img
                                     src="/images/home/time.png"

@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
 import { $http } from "@/lib/http";
 import { Button } from "@mui/material";
 import { userProfileStore } from "@/store/user-store";
+import { useTranslation } from "react-i18next";
 
 // deprecated - to be removed
 type HeaderProps = React.HtmlHTMLAttributes<HTMLDivElement> & {
@@ -25,9 +26,11 @@ export default function Header({
     const sortedImagePaths = imagePaths.sort((a, b) => {
         const numberA = Utils.getAvatarRef(a);
         const numberB = Utils.getAvatarRef(b);
-        
+
         return numberA - numberB;
     });
+
+    const { t } = useTranslation();
 
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
@@ -35,7 +38,7 @@ export default function Header({
         setSelectedImageIndex(index); // Update the selected image index
     };
 
-    const {amount_of_tokens: userAmount1vMM} = userProfileStore();
+    const { amount_of_tokens: userAmount1vMM } = userProfileStore();
 
     // Toggle sidebar visibility
     const toggleSidebar = () => {
@@ -72,7 +75,7 @@ export default function Header({
                                     className="w-4 h-4"
                                 /> &nbsp;
                                 <span>
-                                    Level {userProfile.level}
+                                    {t("menu.level")} {userProfile.level}
                                 </span>
                             </p>
                         </div>
@@ -103,7 +106,7 @@ export default function Header({
                 <DialogContent className="popup-body w-[calc(100%-2rem)]">
                     <div className="flex flex-col items-center justify-center text-center">
                         <DialogTitle className="text-black text-xl font-bold">
-                            Avatar selection
+                            {t("home.avatar_selection")}
                         </DialogTitle>
                         <div className="grid grid-cols-3 gap-4">
                             {sortedImagePaths.map((image, index) => (
@@ -111,12 +114,12 @@ export default function Header({
                                     key={index}
                                     src={image}
                                     alt={`img-${index}`}
-                                    className={`cursor-pointer rounded-lg ${selectedImageIndex === index ? 'border-4 border-blue-500' : 'border-none' }`}
+                                    className={`cursor-pointer rounded-lg ${selectedImageIndex === index ? 'border-4 border-blue-500' : 'border-none'}`}
                                     onClick={() => handleImageClick(index)} // Handle image click
                                 />
                             ))}
                         </div>
-                        <Button variant="contained" onClick={handleUpdateAvatarId}>Confirm</Button>
+                        <Button variant="contained" onClick={handleUpdateAvatarId}>{t("home.confirm")}</Button>
                     </div>
                 </DialogContent>
             </Dialog>

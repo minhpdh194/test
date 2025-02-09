@@ -10,5 +10,8 @@
         "disconnect_ton_wallet": "Déconnecter le portefeuille TON",
         "connect_ton_wallet": "Connecter le portefeuille TON",
         "level": "Niveau"
+    },
+    "home": {
+        "avatar_selection": "Sélection d'avatar"
     }
 }

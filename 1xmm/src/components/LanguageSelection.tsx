@@ -36,7 +36,7 @@ export default function LanguageSelection({
         document.body.dir = i18n.dir(); //sets the body to ltr or rtl
     }, [i18n, i18n.language]);
 
-    const handleToggle = (languageCode: any) => {
+    const handleToggle = (languageCode: string) => {
         setSelectedLanguage(languageCode);
     };
 
