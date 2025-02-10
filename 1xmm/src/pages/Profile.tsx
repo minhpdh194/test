@@ -119,11 +119,11 @@ export default function Profile() {
                             ))}
                         </div>
                     </div>
-                    <div>{t(`{profile}.cumulated_pos_leverage_bonus`)}: +{levelBenefit?.cumulated_positive_leverage}x</div>
-                    <div>{t(`{profile}.cumulated_protection_bonus`)}: +{levelBenefit?.cumulated_protection_bonus}%</div>
-                    <div>{t(`{profile}.cumulated_time_bonus`)}: -{levelBenefit?.cumulated_time_bonus} min</div>
-                    <div>{t(`{profile}.cumulated_tapping_amount`)}: {levelBenefit?.cumulated_tapping_amount}</div>
-                    <div>{t(`{profile}.gain_per_tap`)}: {levelBenefit?.total_gain_per_tap}</div>
+                    <div>{t(`${profile}.cumulated_pos_leverage_bonus`)}: +{levelBenefit?.cumulated_positive_leverage}x</div>
+                    <div>{t(`${profile}.cumulated_protection_bonus`)}: +{levelBenefit?.cumulated_protection_bonus}%</div>
+                    <div>{t(`${profile}.cumulated_time_bonus`)}: -{levelBenefit?.cumulated_time_bonus} min</div>
+                    <div>{t(`${profile}.cumulated_tapping_amount`)}: {levelBenefit?.cumulated_tapping_amount}</div>
+                    <div>{t(`${profile}.gain_per_tap`)}: {levelBenefit?.total_gain_per_tap}</div>
                 </div>
             </div>
             
