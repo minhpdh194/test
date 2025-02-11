@@ -39,6 +39,7 @@
     "i18next": "^24.2.2",
     "i18next-browser-languagedetector": "^8.0.2",
     "i18next-http-backend": "^3.0.2",
+    "jsencrypt": "^3.3.2",
     "jsrsasign": "^11.1.0",
     "lucide-react": "^0.395.0",
     "pusher-js": "8.4.0-rc2",

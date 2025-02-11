@@ -1,7 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
-import KJUR from 'jsrsasign';
-
-const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
+import { JSEncrypt } from 'jsencrypt';
+import CryptoJS from "crypto-js";
 
 declare module "axios" {
   export interface AxiosInstance {
@@ -10,14 +9,39 @@ declare module "axios" {
 }
 
 const token = localStorage.getItem("token");
+const publicKey = import.meta.env.VITE_SECRET_KEY;
+const aesKey = CryptoJS.lib.WordArray.random(32);
+const iv = CryptoJS.lib.WordArray.random(16);
 
-const encryptData = (data: any) => {
-  const oHeader = { alg: 'HS256', typ: 'JWT' };
-  const sHeader = JSON.stringify(oHeader);
-  const sPayload = JSON.stringify(data);
-  const jwtLib = KJUR as any;
-  const jwtEncodedData = jwtLib.jws.JWS.sign("HS256", sHeader, sPayload, SECRET_KEY);
-  return jwtEncodedData;
+function encryptAES(data: any) {
+    const encrypted = CryptoJS.AES.encrypt(JSON.stringify(data), aesKey, {
+        iv: iv,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7,
+    });
+    return encrypted.toString();
+}
+
+// const encryptData = (data: any) => {
+//   const oHeader = { alg: 'HS256', typ: 'JWT' };
+//   const sHeader = JSON.stringify(oHeader);
+//   const sPayload = JSON.stringify(data);
+//   const jwtLib = KJUR as any;
+//   const jwtEncodedData = jwtLib.jws.JWS.sign("HS256", sHeader, sPayload, SECRET_KEY);
+//   return jwtEncodedData;
+// }
+function encryptAESKeyWithRSA() {
+  const encryptor = new JSEncrypt();
+  encryptor.setPublicKey(publicKey);
+  return encryptor.encrypt(CryptoJS.enc.Base64.stringify(aesKey));
+}
+
+function encryptData(data: any) {
+  return {
+    encryptedAESKey: encryptAESKeyWithRSA(),
+    iv: CryptoJS.enc.Base64.stringify(iv),
+    encryptedData: encryptAES(data),
+  };
 }
 
 const $http: AxiosInstance = axios.create({
