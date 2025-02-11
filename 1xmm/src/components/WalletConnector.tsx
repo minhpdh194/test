@@ -16,7 +16,7 @@ export default function WalletConnector({
     onOpenChange,
     ...props
 }: DetailBonusProps) {
-    const [selectedItem, setSelectedItem] = useState<number>(userProfile.selected_crypto);
+    const [selectedItem, setSelectedItem] = useState<number>(userProfile.selected_crypto ? userProfile.selected_crypto : 1);
     const [walletAddress, setWalletAddress] = useState<string | ''>(userProfile.wallet_address);
 
     const { t } = useTranslation();
@@ -56,24 +56,19 @@ export default function WalletConnector({
                             onChange={(e) => setWalletAddress(e.target.value)}
                         />
 
-                        {walletAddress && walletAddress.length > 0 && (
-                            <>
-                                <FormLabel className='text-white text-sm'>{t(`${menu}.wallet_connector.label_network`)}</FormLabel>
-                                <FormControl fullWidth className='bg-white'>
-                                    <Select
-                                        value={selectedItem}
-                                        onChange={(e) => handleToggle(e)}
-                                    >
-                                        {CryptoList?.map((crypto) => (
-                                            <MenuItem key={crypto.id} value={crypto.id} className='text-black'>
-                                                {crypto.name}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </>
-                        )}
-
+                        <FormLabel className='text-white text-sm'>{t(`${menu}.wallet_connector.label_network`)}</FormLabel>
+                        <FormControl fullWidth className='bg-white'>
+                            <Select
+                                value={selectedItem}
+                                onChange={(e) => handleToggle(e)}
+                            >
+                                {CryptoList?.map((crypto) => (
+                                    <MenuItem key={crypto.id} value={crypto.id} className='text-black'>
+                                        {crypto.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                     </div>
                 </div>
 
