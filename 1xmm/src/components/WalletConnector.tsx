@@ -16,20 +16,8 @@ export default function WalletConnector({
     onOpenChange,
     ...props
 }: DetailBonusProps) {
-    const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState<number>(userProfile.selected_crypto);
     const [walletAddress, setWalletAddress] = useState<string | ''>(userProfile.wallet_address);
-
-    useEffect(() => {
-        const handleResize = () => {
-            const viewportHeight = window.visualViewport?.height || window.innerHeight;
-            const screenHeight = window.innerHeight;
-            setIsKeyboardOpen(viewportHeight < screenHeight);
-        };
-
-        window.visualViewport?.addEventListener("resize", handleResize);
-        return () => window.visualViewport?.removeEventListener("resize", handleResize);
-    }, []);
 
     const { t } = useTranslation();
 
