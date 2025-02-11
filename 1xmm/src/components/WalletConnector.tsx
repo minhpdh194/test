@@ -1,5 +1,5 @@
 import { Drawer, FormControl, FormLabel, MenuItem, Select, TextField } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { CryptoList } from '@/referential/cryptoChecklist';
 import { Button } from './ui/button';
 import { $http } from '@/lib/http';
