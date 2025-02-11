@@ -47,7 +47,7 @@ export default function LanguageSelection({
         onOpenChange(false);
     }
     return (
-        <Drawer anchor="bottom" open={open} onClose={onOpenChange} {...props}>
+        <Drawer anchor="bottom" open={open} onClose={() => onOpenChange(false)} {...props}>
             <div className='min-h-[65vh] bg-black flex flex-col justify-between p-4'>
                 <div>
                     <h2 className="text-xl text-white font-medium uppercase p-2 text-center">
