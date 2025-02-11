@@ -31,6 +31,8 @@
         "level": "Level",
         "wallet_connector": {
             "title": "Wallet Connector",
+            "label_wallet_address": "Wallet Address",
+            "label_network": "Select Network",
             "save": "Save"
         }
     },

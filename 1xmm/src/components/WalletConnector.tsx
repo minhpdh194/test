@@ -1,5 +1,5 @@
-import { Drawer, FormControl, MenuItem, Select, TextField } from '@mui/material';
-import { useState } from 'react';
+import { Drawer, FormControl, FormLabel, MenuItem, Select, TextField } from '@mui/material';
+import { useEffect, useState } from 'react';
 import { CryptoList } from '@/referential/cryptoChecklist';
 import { Button } from './ui/button';
 import { $http } from '@/lib/http';
@@ -16,13 +16,26 @@ export default function WalletConnector({
     onOpenChange,
     ...props
 }: DetailBonusProps) {
-    const [selectedItem, setSelectedItem] = useState<number | ''>(userProfile.selected_crypto);
+    const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+    const [selectedItem, setSelectedItem] = useState<number>(userProfile.selected_crypto);
     const [walletAddress, setWalletAddress] = useState<string | ''>(userProfile.wallet_address);
+
+    useEffect(() => {
+        const handleResize = () => {
+            const viewportHeight = window.visualViewport?.height || window.innerHeight;
+            const screenHeight = window.innerHeight;
+            setIsKeyboardOpen(viewportHeight < screenHeight);
+        };
+
+        window.visualViewport?.addEventListener("resize", handleResize);
+        return () => window.visualViewport?.removeEventListener("resize", handleResize);
+    }, []);
 
     const { t } = useTranslation();
 
-    const handleToggle = (index: any) => {
-        setSelectedItem(index === selectedItem ? null : index);
+    const handleToggle = (e: any) => {
+        const index = e.target.value as number;
+        setSelectedItem(index === selectedItem ? -1 : index);
     };
 
     const saveWallet = async () => {
@@ -46,27 +59,33 @@ export default function WalletConnector({
                         {t(`${menu}.wallet_connector.title`)}
                     </h2>
                     <div className="rounded-lg">
+                        <FormLabel className='text-white text-sm'>{t(`${menu}.wallet_connector.label_wallet_address`)}</FormLabel>
                         <TextField
                             fullWidth
-                            label="Wallet address"
                             variant="outlined"
-                            className="mt-4 mb-4 bg-white rounded-lg"
+                            className="mb-4 bg-white rounded-lg"
                             value={walletAddress}
                             onChange={(e) => setWalletAddress(e.target.value)}
                         />
 
-                        <FormControl fullWidth className='bg-white'>
-                            <Select
-                                value={selectedItem}
-                                onChange={(e) => handleToggle(e)}
-                            >
-                                {CryptoList?.map((crypto) => (
-                                    <MenuItem key={crypto.id} value={crypto.id} className='text-black'>
-                                        {crypto.name}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
+                        {walletAddress && walletAddress.length > 0 && (
+                            <>
+                                <FormLabel className='text-white text-sm'>{t(`${menu}.wallet_connector.label_network`)}</FormLabel>
+                                <FormControl fullWidth className='bg-white'>
+                                    <Select
+                                        value={selectedItem}
+                                        onChange={(e) => handleToggle(e)}
+                                    >
+                                        {CryptoList?.map((crypto) => (
+                                            <MenuItem key={crypto.id} value={crypto.id} className='text-black'>
+                                                {crypto.name}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            </>
+                        )}
+
                     </div>
                 </div>
 
