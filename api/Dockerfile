@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     gnupg \
     cron \
     openssl \
+    php8.2-openssl \
     && docker-php-ext-install pdo pdo_mysql zip
 
 # Cài đặt Node.js và npm
