@@ -63,6 +63,7 @@
   },
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "^5.64.2",
+    "@types/crypto-js": "^4.2.2",
     "@types/decimal.js": "^7.4.3",
     "@types/express": "^5.0.0",
     "@types/jsrsasign": "^10.5.15",
