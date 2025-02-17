@@ -58,7 +58,7 @@ class TelegramStarController extends Controller
         $bonus_id = $request->input('bonus_id');
         $user = $request->user();
 
-        PendingInvoice::where(['telegram_user_id' => $user->telegram_user_id, 'bonus_id' => $bonus['id']])->delete();
+        PendingInvoice::where(['telegram_user_id' => $user->telegram_user_id, 'bonus_id' => $bonus_id])->delete();
     }
 
     /* public function buyStarPackage(Request $request)
