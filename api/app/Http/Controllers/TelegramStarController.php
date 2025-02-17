@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 use App\Models\UserGameData;
 use App\Models\Settings;
+use App\Models\PendingInvoice;
 use App\Models\UserBonuses;
 use Illuminate\Support\Facades\Http;
 use Pusher\Pusher;
@@ -31,15 +32,37 @@ class TelegramStarController extends Controller
         $bonus = $request->input('bonus');
         $user = $request->user();
 
+        if (!$user) return response()->json(['error' => 'User not found'], 404);
+
         $isBonusBought = UserBonuses::where('bonus_id', $bonus['id'])->where('telegram_user_id', $user->telegram_user_id)->first();
+
         if ($isBonusBought) {
             return response()->json(['ok' => false], 202);
         } else {
-            return $this->telegramStarService->sendInvoice($bonus, $user->telegram_user_id);
+            if ($this->telegramStarService->sendInvoice($bonus, $user->telegram_user_id)) {
+                
+                // We record the invoice
+                PendingInvoice::create([
+                    'telegram_user_id' => $user->telegram_user_id,
+                    'bonus_id' => $bonus['id']
+                ]);
+
+                return $response->json();
+            } else {
+                return $response->failed();
+            }
         }
     }
 
-    public function buyStarPackage(Request $request)
+    public function removePendingInvoice(Request $request)
+    {
+        $bonus_id = $request->input('bonus_id');
+        $user = $request->user();
+
+        PendingInvoice::where(['telegram_user_id' => $user->telegram_user_id, 'bonus_id' => $bonus['id']])->delete();
+    }
+
+    /* public function buyStarPackage(Request $request)
     {
         $user = $request->user();
         $telegramProfile = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
@@ -77,5 +100,5 @@ class TelegramStarController extends Controller
         }
 
         return response()->json(['success' => 'Buy package successfully'], 200);
-    }
+    } */
 }

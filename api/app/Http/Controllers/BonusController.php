@@ -12,25 +12,68 @@ use App\Models\UserBonuses;
 use App\Models\UserGameData;
 use App\Models\MarketData\Position;
 use App\Models\Settings;
+use App\Models\PendingInvoice;
 
 class BonusController extends Controller
 {
+    private $telegramStarService;
+
+    public function __construct(TelegramStarService $telegramStarService)
+    {
+        $this->telegramStarService = $telegramStarService;
+    }
+
     public function buyBonus(Request $request)
     {
         $user = $request->user();
         $boughtBonus = $request->bonus;
 
+        $pendingInvoice = PendingInvoice::where([
+            'telegram_user_id' => $user->telegram_user_id,
+            'bonus_id' => $boughtBonus['id']])->first();
+
+        if (!$pendingInvoice) return response()->json(null);
+        $pendingInvoice->delete();
+
         $settings = Settings::where('name', 'stars_spent')->first();
         $settings->value += $boughtBonus['cost'];
         $settings->save();
+
         $bonus = UserBonuses::create([
             'bonus_id' => $boughtBonus['id'],
             'telegram_user_id' => $user->telegram_user_id,
             'purchase_time' => Carbon::now(),
             'position_id' => 0,
         ]);
+
+        $this->telegramStarService->updateStarsInPusher();
         
         return response()->json(['success' => 'Bonus list updated successfully', 'bonus' => $bonus], 200);
+    }
+
+    public function buyTokenBonus(Request $request)
+    {
+        $user = $request->user();
+        $boughtBonus = $request->bonus;
+
+        $pendingInvoice = PendingInvoice::where([
+            'telegram_user_id' => $user->telegram_user_id,
+            'bonus_id' => $boughtBonus['id']])->first();
+
+        if (!$pendingInvoice) return response()->json(null);
+        $pendingInvoice->delete();
+
+        $userData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
+        $userData->amount_of_tokens += $boughtBonus['benefit'];
+        $userData->save();
+
+        $settings = Settings::where('name', 'stars_spent')->first();
+        $settings->value += $boughtBonus['cost'];
+        $settings->save();
+
+        $this->telegramStarService->updateStarsInPusher();
+
+        return response()->json(['success' => 'Buy token successfully'], 200);
     }
 
     public function getBonuses(Request $request)
@@ -40,6 +83,7 @@ class BonusController extends Controller
             'telegram_user_id' => $user->telegram_user_id,
             'is_expired' => false,
         ])->get();
+
         return response()->json($bonuses);
     }
 
@@ -76,20 +120,5 @@ class BonusController extends Controller
             $bonus->save();
             $position->save();
         }
-    }
-
-    public function buyToken(Request $request)
-    {
-        $user = $request->user();
-        $boughtBonus = $request->bonus;
-
-        $settings = Settings::where('name', 'stars_spent')->first();
-        $settings->value += $boughtBonus['cost'];
-        $settings->save();
-
-        $userData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
-        $userData->amount_of_tokens += $boughtBonus['benefit'];
-        $userData->save();
-        return response()->json(['success' => 'Buy token successfully'], 200);
     }
 }

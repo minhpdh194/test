@@ -176,35 +176,14 @@ export default function Bonus() {
     }
 
     const handleBuyBonusAction = async (bonus: BonusDefinition) => {
-        // if (globalThis.userProfile.number_of_stars > bonus.cost) {
-        //     await globalThis.userProfile.BuyBonus(bonus);
-        // } else {
-        //     toast.warning(`You dont have enough stars to buy this bonus`);
-        // }
         try {
             // Call the backend to send the invoice via Telegram bot
             const response = await $http.post("send-invoice", {
                 telegram_user_id: userProfile.telegram_user_id,
                 bonus: bonus
             });
-            // const response = await $http.post(`https://api.telegram.org/bot${import.meta.env.VITE_TELEGRAM_BOT_API_TOKEN}/createInvoiceLink`, {
-            //     title: `Package with ${bonus.cost}`,
-            //     description: 'Good package',
-            //     payload: `${new Date()}_${userProfile.telegram_user_id}`,
-            //     provider_token: "",
-            //     currency: "XTR",
-            //     prices: [
-            //         {
-            //             label: `Buy with ${bonus.cost} stars`,
-            //             amount: bonus.cost
-            //         }
-            //     ]
-            // });
-
-            console.log('Payment invoice sent:', response);
-            console.log(response.data.ok);
+            
             if (response.data.ok) {
-                console.log(window.Telegram.WebApp.version);
                 if (Number(window.Telegram.WebApp.version) < 6.1) {
                     toast.error("Please update your Telegram app to the latest version to access all features.");
                 } else {
@@ -216,6 +195,10 @@ export default function Bonus() {
                                 await globalThis.userProfile.BuyBonus(bonus);
                             }
                         } else {
+                            await $http.post("not-paid", {
+                                bonus_id: bonus.id
+                            });
+                            
                             toast.warning(`You dont have enough stars to buy this bonus`);
                         }
                     });

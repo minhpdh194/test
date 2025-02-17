@@ -33,9 +33,34 @@ class TelegramStarService
         $response = Http::post($apiUrl . 'createInvoiceLink', $payload);
 
         if ($response->successful()) {
-            return $response->json();
+            return true;
         } else {
-            return $response->failed();
+            return false;
+        }
+    }
+
+    public function updateStarsInPusher()
+    {
+        $settings = Settings::where('name', 'stars_spent')->first();
+        $conversion = Settings::where('name', 'conversion_rate')->first()->value;
+        $total_coins = round(floatval($settings->value) / (0.025 * floatval($conversion)), 0, PHP_ROUND_HALF_DOWN) * 0.025;
+
+        $options = array(
+            'cluster' => 'ap2',
+            'useTLS' => true
+        );
+
+        $pusher = new Pusher(
+            env('PUSHER_APP_KEY'),
+            env('PUSHER_APP_SECRET'),
+            env('PUSHER_APP_ID'),
+            $options
+        );
+
+        try {
+            $pusher->trigger('totalCoins', 'data', ['totalCoins' => $total_coins]);
+        } catch (\Throwable $e) {
+            \Log::info('error pusher', ['error' => $e->getMessage()]);
         }
     }
 }

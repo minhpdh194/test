@@ -49,6 +49,7 @@ Route::middleware(['auth:sanctum', 'decrypt.request'])->group(function () {
     Route::get('/referred-users', [FriendsController::class, 'referredUsers']);
 
     Route::post('/send-invoice', [TelegramStarController::class, 'sendTelegramInvoice']);
+    Route::post('/not-paid', [TelegramStarController::class, 'removePendingInvoice']);
 
     Route::get('/top-users', [RatingController::class, 'getRating']);
 
@@ -60,13 +61,14 @@ Route::middleware(['auth:sanctum', 'decrypt.request'])->group(function () {
     Route::get('/pairs-by-ids', [MarketDataController::class, 'getPairsByUnlockedIds']);
     Route::get('/user_positions', [PositionController::class, 'getPositions']);
 
-    Route::get('/get-indices', [MarketDataController::class, 'getIndices']);
-    Route::get('/get-index', [MarketDataController::class, 'getIndex']);
-    Route::get('/load-spots', [MarketDataController::class, 'getSpots']);
+    Route::get('/get-indices', [MarketDataController::class,'getIndices']);
+    Route::get('/get-index', [MarketDataController::class,'getIndex']);
+    Route::get('/load-spots', [MarketDataController::class,'getSpots']);
 
-    Route::post('/buy-stars', [TelegramStarController::class, 'buyStarPackage']);
+    //Route::post('/buy-stars', [TelegramStarController::class, 'buyStarPackage']);
 
     Route::post('/buy-bonus', [BonusController::class, 'buyBonus']);
+    Route::post('/buy-token', [BonusController::class, 'buyTokenBonus']);
     Route::get('/user_bonuses', [BonusController::class, 'getBonuses']);
     Route::post('/expiry_bonuses', [BonusController::class, 'expiry']);
 
@@ -81,7 +83,6 @@ Route::middleware(['auth:sanctum', 'decrypt.request'])->group(function () {
     Route::get('/get-user-inprogress-task-id', [UserTaskController::class, 'getUserInProgressTasks']);
     Route::get('/get-user-completed-task', [UserTaskController::class, 'getUserCompletedTasks']);
 
-    Route::post('/buy-token', [BonusController::class, 'buyToken']);
     Route::get('/get-left-users', [RatingController::class, 'getLeftUsers']);
 
     Route::post('/save-user-wallet-info', [TelegramUserController::class, 'saveUserWallet']);

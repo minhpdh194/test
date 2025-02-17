@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MarketData\Index;
 use App\Models\MarketData\Position;
 use App\Models\MarketData\Spot;
 use App\Models\MarketData\TotalOpenPositionValue;
@@ -54,7 +55,7 @@ class PositionController extends Controller
     {
         $user = $request->user();
         if (!$user) {
-            return response()->json(null);
+            return response()->json('User not found', 404);
         }
         $userGameData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
         $validatedData = $request->only([
@@ -66,9 +67,24 @@ class PositionController extends Controller
 
         $positionData['position_id'] = $position['position_id'];
         $positionData['amount'] = $position['amount'];
+
+        $now = Carbon::now();
+        $min_end_date = Carbon::createFromTimestamp($position['min_end_date']);
+
+        /*****************
+         * Sanity checks *
+         * ***************/
+        if ($position['amount'] > $userGameData->balance
+            || $position['amount'] < 0
+            || $now->diffInYears($min_end_date) < 0.00065
+            || $position['pair']['id'] > 25
+            || $position['leverage'] > 10) return response()->json('Forbidden', 403);
+        
+        /*****************/
+
         $positionData['index_start'] = $position['index_at_start'];
         $positionData['average_leverage'] = $position['leverage'];
-        $positionData['min_end_date'] = Carbon::createFromTimestamp($position['min_end_date'])->toDateTimeString();
+        $positionData['min_end_date'] = $min_end_date->toDateTimeString();
         $positionData['long_short'] = $position['long_short'];
         $positionData['telegram_user_id'] = $user->telegram_user_id;
         $positionData['pair_id'] = $position['pair']['id'];
@@ -144,6 +160,34 @@ class PositionController extends Controller
 
         $position_change = $updated_position['amount'] - $position->amount;
 
+        /*****************
+         * Sanity checks *
+         * ***************/
+        $position_change_for_pnl_estimate = 0.0;
+        if ($updated_position['long_short'] == $position->long_short) $position_change_for_pnl_estimate = $position_change > 0 ? $position_change : -$position_change;
+        else $position_change_for_pnl_estimate = $position->amount + $updated_position['amount'];
+
+        $not_using_leverage_bonus = true;
+        if (!empty($position->bonuses_id) && count($position->bonuses_id) > 0) {
+            foreach ($position->bonuses_id as $bonus_id) {
+                // Bonus will correspond to leverage or positive leverage
+                if ($bonus_id <= 24) {
+                    $not_using_leverage_bonus = false;
+                    break;
+                }
+            }
+        }
+
+        if ($position_change == 0 && $pnl > 0
+            || $updated_position['amount'] > $userGameData->balance + $pnl
+            || $not_using_leverage_bonus && PositionController::pnlIsNotConsistent($position->pair_id, 
+                $position->long_short, 
+                $position_change_for_pnl_estimate, 
+                $position->index_start,
+                $pnl)) return response()->json('Forbidden', 403);
+
+        /*****************/
+
         $positionData['amount'] = $updated_position['amount'];
         $positionData['index_start'] = $updated_position['index_at_start'];
         $positionData['average_leverage'] = $updated_position['leverage'];
@@ -198,6 +242,29 @@ class PositionController extends Controller
             return response()->json(['message' => 'Position not found'], 404);
         }
 
+        /*****************
+         * Sanity checks *
+         * ***************/
+        $not_using_leverage_bonus = true;
+        if (!empty($position->bonuses_id) && count($position->bonuses_id) > 0) {
+            foreach ($position->bonuses_id as $bonus_id) {
+                // Bonus will correspond to leverage or positive leverage
+                if ($bonus_id <= 24) {
+                    $not_using_leverage_bonus = false;
+                    break;
+                }
+            }
+        }
+
+        if ($position_change > 0 && $pnl != 0
+            || $not_using_leverage_bonus && PositionController::pnlIsNotConsistent($position->pair_id, 
+                $position->long_short, 
+                $position->amount, 
+                $position->index_start,
+                $pnl)) return response()->json('Forbidden', 403);
+
+        /*****************/
+
         // We delete the bonuses which were attached
         $positionBonuses = UserBonuses::where('position_id', $position_id)->get();
         foreach ($positionBonuses as $bonus) {
@@ -217,7 +284,25 @@ class PositionController extends Controller
             'telegram_user_id' =>  $user->telegram_user_id,
         ]);
 
-        \Log::info('Position deleted successfully');
         return response()->json(['message' => 'Position closed successfully'], 200);
+    }
+    
+    private static function pnlIsNotConsistent($pair_id, $long_short, $amount, $initial_index, $declared_pnl)
+    {
+        $index = PositionController::getLastIndex($pair_id, $long_short);
+        $estimated_pnl = $amount * ($index - $initial_index);
+
+        if ($estimated_pnl * $declared_pnl < 0) return true;
+        if ($estimated_pnl < 0) return $estimated_pnl < 1.1 * $declared_pnl;
+        return $estimated_pnl > 1.1 * $declared_pnl;
+    }
+
+    private static function getLastIndex($pair_id, $long_short)
+    {
+        $index = Index::where(['pair_id' => $pair_id, 'long_short' => $long_short])
+            ->orderBy('tokens', 'desc')
+            ->first();
+
+        return $index->value;
     }
 }
