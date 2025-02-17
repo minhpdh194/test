@@ -35,21 +35,20 @@ class TelegramStarController extends Controller
         if (!$user) return response()->json(['error' => 'User not found'], 404);
 
         $isBonusBought = UserBonuses::where('bonus_id', $bonus['id'])->where('telegram_user_id', $user->telegram_user_id)->first();
-
         if ($isBonusBought) {
             return response()->json(['ok' => false], 202);
         } else {
             if ($this->telegramStarService->sendInvoice($bonus, $user->telegram_user_id)) {
-                
+
                 // We record the invoice
                 PendingInvoice::create([
                     'telegram_user_id' => $user->telegram_user_id,
                     'bonus_id' => $bonus['id']
                 ]);
 
-                return $response->json();
+                return response()->json(['ok' => true], 202);
             } else {
-                return $response->failed();
+                return response()->json(['ok' => false], 202);
             }
         }
     }

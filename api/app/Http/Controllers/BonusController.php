@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\TelegramStarService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Http;
@@ -47,7 +48,7 @@ class BonusController extends Controller
         ]);
 
         $this->telegramStarService->updateStarsInPusher();
-        
+
         return response()->json(['success' => 'Bonus list updated successfully', 'bonus' => $bonus], 200);
     }
 
