@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PairSymbolController;
 
 Route::get('/', function () {
-    return redirect('/dashboard');
+    return view('welcome');
 });
 // Route::group(['prefix' => 'pair', 'as' => 'pair.'], function () {
 //     Route::controller(PairSymbolController::class)->group(function () {
@@ -27,13 +27,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/tasks', [AdminController::class, 'storeTask'])->name('store_task');
     Route::get('/daily-tasks', [AdminController::class, 'dailyTasks'])->name('daily_tasks');
     Route::get('/daily-tasks/create', [AdminController::class, 'createDailyTask'])->name('create_daily_task');
-    Route::post('/daily-tasks', [AdminController::class, 'storeDailyTask'])->name('store_daily_task');
+    Route::post('/daily-tasks/store', [AdminController::class, 'storeDailyTask'])->name('store_daily_task');
 });
 // Route::get('/price', [TelegramUserController::class, 'getTrading']);
 // Route::get('/volatility', [TelegramUserController::class, 'fetchVolatilities']);
 // Route::get('/get-volatility', [TelegramUserController::class, 'integration']);
 
-Route::get('/get-volatility', [MarketDataController::class, 'integration']);
+// Route::get('/get-volatility', [MarketDataController::class, 'integration']);
 // Route::get('/get-all-spots', [MarketDataController::class, 'getSpotsFromMarket']);
 
 require __DIR__ . '/auth.php';

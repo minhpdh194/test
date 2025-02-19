@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Tasks\DailyTasks;
 use App\Models\TelegramUser;
-use App\Models\Task;
-use App\Models\DailyTask;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -12,9 +11,8 @@ class AdminController extends Controller
     public function dashboard()
     {
         $userCount = TelegramUser::count();
-        $taskCount = Task::count();
-        $dailyTaskCount = DailyTask::count();
-        return view('dashboard', compact('userCount', 'taskCount', 'dailyTaskCount'));
+        $dailyTaskCount = DailyTasks::count();
+        return view('dashboard', compact('userCount', 'dailyTaskCount'));
     }
 
     public function users()
@@ -23,33 +21,14 @@ class AdminController extends Controller
         return view('users', compact('users'));
     }
 
-    public function tasks()
-    {
-        $tasks = Task::all();
-        return view('tasks', compact('tasks'));
-    }
-
     public function createTask()
     {
         return view('create_task');
     }
 
-    public function storeTask(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'reward_coins' => 'required|integer|min:1',
-        ]);
-
-        Task::create($validated);
-
-        return redirect()->route('tasks')->with('success', 'Task created successfully');
-    }
-
     public function dailyTasks()
     {
-        $dailyTasks = DailyTask::all();
+        $dailyTasks = DailyTasks::all();
         return view('daily_tasks', compact('dailyTasks'));
     }
 
@@ -67,17 +46,17 @@ class AdminController extends Controller
             'reward_coins' => 'required|integer|min:1',
         ]);
 
-        DailyTask::create($validated);
+        DailyTasks::create($validated);
 
         return redirect()->route('daily_tasks')->with('success', 'Daily task created successfully');
     }
 
-    public function editTask(Task $task)
+    public function editTask(DailyTasks $task)
     {
         return view('tasks.edit', compact('task'));
     }
 
-    public function updateTask(Request $request, Task $task)
+    public function updateTask(Request $request, DailyTasks $task)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -91,18 +70,18 @@ class AdminController extends Controller
         return redirect()->route('tasks')->with('success', 'Task updated successfully');
     }
 
-    public function deleteTask(Task $task)
+    public function deleteTask(DailyTasks $task)
     {
         $task->delete();
         return redirect()->route('tasks')->with('success', 'Task deleted successfully');
     }
 
-    public function editDailyTask(DailyTask $dailyTask)
+    public function editDailyTask(DailyTasks $dailyTask)
     {
         return view('daily_tasks.edit', compact('dailyTask'));
     }
 
-    public function updateDailyTask(Request $request, DailyTask $dailyTask)
+    public function updateDailyTask(Request $request, DailyTasks $dailyTask)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -116,7 +95,7 @@ class AdminController extends Controller
         return redirect()->route('daily_tasks')->with('success', 'Daily task updated successfully');
     }
 
-    public function deleteDailyTask(DailyTask $dailyTask)
+    public function deleteDailyTask(DailyTasks $dailyTask)
     {
         $dailyTask->delete();
         return redirect()->route('daily_tasks')->with('success', 'Daily task deleted successfully');
