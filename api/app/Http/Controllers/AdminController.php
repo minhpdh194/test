@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Tasks\DailyTasks;
 use App\Models\Tasks\TaskAnswers;
+use App\Models\Tasks\TaskQuestions;
 use App\Models\TelegramUser;
 use Illuminate\Http\Request;
 
@@ -44,29 +45,40 @@ class AdminController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
-            'type' => 'required',
             'reward_coins' => 'required',
-
+            'action_name' => 'required|string',
         ]);
 
         $validated['link'] = $request->input('link');
-        $validated['question_type'] = $request->input('question_type');
+        $validated['action_name'] = $request->input('action_name');
 
-        if ($validated['type'] == 1) {
-            $answers = $request->input('answers');
-            if (count($answers) > 0) {
+        if ($validated['action_name'] == 'answer_question') {
+            $questions = $request->input('questions');
+            if (count($questions) > 0) {
                 $createdTask = DailyTasks::create($validated);
-                foreach ($answers as $answer) {
-                    TaskAnswers::create([
-                        'task_id' => $createdTask->id,
-                        'answer_description' => $answer['text'],
-                        'result' => isset($answer['is_correct']) ? true : false,
-                    ]);
+                foreach ($questions as $question) {
+                    $answers = $question['answers'];
+                    $createdQuestion = null;
+                    if (count($answers) > 0) {
+                        $createdQuestion = TaskQuestions::create([
+                            'description' => $question['text'],
+                            'type' => $request->input('question_type'),
+                            'video_id' => $createdTask->id,
+                        ]);
+                        foreach ($answers as $answer) {
+                            TaskAnswers::create([
+                                'question_id' => $createdQuestion->id,
+                                'description' => $answer['text'],
+                                'is_correct' => isset($answer['is_correct']) ? true : false,
+                            ]);
+                        }
+                    }
                 }
             }
-        } else {
-
+        } else if ($validated['action_name'] != 'none') {
             DailyTasks::create($validated);
+        } else {
+            return redirect()->route('daily_tasks')->with('success', 'Cannot create new daily task');
         }
 
         return redirect()->route('daily_tasks')->with('success', 'Daily task created successfully');

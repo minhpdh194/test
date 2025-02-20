@@ -16,7 +16,7 @@
                     <table class="min-w-full">
                         <thead>
                             <tr>
-                                {{-- <th class="text-left py-2">ID</th> --}}
+                                <th class="text-left py-2">ID</th>
                                 <th class="text-left py-2">Name</th>
                                 <th class="text-left py-2">Description</th>
                                 <th class="text-left py-2">Link</th>
@@ -27,7 +27,7 @@
                         <tbody>
                             @foreach ($dailyTasks as $task)
                                 <tr>
-                                    {{-- <td>{{ $task->id }}</td> --}}
+                                    <td>{{ $task->id }}</td>
                                     <td>{{ $task->name }}</td>
                                     <td>{{ $task->description }}</td>
                                     <td>{{ $task->link }}</td>
