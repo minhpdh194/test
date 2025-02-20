@@ -6,14 +6,13 @@ import { toast } from 'react-toastify';
 import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, Radio } from '@mui/material';
 import { getRandomQuestions } from './TaskUtils';
 import { Question } from '@/types/tasks/Question';
-import { getQuestions, getAnswers } from '@/referential/questionsAnswers';
 import { Tasks } from '@/classes/Tasks';
 import { TaskActionNames } from '@/enums';
 
 const ListDailyQuest: React.FC = () => {
     //const TWITTER_CLIENT_ID: string = import.meta.env.VITE_TWITTER_CLIENT_ID;
     //const TWITTER_REDIRECT_URI: string = import.meta.env.VITE_TWITTER_REDIRECT_URI;
-    const [tasks, updateTasks] = useState<Tasks>(new Tasks(userProfile.completed_task_ids));
+    const [tasks, updateTasks] = useState<Tasks>(new Tasks(userProfile.completed_task_ids, globalThis.dailyTasks));
     const [openDrawer, setOpenDrawer] = useState(false);
     const [questionPopup, setQuestionPopup] = useState<boolean>(false);
     const [selectedTask, setSelectedTask] = useState<TaskDefinition>();
@@ -24,7 +23,10 @@ const ListDailyQuest: React.FC = () => {
     const renderTaskStatus = (task: TaskDefinition) => {
         let taskStatus;
 
-        if ((task.action_name == TaskActionNames.Watch1XMMVideo || task.action_name == TaskActionNames.WatchExtVideo) && tasks.CurrentVideoTaskInProgress) {
+        if ((task.action_name == TaskActionNames.AnswerQuestion
+            || task.action_name == TaskActionNames.FreeToken
+            || task.action_name == TaskActionNames.ReadXPost)
+            && tasks.CurrentVideoTaskInProgress) {
             taskStatus = <>Claim</>;
         } else if (tasks.CompletedTaskIds.includes(task.id)) {
             taskStatus = <>Completed</>;
@@ -55,30 +57,18 @@ const ListDailyQuest: React.FC = () => {
 
             markTask.then(() => {
                 switch (task.action_name) {
-                    case TaskActionNames.Watch1XMMVideo:
-                    case TaskActionNames.WatchExtVideo:
-                        handleWatchVideo(task);
+                    case TaskActionNames.FreeToken:
+                        claimTask(task);
                         break;
-                    case TaskActionNames.Invite:
-                        handleFriendInvitationTasks(task);
+                    case TaskActionNames.AnswerQuestion:
+                        handleAnswerQuestion(task);
                         break;
-                    case TaskActionNames.JoinX:
-                    case TaskActionNames.JoinTelegram:
-                    case TaskActionNames.JoinDiscord:
+                    case TaskActionNames.ReadXPost:
                         handleJoin(task);
                         break;
                 }
             });
-        } catch (e) {}
-    }
-
-    const handleFriendInvitationTasks = async (task: TaskDefinition) => {
-        if (globalThis.userInvitedFriends.length >= Number(task.complete_requirement)) {
-            claimTask(task);
-            setSelectedTask(undefined);
-        } else {
-            toast.info("You need to invite more friends to claim this task");
-        }
+        } catch (e) { }
     }
 
     const handleJoin = (task: TaskDefinition) => {
@@ -109,22 +99,12 @@ const ListDailyQuest: React.FC = () => {
         }, 2500);
     }
 
-    const handleWatchVideo = (task: TaskDefinition) => {
-        const videoUrl = task.link;
-        
-        // Sanity check
-        if (tasks.CompletedTaskIds.includes(task.id) || videoUrl.length == 0) return;
-        
-        if (!tasks.CurrentVideoTaskInProgress){
-            window.open(videoUrl, '_blank');
-            tasks.CurrentVideoTaskInProgress = true;
-        }
-        
-        const selectedQuestions = getRandomQuestions(getQuestions(task.complete_requirement + 1), 2);
+    const handleAnswerQuestion = (task: TaskDefinition) => {
+        if (tasks.CompletedTaskIds.includes(task.id)) return;
+        tasks.CurrentVideoTaskInProgress = true;
+        const selectedQuestions = getRandomQuestions(dailyQuests.filter(quest => quest.video_id == task.id), 2);
         setCurrentQuestions(selectedQuestions);
         setQuestionPopup(true);
-
-        // We initialize the checkboxes and radio buttons to check answers
         setSelectedCheckboxes([]);
         setSelectedRadios({});
     }
@@ -135,7 +115,7 @@ const ListDailyQuest: React.FC = () => {
 
             if (response.data.success) {
                 tasks.TaskHasBeenCompleted(task);
-                updateTasks(new Tasks(userProfile.completed_task_ids));
+                updateTasks(new Tasks(userProfile.completed_task_ids, globalThis.dailyTasks));
 
                 userProfile.available_task_ids = tasks.AvailableTasks.map(t => t.id);
                 userProfile.completed_task_ids.push(task.id);
@@ -156,7 +136,7 @@ const ListDailyQuest: React.FC = () => {
         setSelectedTask(undefined);
     }
 
-    const handleSubmitAnswer = (video_id: number) => {
+    const handleSubmitAnswer = () => {
         setQuestionPopup(false);
 
         const combinedList = [
@@ -167,7 +147,7 @@ const ListDailyQuest: React.FC = () => {
         let result = true;
 
         combinedList.forEach(id => {
-            const answer = getAnswers(video_id).find(answer => answer.id === id);
+            const answer = dailyAnswers.find(answer => answer.id === id);
             if (answer && result) {
                 result = result && answer.is_correct;
             }
@@ -179,7 +159,7 @@ const ListDailyQuest: React.FC = () => {
             } else {
                 toast.warning("Wrong answer");
             }
-        } 
+        }
     }
 
     return (
@@ -236,7 +216,7 @@ const ListDailyQuest: React.FC = () => {
                         <DialogContent key={index}>
                             {index + 1}. {question.description}
                             {
-                                getAnswers(question.video_id)
+                                dailyAnswers
                                     .filter((answer) => answer.question_id === question.id) // Filter answers by question_id
                                     .map((filteredAnswer, answerIndex) => (
                                         <div key={answerIndex}>
@@ -269,7 +249,7 @@ const ListDailyQuest: React.FC = () => {
                         <Button onClick={() => setQuestionPopup(false)} color="primary">
                             Close
                         </Button>
-                        <Button onClick={() => handleSubmitAnswer(selectedTask.complete_requirement + 1)} color="primary">
+                        <Button onClick={() => handleSubmitAnswer()} color="primary">
                             Submit
                         </Button>
                     </DialogActions>

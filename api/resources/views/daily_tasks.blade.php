@@ -32,7 +32,17 @@
                                     <td>{{ $task->description }}</td>
                                     <td>{{ $task->link }}</td>
                                     <td>{{ $task->reward_coins }}</td>
-                                    <td>{{ $task->action_name }}</td>
+                                    <td>
+                                        @if ($task->action_name == 'free_token')
+                                            Receive Free Token
+                                        @elseif ($task->action_name == 'answer_question')
+                                            Answer Question
+                                        @elseif ($task->action_name == 'read_x_post')
+                                            Read X Post
+                                        @else
+                                            Unknown
+                                        @endif
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>

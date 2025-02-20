@@ -24,6 +24,9 @@ import { LongShort } from "./enums";
 import { Utils } from "./lib/utils";
 import { Friend } from "./types/Friend";
 import { ToastContainer } from "react-toastify";
+import { Answer } from "./types/tasks/Answer";
+import { Question } from "./types/tasks/Question";
+import { TaskDefinition } from "./types/tasks/TaskDefinition";
 
 const webApp = window.Telegram.WebApp;
 // Developers must use VSC to launch the app
@@ -37,6 +40,9 @@ declare global {
   var globalIndices: PusherIndex[];
   var coinTarget: number;
   var userInvitedFriends: Friend[];
+  var dailyTasks: TaskDefinition[];
+  var dailyQuests: Question[];
+  var dailyAnswers: Answer[];
   var isPositionOpenable: boolean;
 }
 
@@ -51,7 +57,7 @@ type DBSpot = {
 
 function App() {
   <ToastContainer autoClose={2000} />
-  
+
   globalThis.userProfile = userProfileStore();
   globalThis.userProfile.positionStore = getPositionStore();
   const data = useTelegramInitData();
@@ -103,6 +109,9 @@ function App() {
           indices,
           inprogress_user_tasks,
           completed_user_tasks,
+          daily_tasks,
+          daily_task_questions,
+          daily_task_answers,
           //{ data: tasks}
         ] = await Promise.all([
           $http.$get<SyncData>("/clicker/sync"),
@@ -111,11 +120,17 @@ function App() {
           $http.$get<Index[]>("/get-indices"),
           $http.$get<number[]>("/get-user-inprogress-task-id"),
           $http.$get<any[]>("/get-user-completed-task"),
+          $http.$get<TaskDefinition[]>("/get-daily-tasks"),
+          $http.$get<Question[]>("/get-daily-task-questions"),
+          $http.$get<Answer[]>("/get-daily-task-answers"),
           //$http.get("/user_tasks")
         ]);
 
         const completedTaskIds = completed_user_tasks.map(task => task.task_id);
 
+        globalThis.dailyTasks = daily_tasks;
+        globalThis.dailyQuests = daily_task_questions;
+        globalThis.dailyAnswers = daily_task_answers;
         globalThis.userProfile.available_task_ids = inprogress_user_tasks;
         globalThis.userProfile.completed_task_ids = completedTaskIds;
         globalThis.userProfile.completed_tasks = completed_user_tasks;
@@ -225,25 +240,25 @@ async function filterBonusesAndPositions(userBonuses: UserBonus[], userPositions
     open_position.set_last_update_timestamp(timestamp);
 
     if (p.bonuses_id) {
-    const bonusForPosition: number[] = JSON.parse(p.bonuses_id);
+      const bonusForPosition: number[] = JSON.parse(p.bonuses_id);
 
-    bonusForPosition.forEach(element => {
-      const userBonus = userBonuses.find(b => b.id == element);
-      if (!userBonus) throw new Error('Bonus storage mismatch');
+      bonusForPosition.forEach(element => {
+        const userBonus = userBonuses.find(b => b.id == element);
+        if (!userBonus) throw new Error('Bonus storage mismatch');
 
-      const bonusDef = bonusDefinitions.find(def => def.id == userBonus.bonus_id);
-      if (!bonusDef) throw new Error('Bonus definition error');
+        const bonusDef = bonusDefinitions.find(def => def.id == userBonus.bonus_id);
+        if (!bonusDef) throw new Error('Bonus definition error');
 
-      const index = userBonuses.indexOf(userBonus);
-      userBonuses[index] = userBonuses[userBonuses.length - 1];
-      userBonuses.pop();
+        const index = userBonuses.indexOf(userBonus);
+        userBonuses[index] = userBonuses[userBonuses.length - 1];
+        userBonuses.pop();
 
-      const bonus = new Bonus(element, bonusDef);
-      const bonus_end_date = new Date(userBonus.end_date! + 'Z').getTime() / 1000;
-      bonus.attach_to_position(open_position, bonus_end_date);
+        const bonus = new Bonus(element, bonusDef);
+        const bonus_end_date = new Date(userBonus.end_date! + 'Z').getTime() / 1000;
+        bonus.attach_to_position(open_position, bonus_end_date);
 
-      if (!open_position.attach_existing_bonus(bonus)) { bonusesToDelete.push(element); }
-    });
+        if (!open_position.attach_existing_bonus(bonus)) { bonusesToDelete.push(element); }
+      });
     }
 
     openPositions.push(open_position);

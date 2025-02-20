@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use App\Models\Tasks\DailyTasks;
+use App\Models\Tasks\TaskQuestions;
 use App\Models\Tasks\UserTasks;
 use App\Services\TaskService;
 use Carbon\Carbon;
@@ -49,7 +50,12 @@ class UserTaskController extends Controller
     }
 
     public function getDailyTaskAnswers() {
-        $tasks = DailyTasks::all();
-        return response()->json($tasks);
+        $answers = DailyTasks::all();
+        return response()->json($answers);
+    }
+
+    public function getDailyTaskQuestions() {
+        $questions = TaskQuestions::all();
+        return response()->json($questions);
     }
 }

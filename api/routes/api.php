@@ -89,4 +89,5 @@ Route::middleware(['auth:sanctum', 'decrypt.request'])->group(function () {
 
     Route::get('/get-daily-tasks', [UserTaskController::class, 'getDailyTasksForUser']);
     Route::get('/get-daily-task-answers', [UserTaskController::class, 'getDailyTaskAnswers']);
+    Route::get('/get-daily-task-questions', [UserTaskController::class, 'getDailyTaskQuestions']);
 });

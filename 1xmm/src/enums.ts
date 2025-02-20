@@ -39,4 +39,7 @@ export enum TaskActionNames {
   JoinX = "join_x",
   JoinTelegram = "join_telegram",
   JoinDiscord = "join_discord",
+  FreeToken = "free_token",
+  AnswerQuestion = "answer_question",
+  ReadXPost = "read_x_post",
 }

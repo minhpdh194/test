@@ -1,7 +1,5 @@
 import { TaskDefinition } from '@/types/tasks/TaskDefinition';
-import { getAllTasks } from "@/referential/tasks";
 import { TaskActionNames } from '@/enums';
-
 
 export class Tasks {
     public CurrentVideoTaskInProgress: boolean;
@@ -12,8 +10,8 @@ export class Tasks {
     private joinInProgress: number[];
     private allTasks: Record<string, TaskDefinition[]>;
 
-    public constructor(completedIds: number[]) {
-        const allTasks = getAllTasks;
+    public constructor(completedIds: number[], tasks: TaskDefinition[]) {
+        const allTasks = tasks;
 
         this.CurrentVideoTaskInProgress = false;
         this.CompletedTaskIds = completedIds;

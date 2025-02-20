@@ -9,11 +9,12 @@ import { Question } from '@/types/tasks/Question';
 import { getQuestions, getAnswers } from '@/referential/questionsAnswers';
 import { Tasks } from '@/classes/Tasks';
 import { TaskActionNames } from '@/enums';
+import { getAllTasks } from '@/referential/tasks';
 
 const ListQuest: React.FC = () => {
     //const TWITTER_CLIENT_ID: string = import.meta.env.VITE_TWITTER_CLIENT_ID;
     //const TWITTER_REDIRECT_URI: string = import.meta.env.VITE_TWITTER_REDIRECT_URI;
-    const [tasks, updateTasks] = useState<Tasks>(new Tasks(userProfile.completed_task_ids));
+    const [tasks, updateTasks] = useState<Tasks>(new Tasks(userProfile.completed_task_ids, getAllTasks));
     const [openDrawer, setOpenDrawer] = useState(false);
     const [questionPopup, setQuestionPopup] = useState<boolean>(false);
     const [selectedTask, setSelectedTask] = useState<TaskDefinition>();
@@ -135,7 +136,7 @@ const ListQuest: React.FC = () => {
 
             if (response.data.success) {
                 tasks.TaskHasBeenCompleted(task);
-                updateTasks(new Tasks(userProfile.completed_task_ids));
+                updateTasks(new Tasks(userProfile.completed_task_ids, getAllTasks));
 
                 userProfile.available_task_ids = tasks.AvailableTasks.map(t => t.id);
                 userProfile.completed_task_ids.push(task.id);
