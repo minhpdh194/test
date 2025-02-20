@@ -86,4 +86,7 @@ Route::middleware(['auth:sanctum', 'decrypt.request'])->group(function () {
     Route::get('/get-left-users', [RatingController::class, 'getLeftUsers']);
 
     Route::post('/save-user-wallet-info', [TelegramUserController::class, 'saveUserWallet']);
+
+    Route::get('/get-daily-tasks', [UserTaskController::class, 'getDailyTasksForUser']);
+    Route::get('/get-daily-task-answers', [UserTaskController::class, 'getDailyTaskAnswers']);
 });

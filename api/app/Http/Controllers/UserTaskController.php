@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
+use App\Models\Tasks\DailyTasks;
 use App\Models\Tasks\UserTasks;
 use App\Services\TaskService;
 use Carbon\Carbon;
@@ -40,5 +41,15 @@ class UserTaskController extends Controller
         $userTasks = UserTasks::where('telegram_user_id', $request->user()->telegram_user_id)
             ->where('completed', true)->get();
         return response()->json($userTasks);
+    }
+
+    public function getDailyTasksForUser() {
+        $tasks = DailyTasks::all();
+        return response()->json($tasks);
+    }
+
+    public function getDailyTaskAnswers() {
+        $tasks = DailyTasks::all();
+        return response()->json($tasks);
     }
 }

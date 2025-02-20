@@ -1,7 +1,7 @@
 import { TaskActionNames } from "@/enums";
 
 export type TaskDefinition = {
-  id: number;
+  id: any;
   name: string;
   description: string;
   reward_coins: number;

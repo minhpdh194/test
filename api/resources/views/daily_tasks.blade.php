@@ -16,45 +16,23 @@
                     <table class="min-w-full">
                         <thead>
                             <tr>
-                                <th class="text-left py-2">ID</th>
+                                {{-- <th class="text-left py-2">ID</th> --}}
                                 <th class="text-left py-2">Name</th>
                                 <th class="text-left py-2">Description</th>
-                                <th class="text-left py-2">Type</th>
                                 <th class="text-left py-2">Link</th>
                                 <th class="text-left py-2">Reward Coins</th>
-                                <th class="text-left py-2">Question Type</th>
+                                <th class="text-left py-2">Action Name</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($dailyTasks as $task)
                                 <tr>
-                                    <td>{{ $task->id }}</td>
+                                    {{-- <td>{{ $task->id }}</td> --}}
                                     <td>{{ $task->name }}</td>
                                     <td>{{ $task->description }}</td>
-                                    <td>
-                                        @if ($task->type == 0)
-                                            Click to get free token
-                                        @elseif ($task->type == 1)
-                                            Answer a question
-                                        @elseif ($task->type == 2)
-                                            Read a X post
-                                        @else
-                                            Unknown
-                                        @endif
-                                    </td>
                                     <td>{{ $task->link }}</td>
                                     <td>{{ $task->reward_coins }}</td>
-                                    <td>
-                                        @if ($task->question_type == 0)
-                                            None
-                                        @elseif ($task->question_type == 1)
-                                            Single Choice
-                                        @elseif ($task->question_type == 2)
-                                            Multiple Choice
-                                        @else
-                                            Unknown
-                                        @endif
-                                    </td>
+                                    <td>{{ $task->action_name }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
