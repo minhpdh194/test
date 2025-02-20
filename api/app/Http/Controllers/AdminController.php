@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tasks\DailyTasks;
+use App\Models\Tasks\TaskAnswers;
 use App\Models\TelegramUser;
 use Illuminate\Http\Request;
 
@@ -39,14 +40,34 @@ class AdminController extends Controller
 
     public function storeDailyTask(Request $request)
     {
+        \Log::info($request);
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
-            'required_login_streak' => 'required|integer|min:1|max:10',
-            'reward_coins' => 'required|integer|min:1',
+            'type' => 'required',
+            'reward_coins' => 'required',
+
         ]);
 
-        DailyTasks::create($validated);
+        $validated['link'] = $request->input('link');
+        $validated['question_type'] = $request->input('question_type');
+
+        if ($validated['type'] == 1) {
+            $answers = $request->input('answers');
+            if (count($answers) > 0) {
+                $createdTask = DailyTasks::create($validated);
+                foreach ($answers as $answer) {
+                    TaskAnswers::create([
+                        'task_id' => $createdTask->id,
+                        'answer_description' => $answer['text'],
+                        'result' => isset($answer['is_correct']) ? true : false,
+                    ]);
+                }
+            }
+        } else {
+
+            DailyTasks::create($validated);
+        }
 
         return redirect()->route('daily_tasks')->with('success', 'Daily task created successfully');
     }

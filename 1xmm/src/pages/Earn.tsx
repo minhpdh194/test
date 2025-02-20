@@ -4,10 +4,11 @@ import ListQuest from "./components/Earn/ListQuest";
 import ModalCategory from './components/Earn/ModalCategory';
 import { useState } from 'react';
 import { useTranslation } from "react-i18next";
+import ListDailyQuest from "./components/Earn/ListDailyQuest";
 export default function Profile() {
   const [openDrawer, setOpenDrawer] = useState(false);
 
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <div
@@ -43,6 +44,25 @@ export default function Profile() {
         </div>
       </div>
       <div className="mt-28 mb-8">
+        <div className="flex justify-between items-center">
+          <div className="fw-bold">
+            {t(`${earn}.daily_quests`)}
+          </div>
+          <div className="flex items-center space-x-1">
+            <img
+              src="/images/earn/more.png"
+              alt="more"
+              className="w-4 h-4"
+            />
+            <span className="text-xs" onClick={() => {
+              setOpenDrawer(true);
+            }}>{t(`${earn}.more_info`)}</span>
+          </div>
+        </div>
+        <ListDailyQuest />
+      </div>
+
+      <div className="b-8">
         <div className="flex justify-between items-center">
           <div className="fw-bold">
             {t(`${earn}.quests_to_do`)}
