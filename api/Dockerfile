@@ -36,10 +36,10 @@ RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/p
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public/build
 
 # Cài đặt các phụ thuộc frontend qua npm
-#RUN npm install
+RUN npm install
 
 # Build các tài nguyên frontend bằng Vite
-#RUN npm run build
+RUN npm run build
 
 # WHEN WILL WE GET THE CI/CD???????
 #<<<<<<< HEAD
