@@ -10,6 +10,7 @@ use Laravel\Sanctum\Http\Middleware\CheckForAnyAbility;
 
 use App\Http\Middleware\DecryptMiddleware;
 use App\Http\Middleware\EncryptMiddleware;
+use App\Http\Middleware\VerifyCsrfToken;
 
 class CustomHeaders extends SetCacheHeaders
 {
@@ -43,6 +44,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'abilities' => CheckAbilities::class,
             'ability' => CheckForAnyAbility::class,
             'decrypt.request' => DecryptMiddleware::class,
+            'verify' => VerifyCsrfToken::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
