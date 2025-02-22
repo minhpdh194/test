@@ -126,13 +126,15 @@ function App() {
           //$http.get("/user_tasks")
         ]);
 
-        const completedTaskIds = completed_user_tasks.map(task => task.task_id);
+        const lifeTimeTasks = completed_user_tasks.filter(task => task.task_type === "life_time").map(task => task.task_id);
+        const dailyTasks = completed_user_tasks.filter(task => task.task_type === "daily").map(task => task.task_id);
 
         globalThis.dailyTasks = daily_tasks;
         globalThis.dailyQuests = daily_task_questions;
         globalThis.dailyAnswers = daily_task_answers;
         globalThis.userProfile.available_task_ids = inprogress_user_tasks;
-        globalThis.userProfile.completed_task_ids = completedTaskIds;
+        globalThis.userProfile.completed_task_ids = lifeTimeTasks;
+        globalThis.userProfile.completed_daily_task_ids = dailyTasks;
         globalThis.userProfile.completed_tasks = completed_user_tasks;
         setProgress(45);
 

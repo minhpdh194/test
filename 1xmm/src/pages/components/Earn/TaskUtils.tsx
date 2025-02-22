@@ -11,7 +11,7 @@ export const getRandomQuestions = (arr: Question[], n: number) => {
     const qi: number[] = [];
 
     let ni = 0;
-    
+
     do {
         ni = Math.floor(Math.random() * s) + 1;
         if (!isInArray(qi, ni) && ni < s) qi.push(ni);
@@ -22,4 +22,9 @@ export const getRandomQuestions = (arr: Question[], n: number) => {
 
 function isInArray(arr: number[], el: number): boolean {
     return arr.indexOf(el) !== -1;
+}
+
+export function getRandomDailyQuests<Question>(arr: Question[], count: number): Question[] {
+    const shuffled = [...arr].sort(() => Math.random() - 0.5); // Shuffle array
+    return shuffled.slice(0, count); // Get the first `count` elements
 }
