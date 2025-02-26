@@ -33,9 +33,9 @@ class TelegramStarService
         $response = Http::post($apiUrl . 'createInvoiceLink', $payload);
 
         if ($response->successful()) {
-            return true;
+            return $response->json();
         } else {
-            return false;
+            return $response->failed();
         }
     }
 
