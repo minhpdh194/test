@@ -18,16 +18,9 @@ export default function LanguageSelection({
 }: DetailBonusProps) {
     const { t } = useTranslation();
     const languageOptions: LanguageOption[] = [
-        {
-            language: "English",
-            code: "en",
-        },
+        { language: "English", code: "en" },
         { language: "French", code: "fr" },
-        { language: "German", code: "de" },
         { language: "Spanish", code: "es" },
-        { language: "Arabic", code: "ar" },
-        { language: "Yoruba", code: "yo" },
-        { language: "Tiếng việt", code: "vn" },
     ];
 
     const [selectedLanguage, setSelectedLanguage] = useState<string>(i18next.language);

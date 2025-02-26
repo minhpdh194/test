@@ -1,17 +1,94 @@
 {
+    "play_on_your_mobile": "Jouez sur votre mobile",
+    "months": {
+        "january": "Janvier",
+        "february": "Février",
+        "march": "Mars",
+        "april": "Avril",
+        "may": "Mai",
+        "june": "Juin",
+        "july": "Juillet",
+        "august": "Août",
+        "september": "Septembre",
+        "october": "Octobre",
+        "november": "Novembre",
+        "december": "Décembre"
+    },
+    "splash_screen": {
+        "greeting": "Refaçonner la finance numérique",
+        "visit_msg": "Visitez notre site Web"
+    },
     "menu": {
         "menu": "Menu",
         "language": "Langue",
         "website": "Site Web",
         "airdrop": "Airdrop",
         "telegram_channel": "Canal Telegram",
-        "user_manual": "Manuel d'utilisateur",
+        "user_manual": "Manuel utilisateur",
         "connect_wallet": "Connecter le portefeuille",
-        "disconnect_ton_wallet": "Déconnecter le portefeuille TON",
-        "connect_ton_wallet": "Connecter le portefeuille TON",
-        "level": "Niveau"
+        "disconnect_ton_wallet": "Déconnecter TON Wallet",
+        "connect_ton_wallet": "Connecter TON Wallet",
+        "level": "Niveau",
+        "wallet_connector": {
+            "title": "Connecteur de portefeuille",
+            "label_wallet_address": "Adresse du portefeuille",
+            "label_network": "Sélectionner le réseau",
+            "save": "Sauvegarder"
+        }
     },
     "home": {
-        "avatar_selection": "Sélection d'avatar"
+        "avatar_selection": "Sélection d’avatar",
+        "confirm": "Confirmer",
+        "earn_per_tap": "Gagnez par tapotement",
+        "time_to_next_fixing": "Temps avant la prochaine correction",
+        "daily_perf": "Performance quotidienne",
+        "position": "Position",
+        "performance_to_date": "Performance cumulée",
+        "bonuses": "Bonus",
+        "short": "Court",
+        "long": "Long",
+        "amount": "Montant",
+        "leverage": "Levier",
+        "add_bonus": "Ajouter un bonus",
+        "validate": "Valider",
+        "close": "Fermer"
+    },
+    "ranking": {
+        "daily": "Quotidien",
+        "weekly": "Hebdomadaire",
+        "monthly": "Mensuel",
+        "points": "points"
+    },
+    "profile": {
+        "total_token": "Total 1vMM",
+        "total_pnl": "Total PnL",
+        "level_bonuses": "Bonus de niveau"
+    },
+    "friends": {
+        "invite_friends": "Invitez des amis !",
+        "description": "Lorem Ipsum est le texte factice standard de l'industrie depuis les années 1500",
+        "bonus_for": "pour vous et vos amis",
+        "share_invite_link": "Partager le lien d’invitation",
+        "copy_invite_link": "Copier le lien d’invitation"
+    },
+    "earn": {
+        "earn_more_coins": "Gagnez plus de pièces",
+        "daily_rewards": "Récompense quotidienne",
+        "hurry_up_and_get_it": "Dépêchez-vous et obtenez-le"
+    },
+    "bonus": {
+        "target_to_seed": "Objectif à semer",
+        "data_not_found": "Données non trouvées",
+        "leverage": {
+            "name": "Levier",
+            "title": "Augmentez votre performance",
+            "description": ": chaque +1x levier augmente votre performance de 100%. Attention, le levier ne s'applique qu'à la performance positive."
+        }
+    },
+    "popup": {
+        "language_selection": {
+            "header": "Sélection de la langue",
+            "button": "Sauvegarder"
+        }
     }
 }

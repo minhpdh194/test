@@ -1,0 +1,134 @@
+{
+    "play_on_your_mobile": "Juega en tu móvil",
+    "months": {
+        "january": "Enero",
+        "february": "Febrero",
+        "march": "Marzo",
+        "april": "Abril",
+        "may": "Mayo",
+        "june": "Junio",
+        "july": "Julio",
+        "august": "Agosto",
+        "september": "Septiembre",
+        "october": "Octubre",
+        "november": "Noviembre",
+        "december": "Diciembre"
+    },
+    "splash_screen": {
+        "greeting": "Redefiniendo las finanzas digitales",
+        "visit_msg": "visita nuestro sitio web"
+    },
+    "menu": {
+        "menu": "Menú",
+        "language": "Idioma",
+        "website": "Sitio web",
+        "airdrop": "Airdrop",
+        "telegram_channel": "Canal de Telegram",
+        "user_manual": "Manual de usuario",
+        "connect_wallet": "Conectar billetera",
+        "disconnect_ton_wallet": "Desconectar billetera TON",
+        "connect_ton_wallet": "Conectar billetera TON",
+        "level": "Nivel",
+        "wallet_connector": {
+            "title": "Conector de Billetera",
+            "label_wallet_address": "Dirección de Billetera",
+            "label_network": "Seleccionar Red",
+            "save": "Guardar"
+        }
+    },
+    "home": {
+        "avatar_selection": "Selección de Avatar",
+        "confirm": "Confirmar",
+        "earn_per_tap": "Ganar por toque",
+        "time_to_next_fixing": "Tiempo para la siguiente corrección",
+        "daily_perf": "Rendimiento diario",
+        "position": "Posición",
+        "performance_to_date": "Rendimiento acumulado",
+        "bonuses": "Bonos",
+        "short": "Corto",
+        "long": "Largo",
+        "amount": "Cantidad",
+        "leverage": "Apalancamiento",
+        "add_bonus": "Añadir Bono",
+        "validate": "Validar",
+        "close": "Cerrar"
+    },
+    "ranking": {
+        "daily": "Diario",
+        "weekly": "Semanal",
+        "monthly": "Mensual",
+        "points": "puntos"
+    },
+    "profile": {
+        "total_token": "Total 1vMM",
+        "total_pnl": "PnL Total",
+        "level_bonuses": "Bonos de Nivel",
+        "pairs_unlocked": "Pares Desbloqueados",
+        "cumulated_pos_leverage_bonus": "Bono de Apalancamiento Positivo Acumulado",
+        "cumulated_protection_bonus": "Bono de Protección Acumulado",
+        "cumulated_time_bonus": "Bono de Tiempo Acumulado",
+        "cumulated_tapping_amount": "Cantidad de Toques Acumulada",
+        "gain_per_tap": "Ganancia por Toque",
+        "completed_tasks": "Tareas Completadas",
+        "available_bonuses": "Bonos Disponibles",
+        "bonus_duration": "Duración del Bono"
+    },
+    "friends": {
+        "invite_friends": "¡Invita a tus amigos!",
+        "description": "Lorem Ipsum ha sido el texto de relleno estándar de la industria desde el siglo XVI",
+        "bonus_for": "para ti y tus amigos",
+        "bonus_for_premium": "para ti y tus amigos si tienen una cuenta Premium",
+        "share_invite_link": "Compartir enlace de invitación",
+        "copy_invite_link": "Copiar enlace de invitación",
+        "friends": "Amigos",
+        "referrals": "Referidos",
+        "accept": "Aceptar"
+    },
+    "earn": {
+        "earn_more_coins": "Gana más Monedas",
+        "daily_rewards": "Recompensa Diaria",
+        "hurry_up_and_get_it": "Date prisa y consíguelo",
+        "quests_to_do": "Misiones por Hacer",
+        "daily_quests": "Misiones Diarias",
+        "more_info": "Más Información"
+    },
+    "bonus": {
+        "target_to_seed": "Objetivo para Semilla",
+        "data_not_found": "Datos no encontrados",
+        "leverage": {
+            "name": "Apalancamiento",
+            "title": "Aumenta tu rendimiento",
+            "description": ": cada +1x de apalancamiento aumenta tu rendimiento en un 100%. Ten cuidado, el apalancamiento se aplica solo a rendimientos positivos."
+        },
+        "positive_leverage": {
+            "name": "Apalancamiento Positivo",
+            "title": "Aumenta tu ganancia",
+            "description": ": cada +1x de apalancamiento positivo aumenta tu rendimiento positivo en un 100%. Las pérdidas no se ven afectadas por el apalancamiento positivo."
+        },
+        "capital_protection": {
+            "name": "Protección de Capital",
+            "title": "Protege tu posición",
+            "description": ": cada 1% de Protección de Capital protege el 1% de tu posición."
+        },
+        "time_reduction": {
+            "name": "Reducción de Tiempo",
+            "title": "Reduce tu penalización",
+            "description": ": cada 1s de bono ayuda a reducir/cerrar tu posición 1s antes."
+        },
+        "token_package": {
+            "name": "Paquete de Tokens",
+            "title": "Recarga tu saldo",
+            "description": ": obtén algunos tokens para recargar tu saldo o aumentar tu PnL."
+        }
+    },
+    "popup": {
+        "language_selection": {
+            "header": "Selección de Idioma",
+            "button": "Guardar"
+        },
+        "bonus_selection": {
+            "header": "Seleccionar Bonos",
+            "button": "Añadir"
+        }
+    }
+}
