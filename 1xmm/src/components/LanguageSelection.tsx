@@ -38,7 +38,6 @@ export default function LanguageSelection({
     const saveLanguage = () => {
         i18next.changeLanguage(selectedLanguage);
         onOpenChange(false);
-        localStorage.setItem("selected_language", selectedLanguage);
     }
 
     return (

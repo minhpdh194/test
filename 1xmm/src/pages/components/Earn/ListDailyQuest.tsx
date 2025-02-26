@@ -90,13 +90,13 @@ const ListDailyQuest: React.FC = () => {
         setSelectedCheckboxes([]);
         setSelectedRadios({});
     }
-console.log(currentQuestions);
-if (currentQuestions.length >0) {
     console.log(currentQuestions);
-    console.log(dailyAnswers);
-    console.log(dailyAnswers.filter((answer) => answer.question_id === currentQuestions[0].id))
+    if (currentQuestions.length > 0) {
+        console.log(currentQuestions);
+        console.log(dailyAnswers);
+        console.log(dailyAnswers.filter((answer) => answer.question_id === currentQuestions[0].id))
 
-}
+    }
     const claimTask = async (task: TaskDefinition) => {
         try {
             const response = await $http.post('/claim-task', { task: task });
@@ -161,8 +161,24 @@ if (currentQuestions.length >0) {
                         />
                     </div>
                     <div className="flex flex-col w-3/6">
-                        <p className="text-sm">{task.name}</p>
-                        <p className="text-xs">{task.description}</p>
+                        {localStorage.getItem("i18nextLng") === "en" && (
+                            <>
+                                <p className="text-sm">{task.name}</p>
+                                <p className="text-xs">{task.description}</p>
+                            </>
+                        )}
+                        {localStorage.getItem("i18nextLng") === "fr" && (
+                            <>
+                                <p className="text-sm">{task.name_fr}</p>
+                                <p className="text-xs">{task.description_fr}</p>
+                            </>
+                        )}
+                        {localStorage.getItem("i18nextLng") === "es" && (
+                            <>
+                                <p className="text-sm">{task.name_es}</p>
+                                <p className="text-xs">{task.description_es}</p>
+                            </>
+                        )}
                     </div>
                     <div className="w-2/6 justify-end">
                         <div className="flex items-center space-x-1 text-xs justify-end">
