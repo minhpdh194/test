@@ -6,6 +6,7 @@ use App\Models\Tasks\DailyTasks;
 use App\Models\Tasks\TaskAnswers;
 use App\Models\Tasks\TaskQuestions;
 use App\Models\TelegramUser;
+use App\Services\TranslateService;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -52,6 +53,10 @@ class AdminController extends Controller
         $validated['link'] = $request->input('link');
         $validated['action_name'] = $request->input('action_name');
         $validated['complete_requirement'] = 0;
+        $validated['name_es'] = TranslateService::translateText($validated['name'], 'espanol');
+        $validated['name_fr'] = TranslateService::translateText($validated['name'], 'french');
+        $validated['description_es'] = TranslateService::translateText($validated['description'], 'espanol');
+        $validated['description_fr'] = TranslateService::translateText($validated['description'], 'french');
 
         if ($validated['action_name'] == 'answer_question') {
             $questions = $request->input('questions');
@@ -63,6 +68,8 @@ class AdminController extends Controller
                     if (count($answers) > 0) {
                         $createdQuestion = TaskQuestions::create([
                             'description' => $question['text'],
+                            'description_es' => TranslateService::translateText($question['text'], "espanol"),
+                            'description_fr' => TranslateService::translateText($question['text'], "french"),
                             'type' => $request->input('question_type'),
                             'video_id' => $createdTask->id,
                         ]);
@@ -70,6 +77,8 @@ class AdminController extends Controller
                             TaskAnswers::create([
                                 'question_id' => $createdQuestion->id,
                                 'description' => $answer['text'],
+                                'description_es' => TranslateService::translateText($answer['text'], "espanol"),
+                                'description_fr' => TranslateService::translateText($answer['text'], "french"),
                                 'is_correct' => isset($answer['is_correct']) ? true : false,
                             ]);
                         }

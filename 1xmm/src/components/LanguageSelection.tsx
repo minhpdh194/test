@@ -38,7 +38,9 @@ export default function LanguageSelection({
     const saveLanguage = () => {
         i18next.changeLanguage(selectedLanguage);
         onOpenChange(false);
+        localStorage.setItem("selected_language", selectedLanguage);
     }
+
     return (
         <Drawer anchor="bottom" open={open} onClose={() => onOpenChange(false)} {...props}>
             <div className='min-h-[65vh] bg-black flex flex-col justify-between p-4'>

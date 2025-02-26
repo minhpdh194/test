@@ -27,6 +27,7 @@ import { ToastContainer } from "react-toastify";
 import { Answer } from "./types/tasks/Answer";
 import { Question } from "./types/tasks/Question";
 import { TaskDefinition } from "./types/tasks/TaskDefinition";
+import i18next from "i18next";
 
 const webApp = window.Telegram.WebApp;
 // Developers must use VSC to launch the app
@@ -126,6 +127,10 @@ function App() {
           //$http.get("/user_tasks")
         ]);
 
+        const selectedLanguage = localStorage.getItem("selected_language");
+        if (selectedLanguage) {
+          i18next.changeLanguage(selectedLanguage);
+        }
         const lifeTimeTasks = completed_user_tasks.filter(task => task.task_type === "life_time").map(task => task.task_id);
         const dailyTasks = completed_user_tasks.filter(task => task.task_type === "daily").map(task => task.task_id);
 
