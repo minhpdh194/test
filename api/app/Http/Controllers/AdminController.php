@@ -51,6 +51,7 @@ class AdminController extends Controller
 
         $validated['link'] = $request->input('link');
         $validated['action_name'] = $request->input('action_name');
+        $validated['complete_requirement'] = 0;
 
         if ($validated['action_name'] == 'answer_question') {
             $questions = $request->input('questions');

@@ -14,8 +14,11 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install pdo pdo_mysql zip
 
 # Cài đặt Node.js và npm
-#RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
-#    && apt-get install -y nodejs
+# RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
+#     && apt-get install -y nodejs
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
+    && apt-get install -y nodejs
+
 
 # Cài đặt Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -36,10 +39,10 @@ RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/p
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public/build
 
 # Cài đặt các phụ thuộc frontend qua npm
-#RUN npm install
+RUN npm install
 
 # Build các tài nguyên frontend bằng Vite
-#RUN npm run build
+RUN npm run build
 
 # WHEN WILL WE GET THE CI/CD???????
 #<<<<<<< HEAD
@@ -63,9 +66,10 @@ RUN echo "*/2 * * * * /usr/local/bin/php /var/www/html/artisan app:integration >
 #    && chmod 0644 /etc/cron.d/laravel-cron \
 #    && crontab /etc/cron.d/laravel-cron
 
-RUN echo "* * * * * /usr/local/bin/php /var/www/html/artisan app:clear-daily-tasks >> /var/log/cron.log 2>&1" >> /etc/cron.d/laravel-cron \
+RUN echo "0 0 * * * root /usr/local/bin/php /var/www/html/artisan app:clear-daily-tasks >> /var/log/cron.log 2>&1" > /etc/cron.d/laravel-cron \
     && chmod 0644 /etc/cron.d/laravel-cron \
-    && crontab /etc/cron.d/laravel-cron
+    && crontab /etc/cron.d/laravel-cron \
+    && touch /var/log/cron.log
 
 COPY start.sh /start.sh
 RUN chmod +x /start.sh

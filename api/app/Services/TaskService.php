@@ -19,6 +19,7 @@ class TaskService
     {
         $claimedTask = UserTasks::where('telegram_user_id', $user['telegram_user_id'])
             ->where('task_id', $task['id'])
+            ->where('task_type', $task['type'])
             ->first();
 
         if (!$claimedTask) {
@@ -45,7 +46,9 @@ class TaskService
         }
 
         $exists = UserTasks::where('telegram_user_id', $user['telegram_user_id'])
-            ->where('task_id', $task['id'])->first();
+            ->where('task_id', $task['id'])
+            ->where('task_type', $task['type'])
+            ->first();
 
         if ($exists) {
             return response()->json(['success' => false, 'message' => 'You have already receive this task.']);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use App\Models\Tasks\DailyTasks;
+use App\Models\Tasks\TaskAnswers;
 use App\Models\Tasks\TaskQuestions;
 use App\Models\Tasks\UserTasks;
 use App\Services\TaskService;
@@ -50,7 +51,7 @@ class UserTaskController extends Controller
     }
 
     public function getDailyTaskAnswers() {
-        $answers = DailyTasks::all();
+        $answers = TaskAnswers::all();
         return response()->json($answers);
     }
 
