@@ -256,7 +256,7 @@ class PositionController extends Controller
             }
         }
 
-        if ($position_change > 0 && $pnl != 0
+        if ($position->amount > 0 && $pnl != 0
             || $not_using_leverage_bonus && PositionController::pnlIsNotConsistent($position->pair_id, 
                 $position->long_short, 
                 $position->amount, 
