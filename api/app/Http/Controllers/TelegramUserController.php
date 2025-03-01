@@ -27,7 +27,8 @@ class TelegramUserController extends Controller
         $userProfile = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
         if ($userProfile) {
             $userProfile->update([
-                'level' => $level
+                'level' => $level,
+                'available_energy' => 500
             ]);
 
             return response()->json([
