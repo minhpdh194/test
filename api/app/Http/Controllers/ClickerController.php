@@ -39,7 +39,9 @@ class ClickerController extends Controller
             $tasks = UserTasks::where('telegram_user_id', $gameData->telegram_user_id)->get();
         }
 
-        $restoredEnergy = $gameData->available_energy + $this->restoreEnergy($gameData->energy_limit, $user->last_login);
+        // $restoredEnergy = $gameData->available_energy + $this->restoreEnergy($gameData->energy_limit, $user->last_login);
+        $restoredEnergy = $gameData->available_energy + $telegramUser->restoreEnergy($gameData->energy_limit, $user->last_login);
+
         if ($restoredEnergy > $gameData->energy_limit) $restoredEnergy = $gameData->energy_limit;
 
         $gameData->available_energy = $restoredEnergy;
@@ -90,23 +92,6 @@ class ClickerController extends Controller
         return Booster::useDailyBooster($request);
     }
 
-    public function listDailyTasks(Request $request)
-    {
-        $user = $request->user();
-
-        // fetch all daily tasks and check if they are available for the user
-        $dailyTasks = DailyTask::query()
-            ->leftJoin('telegram_user_daily_tasks', function ($join) use ($user) {
-                $join->on('daily_tasks.id', '=', 'telegram_user_daily_tasks.daily_task_id')
-                    ->where('telegram_user_daily_tasks.telegram_user_id', $user->id);
-            })
-            ->select(['daily_tasks.*', 'telegram_user_daily_tasks.completed',])
-            ->selectRaw('daily_tasks.required_login_streak <= ? as available', [$user->login_streak])
-            ->get();
-
-        return response()->json($dailyTasks);
-    }
-
     public function listLeaderboard(Request $request)
     {
         $request->validate([
@@ -121,61 +106,5 @@ class ClickerController extends Controller
             ->get();
 
         return response()->json($topUsers);
-    }
-
-    public function claimDailyTaskReward(Request $request)
-    {
-        $user = $request->user();
-
-        $task = DailyTask::where('required_login_streak', '<=', $user->login_streak)
-            ->whereDoesntHave('telegramUsers', function ($query) use ($user) {
-                $query->where('id', $user->id);
-            })
-            ->first();
-
-        if ($task) {
-            DB::transaction(function () use ($task, $user) {
-                $user->increment('balance', $task->reward_coins);
-                $user->dailyTasks()->attach($task->id, [
-                    'completed' => true,
-                    'updated_at' => now()
-                ]);
-            });
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Daily task reward claimed successfully',
-                'balance' => $user->balance,
-            ]);
-        }
-
-        return response()->json([
-            'success' => false,
-            'message' => 'Unable to claim daily task reward. Task may not be available or already completed for today.',
-        ], 400);
-    }
-
-    public function setEthWallet(Request $request)
-    {
-        $request->validate([
-            'eth_wallet' => 'required|string',
-        ]);
-
-        $user = $request->user();
-        $user->ton_wallet = $request->input('eth_wallet');
-        $user->save();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'TON Wallet address updated successfully',
-            'ton_wallet' => $user->ton_wallet,
-        ]);
-    }
-
-    private function restoreEnergy($maxEnergy, $last_login)
-    {
-        $freq = Carbon::parse($last_login)->diffInHours(Carbon::now());
-        if ($freq > 3) $freq = 3;
-        return floor($freq / 3 * $maxEnergy);
     }
 }

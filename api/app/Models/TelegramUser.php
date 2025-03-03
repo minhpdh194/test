@@ -63,9 +63,9 @@ class TelegramUser extends Authenticatable
 
     public function tap($count = 1, $earnPerTap)
     {
-        $userGameData = UserGameData::where('telegram_user_id', $this->telegram_user_id)->first();
+        $gameData = UserGameData::where('telegram_user_id', $this->telegram_user_id)->first();
 
-        $available_energy = $gameData->available_energy + $this->restoreEnergy($gameData->energy_limit, $user->last_login);
+        $available_energy = $gameData->available_energy + $this->restoreEnergy($gameData->energy_limit, $this->last_login);
         if ($available_energy > $gameData->energy_limit) $available_energy = $gameData->energy_limit;
 
         $totalEnergyRequired = $count * $earnPerTap;
@@ -81,16 +81,23 @@ class TelegramUser extends Authenticatable
 
         $earned = $totalEnergyRequired * $multiplier;
 
-        $userGameData->balance += $earned;
-        $userGameData->amount_of_tokens += $earned;
-        $userGameData->available_energy -= $totalEnergyRequired;
+        $gameData->balance += $earned;
+        $gameData->amount_of_tokens += $earned;
+        $gameData->available_energy -= $totalEnergyRequired;
 
-        $userGameData->save();
+        $gameData->save();
         return [
             'earned' => $earned,
-            'balance' => $userGameData->balance,
-            'amount_of_tokens' => $userGameData->amount_of_tokens,
-            'energy' => $userGameData->available_energy
+            'balance' => $gameData->balance,
+            'amount_of_tokens' => $gameData->amount_of_tokens,
+            'energy' => $gameData->available_energy
         ];
+    }
+
+    public function restoreEnergy($maxEnergy, $last_login)
+    {
+        $freq = Carbon::parse($last_login)->diffInHours(Carbon::now());
+        if ($freq > 3) $freq = 3;
+        return floor($freq / 3 * $maxEnergy);
     }
 }
