@@ -39,10 +39,15 @@ class ClickerController extends Controller
             $tasks = UserTasks::where('telegram_user_id', $gameData->telegram_user_id)->get();
         }
 
+        $restoredEnergy = $gameData->available_energy + $this->restoreEnergy($gameData->energy_limit, $user->last_login);
+        if ($restoredEnergy > $gameData->energy_limit) $restoredEnergy = $gameData->energy_limit;
+
+        $gameData->available_energy = $restoredEnergy;
+        $gameData->save();
+
         return response()->json([
             'user' => $telegramUser,
             'gameData' => $gameData,
-            'restored_energy' => $this->restoreEnergy($gameData->available_energy, $user->last_login),
             'tasks' => $tasks
         ]);
     }
@@ -51,14 +56,13 @@ class ClickerController extends Controller
     {
         $validated = $request->validate([
             'count' => 'required|integer|min:1',
+            'earn_per_tap' => 'required|integer|min:0'
         ]);
 
-        $earnPerTap = $request->earn_per_tap; //temporarity
+        $earnPerTap = $validated['earn_per_tap']; //temporarity
 
         $user = $request->user();
         $userGameData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
-
-        $available_energy = $userGameData->available_energy;
 
         $tap = $user->tap($validated['count'], $earnPerTap);
 

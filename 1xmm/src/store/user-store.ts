@@ -110,7 +110,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
 
     set((state) => ({
       earn_per_tap: benefits.total_gain_per_tap,
-      energy_limit_level: benefits.cumulated_tapping_amount,
+      energy_limit: benefits.cumulated_tapping_amount,
       trading_info: {
         balance: state.trading_info.balance,
         total_pnl: state.trading_info.total_pnl,
@@ -192,6 +192,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       login_streak: Number(syncData.user.login_streak),
       avatar_id: syncData.gameData.avatar_id,
       available_energy: Number(syncData.gameData.available_energy),
+      energy_limit: Number(syncData.gameData.energy_limit),
       amount_of_tokens: Number(syncData.gameData.amount_of_tokens),
       trading_info: {
         balance: parseFloat(syncData.gameData.balance),
@@ -226,7 +227,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
         time_reduction: state.trading_info.time_reduction
       }
     }));
-    get().UserLevelUp();
+    
     return true;
   },
 
@@ -252,7 +253,8 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
         }
       });
 
-      const result = await updateUserLevel(matchedCondition.level);
+      const result = await updateUserLevel(matchedCondition.level, benefits.cumulated_tapping_amount);
+      
       if (result) {
         set((state) => ({
           level: matchedCondition.level,
@@ -265,7 +267,8 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
             time_reduction: benefits.cumulated_time_bonus
           },
           earn_per_tap: benefits.total_gain_per_tap,
-          energy_limit_level: benefits.cumulated_tapping_amount,
+          energy_limit: benefits.cumulated_tapping_amount,
+          available_energy: state.available_energy + (benefits.cumulated_tapping_amount - state.energy_limit),
           unlocked_pair_ids: unlocked_pair_ids,
           unlocked_pairs: unlocked_pairs
         }));
@@ -336,27 +339,11 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
   }
 }));
 
-async function updateUserLevel(newLevel: number) {
-  // let response: boolean = false;
-  // let count = 0;
-
-  // do {
-  //   count++;
-
-  //   try {
-  //     const r = await $http.post('/update-user-level', {
-  //       level: newLevel
-  //     });
-  //     response = r.data.success;
-  //   } catch (error) {
-  //     response = false;
-  //   }
-  // } while (!response && count < 10);
-
-  // if (!response) throw new Error("Issue communicating with server");
+async function updateUserLevel(newLevel: number, new_energy_limit: number) {
   try {
     const response = await $http.post('/update-user-level', {
-      level: newLevel
+        level: newLevel,
+        energy_limit: new_energy_limit
     });
     return response.data.success;
   } catch (error) {

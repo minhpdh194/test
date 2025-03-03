@@ -65,10 +65,9 @@ class TelegramUser extends Authenticatable
     {
         $userGameData = UserGameData::where('telegram_user_id', $this->telegram_user_id)->first();
 
-        // $bonusDef = LevelBonusesDef::where('level', $getLevelUser->level)->first();
+        $available_energy = $gameData->available_energy + $this->restoreEnergy($gameData->energy_limit, $user->last_login);
+        if ($available_energy > $gameData->energy_limit) $available_energy = $gameData->energy_limit;
 
-        // $earnPerTap = $bonusDef->gain_per_tap;
-        $available_energy = $userGameData->available_energy;
         $totalEnergyRequired = $count * $earnPerTap;
 
         // We allow only to tap until remaining energy is empty

@@ -20,6 +20,7 @@ return new class extends Migration
             $table->decimal('balance', 18, 6)->default(0);
             $table->decimal('total_pnl', 18, 6)->default(0);
             $table->integer('available_energy')->default(500);
+            $table->integer('energy_limit')->default(500);
             $table->json('bonuses')->nullable();
             $table->double('perf_from_start_date')->default(0);
             $table->integer('number_of_stars')->default(0);

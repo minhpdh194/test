@@ -47,10 +47,8 @@ const XTap: React.FC<XTapProps> = ({ changeInBalance = 0, updateAmountOfTokens, 
 
         $http
             .post<Record<string, any>>("/clicker/tap", {
-                count,
-                energy: 0,
-                timestamp: Math.floor(Date.now() / 1000),
-                earn_per_tap,
+                count: count,
+                earn_per_tap: earn_per_tap,
             })
             .catch(() => setClicksCount(count));
     }, [debounceClicksCount, earn_per_tap]);
