@@ -20,6 +20,7 @@ export default function Bonus() {
     const [capitalProtectionData, setCapitalProtectionData] = useState<BonusDefinition[]>([]);
     const [timeReductionData, setTimeReductionData] = useState<BonusDefinition[]>([]);
     const [tokenData, setTokenData] = useState<BonusDefinition[]>([]);
+    const [friendData, setFriendData] = useState<BonusDefinition[]>([]);
     // const [openStarDrawer, setOpenStarDrawer] = useState(false);
 
     const bonusDefinitionIds = userProfile.positionStore?.available_bonuses.map(item => item.bonus_definition.id);
@@ -101,7 +102,7 @@ export default function Bonus() {
                     return 0;
                 }));
                 setTokenData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.Token));
-                // setFriendData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.Friends));
+                setFriendData(telegramResponse.filter((item: BonusDefinition) => item.bonus_type === BonusTypes.Friends));
 
                 const countdownData: { [key: string]: number } = {};
                 telegramResponse.forEach((bonus: BonusDefinition) => {
@@ -136,6 +137,9 @@ export default function Bonus() {
             case BonusTypes.Token: return (
                 <>+{bonus.benefit} token</>
             )
+            case BonusTypes.Friends: return (
+                <>+{bonus.benefit} friends</>
+            )
         }
     }
 
@@ -147,7 +151,7 @@ export default function Bonus() {
                 onClick={() => handleBuyBonusAction(bonus)}
             >
                 <span className="flex items-center">
-                    {bonus.bonus_type != BonusTypes.Token &&
+                    {(bonus.bonus_type !== BonusTypes.Token && bonus.bonus_type !== BonusTypes.Friends) &&
                         <div className="bg-white rounded-full min-w-10 min-h-10 mr-4">
                             {getBonusDuration(bonus.duration)}
                         </div>
@@ -182,7 +186,7 @@ export default function Bonus() {
                 telegram_user_id: userProfile.telegram_user_id,
                 bonus: bonus
             });
-            
+
             if (response.data.ok) {
                 if (Number(window.Telegram.WebApp.version) < 6.1) {
                     toast.error("Please update your Telegram app to the latest version to access all features.");
@@ -198,7 +202,7 @@ export default function Bonus() {
                             await $http.post("not-paid", {
                                 bonus_id: bonus.id
                             });
-                            
+
                             toast.warning(`You dont have enough stars to buy this bonus`);
                         }
                     });
@@ -389,6 +393,37 @@ export default function Bonus() {
                             {/* Second Row */}
                             <div className="flex space-x-4">
                                 {tokenData.slice(Math.ceil(tokenData.length / 2)).map(renderBonusItem)}
+                            </div>
+                        </>
+                    ) : (
+                        <div className="w-full bg-[#32363C] rounded-xl p-3 mt-3">
+                            <div className="text-center text-white">{t(`${bonus}.data_not_found`)}</div>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            <div className="mt-4 mb-16">
+                <div className="flex flex-col justify-between items-center">
+                    <span className="fw-bold text-lg">{t(`${bonus}.friend_bonus.name`)}</span>
+                    <div className="text-center">
+                        <span className="text-xs italic">
+                            <span className="fw-bold">{t(`${bonus}.friend_bonus.title`)}</span>
+                            {t(`${bonus}.friend_bonus.description`)}
+                        </span>
+                    </div>
+                </div>
+                <div className="w-full overflow-x-auto bonus-item">
+                    {friendData.length > 0 ? (
+                        <>
+                            {/* First Row */}
+                            <div className="flex space-x-4">
+                                {friendData.slice(0, Math.ceil(friendData.length / 2)).map(renderBonusItem)}
+                            </div>
+
+                            {/* Second Row */}
+                            <div className="flex space-x-4">
+                                {friendData.slice(Math.ceil(friendData.length / 2)).map(renderBonusItem)}
                             </div>
                         </>
                     ) : (

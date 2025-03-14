@@ -73,7 +73,7 @@ const ListQuest: React.FC = () => {
     }
 
     const handleFriendInvitationTasks = async (task: TaskDefinition) => {
-        if (globalThis.userInvitedFriends.length >= Number(task.complete_requirement)) {
+        if (globalThis.userProfile.total_friends_referred >= Number(task.complete_requirement)) {
             claimTask(task);
             setSelectedTask(undefined);
         } else {

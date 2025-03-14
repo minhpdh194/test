@@ -69,6 +69,7 @@ Route::middleware(['auth:sanctum', 'decrypt.request'])->group(function () {
 
     Route::post('/buy-bonus', [BonusController::class, 'buyBonus']);
     Route::post('/buy-token', [BonusController::class, 'buyTokenBonus']);
+    Route::post('/buy-friend', [BonusController::class, 'buyFriendBonus']);
     Route::get('/user_bonuses', [BonusController::class, 'getBonuses']);
     Route::post('/expiry_bonuses', [BonusController::class, 'expiry']);
 

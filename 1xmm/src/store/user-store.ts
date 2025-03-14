@@ -24,9 +24,11 @@ export type UserProfileStore = UserProfile & {
   AddBonusesToPosition: (position_id: number, bonuses: Bonus[]) => Promise<void>;
   BuyBonus: (bonus: BonusDefinition) => void;
   BuyToken: (bonus: BonusDefinition) => void;
+  BuyFriendsBonus: (bonus: BonusDefinition) => void;
   UpdateBalance: (newBalance: number) => void;
   UpdateUserAvatar: (avatar_id: number) => void;
   UpdateUserWallet: (crypto_id: number, wallet_address: string) => void;
+  UpdateTotalFriends: (friends: number) => void;
   unlocked_pair_ids: Array<number>;
   unlocked_pairs: Pair[];
   available_task_ids: Array<number>;
@@ -80,11 +82,18 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
 
   selected_crypto: -1,
   wallet_address: "",
+  total_friends_referred: 0,
 
   UpdateUserWallet: (crypto_id: number, wallet_address: string) => {
     set(() => ({
       selected_crypto: crypto_id,
       wallet_address: wallet_address,
+    }));
+  },
+
+  UpdateTotalFriends: (friends: number) => {
+    set((state) => ({
+      total_friends_referred: state.total_friends_referred + friends,
     }));
   },
 
@@ -169,6 +178,25 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
     }
   },
 
+  BuyFriendsBonus: async (bonus: BonusDefinition) => {
+    try {
+      const response = await $http.post('/buy-friend', { bonus: bonus });
+      if (response.status === 200) {
+        toast.success('Friend bonus bought successfully!');
+        set((state) => ({
+          amount_of_tokens: state.amount_of_tokens + bonus.benefit,
+        }));
+      } else if (response.status === 202) {
+        toast.warning(response.data.success);
+      }
+      else {
+        toast.error('Failed to buy token!');
+      }
+    } catch (error) {
+      toast.error('An error occurred while buying the token!');
+    }
+  },
+
   UpdateBalance: (newBalance: number) => {
     set((state) => ({
       trading_info: {
@@ -205,6 +233,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       number_of_stars: Number(syncData.gameData.number_of_stars),
       selected_crypto: Number(syncData.gameData.crypto),
       wallet_address: syncData.gameData.wallet_address,
+      total_friends_refered: syncData.gameData.total_friends_refered,
     }));
 
     globalThis.userProfile = get(); //assign newest data to global

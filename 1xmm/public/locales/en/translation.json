@@ -119,6 +119,11 @@
             "name": "Token Package",
             "title": "Top up your balance",
             "description": ": get some tokens to refill your balance or increase your PnL."
+        },
+        "friend_bonus": {
+            "name": "Friend Bonus",
+            "title": "Friend Bonus title",
+            "description": ": Friend Bonus description"
         }
     },
     "popup": {

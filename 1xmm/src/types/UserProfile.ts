@@ -27,5 +27,7 @@ export type UserProfile = {
   number_of_stars: number;
   
   selected_crypto: number;
-  wallet_address: string
+  wallet_address: string;
+
+  total_friends_referred: number;
 }

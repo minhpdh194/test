@@ -101,19 +101,22 @@ class AuthController extends Controller
                 // We update the database
                 $inviter = UserGameData::where('telegram_user_id', $referredBy->telegram_user_id)->first();
                 $increased = $inviter->updateInviterUserBalance();
+                $inviter->total_friends_refered += 1;
+                $inviter->save();
+
                 $gameData->updateInviteeUserBalance();
 
                 $options = array(
                     'cluster' => 'ap2',
                     'useTLS' => true
-        );
+                );
 
                 $pusher = new Pusher(
                     env('PUSHER_APP_KEY'),
                     env('PUSHER_APP_SECRET'),
                     env('PUSHER_APP_ID'),
                     $options
-        );
+                );
 
                 try {
                     $pusher->trigger('refer_noti_user_' . $referredBy->telegram_user_id, 'data', ['invitee' => $user, 'increasedBalance' => $increased]);
@@ -158,8 +161,8 @@ class AuthController extends Controller
 
         $options = [
             'http' => [
-                'header'  => "Content-Type: application/json\r\n",
-                'method'  => 'POST',
+                'header' => "Content-Type: application/json\r\n",
+                'method' => 'POST',
                 'content' => json_encode($postData),
             ],
         ];
