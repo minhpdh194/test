@@ -195,6 +195,8 @@ export default function Bonus() {
                         if (status === "paid") {
                             if (bonus.bonus_type === BonusTypes.Token) {
                                 await globalThis.userProfile.BuyToken(bonus);
+                            } else if (bonus.bonus_type === BonusTypes.Friends) {
+                                await globalThis.userProfile.BuyFriendsBonus(bonus);
                             } else {
                                 await globalThis.userProfile.BuyBonus(bonus);
                             }
