@@ -1,0 +1,16 @@
+services:
+  1xmm_pro_bot:
+    container_name: 1xmm_pro_bot
+    image: 1xmm_pro_bot:1.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    #ports:
+    #  - 3400:4173
+    restart: unless-stopped
+    networks:
+      - theapp4u
+
+networks:
+  theapp4u:
+    external: true
