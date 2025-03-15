@@ -82,7 +82,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
 
   selected_crypto: -1,
   wallet_address: "",
-  total_friends_referred: 0,
+  total_friends_refered: 0,
 
   UpdateUserWallet: (crypto_id: number, wallet_address: string) => {
     set(() => ({
@@ -93,7 +93,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
 
   UpdateTotalFriends: (friends: number) => {
     set((state) => ({
-      total_friends_referred: state.total_friends_referred + friends,
+      total_friends_refered: state.total_friends_refered + friends,
     }));
   },
 
@@ -184,7 +184,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       if (response.status === 200) {
         toast.success('Friend bonus bought successfully!');
         set((state) => ({
-          total_friends_referred: state.total_friends_referred + bonus.benefit,
+          total_friends_refered: state.total_friends_refered + bonus.benefit,
         }));
       } else if (response.status === 202) {
         toast.warning(response.data.success);

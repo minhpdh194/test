@@ -325,7 +325,9 @@ export default function Bonus() {
                 <div className="flex flex-col justify-between items-center">
                     <span className="fw-bold text-lg">{t(`${bonus}.capital_protection.name`)}</span>
                     <div className="text-center">
-                        <span className="text-xs italic"><span className="fw-bold">{t(`${bonus}.capital_protection.title`)}</span>{t(`${bonus}.capital_protection.description`)}</span>
+                        <span className="text-xs italic"><span className="fw-bold">{t(`${bonus}.capital_protection.title`)}</span>
+                            {t(`${bonus}.capital_protection.description`)}
+                        </span>
                     </div>
                 </div>
                 <div className="w-full overflow-x-auto bonus-item">

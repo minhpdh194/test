@@ -29,5 +29,5 @@ export type UserProfile = {
   selected_crypto: number;
   wallet_address: string;
 
-  total_friends_referred: number;
+  total_friends_refered: number;
 }
