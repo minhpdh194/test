@@ -184,7 +184,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       if (response.status === 200) {
         toast.success('Friend bonus bought successfully!');
         set((state) => ({
-          amount_of_tokens: state.amount_of_tokens + bonus.benefit,
+          total_friends_referred: state.total_friends_referred + bonus.benefit,
         }));
       } else if (response.status === 202) {
         toast.warning(response.data.success);

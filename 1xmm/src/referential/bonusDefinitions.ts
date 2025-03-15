@@ -51,11 +51,11 @@ export const bonusDefinitions: Array<BonusDefinition> = [
     createBonusDef(47, BonusTypes.Token, 200, BonusTerms.None, 20),
     createBonusDef(48, BonusTypes.Token, 300, BonusTerms.None, 30),
     createBonusDef(49, BonusTypes.Token, 400, BonusTerms.None, 40),
-    createBonusDef(46, BonusTypes.Friends, 5, BonusTerms.None, 1),
-    createBonusDef(47, BonusTypes.Friends, 10, BonusTerms.None, 1),
-    createBonusDef(48, BonusTypes.Friends, 25, BonusTerms.None, 1),
-    createBonusDef(49, BonusTypes.Friends, 50, BonusTerms.None, 1),
-    createBonusDef(49, BonusTypes.Friends, 100, BonusTerms.None, 1),
+    createBonusDef(50, BonusTypes.Friends, 5, BonusTerms.None, 1),
+    createBonusDef(51, BonusTypes.Friends, 10, BonusTerms.None, 1),
+    createBonusDef(52, BonusTypes.Friends, 25, BonusTerms.None, 1),
+    createBonusDef(53, BonusTypes.Friends, 50, BonusTerms.None, 1),
+    createBonusDef(54, BonusTypes.Friends, 100, BonusTerms.None, 1),
 ];
 
 function createBonusDef(id: number, bonus_type: BonusTypes, benefit: number, duration: BonusTerms, cost: number): BonusDefinition {
