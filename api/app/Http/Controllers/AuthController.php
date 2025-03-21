@@ -120,23 +120,11 @@ class AuthController extends Controller
 
                 try {
                     $pusher->trigger('refer_noti_user_' . $referredBy->telegram_user_id, 'data', ['invitee' => $user, 'increasedBalance' => $increased]);
-                    \Log::info('test pusher', ['result' => $gameData]);
                 } catch (\Throwable $e) {
                     \Log::info('error pusher', ['error' => $e->getMessage()]);
                 }
             }
         }
-
-        // $UserRankingData = UserRanking::updateOrCreate(
-        //     ['telegram_user_id' => $user->telegram_user_id],
-        //     [
-        //         'first_name' => $user->first_name,
-        //         'last_name' => $user->last_name,
-        //         'last_amount_of_tokens' => $baseBalance,
-        //         'current_amount_of_tokens' => $baseBalance,
-        //     ]
-        // );
-        //we dont need to use it any more
 
         $token = $user->createToken($user->telegram_user_id);
 

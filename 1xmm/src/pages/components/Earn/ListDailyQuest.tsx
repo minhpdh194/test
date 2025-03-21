@@ -90,13 +90,13 @@ const ListDailyQuest: React.FC = () => {
         setSelectedCheckboxes([]);
         setSelectedRadios({});
     }
-    console.log(currentQuestions);
-    if (currentQuestions.length > 0) {
+console.log(currentQuestions);
+if (currentQuestions.length >0) {
         console.log(currentQuestions);
         console.log(dailyAnswers);
         console.log(dailyAnswers.filter((answer) => answer.question_id === currentQuestions[0].id))
 
-    }
+}
     const claimTask = async (task: TaskDefinition) => {
         try {
             const response = await $http.post('/claim-task', { task: task });

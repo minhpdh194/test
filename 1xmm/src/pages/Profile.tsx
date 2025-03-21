@@ -30,7 +30,6 @@ export default function Profile() {
         setCompletedTasks(tasks);
     }, [userProfile.completed_task_ids]);
 
-    console.log(globalThis.userProfile.positionStore!.available_bonuses);
     return (
         <div
             className="flex-1 px-3 pb-20 bg-center bg-cover"

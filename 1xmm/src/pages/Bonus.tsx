@@ -232,14 +232,14 @@ export default function Bonus() {
 
             <div className="progress-bar mt-4">
                 <div className="mb-1">
-                    <ProgressBar completed={globalThis.coinTarget / 2_000_000} />
+                    <ProgressBar completed={globalThis.coinTarget / 20_000_000} />
                 </div>
                 <div className="flex justify-between">
                     <div className="font-bold text-sm">
                         {globalThis.coinTarget}
                     </div>
                     <div className="font-bold text-sm">
-                        2,000,000
+                        20,000,000
                     </div>
                 </div>
             </div>
