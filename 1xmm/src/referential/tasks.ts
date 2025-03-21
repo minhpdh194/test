@@ -4,17 +4,35 @@ import { TaskDefinition } from "@/types/tasks/TaskDefinition";
 const tasksList = [
   {
     name: "Watch 1xMM Video",
-    description: "Watch our introduction video on YouTube.",
+    description: "Watch our introduction video on YouTube",
     reward_coins: 25_000,
-    link: "https://www.youtube.com/watch?v=__pIIOcmDNM",
+    link: "https://www.youtube.com/watch?v=SY5H-JB-2x4",
     type: "life_time",
     action_name: TaskActionNames.Watch1XMMVideo,
     complete_requirement: 0,
   },
   {
+    name: "Watch 1xMM Video",
+    description: "Understanding Long & Short positions",
+    reward_coins: 25_000,
+    link: "https://www.youtube.com/watch?v=kFRWCjByf7s",
+    type: "life_time",
+    action_name: TaskActionNames.Watch1XMMVideo,
+    complete_requirement: 1,
+  },
+  {
+    name: "Watch 1xMM Video",
+    description: "Understanding Interest Rates vs Yields",
+    reward_coins: 25_000,
+    link: "https://www.youtube.com/watch?v=wd3D-Q7kp_g",
+    type: "life_time",
+    action_name: TaskActionNames.Watch1XMMVideo,
+    complete_requirement: 2,
+  },
+  {
     name: "Follow us on Twitter",
     description:
-      "Follow our official Twitter account and retweet our pinned tweet.",
+      "Follow our official Twitter account and retweet our pinned tweet",
     reward_coins: 20_000,
     link: "https://x.com/onexmm_official",
     type: "life_time",
@@ -23,7 +41,7 @@ const tasksList = [
   },
   {
     name: "Join our Telegram Group",
-    description: "Join our Telegram group and introduce yourself.",
+    description: "Join our Telegram group and introduce yourself",
     reward_coins: 20_000,
     link: "https://t.me/onexmm_official",
     type: "life_time",

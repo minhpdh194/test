@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\ClickerController;
 use App\Http\Controllers\UserTaskController;
+use App\Http\Controllers\ReferralTaskController;
 use App\Http\Controllers\PositionController;
+use App\Http\Controllers\MarketDataController;
 
 
 Route::prefix('clicker')->group(function () {
@@ -19,17 +21,17 @@ Route::prefix('clicker')->group(function () {
     Route::get('/get-position-ratios', [PositionController::class, 'getPositionRatios']);
 
     // Daily tasks
-    // Route::get('/daily-tasks', [ClickerController::class, 'listDailyTasks']);
-    // Route::post('/claim-daily-task', [ClickerController::class, 'claimDailyTaskReward']);
+    Route::get('/daily-tasks', [ClickerController::class, 'listDailyTasks']);
+    Route::post('/claim-daily-task', [ClickerController::class, 'claimDailyTaskReward']);
 
     // Regular tasks
-    // Route::get('/tasks', [UserTaskController::class, 'index']);
-    // Route::post('/tasks/{task}', [UserTaskController::class, 'store']);
-    // Route::post('/tasks/{task}/claim', [UserTaskController::class, 'claim']);
+    Route::get('/tasks', [UserTaskController::class, 'index']);
+    Route::post('/tasks/{task}', [UserTaskController::class, 'store']);
+    Route::post('/tasks/{task}/claim', [UserTaskController::class, 'claim']);
 
     // Referral tasks
-    // Route::get('/referral-tasks', [ReferralTaskController::class, 'index']);
-    // Route::post('/referral-tasks/{task}/complete', [ReferralTaskController::class, 'complete']);
+    Route::get('/referral-tasks', [ReferralTaskController::class, 'index']);
+    Route::post('/referral-tasks/{task}/complete', [ReferralTaskController::class, 'complete']);
 
     // Leaderboard
     Route::get('/leaderboard', [ClickerController::class, 'listLeaderboard']);

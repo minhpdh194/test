@@ -134,15 +134,15 @@ export default function Profile() {
                             <div>
                                 <div className="text-sm fw-bold justify-between items-center">
                                     {task.name}
-                                </div>
+                    </div>
                                 <div className="text-sm pb-2">
                                     {task.description}
-                                </div>
-                            </div>
+                    </div>
+                    </div>
 
                             <div className="text-sm fw-bold mt-2">{userProfile.completed_tasks.find(completedTask => completedTask.task_id === task.id).updated_at
                                 ? Utils.getTimeDifference(userProfile.completed_tasks.find(completedTask => completedTask.task_id === task.id).updated_at) : ""}</div>
-                        </div>
+                    </div>
                     ))}
                 </div>
             </div>
@@ -150,32 +150,32 @@ export default function Profile() {
                 <span className="fw-bold">{t(`${profile}.available_bonuses`)}</span>
                 {globalThis.userProfile.positionStore!.available_bonuses && globalThis.userProfile.positionStore!.available_bonuses.map && globalThis.userProfile.positionStore!.available_bonuses.map((bonus, index) => (
                     <div className="w-100 bg-[#32363C] rounded-xl p-3 mt-3" key={index}>
-                        <div className="flex border-b fw-bold pb-2 justify-between items-center">
-                            <span className="flex items-center space-x-1">
+                    <div className="flex border-b fw-bold pb-2 justify-between items-center">
+                        <span className="flex items-center space-x-1">
                                 <span>{prettyPrint(bonus.bonus_definition.bonus_type)}</span>
-                                <img
-                                    src="/images/home/polygon.png"
-                                    alt="polygon"
-                                    className="w-3 h-2"
-                                />
+                            <img
+                                src="/images/home/polygon.png"
+                                alt="polygon"
+                                className="w-3 h-2"
+                            />
                                 <span className="text-xs fw-light">+{bonus.bonus_definition.benefit}{getBenefitMeasure(bonus.bonus_definition.bonus_type)}</span>
-                            </span>
-                            <span className="flex items-center space-x-1">
+                        </span>
+                        <span className="flex items-center space-x-1">
                                 <Star /> {bonus.bonus_definition.cost}
-                            </span>
-                        </div>
-                        <div className="flex pb-2 pt-2 justify-between items-center">
-                            <span>{t(`${profile}.bonus_duration`)}</span>
-                            <span className="flex text-sm space-x-1 items-center">
-                                <img
-                                    src="/images/home/time.png"
-                                    alt="time"
-                                    className="w-4 h-4"
-                                />
-                                <span>{bonus.bonus_definition.duration == BonusTerms.Short ? '3h' : '6h'}</span>
-                            </span>
-                        </div>
+                        </span>
                     </div>
+                    <div className="flex pb-2 pt-2 justify-between items-center">
+                            <span>{t(`${profile}.bonus_duration`)}</span>
+                        <span className="flex text-sm space-x-1 items-center">
+                            <img
+                                src="/images/home/time.png"
+                                alt="time"
+                                className="w-4 h-4"
+                            />
+                                <span>{bonus.bonus_definition.duration == BonusTerms.Short ? '3h' : '6h'}</span>
+                        </span>
+                    </div>
+                </div>
                 ))}
             </div>
         </div>

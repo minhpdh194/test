@@ -25,27 +25,27 @@
         "airdrop": "Airdrop",
         "telegram_channel": "Canal Telegram",
         "user_manual": "Manuel utilisateur",
-        "connect_wallet": "Connecter le portefeuille",
-        "disconnect_ton_wallet": "Déconnecter TON Wallet",
-        "connect_ton_wallet": "Connecter TON Wallet",
+        "connect_wallet": "Référencer votre e-wallet",
+        "disconnect_ton_wallet": "Déconnecter TON e-Wallet",
+        "connect_ton_wallet": "Connecter TON e-Wallet",
         "level": "Niveau",
         "wallet_connector": {
-            "title": "Connecteur de portefeuille",
-            "label_wallet_address": "Adresse du portefeuille",
+            "title": "Référencer votre e-wallet",
+            "label_wallet_address": "Adresse ",
             "label_network": "Sélectionner le réseau",
             "save": "Sauvegarder"
         }
     },
     "home": {
-        "avatar_selection": "Sélection d’avatar",
+        "avatar_selection": "Sélection de l&apos;avatar",
         "confirm": "Confirmer",
-        "earn_per_tap": "Gagnez par tapotement",
-        "time_to_next_fixing": "Temps avant la prochaine correction",
+        "earn_per_tap": "Gain par click",
+        "time_to_next_fixing": "Temps restant avant le prochain fixing",
         "daily_perf": "Performance quotidienne",
         "position": "Position",
         "performance_to_date": "Performance cumulée",
         "bonuses": "Bonus",
-        "short": "Court",
+        "short": "Short",
         "long": "Long",
         "amount": "Montant",
         "leverage": "Levier",
@@ -65,24 +65,49 @@
         "level_bonuses": "Bonus de niveau"
     },
     "friends": {
-        "invite_friends": "Invitez des amis !",
-        "description": "Lorem Ipsum est le texte factice standard de l'industrie depuis les années 1500",
+        "invite_friends": "Inviter des amis !",
+        "description": "Invite tes amis à rejoindre 1xMM et gagnez des bonus ensemble !",
         "bonus_for": "pour vous et vos amis",
         "share_invite_link": "Partager le lien d’invitation",
         "copy_invite_link": "Copier le lien d’invitation"
     },
     "earn": {
-        "earn_more_coins": "Gagnez plus de pièces",
+        "earn_more_coins": "Gagnez plus de 1vMM",
         "daily_rewards": "Récompense quotidienne",
-        "hurry_up_and_get_it": "Dépêchez-vous et obtenez-le"
+        "hurry_up_and_get_it": "Hurry up !"
     },
     "bonus": {
-        "target_to_seed": "Objectif à semer",
+        "target_to_seed": "Objectif à atteindre",
         "data_not_found": "Données non trouvées",
         "leverage": {
             "name": "Levier",
             "title": "Augmentez votre performance",
-            "description": ": chaque +1x levier augmente votre performance de 100%. Attention, le levier ne s'applique qu'à la performance positive."
+            "description": ": chaque +1x levier augmente votre performance de 100%. Attention, le levier ne s'applique pas qu'à la performance positive."
+        },
+        "positive_leverage": {
+            "name": "Levier positif",
+            "title": "Augmentez votre profit",
+            "description": ": chaque +1x levier positif augmente votre performance positive de 100%. Les pertes ne sont pas impactées par le levier positif."
+        },
+        "capital_protection": {
+            "name": "Protection du capital",
+            "title": "Protégez votre position",
+            "description": ": chaque 1% de protection du capital protège 1% de votre position."
+        },
+        "time_reduction": {
+            "name": "Réduction du temps",
+            "title": "Réduisez votre pénalité",
+            "description": ": chaque 1s de bonus aide à réduire / fermer votre position 1s plus tôt."
+        },
+        "token_package": {
+            "name": "Forfait jetons",
+            "title": "Rechargez votre solde",
+            "description": ": obtenez des jetons pour recharger votre solde ou augmenter votre PnL."
+        },
+        "friend_bonus": {
+            "name": "Bonus d'amis",
+            "title": "Acquérez de amis",
+            "description": ": acquérez de amis afin d'obtenir des bonus supplémentaires."
         }
     },
     "popup": {

@@ -26,12 +26,12 @@
                         </thead>
                         <tbody>
                             @foreach ($dailyTasks as $task)
-                                <tr>
-                                    <td>{{ $task->id }}</td>
-                                    <td>{{ $task->name }}</td>
-                                    <td>{{ $task->description }}</td>
+                            <tr>
+                                <td>{{ $task->id }}</td>
+                                <td>{{ $task->name }}</td>
+                                <td>{{ $task->description }}</td>
                                     <td>{{ $task->link }}</td>
-                                    <td>{{ $task->reward_coins }}</td>
+                                <td>{{ $task->reward_coins }}</td>
                                     <td>
                                         @if ($task->action_name == 'free_token')
                                             Receive Free Token
@@ -43,7 +43,7 @@
                                             Unknown
                                         @endif
                                     </td>
-                                </tr>
+                            </tr>
                             @endforeach
                         </tbody>
                     </table>

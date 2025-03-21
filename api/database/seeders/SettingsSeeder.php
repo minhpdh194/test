@@ -16,7 +16,7 @@ class SettingsSeeder extends Seeder
         $settings = [
             ['name' => 'star_price', 'value' => '0.025'],
             ['name' => 'prem_mult', 'value' => '5'],
-            ['name' => 'conversion_rate', 'value' => '20'],
+            ['name' => 'conversion_rate', 'value' => '2'],
             ['name' => 'stars_spent', 'value' => '0']
         ];
 

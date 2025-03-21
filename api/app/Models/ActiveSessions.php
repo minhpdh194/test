@@ -9,7 +9,7 @@ class ActiveSessions extends Model
 {
     use HasFactory;
     protected $guarded = [];
-    protected $table = "active_sessions";
+    protected $table = "sessions";
 
     // public function update($chatId = []) {
     //     $this->chat_id = $chatId;

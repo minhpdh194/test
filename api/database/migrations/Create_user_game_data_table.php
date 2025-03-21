@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('user_game_data', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('telegram_user_id', 50)->references('telegram_user_id')->on('user_profile')->unique();
+            $table->string('telegram_user_id', 50)->references('telegram_user_id')->on('user_profile')->unique()->index();
             $table->tinyInteger('level')->default(1)->unsigned();
             $table->tinyInteger('avatar_id')->default(0)->unsigned(); // This is the avatar_id of avatar picture
             $table->decimal('amount_of_tokens', 20, 6)->default(0);
@@ -24,6 +24,8 @@ return new class extends Migration
             $table->json('bonuses')->nullable();
             $table->double('perf_from_start_date')->default(0);
             $table->integer('number_of_stars')->default(0);
+            $table->string('crypto')->nullable();
+            $table->string('wallet_address')->nullable();
             $table->timestamps();
         });
     }

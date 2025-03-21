@@ -2,6 +2,8 @@ import { TradingInfo } from "./TradingInfo";
 
 export type UserProfile = {
   // Main user profile info
+
+  // Main user profile info
   id: number;
   telegram_user_id: number;
   first_name: string;

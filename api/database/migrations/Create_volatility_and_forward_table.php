@@ -14,9 +14,11 @@ return new class extends Migration
         Schema::create('vol_fwd', function (Blueprint $table) {
             $table->id();
             $table->integer('pair_id')->references('id')->on('pairs')->unique();
-            $table->double('yield')->default(0);
+            $table->double('prev_yield')->default(0);
+            $table->double('current_yield')->default(0);
             $table->double('forward')->default(0);
-            $table->double('volatility')->default(0);
+            $table->double('prev_volatility')->default(0);
+            $table->double('current_volatility')->default(0);
             $table->timestamps();
         });
     }

@@ -120,28 +120,28 @@ export default function Bonus() {
         fetchBonusData();
     }, []);
 
-    const renderBenefit = (bonus: BonusDefinition) => {
-        switch (bonus.bonus_type) {
-            case BonusTypes.Leverage: return (
-                <>+{bonus.benefit}x</>
-            );
-            case BonusTypes.CapitalProtection: return (
-                <>{bonus.benefit}%</>
-            );
-            case BonusTypes.PositiveLeverage: return (
-                <>+{bonus.benefit}x</>
-            );
-            case BonusTypes.TimeReduction: return (
-                <>+{bonus.benefit}sec</>
-            );
+       const renderBenefit = (bonus: BonusDefinition) => {
+            switch (bonus.bonus_type) {
+                case BonusTypes.Leverage: return (
+                    <>+{bonus.benefit}x</>
+                );
+                case BonusTypes.CapitalProtection: return (
+                    <>{bonus.benefit}%</>
+                );
+                case BonusTypes.PositiveLeverage: return (
+                    <>+{bonus.benefit}x</>
+                );
+                case BonusTypes.TimeReduction: return (
+                    <>+{bonus.benefit}sec</>
+                );
             case BonusTypes.Token: return (
                 <>+{bonus.benefit} token</>
             )
             case BonusTypes.Friends: return (
                 <>+{bonus.benefit} friends</>
             )
+            }
         }
-    }
 
     const renderBonusItem = (bonus: BonusDefinition) => {
         return (
@@ -152,9 +152,9 @@ export default function Bonus() {
             >
                 <span className="flex items-center">
                     {(bonus.bonus_type !== BonusTypes.Token && bonus.bonus_type !== BonusTypes.Friends) &&
-                        <div className="bg-white rounded-full min-w-10 min-h-10 mr-4">
+                    <div className="bg-white rounded-full min-w-10 min-h-10 mr-4">
                             {getBonusDuration(bonus.duration)}
-                        </div>
+                    </div>
                     }
                     <div className="w-full">
                         <div className="flex justify-between">
@@ -164,7 +164,7 @@ export default function Bonus() {
 
                         <div className="h-[1px] bg-gray-600 my-1"></div>
                         <span className="flex gap-2"><Present /> {renderBenefit(bonus)}</span>
-                    </div>
+                </div>
                 </span>
             </div>
         );

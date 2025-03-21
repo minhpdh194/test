@@ -298,7 +298,6 @@ trait MarketData
 
         try {
             $pusher->trigger('pairs', 'data', ['pairs' => $createdSpots]);
-            Log::info('test pusher', ['result' => $createdSpots]);
         } catch (\Throwable $e) {
             $notify[] = ['warning', 'Pusher Not Properly Set'];
             Log::info('error pusher', ['error' => $e->getMessage()]);

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('user_tasks', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('telegram_user_id')->references('telegram_user_id')->on('user_profile')->onDelete('cascade');
+            $table->string('telegram_user_id')->references('telegram_user_id')->on('user_profile')->index()->onDelete('cascade');
             $table->integer('task_id')->references('id')->on('tasks');
             $table->boolean('completed')->default(false);
             $table->string('task_type')->nullable();

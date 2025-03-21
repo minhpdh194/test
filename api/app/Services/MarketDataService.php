@@ -69,6 +69,7 @@ class MarketDataService
                         'current_value' => $new_spot_value,
                         'period_return' => (($new_spot_value - $cur_spot->current_value) / $cur_spot->current_value),
                         'daily_return' => (($new_spot_value - $cur_spot->day_open_value) / $cur_spot->day_open_value),
+                        'updated_at' => $now
                     ]);
                 } else {
                     $cur_spot->update([
@@ -78,6 +79,7 @@ class MarketDataService
                         'current_value' => $new_spot_value,
                         'period_return' => 0,
                         'daily_return' => (($new_spot_value - $cur_spot->day_open_value) / $cur_spot->day_open_value),
+                        'updated_at' => $now
                     ]);
                 }
             } else {
@@ -91,7 +93,8 @@ class MarketDataService
                     'current_value' => $new_spot_value,
                     'period_return' => 0,
                     'daily_return' => 0,
-                    'created_at' => $now
+                    'created_at' => $now,
+                    'updated_at' => $now
                 ]);
             }
         // If we are the same day, we update the latest spot value
@@ -106,11 +109,12 @@ class MarketDataService
                 'current_value' => $new_spot_value,
                 'period_return' => 0,
                 'daily_return' => 0,
-                'created_at' => $now
+                'created_at' => $now,
+                'updated_at' => $now
             ]);
         }
 
-        $createdSpot = Spot::where('pair_id', $pair->id)->orderBy('created_at', 'desc')->first();
+        $createdSpot = Spot::where('pair_id', $pair->id)->orderBy('updated_at', 'desc')->first();
         $createdSpot->load('pair');
         return $createdSpot;
     }
@@ -120,7 +124,7 @@ class MarketDataService
         return Spot::join('pairs', 'historical_spots.pair_id', '=', 'pairs.id')
             ->where('pairs.coin_symbol', $coin_symbol)
             ->where('pairs.counter_symbol', $counter_symbol)
-            ->orderBy('historical_spots.created_at', 'desc')
+            ->orderBy('historical_spots.updated_at', 'desc')
             ->first();
     }
 }

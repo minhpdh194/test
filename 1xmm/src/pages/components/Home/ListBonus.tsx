@@ -89,7 +89,7 @@ export default function ListBonus({
             <Button
                 className="rounded flex w-full fw-semibold py-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)]"
                 onClick={async () => { await onSelectBonuses(selectedBonuses); }}
-            >
+                >
                 <span className="font-normal text-lg">{t(`${popup}.bonus_selection.button`)}</span>
             </Button>
         </Drawer>

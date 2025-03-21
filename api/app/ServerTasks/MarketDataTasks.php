@@ -84,7 +84,8 @@ class MarketDataTasks
                 'current_value' => $price,
                 'period_return' => $return,
                 'daily_return' => $return,
-                'created_at' => $quote['quote']['USD']['timestamp']
+                'created_at' => $quote['quote']['USD']['timestamp'],
+                'updated_at' => $quote['quote']['USD']['timestamp']
             ]);
 
             $prev_value = $price;
@@ -165,6 +166,8 @@ class MarketDataTasks
                 \Log::info('error getting data from Deribit API', ['error' => $e->getMessage()]);
             }
 
+            $last = VolAndFwd::where('pair_id', $pair->id)->first();
+
             if (isset($data['result'])) {
                 $vol = $data['result']['mark_iv'] / 100.0;
 
@@ -181,11 +184,10 @@ class MarketDataTasks
                 }
 
                 if ($vol < 0.05 || $yield > 1) {
-                    $last = VolAndFwd::where('pair_id', $pair->id)->first();
                     if (!$last) throw new \Exception('VolAndFwd could not be initiated for ' . $coin);
 
-                    $vol = $last->volatility;
-                    $yield = $last->yield;
+                    $vol = $last->current_volatility;
+                    $yield = $last->current_yield;
                     $fwd = $last->forward;
                 }
 
@@ -193,11 +195,10 @@ class MarketDataTasks
             }
             else
             {
-                $last = VolAndFwd::where('pair_id', $pair->id)->first();
                 if (!$last) throw new \Exception('VolAndFwd could not be initiated for ' . $coin);
 
-                $vol = $last->volatility;
-                $yield = $last->yield;
+                $vol = $last->current_volatility;
+                $yield = $last->current_yield;
                 $fwd = $last->forward;
             }
 
@@ -207,9 +208,11 @@ class MarketDataTasks
                     'pair_id' => $pair->id,
                 ],
                 [
-                    'yield' => $yield,
+                    'prev_yield' => $last ? $last->$current_yield : 0.0,
+                    'current_yield' => $yield,
                     'forward' => $fwd,
-                    'volatility' => $vol
+                    'prev_volatility' => $last ? $last->$current_volatility : 0.0,
+                    'current_volatility' => $vol
                 ]
             );
         }
@@ -270,21 +273,25 @@ class MarketDataTasks
             $yield = 0.0;
 
             for ($i = 0; $i < count($ref_symbols); $i++) {
-                $f = $svd_res[$i] * $ref_volsAndYields[$ref_symbols[$i]]->volatility;
+                $f = $svd_res[$i] * $ref_volsAndYields[$ref_symbols[$i]]->current_volatility;
                 $vol += $f * $f;
-                $yield += $svd_res[$i] * $ref_volsAndYields[$ref_symbols[$i]]->yield;
+                $yield += $svd_res[$i] * $ref_volsAndYields[$ref_symbols[$i]]->current_yield;
             }
 
             // We have stored yield as Yield(p.a.) * expiry
             $fwd = $spots->first()->current_value * (1.0 + max($yield, 0.03));
             $vol = max(sqrt($vol) + $err, 0.2);
 
+            $last = VolAndFwd::where('pair_id', $pair->id)->first();
+
             VolAndFwd::updateOrCreate(
                 ['pair_id' => $pair->id],
                 [
-                    'yield' => $yield,
+                    'prev_yield' => $last ? $last->current_yield : 0.0,
+                    'current_yield' => $yield,
                     'forward' => $fwd,
-                    'volatility' => $vol,
+                    'prev_volatility' => $last ? $last->current_volatility : 0.0,
+                    'current_volatility' => $vol
                 ]
             );
         }
@@ -314,20 +321,24 @@ class MarketDataTasks
             $corr = MathUtil::computeCorrelation($spots1->pluck('daily_return')->toArray(), $spots2->pluck('daily_return')->toArray(), $n);
             $spot = $spots1->first()->current_value / $spots2->first()->current_value;
 
+            $last = VolAndFwd::where('pair_id', $pair->id)->first();
+
             $vol_fwd1 = VolAndFwd::where('pair_id', $pair1->id)->first();
             $vol_fwd2 = VolAndFwd::where('pair_id', $pair2->id)->first();
 
             $fwd = $vol_fwd1->forward / $vol_fwd2->forward;
-            $vol = sqrt($vol_fwd1->volatility * $vol_fwd1->volatility + $vol_fwd2->volatility * $vol_fwd2->volatility + 2.0 * $corr * $vol_fwd1->volatility * $vol_fwd2->volatility);
+            $vol = sqrt($vol_fwd1->current_volatility * $vol_fwd1->current_volatility + $vol_fwd2->current_volatility * $vol_fwd2->current_volatility + 2.0 * $corr * $vol_fwd1->current_volatility * $vol_fwd2->current_volatility);
 
             $this->marketDataService->updateOrCreateSpotData($pair, $spot, $now);
 
             VolAndFwd::updateOrCreate(
                 ['pair_id' => $pair->id],
                 [
-                    'yield' => ($fwd / $spot - 1.0) / $T,
+                    'prev_yield' => $last ? $last->current_yield : 0.0,
+                    'current_yield' => ($fwd / $spot - 1.0) / $T,
                     'forward' => $fwd,
-                    'volatility' => $vol,
+                    'prev_volatility' => $last ? $last->current_volatility : 0.0,
+                    'current_volatility' => $vol,
                 ]
             );
         }
@@ -342,7 +353,7 @@ class MarketDataTasks
 
         foreach ($pairs as $pair) {
             $vol_fwd = VolAndFwd::where(['pair_id' => $pair->id])->first();
-            $spot = Spot::where('pair_id', $pair->id)->orderBy('created_at', 'desc')->first();
+            $spot = Spot::where('pair_id', $pair->id)->orderBy('updated_at', 'desc')->first();
             $premium = 0.0;
 
             $prev_long_index = Index::where(['pair_id' => $pair->id, 'long_short' => 'long'])
@@ -364,8 +375,8 @@ class MarketDataTasks
             }
 
             if ($spot->current_value > $spot->prev_value) {
-                $call = MathUtil::call($T, $spot->prev_value, $spot->current_value, $vol_fwd->yield, $vol_fwd->volatility);
-                $premium = $call / $spot->prev_value * $mult * $dt;
+                $perf = MathUtil::yield($T, $dt, $spot->prev_value, $spot->current_value, $vol_fwd->prev_yield, $vol_fwd->prev_volatility, $vol_fwd->current_volatility, true);
+                $premium = $perf * $mult * $dt;
 
                 if ($total_positions && $total_positions->total_long_value > 0) {
                     $adj = max(1, $total_positions->total_short_value / $total_positions->total_long_value);
@@ -381,8 +392,8 @@ class MarketDataTasks
                     'created_at' => $timestamp
                 ]);
             } else if ($spot->current_value < $spot->prev_value) {
-                $put = MathUtil::put($T, $spot->prev_value, $spot->current_value, $vol_fwd->yield, $vol_fwd->volatility);
-                $premium = $put / $spot->prev_value * $mult * $dt;
+                $perf = MathUtil::yield($T, $dt, $spot->prev_value, $spot->current_value, $vol_fwd->prev_yield, $vol_fwd->prev_volatility, $vol_fwd->current_volatility, false);
+                $premium = $perf * $mult * $dt;
 
                 $longPerf = Index::updateOrCreate(['pair_id' => $pair->id, 'long_short' => 'long', 'histo_record' => $histo], [
                     'value' => $prev_long_index->value - $premium,

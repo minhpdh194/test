@@ -116,9 +116,9 @@ export default function Friends() {
               </button>
             </div>
             <div className="p-3 pt-0">
-              <div className="tab-content">
-                <ListFriend referedUsers={friends} />
-              </div>
+                <div className="tab-content">
+                  <ListFriend referedUsers={friends} />
+                </div>
             </div>
           </div>
         </div>

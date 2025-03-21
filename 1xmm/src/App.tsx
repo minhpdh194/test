@@ -1,6 +1,6 @@
 import { RouterProvider } from "react-router-dom";
-// import { isMobile } from 'react-device-detect';
-// import PlayOnYourMobile from "./pages/PlayOnYourMobile";
+import { isMobile } from 'react-device-detect';
+import PlayOnYourMobile from "./pages/PlayOnYourMobile";
 import { useEffect, useState } from "react";
 import SplashScreen from "./components/partials/SplashScreen";
 
@@ -30,9 +30,9 @@ import { TaskDefinition } from "./types/tasks/TaskDefinition";
 
 const webApp = window.Telegram.WebApp;
 // Developers must use VSC to launch the app
-// const isDesktop = import.meta.env.DEV
-//   ? false
-//   : Telegram.WebApp.platform === "tdesktop" || !isMobile;
+const isDesktop = import.meta.env.DEV
+  ? false
+  : Telegram.WebApp.platform === "tdesktop" || !isMobile;
 
 declare global {
   var userProfile: UserProfileStore;
@@ -57,7 +57,7 @@ type DBSpot = {
 
 function App() {
   <ToastContainer autoClose={2000} />
-
+  
   globalThis.userProfile = userProfileStore();
   globalThis.userProfile.positionStore = getPositionStore();
   const data = useTelegramInitData();
@@ -112,7 +112,6 @@ function App() {
           daily_tasks,
           daily_task_questions,
           daily_task_answers,
-          //{ data: tasks}
         ] = await Promise.all([
           $http.$get<SyncData>("/clicker/sync"),
           $http.$get<UserBonus[]>("/user_bonuses"),
@@ -123,7 +122,6 @@ function App() {
           $http.$get<TaskDefinition[]>("/get-daily-tasks"),
           $http.$get<Question[]>("/get-daily-task-questions"),
           $http.$get<Answer[]>("/get-daily-task-answers"),
-          //$http.get("/user_tasks")
         ]);
 
         const lifeTimeTasks = completed_user_tasks.filter(task => task.task_type === "life_time").map(task => task.task_id);
@@ -194,7 +192,7 @@ function App() {
   }, [user]);
 
   if (showSplashScreen) return <SplashScreen progress={progress} />;
-  // if (!user || isDesktop) return <PlayOnYourMobile />;
+  if (!user || isDesktop) return <PlayOnYourMobile />;
 
   return (
     <RouterProvider router={router} />
@@ -208,7 +206,7 @@ async function fetchFriendsData() {
 
 function setFirstSpots(data: DBSpot[], pairs: Pair[]): SpotType[] {
   const res: SpotType[] = [];
-
+  
   data.forEach(s => {
     res.push({
       pair_id: s.pair_id,
@@ -242,25 +240,25 @@ async function filterBonusesAndPositions(userBonuses: UserBonus[], userPositions
     open_position.set_last_update_timestamp(timestamp);
 
     if (p.bonuses_id) {
-      const bonusForPosition: number[] = JSON.parse(p.bonuses_id);
+    const bonusForPosition: number[] = JSON.parse(p.bonuses_id);
 
-      bonusForPosition.forEach(element => {
-        const userBonus = userBonuses.find(b => b.id == element);
-        if (!userBonus) throw new Error('Bonus storage mismatch');
+    bonusForPosition.forEach(element => {
+      const userBonus = userBonuses.find(b => b.id == element);
+      if (!userBonus) throw new Error('Bonus storage mismatch');
 
-        const bonusDef = bonusDefinitions.find(def => def.id == userBonus.bonus_id);
-        if (!bonusDef) throw new Error('Bonus definition error');
+      const bonusDef = bonusDefinitions.find(def => def.id == userBonus.bonus_id);
+      if (!bonusDef) throw new Error('Bonus definition error');
 
-        const index = userBonuses.indexOf(userBonus);
-        userBonuses[index] = userBonuses[userBonuses.length - 1];
-        userBonuses.pop();
+      const index = userBonuses.indexOf(userBonus);
+      userBonuses[index] = userBonuses[userBonuses.length - 1];
+      userBonuses.pop();
 
-        const bonus = new Bonus(element, bonusDef);
-        const bonus_end_date = new Date(userBonus.end_date! + 'Z').getTime() / 1000;
-        bonus.attach_to_position(open_position, bonus_end_date);
+      const bonus = new Bonus(element, bonusDef);
+      const bonus_end_date = new Date(userBonus.end_date! + 'Z').getTime() / 1000;
+      bonus.attach_to_position(open_position, bonus_end_date);
 
-        if (!open_position.attach_existing_bonus(bonus)) { bonusesToDelete.push(element); }
-      });
+      if (!open_position.attach_existing_bonus(bonus)) { bonusesToDelete.push(element); }
+    });
     }
 
     openPositions.push(open_position);

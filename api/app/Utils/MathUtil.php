@@ -562,27 +562,41 @@ class MathUtil
         return $cov / sqrt($var_a * $var_b);
     }
 
-    public static function call($T, $prev_spot, $current_spot, $yield, $vol)
+    public static function call($T, $spot, $strike, $vol)
     {
-        $ff = 1.0 + $yield * $T;
-        $fwd = $current_spot * $ff;
         $vol_sqrtT = $vol * sqrt($T);
-        $d1 = log($fwd / $prev_spot) / $vol_sqrtT + 0.5 * $vol_sqrtT;
+        $d1 = log($spot / $strike) / $vol_sqrtT + 0.5 * $vol_sqrtT;
         $d2 = $d1 - $vol_sqrtT;
 
         $normal = new Normal(0, 1);
-        return $current_spot * $normal->cdf($d1) - $prev_spot / $ff * $normal->cdf($d2);
+        return $spot * $normal->cdf($d1) - $strike * $normal->cdf($d2);
     }
 
-    public static function put($T, $prev_spot, $current_spot, $yield, $vol)
+    public static function put($T, $spot, $strike, $vol)
     {
-        $ff = 1.0 + $yield * $T;
-        $fwd = $current_spot * $ff;
         $vol_sqrtT = $vol * sqrt($T);
-        $d1 = log($fwd / $prev_spot) / $vol_sqrtT + 0.5 * $vol_sqrtT;
+        $d1 = log($spot / $strike) / $vol_sqrtT + 0.5 * $vol_sqrtT;
         $d2 = $d1 - $vol_sqrtT;
 
         $normal = new Normal(0, 1);
-        return -$current_spot * $normal->cdf(-$d1) + $prev_spot / $ff * $normal->cdf(-$d2);
+        return -$spot * $normal->cdf(-$d1) + $strike * $normal->cdf(-$d2);
+    }
+
+    public static function yield($T, $dt, $prev_spot, $current_spot, $yield, $prev_vol, $current_vol, $isCall)
+    {
+        $sqrtT = sqrt($T);
+        $strike = $prev_spot * (1 + $yield * $T);
+
+        if ($isCall) {
+            $call_0 = call($T, $prev_spot, $strike, $prev_vol);
+            $call_t = call($T - $dt, $current_spot, $strike, $current_vol);
+
+            return ($call_t - $call_0) / $strike;
+        } else {
+            $put_0 = put($T, $prev_spot, $strike, $prev_vol);
+            $put_t = put($T - $dt, $current_spot, $strike, $current_vol);
+
+            return ($put_t - $put_0) / $strike;
+        }
     }
 }

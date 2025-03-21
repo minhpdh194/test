@@ -119,6 +119,11 @@
             "name": "Paquete de Tokens",
             "title": "Recarga tu saldo",
             "description": ": obtén algunos tokens para recargar tu saldo o aumentar tu PnL."
+        },
+        "friend_bonus": {
+            "name": "Amigo",
+            "title": "Bono de amigos",
+            "description": ": consigue amigos para obtener bonificaciones de perfil."
         }
     },
     "popup": {

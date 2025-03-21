@@ -234,6 +234,7 @@ const ListQuest: React.FC = () => {
                     <DialogTitle>{selectedTask.name}</DialogTitle>
                     {currentQuestions.map((question, index) => (
                         <DialogContent key={index}>
+                            <div className="text-sm">
                             {index + 1}. {question.description}
                             {
                                 getAnswers(question.video_id)
@@ -263,6 +264,7 @@ const ListQuest: React.FC = () => {
                                             )}
                                         </div>
                                     ))}
+                            </div>
                         </DialogContent>
                     ))}
                     <DialogActions>

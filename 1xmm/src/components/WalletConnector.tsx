@@ -1,5 +1,5 @@
 import { Drawer, FormControl, FormLabel, MenuItem, Select, TextField } from '@mui/material';
-import { useState } from 'react';
+import {  useState } from 'react';
 import { CryptoList } from '@/referential/cryptoChecklist';
 import { Button } from './ui/button';
 import { $http } from '@/lib/http';
@@ -45,30 +45,27 @@ export default function WalletConnector({
                 <div className='w-full'>
                     <h2 className="text-xl font-medium uppercase p-2 text-center text-white">
                         {t(`${menu}.wallet_connector.title`)}
-                    </h2>
+            </h2>
                     <div className="rounded-lg">
                         <FormLabel className='text-white text-sm'>{t(`${menu}.wallet_connector.label_wallet_address`)}</FormLabel>
                         <TextField
-                            fullWidth
-                            variant="outlined"
-                            className="mb-4 bg-white rounded-lg"
-                            value={walletAddress}
-                            onChange={(e) => setWalletAddress(e.target.value)}
+                          fullWidth
+                          variant="outlined"
+                          className="mb-4 bg-white rounded-lg"
+                          value={walletAddress}
+                          onChange={(e) => setWalletAddress(e.target.value)}
                         />
-
                         <FormLabel className='text-white text-sm'>{t(`${menu}.wallet_connector.label_network`)}</FormLabel>
                         <FormControl fullWidth className='bg-white'>
-                            <Select
-                                value={selectedItem}
-                                onChange={(e) => handleToggle(e)}
-                            >
-                                {CryptoList?.map((crypto) => (
-                                    <MenuItem key={crypto.id} value={crypto.id} className='text-black'>
-                                        {crypto.name}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
+                        <Select
+                          value={selectedItem}
+                          onChange={(e) => handleToggle(e)}
+                        >
+                          {CryptoList?.map((crypto) => (
+                            <MenuItem key={crypto.id} value={crypto.id} className='text-black'>{crypto.name}</MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
                     </div>
                 </div>
 

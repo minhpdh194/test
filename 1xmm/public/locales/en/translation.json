@@ -98,7 +98,7 @@
         "leverage": {
             "name": "Leverage",
             "title": "Increase your perf",
-            "description": ": each +1x leverage increases your performance by 100%. Be careful, leverage applies for positive performance."
+            "description": ": each +1x leverage increases your performance by 100%. Be careful, leverage also applies for negaitve performance."
         },
         "positive_leverage": {
             "name": "Positive Leverage",
@@ -122,8 +122,8 @@
         },
         "friend_bonus": {
             "name": "Friend Bonus",
-            "title": "Friend Bonus title",
-            "description": ": Friend Bonus description"
+            "title": "Get Friends",
+            "description": ": get friends to get additional bonuses."
         }
     },
     "popup": {

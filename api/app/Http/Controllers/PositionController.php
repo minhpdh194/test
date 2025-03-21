@@ -76,7 +76,7 @@ class PositionController extends Controller
          * ***************/
         if ($position['amount'] > $userGameData->balance
             || $position['amount'] < 0
-            || $now->diffInYears($min_end_date) < 0.00065
+            || abs($now->diffInYears($min_end_date)) < 0.00065
             || $position['pair']['id'] > 25
             || $position['leverage'] > 10) return response()->json('Forbidden', 403);
         
@@ -241,29 +241,6 @@ class PositionController extends Controller
             $pos_issue = !$position;
             return response()->json(['message' => 'Position not found'], 404);
         }
-
-        /*****************
-         * Sanity checks *
-         * ***************/
-        $not_using_leverage_bonus = true;
-        if (!empty($position->bonuses_id) && count($position->bonuses_id) > 0) {
-            foreach ($position->bonuses_id as $bonus_id) {
-                // Bonus will correspond to leverage or positive leverage
-                if ($bonus_id <= 24) {
-                    $not_using_leverage_bonus = false;
-                    break;
-                }
-            }
-        }
-
-        if ($position->amount > 0 && $pnl != 0
-            || $not_using_leverage_bonus && PositionController::pnlIsNotConsistent($position->pair_id, 
-                $position->long_short, 
-                $position->amount, 
-                $position->index_start,
-                $pnl)) return response()->json('Forbidden', 403);
-
-        /*****************/
 
         // We delete the bonuses which were attached
         $positionBonuses = UserBonuses::where('position_id', $position_id)->get();

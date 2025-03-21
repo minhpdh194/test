@@ -46,7 +46,6 @@ class DecryptMiddleware
 
             $payload = json_decode($decryptedData, true);
             $request->replace($payload);
-            \Log::info("Decryption successful: " . $decryptedData);
         }
 
         return $next($request);

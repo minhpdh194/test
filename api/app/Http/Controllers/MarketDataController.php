@@ -75,11 +75,11 @@ class MarketDataController extends Controller
 
     public function getSpots()
     {
-        $latest_update = Spot::select('created_at')
-            ->orderBy('created_at', 'desc')
-            ->first()->created_at;
+        $latest_update = Spot::select('updated_at')
+            ->orderBy('updated_at', 'desc')
+            ->first()->updated_at;
         $latest_spots = Spot::select('pair_id', 'day_open_value', 'prev_value', 'current_value', 'period_return', 'daily_return')
-            ->where('created_at', $latest_update)
+            ->where('updated_at', $latest_update)
             ->get();
 
         return response()->json($latest_spots);

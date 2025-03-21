@@ -20,7 +20,7 @@ class Spot extends Model
     {
         return $this->belongsTo(VolAndFwd::class, 'pair_id', 'pair_id')
                     ->latest()
-                    ->select('pair_id', 'yield', 'forward', 'volatility');
+                    ->select('pair_id', 'prev_yield', 'current_yield', 'forward', 'prev_volatility', 'current_volatility');
     }
 
     public function pair()

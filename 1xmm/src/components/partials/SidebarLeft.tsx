@@ -129,7 +129,7 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
                     <img src="/images/home/angle-right.png" alt="arrow" className="w-3 h-6" />
                 </span>
 
-                <a target="blank" href="https://www.one-xmm.com/news/1" className="flex hover:text-white select-none justify-between align-center mt-3">
+                <a target="blank" href="https://asagaia.gitbook.io/documentation/1xmm-project/mini-game" className="flex hover:text-white select-none justify-between align-center mt-3">
                     <span className="cursor-pointer">{t(`${menu}.user_manual`)}</span>
                     <img src="/images/home/angle-right.png" alt="arrow" className="w-3 h-6" />
                 </a>
