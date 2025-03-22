@@ -208,10 +208,10 @@ class MarketDataTasks
                     'pair_id' => $pair->id,
                 ],
                 [
-                    'prev_yield' => $last ? $last->$current_yield : 0.0,
+                    'prev_yield' => $last ? $last->current_yield : 0.0,
                     'current_yield' => $yield,
                     'forward' => $fwd,
-                    'prev_volatility' => $last ? $last->$current_volatility : 0.0,
+                    'prev_volatility' => $last ? $last->current_volatility : 0.0,
                     'current_volatility' => $vol
                 ]
             );

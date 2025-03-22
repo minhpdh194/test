@@ -11,9 +11,9 @@ class SVDResult {
 	public $U;
 	public $Q;
 	public $V;
-	
+
 	public $n;
-	
+
 	function __construct($u, $q, $v) {
 		$this->U = $u;
 		$this->Q = $q;
@@ -588,13 +588,13 @@ class MathUtil
         $strike = $prev_spot * (1 + $yield * $T);
 
         if ($isCall) {
-            $call_0 = call($T, $prev_spot, $strike, $prev_vol);
-            $call_t = call($T - $dt, $current_spot, $strike, $current_vol);
+            $call_0 = self::call($T, $prev_spot, $strike, $prev_vol);
+            $call_t = self::call($T - $dt, $current_spot, $strike, $current_vol);
 
             return ($call_t - $call_0) / $strike;
         } else {
-            $put_0 = put($T, $prev_spot, $strike, $prev_vol);
-            $put_t = put($T - $dt, $current_spot, $strike, $current_vol);
+            $put_0 = self::put($T, $prev_spot, $strike, $prev_vol);
+            $put_t = self::put($T - $dt, $current_spot, $strike, $current_vol);
 
             return ($put_t - $put_0) / $strike;
         }
