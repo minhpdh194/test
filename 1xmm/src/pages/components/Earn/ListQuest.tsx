@@ -74,7 +74,7 @@ const ListQuest: React.FC = () => {
                         break;
                 }
             });
-        } catch (e) {}
+        } catch (e) { }
     }
 
     const handleFriendInvitationTasks = async (task: TaskDefinition) => {
@@ -116,15 +116,15 @@ const ListQuest: React.FC = () => {
 
     const handleWatchVideo = (task: TaskDefinition) => {
         const videoUrl = task.link;
-        
+
         // Sanity check
         if (tasks.CompletedTaskIds.includes(task.id) || videoUrl.length == 0) return;
-        
-        if (!tasks.CurrentVideoTaskInProgress){
+
+        if (!tasks.CurrentVideoTaskInProgress) {
             window.open(videoUrl, '_blank');
             tasks.CurrentVideoTaskInProgress = true;
         }
-        
+
         const selectedQuestions = getRandomQuestions(getQuestions(task.complete_requirement + 1), 2);
         setCurrentQuestions(selectedQuestions);
         setQuestionPopup(true);
@@ -243,36 +243,44 @@ const ListQuest: React.FC = () => {
                     <DialogTitle>{selectedTask.name}</DialogTitle>
                     {currentQuestions.map((question, index) => (
                         <DialogContent key={index}>
-                            <div className="text-sm">
-                            {index + 1}. {question.description}
-                            {
-                                getAnswers(question.video_id)
-                                    .filter((answer) => answer.question_id === question.id) // Filter answers by question_id
-                                    .map((filteredAnswer, answerIndex) => (
-                                        <div key={answerIndex}>
-                                            {question.type === "multiple_choice" ? (
-                                                <>
-                                                    <Checkbox
-                                                        onChange={(e: any) =>
-                                                            handleCheckboxChange(e.target.checked, filteredAnswer.id)
-                                                        }
-                                                    />
-                                                    {filteredAnswer.description}
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Radio
-                                                        value={filteredAnswer.id}
-                                                        checked={selectedRadios[question.id] === filteredAnswer.id}
-                                                        onChange={() =>
-                                                            handleRadioChange(question.id, filteredAnswer.id)
-                                                        }
-                                                    />
-                                                    {filteredAnswer.description}
-                                                </>
-                                            )}
-                                        </div>
-                                    ))}
+                            <div>
+                                <div className='text-sm'>
+                                    {index + 1}. {question.description}
+                                </div>
+                                {
+                                    getAnswers(question.video_id)
+                                        .filter((answer) => answer.question_id === question.id) // Filter answers by question_id
+                                        .map((filteredAnswer, answerIndex) => (
+                                            <div key={answerIndex}>
+                                                {question.type === "multiple_choice" ? (
+                                                    <>
+                                                        <div className='flex items-center'>
+                                                            <Checkbox
+                                                                onChange={(e: any) =>
+                                                                    handleCheckboxChange(e.target.checked, filteredAnswer.id)
+                                                                }
+                                                            />
+                                                            <div className='text-sm'>
+                                                                {filteredAnswer.description}
+                                                            </div>
+                                                        </div>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Radio
+                                                            value={filteredAnswer.id}
+                                                            checked={selectedRadios[question.id] === filteredAnswer.id}
+                                                            onChange={() =>
+                                                                handleRadioChange(question.id, filteredAnswer.id)
+                                                            }
+                                                        />
+                                                        <div className='text-sm'>
+                                                            {filteredAnswer.description}
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+                                        ))}
                             </div>
                         </DialogContent>
                     ))}

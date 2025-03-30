@@ -90,7 +90,7 @@ const ListDailyQuest: React.FC = () => {
         setSelectedCheckboxes([]);
         setSelectedRadios({});
     }
-    
+
     const claimTask = async (task: TaskDefinition) => {
         try {
             const response = await $http.post('/claim-task', { task: task });
@@ -157,8 +157,8 @@ const ListDailyQuest: React.FC = () => {
                     <div className="flex flex-col w-3/6">
                         {localStorage.getItem("i18nextLng") === "en" && (
                             <>
-                        <p className="text-sm">{task.name}</p>
-                        <p className="text-xs">{task.description}</p>
+                                <p className="text-sm">{task.name}</p>
+                                <p className="text-xs">{task.description}</p>
                             </>
                         )}
                         {localStorage.getItem("i18nextLng") === "fr" && (
@@ -207,7 +207,9 @@ const ListDailyQuest: React.FC = () => {
                     <DialogTitle>{selectedTask.name}</DialogTitle>
                     {currentQuestions.map((question, index) => (
                         <DialogContent key={index}>
-                            {index + 1}. {question.description}
+                            <div className='text-sm'>
+                                {index + 1}. {question.description}
+                            </div>
                             {
                                 dailyAnswers
                                     .filter((answer) => answer.question_id === question.id) // Filter answers by question_id
@@ -220,7 +222,9 @@ const ListDailyQuest: React.FC = () => {
                                                             handleCheckboxChange(e.target.checked, filteredAnswer.id)
                                                         }
                                                     />
-                                                    {filteredAnswer.description}
+                                                    <div className='text-sm'>
+                                                        {filteredAnswer.description}
+                                                    </div>
                                                 </>
                                             ) : (
                                                 <>
@@ -231,7 +235,9 @@ const ListDailyQuest: React.FC = () => {
                                                             handleRadioChange(question.id, filteredAnswer.id)
                                                         }
                                                     />
-                                                    {filteredAnswer.description}
+                                                    <div className='text-sm'>
+                                                        {filteredAnswer.description}
+                                                    </div>
                                                 </>
                                             )}
                                         </div>
