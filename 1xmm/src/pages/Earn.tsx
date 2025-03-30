@@ -5,9 +5,9 @@ import ModalCategory from './components/Earn/ModalCategory';
 import { useState } from 'react';
 import { useTranslation } from "react-i18next";
 import ListDailyQuest from "./components/Earn/ListDailyQuest";
+
 export default function Profile() {
   const [openDrawer, setOpenDrawer] = useState(false);
-
   const { t } = useTranslation();
 
   return (

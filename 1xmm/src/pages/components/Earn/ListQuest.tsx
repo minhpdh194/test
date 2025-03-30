@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ModalEarn from './ModalEarn';
 import { $http } from '@/lib/http';
 import { TaskDefinition } from '@/types/tasks/TaskDefinition';
@@ -9,6 +9,7 @@ import { Question } from '@/types/tasks/Question';
 import { getQuestions, getAnswers } from '@/referential/questionsAnswers';
 import { Tasks } from '@/classes/Tasks';
 import { TaskActionNames } from '@/enums';
+import i18next from 'i18next';
 
 const ListQuest: React.FC = () => {
     //const TWITTER_CLIENT_ID: string = import.meta.env.VITE_TWITTER_CLIENT_ID;
@@ -20,6 +21,10 @@ const ListQuest: React.FC = () => {
     const [currentQuestions, setCurrentQuestions] = useState<Question[]>([]);
     const [selectedCheckboxes, setSelectedCheckboxes] = useState<number[]>([]);
     const [selectedRadios, setSelectedRadios] = useState<any>({});
+
+    useEffect(() => {
+        updateTasks(new Tasks(userProfile.completed_task_ids));
+    }, [i18next.language]);
 
     const renderTaskStatus = (task: TaskDefinition) => {
         let taskStatus;
@@ -142,6 +147,7 @@ const ListQuest: React.FC = () => {
                 userProfile.UpdateBalance(task.reward_coins);
 
                 setSelectedTask(undefined);
+                toast.success(`Bous: +${task.reward_coins} 1vMM`)
             } else {
                 toast.warning(response.data.message);
             }
@@ -175,11 +181,14 @@ const ListQuest: React.FC = () => {
 
         if (selectedTask && combinedList.length > 0) {
             if (result) {
+                toast.success("Correct answers");
                 claimTask(selectedTask);
             } else {
-                toast.warning("Wrong answer");
+                toast.warning("Wrong answers");
             }
-        } 
+        } else {
+            toast.warning("No answer");
+        }
     }
 
     return (

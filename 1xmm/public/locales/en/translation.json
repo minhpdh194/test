@@ -75,9 +75,9 @@
     },
     "friends": {
         "invite_friends": "Invite Friends!",
-        "description": "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
+        "description": "",
         "bonus_for": "for you & friends ",
-        "bonus_for_premium": "for you & friends if he has account Premium ",
+        "bonus_for_premium": "for you & friends if they have Premium account",
         "share_invite_link": "Share invite link",
         "copy_invite_link": "Copy invite link",
         "friends": "Friends",
@@ -93,7 +93,7 @@
         "more_info": "More Info"
     },
     "bonus": {
-        "target_to_seed": "Target to Seed",
+        "target_to_seed": "1XMM compensation level",
         "data_not_found": "Data not found",
         "leverage": {
             "name": "Leverage",

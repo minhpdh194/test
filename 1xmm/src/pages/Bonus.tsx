@@ -244,26 +244,6 @@ export default function Bonus() {
                 </div>
             </div>
 
-            {/* <div className="mt-5 mb-8">
-                <div className="italic text-sm">
-                    Purchasing bonus entitles to receive 1XMM coins at a ratio of 0.30cts per token, as long as the total allocation amount has not been reached.
-                    Check our website to see whether bonus allocated tokens are still available.
-                </div>
-            </div> */}
-            <div className="flex justify-between mt-4 mb-6">
-                {/* <button
-                    type="button"
-                    className="rounded flex fw-semibold py-2 px-2 space-x-1 bg-[linear-gradient(142.18deg,#5155DA_21.85%,#2B2D74_78.15%)]"
-                    onClick={() => handleBuyStarsAction()} // Open the drawer on click
-                >
-                    <img
-                        src="/images/home/star.png"
-                        alt="coin"
-                        className="object-cover w-4 h-4"
-                    />
-                    <span className="font-normal text-xs">Purchase Stars</span>
-                </button> */}
-            </div>
             <div className="mt-4 mb-10">
                 <div className="flex flex-col justify-between items-center">
                     <span className="fw-bold text-lg">{t(`${bonus}.leverage.name`)}</span>
@@ -437,36 +417,6 @@ export default function Bonus() {
                     )}
                 </div>
             </div>
-
-            {/* <div className="mt-4 mb-6">
-                <div className="flex justify-between items-center">
-                    <span className="fw-bold text-lg">Friends </span>
-                </div>
-                <div className="flex flex-col">
-                    {friendData.length > 0 ? (
-                        friendData.map(renderBonusItem)
-                    ) : (
-                        <div className="w-full bg-[#32363C] rounded-xl p-3 mt-3">
-                            <div className="text-center text-white">Data not found</div>
-                        </div>)}
-                </div>
-            </div> */}
-
-            {/* {openBonusDrawer && bonusDef.length > 0 && (
-                <DetailBonus
-                    open={openBonusDrawer}
-                    // bonusData={bonusData}  
-                    onOpenChange={setOpenBonusDrawer}
-                    //onBuySuccess={updateBonusData}
-                />
-            )} */}
-
-            {/* {openStarDrawer && starPackage.length > 0 && (
-                <DetailStar
-                    open={openStarDrawer}
-                    onOpenChange={setOpenStarDrawer}
-                />
-            )} */}
         </div>
     );
 }

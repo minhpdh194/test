@@ -1,6 +1,7 @@
 import { TaskDefinition } from '@/types/tasks/TaskDefinition';
 import { TaskActionNames } from '@/enums';
 import { getAllTasks } from '@/referential/tasks';
+import i18next from 'i18next';
 
 export class Tasks {
     public CurrentVideoTaskInProgress: boolean;
@@ -12,10 +13,21 @@ export class Tasks {
     private allTasks: Record<string, TaskDefinition[]>;
 
     public constructor(completedIds: number[]) {
-        const allTasks = getAllTasks;
+        this.CompletedTaskIds = completedIds;
+        this.CurrentVideoTaskInProgress = false;
+
+        this.AvailableTasks = [];
+        this.joinInProgress = [];
+        this.indicesOfTasksInProgress = {};
+        this.allTasks = {};
+
+        this.UpdateTasks(i18next.language);
+    }
+
+    public UpdateTasks(language: string) {
+        const allTasks = getAllTasks(language);
 
         this.CurrentVideoTaskInProgress = false;
-        this.CompletedTaskIds = completedIds;
         this.AvailableTasks = [];
         this.joinInProgress = [];
         this.indicesOfTasksInProgress = {};
@@ -34,13 +46,13 @@ export class Tasks {
             const groupTasks = this.allTasks[actionName];
 
             if (actionName === "Join") {
-                const remainingJoinTasks = groupTasks.filter((t) => !completedIds.includes(t.id));
+                const remainingJoinTasks = groupTasks.filter((t) => !this.CompletedTaskIds.includes(t.id));
                 this.AvailableTasks.push(...remainingJoinTasks); 
             } else {
                 const sortedTasks = groupTasks.sort((a, b) => a.complete_requirement - b.complete_requirement);
                 this.allTasks[actionName] = sortedTasks;
 
-                var nextTask = sortedTasks.find((t) => !completedIds.includes(t.id));
+                var nextTask = sortedTasks.find((t) => !this.CompletedTaskIds.includes(t.id));
 
                 if (nextTask) {
                     this.indicesOfTasksInProgress[actionName] = sortedTasks.indexOf(nextTask);

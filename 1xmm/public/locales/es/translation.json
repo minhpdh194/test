@@ -75,7 +75,7 @@
     },
     "friends": {
         "invite_friends": "¡Invita a tus amigos!",
-        "description": "Lorem Ipsum ha sido el texto de relleno estándar de la industria desde el siglo XVI",
+        "description": "",
         "bonus_for": "para ti y tus amigos",
         "bonus_for_premium": "para ti y tus amigos si tienen una cuenta Premium",
         "share_invite_link": "Compartir enlace de invitación",
@@ -93,7 +93,7 @@
         "more_info": "Más Información"
     },
     "bonus": {
-        "target_to_seed": "Objetivo para Semilla",
+        "target_to_seed": "Objetivo de compensación de 1XMM",
         "data_not_found": "Datos no encontrados",
         "leverage": {
             "name": "Apalancamiento",

@@ -37,7 +37,7 @@
         }
     },
     "home": {
-        "avatar_selection": "Sélection de l&apos;avatar",
+        "avatar_selection": "Sélection de l’avatar",
         "confirm": "Confirmer",
         "earn_per_tap": "Gain par click",
         "time_to_next_fixing": "Temps restant avant le prochain fixing",
@@ -66,23 +66,27 @@
     },
     "friends": {
         "invite_friends": "Inviter des amis !",
-        "description": "Invite tes amis à rejoindre 1xMM et gagnez des bonus ensemble !",
+        "description": "",
         "bonus_for": "pour vous et vos amis",
+        "bonus_for_premium": "si vos amis ont un compte premium",
         "share_invite_link": "Partager le lien d’invitation",
         "copy_invite_link": "Copier le lien d’invitation"
     },
     "earn": {
         "earn_more_coins": "Gagnez plus de 1vMM",
         "daily_rewards": "Récompense quotidienne",
-        "hurry_up_and_get_it": "Hurry up !"
+        "hurry_up_and_get_it": "Hurry up !",
+        "quests_to_do": "Quêtes à Réaliser",
+        "daily_quests": "Quêtes Quotidiennes",
+        "more_info": "Plus d’info"
     },
     "bonus": {
-        "target_to_seed": "Objectif à atteindre",
+        "target_to_seed": "Jauge des compensations 1XMM",
         "data_not_found": "Données non trouvées",
         "leverage": {
             "name": "Levier",
             "title": "Augmentez votre performance",
-            "description": ": chaque +1x levier augmente votre performance de 100%. Attention, le levier ne s'applique pas qu'à la performance positive."
+            "description": ": chaque +1x levier augmente votre performance de 100%. Attention, le levier ne s’applique pas qu’à la performance positive."
         },
         "positive_leverage": {
             "name": "Levier positif",
@@ -105,7 +109,7 @@
             "description": ": obtenez des jetons pour recharger votre solde ou augmenter votre PnL."
         },
         "friend_bonus": {
-            "name": "Bonus d'amis",
+            "name": "Bonus d’amis",
             "title": "Acquérez de amis",
             "description": ": acquérez de amis afin d'obtenir des bonus supplémentaires."
         }
