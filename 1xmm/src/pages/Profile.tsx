@@ -11,6 +11,7 @@ import { LevelBenefits } from "@/types/LevelBenefits";
 import { Pair } from "@/types/Pair";
 import { useTranslation } from "react-i18next";
 import { menu, profile } from "@/referential/i18nPrefixes";
+import i18next from "i18next";
 
 export default function Profile() {
     const [completedTasks, setCompletedTasks] = useState<TaskDefinition[]>([]);
@@ -26,7 +27,8 @@ export default function Profile() {
     }, [userProfile.level])
 
     useEffect(() => {
-        const tasks = getAllTasks.filter(task => userProfile.completed_task_ids.includes(task.id));
+        const result = getAllTasks(i18next.language);
+        const tasks = result.filter((task: any) => userProfile.completed_task_ids.includes(task.id));
         setCompletedTasks(tasks);
     }, [userProfile.completed_task_ids]);
 

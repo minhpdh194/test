@@ -23,17 +23,24 @@ class FriendsController extends Controller
                 $invitedUser = TelegramUser::where('telegram_user_id', $friend->invitee_id)->first();
 
                 if ($invitedUser && $userGameData) {
-                $referredFriends[] = [
-                    'telegram_user_id' => $invitedUser->telegram_user_id,
-                    'first_name' => $invitedUser->first_name,
-                    'last_name' => $invitedUser->last_name,
-                    'avatar_id' => $userGameData->avatar_id,
-                    'created_at' => $invitedUser->created_at,
-                ];
+                    $referredFriends[] = [
+                        'telegram_user_id' => $invitedUser->telegram_user_id,
+                        'first_name' => $invitedUser->first_name,
+                        'last_name' => $invitedUser->last_name,
+                        'avatar_id' => $userGameData->avatar_id,
+                        'created_at' => $invitedUser->created_at,
+                    ];
+                }
             }
-        }
         }
 
         return response()->json(['referred_friends' => $referredFriends]);
+    }
+
+    public function redirectFriendInvitation(Request $request)
+    {
+        $refCode = request()->query('ref');
+        $inviteUrl = env("BOT_REFERRAL_LINK");
+        return redirect()->away($inviteUrl . "/?startapp=ref" . $refCode);
     }
 }

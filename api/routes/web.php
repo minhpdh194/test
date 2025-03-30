@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\FriendsController;
 use App\Http\Controllers\MarketDataController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TelegramUserController;
@@ -15,6 +16,8 @@ Route::get('/', function () {
 //         Route::get('fetch', 'binanceData');
 //     });
 // });
+Route::get('/invite-user', [FriendsController::class, 'redirectFriendInvitation']);
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

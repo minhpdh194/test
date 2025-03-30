@@ -109,14 +109,14 @@ class AuthController extends Controller
                 $options = array(
                     'cluster' => 'ap2',
                     'useTLS' => true
-        );
+                );
 
                 $pusher = new Pusher(
                     env('PUSHER_APP_KEY'),
                     env('PUSHER_APP_SECRET'),
                     env('PUSHER_APP_ID'),
                     $options
-        );
+                );
 
                 try {
                     $pusher->trigger('refer_noti_user_' . $referredBy->telegram_user_id, 'data', ['invitee' => $user, 'increasedBalance' => $increased]);

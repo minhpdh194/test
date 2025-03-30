@@ -25,10 +25,10 @@ export default function Friends() {
   );
 
   const referralLink = useMemo(
-    () => `${import.meta.env.VITE_REFERRAL_LINK}/?startapp=ref${userProfile.telegram_user_id}`,
+    () => `${import.meta.env.VITE_API_URL}/invite-user?ref=${userProfile.telegram_user_id}`,
     [userProfile.telegram_user_id]
   );
-
+  
   useEffect(() => {
     const notification = pusher.subscribe(`refer_noti_user_${userProfile.telegram_user_id}`);
     notification.bind("data", async () => {

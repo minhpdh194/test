@@ -56,6 +56,15 @@ const XTap: React.FC<XTapProps> = ({ changeInBalance = 0, updateAmountOfTokens, 
     return (
         <div {...props}>
             <div className="relative">
+                <div className="z-50 relative w-10 pt-2 pl-2">
+                    <img
+                        src="public/images/energy.svg"
+                        className="w-10"
+                        alt=""
+                    />
+                    <div className="w-10 text-center mt-1 text-sm font-bold">  {available_energy}</div>
+                </div>
+
                 <button
                     className="btn-tap absolute -top-10 left-0 right-0"
                     ref={userTapButtonRef}

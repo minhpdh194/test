@@ -232,7 +232,7 @@ class MarketDataTasks
             if (in_array($pair->coin_symbol, $ref_symbols)) continue;
             $correlated_pairs[] = $pair->pair_symbol;
         }
-        
+
         $n = 30;
 
         $return_matrix = null;
@@ -312,12 +312,12 @@ class MarketDataTasks
                 ->orderBy('created_at', 'desc')
                 ->take($n)
                 ->get();
-            
+
             $spots2 = Spot::where('pair_id', $pair2->id)
                 ->orderBy('created_at', 'desc')
                 ->take($n)
                 ->get();
-            
+
             $corr = MathUtil::computeCorrelation($spots1->pluck('daily_return')->toArray(), $spots2->pluck('daily_return')->toArray(), $n);
             $spot = $spots1->first()->current_value / $spots2->first()->current_value;
 
@@ -359,7 +359,7 @@ class MarketDataTasks
             $prev_long_index = Index::where(['pair_id' => $pair->id, 'long_short' => 'long'])
                 ->orderBy('created_at', 'desc')
                 ->first();
-            
+
             $prev_short_index = Index::where(['pair_id' => $pair->id, 'long_short' => 'short'])
                 ->orderBy('created_at', 'desc')
                 ->first();
@@ -368,14 +368,16 @@ class MarketDataTasks
             $adj = 1;
             $histo = $prev_long_index->histo_record;
 
-            if ($histo == 5) { 
-                $histo = 1; 
+            if ($histo == 5) {
+                $histo = 1;
             } else {
                 $histo += 1;
             }
 
             if ($spot->current_value > $spot->prev_value) {
                 $perf = MathUtil::yield($T, $dt, $spot->prev_value, $spot->current_value, $vol_fwd->prev_yield, $vol_fwd->prev_volatility, $vol_fwd->current_volatility, true);
+                \Log::info("Calculated perf");
+                \Log::info($perf);
                 $premium = $perf * $mult * $dt;
 
                 if ($total_positions && $total_positions->total_long_value > 0) {
@@ -393,6 +395,8 @@ class MarketDataTasks
                 ]);
             } else if ($spot->current_value < $spot->prev_value) {
                 $perf = MathUtil::yield($T, $dt, $spot->prev_value, $spot->current_value, $vol_fwd->prev_yield, $vol_fwd->prev_volatility, $vol_fwd->current_volatility, false);
+                \Log::info("Calculated perf");
+                \Log::info($perf);
                 $premium = $perf * $mult * $dt;
 
                 $longPerf = Index::updateOrCreate(['pair_id' => $pair->id, 'long_short' => 'long', 'histo_record' => $histo], [
@@ -444,7 +448,7 @@ class MarketDataTasks
         $xpairs = Pair::where('counter_symbol', '!=', 'USD')->get();
 
         $now = Carbon::now();
-        
+
         $createdSpots = $this->storeSpots($natural_pairs, $now);
         $T = $this->getYieldsAndVolatilitiesFromMarket($createdSpots);
         $this->getCorrelatedParameters($natural_pairs);
