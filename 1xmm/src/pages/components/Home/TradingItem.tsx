@@ -284,21 +284,21 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                     <div className="pt-3 pb-3 space-y-2">
                         <div className="flex justify-between items-center border-b border-gray-500 pb-2 mb-2 w-[93%] mx-auto">
                             <div>
-                            <div className="space-x-2 flex-grow">
-                                <span className="fw-bold">{pair.pair_symbol}</span>
-                                <span className="space-x-2">
-                                    <span className="fw-bold">
-                                        <NumberFormat value={spots?.find(s => s.pair_id == pair.id)?.current_value ?? 0} decimals={2} />
+                                <div className="space-x-2 flex-grow">
+                                    <span className="fw-bold">{pair.pair_symbol}</span>
+                                    <span className="space-x-2">
+                                        <span className="fw-bold">
+                                            <NumberFormat value={spots?.find(s => s.pair_id == pair.id)?.current_value ?? 0} decimals={2} />
+                                        </span>
+                                        <span
+                                            className={`text-sm ${(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}
+                                        >
+                                            {(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) >= 0
+                                                ? `(+${(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) * 100).toFixed(2)}%)`
+                                                : `(${(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) * 100).toFixed(2)}%)`)}
+                                        </span>
                                     </span>
-                                    <span
-                                        className={`text-sm ${(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}
-                                    >
-                                        {(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) >= 0
-                                            ? `(+${(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) * 100).toFixed(2)}%)`
-                                            : `(${(Number(spots?.find(s => s.pair_id == pair.id)?.period_return ?? 0) * 100).toFixed(2)}%)`)}
-                                    </span>
-                                </span>
-                            </div>
+                                </div>
                                 <div>
                                     <span className="text-xs text-gray-300 mr-2">{t(`${home}.daily_perf`)}:</span>
                                     <span
@@ -364,37 +364,43 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                                     <>
                                         {selectedBonuses[pair.id].map((b) => {
                                             return (
-                                            <div key={b.bonus.id} className="flex justify-between border-b border-gray-500 pl-3 pr-3 my-0 bg-[#32363C] box-border">
-                                                <div className="flex justify-between w-full">
-                                                    <div className="w-1/2 mb-2 mt-2">
-                                                        <span className="font-normal text-sm block">{b.bonus.bonus_definition.bonus_type}</span>
-                                                    </div>
-                                                    <div className="w-1/2 text-right mb-2 mt-2 flex items-center justify-end space-x-2">
-                                                        <span className="font-normal text-sm block">{printBonusBenefit(b.bonus.bonus_definition)}</span>
-                                                        <span className="font-normal text-sm block">{b.countdown?.toString()}</span>
+                                                <div key={b.bonus.id} className="flex justify-between border-b border-gray-500 pl-3 pr-3 my-0 bg-[#32363C] box-border">
+                                                    <div className="flex justify-between w-full">
+                                                        <div className="w-1/2 mb-2 mt-2">
+                                                            <span className="font-normal text-sm block">{b.bonus.bonus_definition.bonus_type}</span>
+                                                        </div>
+                                                        <div className="w-1/2 text-right mb-2 mt-2 flex items-center justify-end space-x-2">
+                                                            <span className="font-normal text-sm block">{printBonusBenefit(b.bonus.bonus_definition)}</span>
+                                                            <span className="font-normal text-sm block">{b.countdown?.toString()}</span>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
                                             )
                                         })}
                                     </>
                                 )}
 
-
-                                <div className="flex 
-                                -x-4 mt-2 pl-3 pr-3 space-x-2">
-                                    <span
-                                        className={`w-15 text-center font-bold text-xs py-1 px-2 rounded-md cursor-pointer ${selectedOptions[pair.id] === LongShort.Short ? 'bg-[#21242980] border-1' : ''}`}
-                                        onClick={() => handleSelectOption(pair.id, LongShort.Short)}
-                                    >
-                                        {t(`${home}.short`)}
-                                    </span>
-                                    <span
-                                        className={`w-15 text-center font-bold text-xs py-1 px-2 rounded-md cursor-pointer ${selectedOptions[pair.id] === LongShort.Long ? 'bg-[#21242980] border-1' : ''}`}
+                                <div className="flex gap-1 mt-2 pl-3 pr-3">
+                                    <div
+                                        style={{
+                                            border: "0.5px solid #FFFFFF4D"
+                                        }}
+                                        className={`w-16 flex items-center justify-center font-bold text-xs rounded-[5px] py-1
+                                            ${selectedOptions[pair.id] === LongShort.Long ? 'bg-[#656565]' : 'bg-[#A6A6A6]'}`}
                                         onClick={() => handleSelectOption(pair.id, LongShort.Long)}
                                     >
                                         {t(`${home}.long`)}
-                                    </span>
+                                    </div>
+                                    <div
+                                        style={{
+                                            border: "0.5px solid #FFFFFF4D"
+                                        }}
+                                        className={`w-16 flex items-center justify-center font-bold text-xs rounded-[5px] py-1
+                                            ${selectedOptions[pair.id] === LongShort.Short ? 'bg-[#656565] border-1' : 'bg-[#A6A6A6]'}`}
+                                        onClick={() => handleSelectOption(pair.id, LongShort.Short)}
+                                    >
+                                        {t(`${home}.short`)}
+                                    </div>
                                 </div>
 
                                 <div className="flex justify-between space-x-4 mt-2 px-3">
@@ -415,10 +421,10 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                                     </div>
                                 </div>
 
-                                <div className="flex justify-between mt-4 space-x-2 pl-3 pr-3">
+                                <div className="flex justify-between mt-4 px-3 gap-2">
                                     <button
                                         type="button"
-                                        className={`rounded w-auto py-1 px-2 space-x-1
+                                        className={`rounded py-1 px-2 space-x-1 w-full
                                             ${((globalThis.userProfile.positionStore?.available_bonuses.length ?? 0) == 0 || !amounts[pair.id]
                                                 && !leverages[pair.id] && !positions.find((pos) => pos.position_id === pair.id)) || !isPositionOpenable
                                                 ? 'bg-gray-400 opacity-50 cursor-not-allowed'
@@ -432,15 +438,15 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                                             <img
                                                 src="/images/home/coin.png"
                                                 alt="coin"
-                                                className="object-cover w-4 h-4"
+                                                className="object-cover w-3 h-3"
                                             />
-                                            <span className="font-bold text-xs">{t(`${home}.add_bonus`)}</span>
+                                            <span className="font-semibold text-[10px]">{t(`${home}.add_bonus`)}</span>
                                         </div>
                                     </button>
 
                                     <button
                                         type="button"
-                                        className={`rounded flex-1 py-1 px-2 
+                                        className={`rounded py-1 px-2 w-full
                                         ${!amounts[pair.id] || !leverages[pair.id] || !selectedOptions[pair.id] || !isPositionOpenable
                                                 ? 'bg-gray-400 opacity-50 cursor-not-allowed'
                                                 : 'bg-[linear-gradient(142.18deg,#3BB424_21.85%,#2AAA28_78.15%)]'
@@ -448,16 +454,16 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                                         onClick={() => { handleValidate(pair.id); }}
                                         disabled={!amounts[pair.id] || !leverages[pair.id] || !selectedOptions[pair.id] || !isPositionOpenable}
                                     >
-                                        <span className="font-bold text-xs">{t(`${home}.validate`)}</span>
+                                        <span className="font-semibold text-[10px]">{t(`${home}.validate`)}</span>
                                     </button>
 
                                     <button
                                         type="button"
-                                        className={`rounded flex-1 py-1 px-2 ${!positions.find((pos) => pos.position_id === pair.id) ? 'bg-gray-400 opacity-50 cursor-not-allowed' : 'bg-[#F27A83]'}`}
+                                        className={`rounded py-1 px-2 w-full ${!positions.find((pos) => pos.position_id === pair.id) ? 'bg-gray-400 opacity-50 cursor-not-allowed' : 'bg-[#F27A83]'}`}
                                         onClick={() => handleClose(pair.id)}
                                         disabled={!positions.find((pos) => pos.position_id === pair.id)}
                                     >
-                                        <span className="font-bold text-xs">{t(`${home}.close`)}</span>
+                                        <span className="font-semibold text-[10px]">{t(`${home}.close`)}</span>
                                     </button>
                                 </div>
                             </>
