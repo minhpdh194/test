@@ -58,7 +58,7 @@ const XTap: React.FC<XTapProps> = ({ changeInBalance = 0, updateAmountOfTokens, 
             <div className="relative">
                 <div className="z-50 relative w-10 pt-2 pl-2">
                     <img
-                        src="public/images/energy.svg"
+                        src="images/energy.svg"
                         className="w-10"
                         alt=""
                     />

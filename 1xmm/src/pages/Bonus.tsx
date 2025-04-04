@@ -21,6 +21,7 @@ export default function Bonus() {
     const [timeReductionData, setTimeReductionData] = useState<BonusDefinition[]>([]);
     const [tokenData, setTokenData] = useState<BonusDefinition[]>([]);
     const [friendData, setFriendData] = useState<BonusDefinition[]>([]);
+    const [coinSpent, setCoinSpent] = useState<number>(globalThis.coinTarget);
     // const [openStarDrawer, setOpenStarDrawer] = useState(false);
 
     const bonusDefinitionIds = userProfile.positionStore?.available_bonuses.map(item => item.bonus_definition.id);
@@ -38,6 +39,7 @@ export default function Bonus() {
             console.log("called")
             console.log(data);
             globalThis.coinTarget = data.totalCoins;
+            setCoinSpent(data.totalCoins);
         });
 
         const fetchBonusData = async () => {
@@ -234,11 +236,11 @@ export default function Bonus() {
 
             <div className="progress-bar mt-4">
                 <div className="mb-1">
-                    <ProgressBar completed={globalThis.coinTarget / 20_000_000} />
+                    <ProgressBar completed={coinSpent / 20_000_000} />
                 </div>
                 <div className="flex justify-between">
                     <div className="font-bold text-sm">
-                        {globalThis.coinTarget}
+                        {coinSpent.toFixed(2)}
                     </div>
                     <div className="font-bold text-sm">
                         20,000,000
