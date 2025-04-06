@@ -1,6 +1,4 @@
 import { RouterProvider } from "react-router-dom";
-import { isMobile } from 'react-device-detect';
-import PlayOnYourMobile from "./pages/PlayOnYourMobile";
 import { useEffect, useState } from "react";
 import SplashScreen from "./components/partials/SplashScreen";
 
@@ -30,9 +28,6 @@ import { TaskDefinition } from "./types/tasks/TaskDefinition";
 
 const webApp = window.Telegram.WebApp;
 // Developers must use VSC to launch the app
-const isDesktop = import.meta.env.DEV
-  ? false
-  : Telegram.WebApp.platform === "tdesktop" || !isMobile;
 
 declare global {
   var userProfile: UserProfileStore;
@@ -192,7 +187,7 @@ function App() {
   }, [user]);
 
   if (showSplashScreen) return <SplashScreen progress={progress} />;
-  if (!user || isDesktop) return <PlayOnYourMobile />;
+  // if (!user || isDesktop) return <PlayOnYourMobile />;
 
   return (
     <RouterProvider router={router} />
