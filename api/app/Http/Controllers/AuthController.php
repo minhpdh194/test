@@ -55,6 +55,14 @@ class AuthController extends Controller
         $existUser = TelegramUser::where('telegram_user_id', $request->get('telegram_user_id'))->first();
 
         if ($existUser) {
+        $gameData = UserGameData::where('telegram_user_id', $existUser->telegram_user_id)->first();
+
+        $restoredEnergy = $gameData->available_energy + $existUser->restoreEnergy($gameData->energy_limit, $existUser->last_login);
+\Log::info($restoredEnergy);
+        if ($restoredEnergy > $gameData->energy_limit) $restoredEnergy = $gameData->energy_limit;
+
+        $gameData->available_energy = $restoredEnergy;
+        $gameData->save();
             $existUser->updateLoginStreak();
             $token = $existUser->createToken($existUser->telegram_user_id);
 

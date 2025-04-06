@@ -32,7 +32,7 @@ const XTap: React.FC<XTapProps> = ({ changeInBalance = 0, updateAmountOfTokens, 
 
         addClick({
             id: new Date().getTime(),
-            value: available_energy > 0 ? earn_per_tap : 0,
+            value: available_energy > earn_per_tap ? earn_per_tap : 0,
             style: {
                 insetBlockStart: e.clientY,
                 insetInlineStart: e.clientX + (Math.random() > 0.5 ? 5 : -5),
@@ -44,7 +44,9 @@ const XTap: React.FC<XTapProps> = ({ changeInBalance = 0, updateAmountOfTokens, 
         const count = debounceClicksCount;
         setClicksCount(0);
         if (count === 0) return;
-
+        if (available_energy < earn_per_tap) {
+            return;
+        }
         $http
             .post<Record<string, any>>("/clicker/tap", {
                 count: count,
