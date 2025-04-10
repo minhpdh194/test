@@ -17,10 +17,11 @@ const XTap: React.FC<XTapProps> = ({ changeInBalance = 0, updateAmountOfTokens, 
     const { clicks, addClick, removeClick } = useClicksStore();
 
     // Subscribe to the user balance from the Zustand store
-    const { trading_info, earn_per_tap, available_energy, UserTap } = userProfileStore();
+    const { trading_info, earn_per_tap, UserTap } = userProfileStore();    
+    const [ available_energy, setAvailableEnergy ] = useState(userProfileStore().available_energy);
     const { balance: userBalance } = trading_info;
 
-    const tabMe = (e: React.MouseEvent) => {
+    const tapMe = (e: React.MouseEvent) => {
         e.preventDefault();
 
         if (userBalance < changeInBalance) return;
@@ -32,7 +33,7 @@ const XTap: React.FC<XTapProps> = ({ changeInBalance = 0, updateAmountOfTokens, 
 
         addClick({
             id: new Date().getTime(),
-            value: available_energy > earn_per_tap ? earn_per_tap : 0,
+            value: available_energy > 0 ? earn_per_tap : 0,
             style: {
                 insetBlockStart: e.clientY,
                 insetInlineStart: e.clientX + (Math.random() > 0.5 ? 5 : -5),
@@ -41,12 +42,14 @@ const XTap: React.FC<XTapProps> = ({ changeInBalance = 0, updateAmountOfTokens, 
     };
 
     useEffect(() => {
+        setAvailableEnergy(globalThis.userProfile.available_energy);
+    }, [globalThis.userProfile.available_energy]);
+
+    useEffect(() => {
         const count = debounceClicksCount;
         setClicksCount(0);
         if (count === 0) return;
-        if (available_energy < earn_per_tap) {
-            return;
-        }
+
         $http
             .post<Record<string, any>>("/clicker/tap", {
                 count: count,
@@ -70,7 +73,7 @@ const XTap: React.FC<XTapProps> = ({ changeInBalance = 0, updateAmountOfTokens, 
                 <button
                     className="btn-tap absolute -top-10 left-0 right-0"
                     ref={userTapButtonRef}
-                    onPointerUp={tabMe}
+                    onPointerUp={tapMe}
                 >
                     <div className="flex items-center justify-center px-3 pt-12 pb-4">
                         <img alt="coins" className="h-12 w-12" src="/images/home/coin-light.png" />

@@ -1,4 +1,6 @@
 import { RouterProvider } from "react-router-dom";
+import { isMobile } from 'react-device-detect';
+import PlayOnYourMobile from "./pages/PlayOnYourMobile";
 import { useEffect, useState } from "react";
 import SplashScreen from "./components/partials/SplashScreen";
 
@@ -25,9 +27,14 @@ import { ToastContainer } from "react-toastify";
 import { Answer } from "./types/tasks/Answer";
 import { Question } from "./types/tasks/Question";
 import { TaskDefinition } from "./types/tasks/TaskDefinition";
+import { useTimer } from "react-timer-hook";
+import LegalTermPopup from "./pages/components/Home/LegalTerms/LegalTermsPopup";
 
 const webApp = window.Telegram.WebApp;
 // Developers must use VSC to launch the app
+const isDesktop = import.meta.env.DEV
+  ? false
+  : Telegram.WebApp.platform === "tdesktop" || !isMobile;
 
 declare global {
   var userProfile: UserProfileStore;
@@ -50,6 +57,10 @@ type DBSpot = {
   daily_return: number;
 }
 
+const getNextExpiry = () => {
+  return new Date(Date.now() + 30 * 1000);
+}
+
 function App() {
   <ToastContainer autoClose={2000} />
   
@@ -59,7 +70,15 @@ function App() {
   const user = data.user;
   const start_param = data.start_param;
   const [showSplashScreen, setShowSplashScreen] = useState(true);
+  const [legalTermsValidated, validateLegalTerms] = useState(false);
   const [, setIsFirstLoad] = useState(false);
+  const [nextEnergyRefill, setNextEnergyRefill] = useState(getNextExpiry());
+
+  const energyTimer = useTimer({ expiryTimestamp: nextEnergyRefill, autoStart: false, onExpire: () => {
+      globalThis.userProfile.RefreshEnergy();
+      setNextEnergyRefill(getNextExpiry());
+    }
+  });
 
   useEffect(() => {
     webApp.setHeaderColor("#000");
@@ -68,6 +87,10 @@ function App() {
   }, []);
 
   const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    energyTimer.restart(nextEnergyRefill);
+  }, [nextEnergyRefill])
 
   useEffect(() => {
     if (!user) return () => { };
@@ -157,6 +180,7 @@ function App() {
 
         globalThis.globalIndices = update;
         globalThis.userProfile.UpdateProfile(syncData);
+        validateLegalTerms(globalThis.userProfile.hasValidatedLegalTerms);
 
         const [availableBonuses, cleanedPositions, bonusesToDelete] = await filterBonusesAndPositions(user_bonuses, user_positions.positions, pairs);
 
@@ -186,12 +210,15 @@ function App() {
     }, 2000);
   }, [user]);
 
+  useEffect(() => {
+    if (legalTermsValidated) COMM.updateLegalTermValidation($http, globalThis.userProfile.telegram_user_id.toString(), legalTermsValidated);
+  }, [legalTermsValidated])
+  
+  if (!user || isDesktop) return <PlayOnYourMobile />;
   if (showSplashScreen) return <SplashScreen progress={progress} />;
-  // if (!user || isDesktop) return <PlayOnYourMobile />;
 
-  return (
-    <RouterProvider router={router} />
-  );
+  return legalTermsValidated && (<RouterProvider router={router} />)
+  || !legalTermsValidated && (<LegalTermPopup checkValidation={(v: boolean) => { validateLegalTerms(v) }} />);
 }
 
 async function fetchFriendsData() {

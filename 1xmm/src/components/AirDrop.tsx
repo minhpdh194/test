@@ -26,7 +26,7 @@ const airdropText: { [key: string]: JSX.Element } = {
         </p>
         <br/>
         <p>
-            Up to 20 million tokens will be distributed based on users' ranking.
+            Up to 15 million tokens will be distributed based on users' ranking.
             Top 100 users will received a fixed amount of tokens (as indicated in 1xMM website);
             the remaining tokens will be distrtibuted based on the number of users.
         </p>
@@ -53,7 +53,7 @@ const airdropText: { [key: string]: JSX.Element } = {
         </p>
         <br/>
         <p>
-            Jusqu'à 20 millions de tokens seront distribués aux utilisateurs suivant leur classement. Les 100 premiers utilisateurs
+            Jusqu'à 15 millions de tokens seront distribués aux utilisateurs suivant leur classement. Les 100 premiers utilisateurs
             recevront un montant fixe de tokens 1XMM (comme indiqué sur notre site internet); les tokens restants seront distribués 
             suivant le nombre d'utilisateurs.
         </p>
@@ -81,7 +81,7 @@ const airdropText: { [key: string]: JSX.Element } = {
         </p>
         <br/>
         <p>
-            Hasta 20 millones de tokens serán distribuidos a los usuarios según su clasificación. Los 100 primeros usuarios
+            Hasta 15 millones de tokens serán distribuidos a los usuarios según su clasificación. Los 100 primeros usuarios
             recibirán una cantidad fija de tokens 1XMM (como se indica en nuestro sitio web); los tokens restantes serán distribuidos 
             según el número total de usuarios.
         </p>

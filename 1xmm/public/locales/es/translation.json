@@ -39,8 +39,8 @@
     "home": {
         "avatar_selection": "Selección de Avatar",
         "confirm": "Confirmar",
-        "earn_per_tap": "Ganar por toque",
-        "time_to_next_fixing": "Tiempo para la siguiente corrección",
+        "earn_per_tap": "Toque para gagnar",
+        "time_to_next_fixing": "Tiempo para la siguiente fixing",
         "daily_perf": "Rendimiento diario",
         "position": "Posición",
         "performance_to_date": "Rendimiento acumulado",
@@ -85,7 +85,7 @@
         "accept": "Aceptar"
     },
     "earn": {
-        "earn_more_coins": "Gana más Monedas",
+        "earn_more_coins": "Gana más tokens",
         "daily_rewards": "Recompensa Diaria",
         "hurry_up_and_get_it": "Date prisa y consíguelo",
         "quests_to_do": "Misiones por Hacer",
@@ -93,7 +93,7 @@
         "more_info": "Más Información"
     },
     "bonus": {
-        "target_to_seed": "Objetivo de compensación de 1XMM",
+        "target_to_seed": "Indicador de distribución de 1XMM",
         "data_not_found": "Datos no encontrados",
         "leverage": {
             "name": "Apalancamiento",
@@ -122,7 +122,7 @@
         },
         "friend_bonus": {
             "name": "Amigo",
-            "title": "Bono de amigos",
+            "title": "Bono por amigos",
             "description": ": consigue amigos para obtener bonificaciones de perfil."
         }
     },

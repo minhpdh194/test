@@ -51,4 +51,8 @@ export namespace COMM {
       var response = await http.get("/total-coins");
       return Number(response.data['total_coins']);
     }
+
+    export async function updateLegalTermValidation(http: AxiosInstance, user_id: string, validated: boolean): Promise<void> {
+      await http.post("/update_legalterms", { telegram_user_id: user_id, validated: validated });
+    };
 }

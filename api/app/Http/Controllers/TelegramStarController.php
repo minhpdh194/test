@@ -39,15 +39,17 @@ class TelegramStarController extends Controller
             return response()->json(['ok' => false], 202);
         } else {
             $result = $this->telegramStarService->sendInvoice($bonus, $user->telegram_user_id);
+            
             if ($result) {
-
-                // We record the invoice
                 PendingInvoice::create([
                     'telegram_user_id' => $user->telegram_user_id,
                     'bonus_id' => $bonus['id']
                 ]);
+
+                return response()->json(['ok' => true]);
             }
-            return $result;
+
+            return response()->json(['ok' => false], 202);
         }
     }
 

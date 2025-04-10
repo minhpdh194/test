@@ -81,10 +81,9 @@ const ListDailyQuest: React.FC = () => {
     }
 
     const handleAnswerQuestion = (task: TaskDefinition) => {
-        console.log("Called")
         if (userProfile.completed_daily_task_ids.includes(task.id)) return;
         const selectedQuestions = getRandomDailyQuests(dailyQuests.filter(quest => quest.video_id == task.id), 1);
-        console.log(selectedQuestions);
+        
         setCurrentQuestions(selectedQuestions);
         setQuestionPopup(true);
         setSelectedCheckboxes([]);
@@ -157,8 +156,8 @@ const ListDailyQuest: React.FC = () => {
                     <div className="flex flex-col w-3/6">
                         {localStorage.getItem("i18nextLng") === "en" && (
                             <>
-                                <p className="text-sm">{task.name}</p>
-                                <p className="text-xs">{task.description}</p>
+                        <p className="text-sm">{task.name}</p>
+                        <p className="text-xs">{task.description}</p>
                             </>
                         )}
                         {localStorage.getItem("i18nextLng") === "fr" && (
@@ -208,7 +207,7 @@ const ListDailyQuest: React.FC = () => {
                     {currentQuestions.map((question, index) => (
                         <DialogContent key={index}>
                             <div className='text-sm'>
-                                {index + 1}. {question.description}
+                            {index + 1}. {question.description}
                             </div>
                             {
                                 dailyAnswers
@@ -223,7 +222,7 @@ const ListDailyQuest: React.FC = () => {
                                                         }
                                                     />
                                                     <div className='text-sm'>
-                                                        {filteredAnswer.description}
+                                                    {filteredAnswer.description}
                                                     </div>
                                                 </>
                                             ) : (
@@ -236,7 +235,7 @@ const ListDailyQuest: React.FC = () => {
                                                         }
                                                     />
                                                     <div className='text-sm'>
-                                                        {filteredAnswer.description}
+                                                    {filteredAnswer.description}
                                                     </div>
                                                 </>
                                             )}

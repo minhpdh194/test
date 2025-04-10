@@ -36,8 +36,6 @@ export default function Bonus() {
         const totalCoins = pusher.subscribe("totalCoins");
 
         totalCoins.bind("data", (data: any) => {
-            console.log("called")
-            console.log(data);
             globalThis.coinTarget = data.totalCoins;
             setCoinSpent(data.totalCoins);
         });

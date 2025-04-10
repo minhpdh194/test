@@ -147,7 +147,7 @@ const ListQuest: React.FC = () => {
                 userProfile.UpdateBalance(task.reward_coins);
 
                 setSelectedTask(undefined);
-                toast.success(`Bous: +${task.reward_coins} 1vMM`)
+                toast.success(`Bonus: +${task.reward_coins} 1vMM`)
             } else {
                 toast.warning(response.data.message);
             }
@@ -245,42 +245,42 @@ const ListQuest: React.FC = () => {
                         <DialogContent key={index}>
                             <div>
                                 <div className='text-sm'>
-                                    {index + 1}. {question.description}
+                            {index + 1}. {question.description}
                                 </div>
-                                {
-                                    getAnswers(question.video_id)
-                                        .filter((answer) => answer.question_id === question.id) // Filter answers by question_id
-                                        .map((filteredAnswer, answerIndex) => (
-                                            <div key={answerIndex}>
-                                                {question.type === "multiple_choice" ? (
-                                                    <>
+                            {
+                                getAnswers(question.video_id)
+                                    .filter((answer) => answer.question_id === question.id) // Filter answers by question_id
+                                    .map((filteredAnswer, answerIndex) => (
+                                        <div key={answerIndex}>
+                                            {question.type === "multiple_choice" ? (
+                                                <>
                                                         <div className='flex items-center'>
-                                                            <Checkbox
-                                                                onChange={(e: any) =>
-                                                                    handleCheckboxChange(e.target.checked, filteredAnswer.id)
-                                                                }
-                                                            />
+                                                    <Checkbox
+                                                        onChange={(e: any) =>
+                                                            handleCheckboxChange(e.target.checked, filteredAnswer.id)
+                                                        }
+                                                    />
                                                             <div className='text-sm'>
-                                                                {filteredAnswer.description}
+                                                    {filteredAnswer.description}
                                                             </div>
                                                         </div>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <Radio
-                                                            value={filteredAnswer.id}
-                                                            checked={selectedRadios[question.id] === filteredAnswer.id}
-                                                            onChange={() =>
-                                                                handleRadioChange(question.id, filteredAnswer.id)
-                                                            }
-                                                        />
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Radio
+                                                        value={filteredAnswer.id}
+                                                        checked={selectedRadios[question.id] === filteredAnswer.id}
+                                                        onChange={() =>
+                                                            handleRadioChange(question.id, filteredAnswer.id)
+                                                        }
+                                                    />
                                                         <div className='text-sm'>
-                                                            {filteredAnswer.description}
+                                                    {filteredAnswer.description}
                                                         </div>
-                                                    </>
-                                                )}
-                                            </div>
-                                        ))}
+                                                </>
+                                            )}
+                                        </div>
+                                    ))}
                             </div>
                         </DialogContent>
                     ))}

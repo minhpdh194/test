@@ -32,4 +32,5 @@ export type UserProfile = {
   wallet_address: string;
 
   total_friends_refered: number;
+  hasValidatedLegalTerms: boolean;
 }

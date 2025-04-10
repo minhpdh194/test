@@ -81,7 +81,7 @@
         "more_info": "Plus d’info"
     },
     "bonus": {
-        "target_to_seed": "Jauge des compensations 1XMM",
+        "target_to_seed": "Jauge de distribution des 1XMM",
         "data_not_found": "Données non trouvées",
         "leverage": {
             "name": "Levier",
@@ -104,7 +104,7 @@
             "description": ": chaque 1s de bonus aide à réduire / fermer votre position 1s plus tôt."
         },
         "token_package": {
-            "name": "Forfait jetons",
+            "name": "Forfait tokens",
             "title": "Rechargez votre solde",
             "description": ": obtenez des jetons pour recharger votre solde ou augmenter votre PnL."
         },

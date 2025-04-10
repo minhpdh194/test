@@ -22,6 +22,18 @@ class ProfileController extends Controller
         return view('profile.edit', [
             'user' => $request->user(),
         ]);
+    }    
+
+    public function updateLegalTerms(Request $request)
+    {
+        $validated = $request->validate([
+            'telegram_user_id' => 'required|string',
+            'validated' => 'required|bool'
+        ]);
+
+        $user = TelegramUser::where(['telegram_user_id' => $validated['telegram_user_id']])->first();
+        $user->hasValidatedLegalTerms = $validated['validated'];
+        $user->save();
     }
 
     /**

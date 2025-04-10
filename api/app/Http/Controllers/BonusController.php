@@ -35,6 +35,10 @@ class BonusController extends Controller
 
         if (!$pendingInvoice) return response()->json(null);
         $pendingInvoice->delete();
+        
+        $userData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
+        $userData->number_of_stars += $boughtBonus['cost'];
+        $userData->save();
 
         $settings = Settings::where('name', 'stars_spent')->first();
         $settings->value += $boughtBonus['cost'];
@@ -66,6 +70,7 @@ class BonusController extends Controller
 
         $userData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
         $userData->amount_of_tokens += $boughtBonus['benefit'];
+        $userData->number_of_stars += $boughtBonus['cost'];
         $userData->save();
 
         $settings = Settings::where('name', 'stars_spent')->first();
@@ -91,6 +96,7 @@ class BonusController extends Controller
 
         $userData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
         $userData->total_friends_refered += $boughtBonus['benefit'];
+        $userData->number_of_stars += $boughtBonus['cost'];
         $userData->save();
 
         $settings = Settings::where('name', 'stars_spent')->first();

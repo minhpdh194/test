@@ -49,16 +49,4 @@ class UserGameData extends Model
         $this->amount_of_tokens += 20_000;
         $this->save();
     }
-
-    public function restoreEnergy($maxEnergy, $last_login)
-    {
-        $freq = Carbon::parse($last_login)->diffInHours(Carbon::now());
-        if ($freq > 3) $freq = 3;
-        if ($maxEnergy <= 0) {
-            $maxEnergy = 1;
-        }
-        $restoredEnergy = floor($freq / 3 * $maxEnergy);
-        $this->available_energy += $restoredEnergy;
-        $this->save();
-    }
 }

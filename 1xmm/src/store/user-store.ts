@@ -29,6 +29,8 @@ export type UserProfileStore = UserProfile & {
   UpdateUserAvatar: (avatar_id: number) => void;
   UpdateUserWallet: (crypto_id: number, wallet_address: string) => void;
   UpdateTotalFriends: (friends: number) => void;
+  LegalTermsValidated: () => void;
+  RefreshEnergy: () => void;
   unlocked_pair_ids: Array<number>;
   unlocked_pairs: Pair[];
   available_task_ids: Array<number>;
@@ -36,6 +38,7 @@ export type UserProfileStore = UserProfile & {
   completed_daily_task_ids: Array<number>;
   completed_tasks: Array<any>;
   positionStore: PositionStore | undefined;
+  lastEnergyUpdate: number;
 }
 
 export const userProfileStore = create<UserProfileStore>()((set, get) => ({
@@ -83,6 +86,8 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
   selected_crypto: -1,
   wallet_address: "",
   total_friends_refered: 0,
+  hasValidatedLegalTerms: false,
+  lastEnergyUpdate: Date.now() * 0.001,
 
   UpdateUserWallet: (crypto_id: number, wallet_address: string) => {
     set(() => ({
@@ -234,9 +239,16 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       selected_crypto: Number(syncData.gameData.crypto),
       wallet_address: syncData.gameData.wallet_address,
       total_friends_refered: syncData.gameData.total_friends_refered,
+      hasValidatedLegalTerms: syncData.user.hasValidatedLegalTerms
     }));
 
     globalThis.userProfile = get(); //assign newest data to global
+  },
+
+  LegalTermsValidated: () => {
+    set(() => ({
+      hasValidatedLegalTerms: true,
+    }));
   },
 
   UserTap: () => {
@@ -254,7 +266,9 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
         positive_leverage: state.trading_info.positive_leverage,
         capital_protection: state.trading_info.capital_protection,
         time_reduction: state.trading_info.time_reduction
-      }
+      },
+      // We store the last tap timestamp in seconds
+      lastTapTimestamp: Date.now() * 0.001,
     }));
     
     return true;
@@ -365,6 +379,25 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
     }
 
     return closingDetails.position_amount + closingDetails.position_pnl;
+  },
+
+  RefreshEnergy: () => {
+    const userProfile = get();
+    const energyLimit = userProfile.energy_limit;
+
+    // We get the current timestamp in seconds
+    const currentTime = Date.now() * 0.001;
+    // We increase energy every 10 seconds
+    const nIncrease = Math.floor((currentTime +0.01 - userProfile.lastEnergyUpdate!) / 30);
+    
+    // Energy is fully restored every 3 hours
+    const energyGain = Math.ceil(nIncrease / 360 * energyLimit);
+    const newAvailableEnergy = Math.min(userProfile.available_energy + energyGain, energyLimit);
+
+    set(() => ({
+      available_energy: newAvailableEnergy,
+      lastEnergyUpdate: newAvailableEnergy == energyLimit ? undefined : currentTime,
+    }));
   }
 }));
 

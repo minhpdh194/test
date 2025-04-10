@@ -61,31 +61,29 @@ class TelegramUser extends Authenticatable
         $this->save();
     }
 
-    public function tap($count = 1, $earnPerTap)
+    public static function tap($count = 1, $updateTime, $gameData, $earnPerTap)
     {
-        $gameData = UserGameData::where('telegram_user_id', $this->telegram_user_id)->first();
-
-        $available_energy = $gameData->available_energy + $this->restoreEnergy($gameData->energy_limit, $this->last_login);
-        if ($available_energy > $gameData->energy_limit) $available_energy = $gameData->energy_limit;
+        $gameData->available_energy += TelegramUser::restoreEnergy($updateTime, $gameData->energy_limit, $gameData->last_tap);
+        if ($gameData->available_energy > $gameData->energy_limit) $gameData->available_energy = $gameData->energy_limit;
 
         $totalEnergyRequired = $count * $earnPerTap;
 
         // We allow only to tap until remaining energy is empty
-        if ($available_energy < $totalEnergyRequired) {
-            $totalEnergyRequired = $available_energy;
-            $count = $totalEnergyRequired / $earnPerTap;
+        if ($gameData->available_energy < $totalEnergyRequired) {
+            $totalEnergyRequired = $gameData->available_energy;
+            $count = floor($totalEnergyRequired / $earnPerTap);
+            $totalEnergyRequired = $count * $earnPerTap;
         }
 
-        // $multiplier = $this->getActiveBoosterMultiplier();
         $multiplier = 1;
-
         $earned = $totalEnergyRequired * $multiplier;
 
         $gameData->balance += $earned;
         $gameData->amount_of_tokens += $earned;
         $gameData->available_energy -= $totalEnergyRequired;
-
+        $gameData->last_tap = $updateTime;
         $gameData->save();
+
         return [
             'earned' => $earned,
             'balance' => $gameData->balance,
@@ -94,10 +92,10 @@ class TelegramUser extends Authenticatable
         ];
     }
 
-    public function restoreEnergy($maxEnergy, $last_login)
+    public static function restoreEnergy($update_time, $maxEnergy, $last_tap)
     {
-        $freq = Carbon::parse($last_login)->diffInHours(Carbon::now());
-        if ($freq > 3) $freq = 3;
-        return floor($freq / 3 * $maxEnergy);
+        $freq = abs($update_time->floatDiffInMinutes(Carbon::parse($last_tap)));
+        if ($freq > 180.0) $freq = 180.0;
+        return ceil($freq / 180.0 * $maxEnergy);
     }
 }

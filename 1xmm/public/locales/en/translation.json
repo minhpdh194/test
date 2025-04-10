@@ -85,7 +85,7 @@
         "accept": "Accept"
     },
     "earn": {
-        "earn_more_coins": "Earn more Coins",
+        "earn_more_coins": "Earn more tokens",
         "daily_rewards": "Daily reward",
         "hurry_up_and_get_it": "Hurry up and get it",
         "quests_to_do": "Quests To Do",
@@ -93,7 +93,7 @@
         "more_info": "More Info"
     },
     "bonus": {
-        "target_to_seed": "1XMM compensation level",
+        "target_to_seed": "1XMM distribution gauge",
         "data_not_found": "Data not found",
         "leverage": {
             "name": "Leverage",
