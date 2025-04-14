@@ -49,11 +49,15 @@ class TelegramUserController extends Controller
     public function updateUserAvatar(Request $request)
     {
         $user = $request->user();
-        $userProfile = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
+        $userProfile = TelegramUser::where('telegram_user_id', $user->telegram_user_id)->first();
+        $userGameData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
         $avatar_id = $request->input('avatar_id');
 
-        if ($userProfile) {
+        if ($userProfile && $userGameData) {
             $userProfile->update([
+                'avatar_id' => $avatar_id
+            ]);
+            $userGameData->update([
                 'avatar_id' => $avatar_id
             ]);
 

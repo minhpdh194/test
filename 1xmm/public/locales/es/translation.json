@@ -22,7 +22,7 @@
         "menu": "Menú",
         "language": "Idioma",
         "website": "Sitio web",
-        "airdrop": "Airdrop",
+        "airdrop": "Token Distribution",
         "telegram_channel": "Canal de Telegram",
         "user_manual": "Manual de usuario",
         "connect_wallet": "Conectar billetera",
@@ -51,7 +51,10 @@
         "leverage": "Apalancamiento",
         "add_bonus": "Añadir Bono",
         "validate": "Validar",
-        "close": "Cerrar"
+        "close": "Cerrar",
+        "lets_go": "¡VAMOS A TRADING!",
+        "hide": "Hide",
+        "show": "Show"
     },
     "ranking": {
         "daily": "Diario",
@@ -82,7 +85,12 @@
         "copy_invite_link": "Copiar enlace de invitación",
         "friends": "Amigos",
         "referrals": "Referidos",
-        "accept": "Aceptar"
+        "accepted": "Aceptar",
+        "extra": {
+            "invite": "Invite",
+            "friends": "friends",
+            "get_extra": "get extra"
+        }
     },
     "earn": {
         "earn_more_coins": "Gana más tokens",
@@ -93,7 +101,7 @@
         "more_info": "Más Información"
     },
     "bonus": {
-        "target_to_seed": "Indicador de distribución de 1XMM",
+        "target_to_seed": "Límite de compensación",
         "data_not_found": "Datos no encontrados",
         "leverage": {
             "name": "Apalancamiento",

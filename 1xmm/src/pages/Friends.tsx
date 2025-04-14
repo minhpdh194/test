@@ -51,8 +51,8 @@ export default function Friends() {
       <div className="mt-6 w-100">
         <span className="flex justify-center fw-bolder text-2xl">{t(`${prefix}.invite_friends`)}</span>
         <span className="flex text-center text-sm">{t(`${prefix}.description`)}</span>
-        <div className="flex justify-between mt-4 gap-2">
-          <div className="bg-[#32363C] rounded-lg relative w-48 h-30">
+        <div className="flex justify-center mt-4 gap-2">
+          <div className="bg-[#32363C] rounded-lg relative w-80 h-30">
             <div className="relative w-full">
               <img
                 src="/images/home/coin.png"
@@ -60,12 +60,22 @@ export default function Friends() {
                 className="h-8 w-8 absolute -top-5 left-1/2 transform -translate-x-1/2"
               />
             </div>
-            <div className="text-center p-1 pt-3">
+            <div className="flex-center text-center p-1 pt-3">
               <span className="text-[#F79841] text-xl fw-bold">+ 20,000</span>
               <span className="text-xs block">{t(`${prefix}.bonus_for`)}</span>
             </div>
+            <div className="flex-center text-center  p-2">
+              <span className="text-sm block font-bold py-1">
+                {t(`${prefix}.extra.invite`)} <span className="text-[#3fba6c] fw-bold">3</span> {t(`${prefix}.extra.friends`)}, {t(`${prefix}.extra.get_extra`)} <span className="text-[#ebe242] fw-bold">25,000</span><br/>
+                {t(`${prefix}.extra.invite`)} <span className="text-[#3fba6c] fw-bold">6</span> {t(`${prefix}.extra.friends`)}, {t(`${prefix}.extra.get_extra`)} <span className="text-[#ebe242] fw-bold">50,000</span><br/>
+                {t(`${prefix}.extra.invite`)} <span className="text-[#3fba6c] fw-bold">10</span> {t(`${prefix}.extra.friends`)}, {t(`${prefix}.extra.get_extra`)} <span className="text-[#ebe242] fw-bold">100,000</span><br/>
+                {t(`${prefix}.extra.invite`)} <span className="text-[#3fba6c] fw-bold">25</span> {t(`${prefix}.extra.friends`)}, {t(`${prefix}.extra.get_extra`)} <span className="text-[#ebe242] fw-bold">250,000</span><br/>
+                {t(`${prefix}.extra.invite`)} <span className="text-[#3fba6c] fw-bold">50</span> {t(`${prefix}.extra.friends`)}, {t(`${prefix}.extra.get_extra`)} <span className="text-[#ebe242] fw-bold">500,000</span><br/>
+                {t(`${prefix}.extra.invite`)} <span className="text-[#3fba6c] fw-bold">100</span> {t(`${prefix}.extra.friends`)}, {t(`${prefix}.extra.get_extra`)} <span className="text-[#ebe242] fw-bold">1,000,000</span>
+              </span>
+            </div>
           </div>
-          <div className="w-48 bg-[#32363C] rounded-lg relative">
+          {/*<div className="w-48 bg-[#32363C] rounded-lg relative">
             <div className="relative w-full">
               <img
                 src="/images/home/coin.png"
@@ -74,10 +84,10 @@ export default function Friends() {
               />
             </div>
             <div className="text-center p-1 pt-3">
-              <span className="text-[#F79841] text-xl fw-bold">+ 25,000</span>
+              <span className="text-[#F79841] text-xl fw-bold">+ 40,000</span>
               <span className="text-xs block">{t(`${prefix}.bonus_for_premium`)}</span>
             </div>
-          </div>
+          </div>*/}
         </div>
         <div className="flex justify-between mt-4 gap-2">
           <div className="border-[#ffffff] border-1 py-2 rounded-lg w-48 h-30 text-center">

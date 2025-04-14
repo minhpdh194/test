@@ -22,7 +22,7 @@
         "menu": "Menu",
         "language": "Langue",
         "website": "Site Web",
-        "airdrop": "Airdrop",
+        "airdrop": "Distribution des Tokens",
         "telegram_channel": "Canal Telegram",
         "user_manual": "Manuel utilisateur",
         "connect_wallet": "Référencer votre e-wallet",
@@ -51,7 +51,10 @@
         "leverage": "Levier",
         "add_bonus": "Ajouter un bonus",
         "validate": "Valider",
-        "close": "Fermer"
+        "close": "Fermer",
+        "lets_go": "FAITES VOS JEUX!",
+        "hide": "Cacher",
+        "show": "Afficher"
     },
     "ranking": {
         "daily": "Quotidien",
@@ -62,7 +65,16 @@
     "profile": {
         "total_token": "Total 1vMM",
         "total_pnl": "Total PnL",
-        "level_bonuses": "Bonus de niveau"
+        "level_bonuses": "Bonus de niveau",
+        "pairs_unlocked": "Paires activée",
+        "cumulated_pos_leverage_bonus": "Bonus Cumulé - Levier Positif",
+        "cumulated_protection_bonus": "Bonus Cumulé - Protection du Capital",
+        "cumulated_time_bonus": "Bonus Temps Cumulé",
+        "cumulated_tapping_amount": "Montant Tapping Cumulé",
+        "gain_per_tap": "Gain par Tap",
+        "completed_tasks": "Taches completées",
+        "available_bonuses": "Bonus disponibles",
+        "bonus_duration": "Duration Bonus"
     },
     "friends": {
         "invite_friends": "Inviter des amis !",
@@ -70,7 +82,13 @@
         "bonus_for": "pour vous et vos amis",
         "bonus_for_premium": "si vos amis ont un compte premium",
         "share_invite_link": "Partager le lien d’invitation",
-        "copy_invite_link": "Copier le lien d’invitation"
+        "copy_invite_link": "Copier le lien d’invitation",
+        "accepted": "Acceptée",
+        "extra": {
+            "invite": "Invite",
+            "friends": "amis",
+            "get_extra": "reçois en plus"
+        }
     },
     "earn": {
         "earn_more_coins": "Gagnez plus de 1vMM",
@@ -81,7 +99,7 @@
         "more_info": "Plus d’info"
     },
     "bonus": {
-        "target_to_seed": "Jauge de distribution des 1XMM",
+        "target_to_seed": "Cap des rétributions",
         "data_not_found": "Données non trouvées",
         "leverage": {
             "name": "Levier",

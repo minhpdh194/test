@@ -31,10 +31,14 @@ class BonusController extends Controller
 
         $pendingInvoice = PendingInvoice::where([
             'telegram_user_id' => $user->telegram_user_id,
-            'bonus_id' => $boughtBonus['id']])->first();
+            'bonus_id' => $boughtBonus['id'],
+            'paid' => false])->first();
 
         if (!$pendingInvoice) return response()->json(null);
-        $pendingInvoice->delete();
+
+        $pendingInvoice->number_of_stars = $boughtBonus['cost'];
+        $pendingInvoice->paid = true;
+        $pendingInvoice->save();
         
         $userData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
         $userData->number_of_stars += $boughtBonus['cost'];
@@ -63,10 +67,14 @@ class BonusController extends Controller
 
         $pendingInvoice = PendingInvoice::where([
             'telegram_user_id' => $user->telegram_user_id,
-            'bonus_id' => $boughtBonus['id']])->first();
+            'bonus_id' => $boughtBonus['id'],
+            'paid' => false])->first();
 
         if (!$pendingInvoice) return response()->json(null);
-        $pendingInvoice->delete();
+
+        $pendingInvoice->number_of_stars = $boughtBonus['cost'];
+        $pendingInvoice->paid = true;
+        $pendingInvoice->save();
 
         $userData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
         $userData->amount_of_tokens += $boughtBonus['benefit'];
@@ -89,10 +97,14 @@ class BonusController extends Controller
 
         $pendingInvoice = PendingInvoice::where([
             'telegram_user_id' => $user->telegram_user_id,
-            'bonus_id' => $boughtBonus['id']])->first();
+            'bonus_id' => $boughtBonus['id'],
+            'paid' => false])->first();
 
         if (!$pendingInvoice) return response()->json(null);
-        $pendingInvoice->delete();
+
+        $pendingInvoice->number_of_stars = $boughtBonus['cost'];
+        $pendingInvoice->paid = true;
+        $pendingInvoice->save();
 
         $userData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
         $userData->total_friends_refered += $boughtBonus['benefit'];

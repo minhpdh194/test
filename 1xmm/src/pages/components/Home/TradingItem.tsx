@@ -34,7 +34,7 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
     const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: LongShort | undefined }>({});
     const [amounts, setAmounts] = useState<{ [key: number]: number }>({});
     const [leverages, setLeverages] = useState<{ [key: number]: number }>({});
-    const [expandedPairs, setExpandedPairs] = useState<{ [key: number]: boolean }>({});
+    const [expandedPairs, setExpandedPairs] = useState<{ [key: number]: boolean }>({1: true});
     const [expandedBonuses, setExpandedBonuses] = useState<{ [key: number]: boolean }>({});
     const allowedLeverages = [0, 1, 2, 3, 5, 7, 10];  // Valid leverage options
     const [positions, setPositions] = useState<Position[]>([]);
@@ -311,7 +311,7 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                                 </div>
                             </div>
                             <button
-                                className="text-sm text-white font-bold"
+                                className="text-md text-white font-bold p-[1px] border-1 border-solid rounded-md bg-gray-100 bg-opacity-20"
                                 onClick={() => toggleExpand(pair.id)}
                             >
                                 {expandedPairs[pair.id] ? '-' : '+'}
@@ -352,10 +352,10 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                                     <div className="w-1/2 text-right mt-1">
                                         <button
                                             onClick={() => toggleExpandBonuses(pair.id)}
-                                            className="text-sm text-white font-bold"
+                                            className="text-sm text-white p-[2px] border-1 border-solid rounded-md bg-gray-100 bg-opacity-20"
                                             disabled={!selectedBonuses[pair.id] || selectedBonuses[pair.id].length === 0}
                                         >
-                                            {expandedBonuses[pair.id] ? '-' : '+'}
+                                            {expandedBonuses[pair.id] ? t(`${home}.hide`) : t(`${home}.show`)}
                                         </button>
                                     </div>
                                 </div>

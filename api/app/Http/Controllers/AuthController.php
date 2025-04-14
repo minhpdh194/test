@@ -55,13 +55,6 @@ class AuthController extends Controller
         $existUser = TelegramUser::where('telegram_user_id', $request->get('telegram_user_id'))->first();
 
         if ($existUser) {
-        $gameData = UserGameData::where('telegram_user_id', $existUser->telegram_user_id)->first();
-
-        $restoredEnergy = $gameData->available_energy + $existUser->restoreEnergy($gameData->energy_limit, $existUser->last_login);
-        if ($restoredEnergy > $gameData->energy_limit) $restoredEnergy = $gameData->energy_limit;
-
-        $gameData->available_energy = $restoredEnergy;
-        $gameData->save();
             $existUser->updateLoginStreak();
             $token = $existUser->createToken($existUser->telegram_user_id);
 
@@ -72,7 +65,12 @@ class AuthController extends Controller
             ]);
         }
 
+        $nbUser = TelegramUser::count();
+        
         $baseBalance = 100000;
+        if ($nbUser < 1000) $baseBalance = 200000;
+        else if ($nbUser < 2500) $baseBalance = 150000;
+        else if ($nbUser < 5000) $baseBalance = 125000;
 
         $user = TelegramUser::firstOrCreate(
             [
@@ -102,9 +100,6 @@ class AuthController extends Controller
                 ]);
                 // We first update the referral, to specify that invitee has connected
                 $referralData->updateFirstConnection();
-                // We send message to the inviter, for live update of user's balance
-                // sendMessage($referralData->inviter_id, 'referral: ' . $request->get('first_name'));
-                //later, comment it to avoid error
                 // We update the database
                 $inviter = UserGameData::where('telegram_user_id', $referredBy->telegram_user_id)->first();
                 $increased = $inviter->updateInviterUserBalance();

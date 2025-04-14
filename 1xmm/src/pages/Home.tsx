@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import pusher from "@/lib/pusher";
 import { SpotType } from "@/types/SpotType";
 import { PusherIndex } from "@/types/PusherIndex";
+import GoBox from "./components/Home/GoBox";
 
 export default function Home() {
   const [spots, setSpots] = useState<SpotType[]>([]);
@@ -81,7 +82,10 @@ export default function Home() {
       <Header amount_token={amtOfTokens} />
       <UserGameDetails className="mt-6" data={spots} />
       <XTap changeInBalance={changeInBalance} updateAmountOfTokens={updateTokenAmountAfterTap} />
-      <div className="pt-24 pb-4">
+      <div  className="pt-8 pb-2">
+        <GoBox />
+      </div>
+      <div className="pt-2 pb-4">
         {loading ? (
           <div>Loading...</div>
         ) : (

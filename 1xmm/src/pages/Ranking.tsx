@@ -2,7 +2,6 @@ import { UserRanking } from "@/types/UserRanking";
 import Header from "../components/Header";
 import { useEffect, useState } from "react";
 import { Utils } from "@/lib/utils";
-// import { useUserStore } from "@/store/user-store";
 import { addWeeks, startOfWeek, format } from 'date-fns';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
@@ -53,11 +52,12 @@ export default function Ranking() {
                 const response = await $http.get('/top-users', { params: payload });
 
                 response.data.forEach((transaction: any) => {
-                    const newData = {
+                    const newData: UserRanking = {
                         telegram_user_id: transaction.telegram_user_id,
                         first_name: transaction.user_data.first_name ? transaction.user_data.first_name : "",
                         last_name: transaction.user_data.last_name ? transaction.user_data.last_name : "",
                         amount_of_tokens: transaction.tokens,
+                        avatar_id: transaction.user_data.avatar_id
                     };
 
                     setUserRanking(prevState => [...prevState, newData]);
@@ -73,6 +73,7 @@ export default function Ranking() {
                         first_name: userData.first_name ? userData.first_name : "",
                         last_name: userData.last_name ? userData.last_name : "",
                         amount_of_tokens: 0,
+                        avatar_id: userData.avatar_id
                     };
 
                     setUserRanking(prevState => [...prevState, newData]);
@@ -153,7 +154,7 @@ export default function Ranking() {
                         </div>
                         <div className="flex justify-center w-100 mt-3 pt-1 relative">
                             <img
-                                src="/images/ranking/avatar.png"
+                                src={"/images/avatars/avatar__" + (secondPositionUser.avatar_id + 1) + "__.jpg"}
                                 alt="avatar"
                                 className="w-16 p-1 h-16"
                                 style={{
@@ -203,7 +204,7 @@ export default function Ranking() {
                         </div>
                         <div className="flex justify-center w-100 mt-4 pt-1">
                             <img
-                                src="/images/ranking/avatar.png"
+                                src={"/images/avatars/avatar__" + (firstPositionUser.avatar_id + 1) + "__.jpg"}
                                 alt="avatar"
                                 className="w-20 p-1 h-20"
                                 style={{
@@ -255,7 +256,7 @@ export default function Ranking() {
                         </div>
                         <div className="flex justify-center w-100 mt-3 pt-1 relative">
                             <img
-                                src="/images/ranking/avatar.png"
+                                src={"/images/avatars/avatar__" + (thirdPositionUser.avatar_id + 1) + "__.jpg"}
                                 alt="avatar"
                                 className="w-16 p-1 h-16"
                                 style={{
@@ -313,7 +314,7 @@ export default function Ranking() {
 
                         <div className="col-2 flex justify-center items-center p-0">
                             <img
-                                src="/images/ranking/avatar.png"
+                                src={"/images/avatars/avatar__" + (user.avatar_id + 1) + "__.jpg"}
                                 alt="avatar"
                                 className="p-1 w-100"
                             />

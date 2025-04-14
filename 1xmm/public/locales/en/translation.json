@@ -22,7 +22,7 @@
         "menu": "Menu",
         "language": "Language",
         "website": "Website",
-        "airdrop": "Airdrop",
+        "airdrop": "Token Distribution",
         "telegram_channel": "Telegram Channel",
         "user_manual": "User Manual",
         "connect_wallet": "Connect Wallet",
@@ -39,7 +39,7 @@
     "home": {
         "avatar_selection": "Avatar Selection",
         "confirm": "Confirm",
-        "earn_per_tap": "Earn per tap",
+        "earn_per_tap": "Gain per tap",
         "time_to_next_fixing": "Time to next fixing",
         "daily_perf": "Daily perf",
         "position": "Position",
@@ -51,7 +51,10 @@
         "leverage": "Leverage",
         "add_bonus": "Add Bonus",
         "validate": "Validate",
-        "close": "Close"
+        "close": "Close",
+        "lets_go": "LET'S TRADE!",
+        "hide": "Hide",
+        "show": "Show"
     },
     "ranking": {
         "daily": "Daily",
@@ -65,7 +68,7 @@
         "level_bonuses": "Level Bonuses",
         "pairs_unlocked": "Pairs Unlocked",
         "cumulated_pos_leverage_bonus": "Cumulated Positive Leverage Bonus",
-        "cumulated_protection_bonus": "Cumulated Protection Bonus",
+        "cumulated_protection_bonus": "Cumulated Capital Protection Bonus",
         "cumulated_time_bonus": "Cumulated Time Bonus",
         "cumulated_tapping_amount": "Cumulated Tapping Amount",
         "gain_per_tap": "Gain Per Tap",
@@ -82,7 +85,12 @@
         "copy_invite_link": "Copy invite link",
         "friends": "Friends",
         "referrals": "Referrals",
-        "accept": "Accept"
+        "accepted": "Accepted",
+        "extra": {
+            "invite": "Invite",
+            "friends": "friends",
+            "get_extra": "get extra"
+        }
     },
     "earn": {
         "earn_more_coins": "Earn more tokens",
@@ -93,7 +101,7 @@
         "more_info": "More Info"
     },
     "bonus": {
-        "target_to_seed": "1XMM distribution gauge",
+        "target_to_seed": "Reward Cap",
         "data_not_found": "Data not found",
         "leverage": {
             "name": "Leverage",

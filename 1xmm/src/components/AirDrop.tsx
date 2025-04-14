@@ -10,9 +10,7 @@ interface DetailBonusProps {
 const airdropText: { [key: string]: JSX.Element } = {
     "en": (<div className="flex flex-col justify-start pb-6 overflow-y-auto">
         <p>
-            1xMM Tokens will be provided to users based on targets described in the website;
-            part of the tokens will be provided for Marketing purposes - linked to ranking -
-            while another part will be distributed to mini-game users buying bonuses.
+            1xMM Tokens will be provided to users based on targets described in the website.
         </p>
         <br/>
         <p>
@@ -37,9 +35,7 @@ const airdropText: { [key: string]: JSX.Element } = {
         </div>),
     "fr": (<div className="flex flex-col justify-start pb-6 overflow-y-auto">
         <p>
-            Les tokens 1xMM Tokens seront distribués aux utilisateurs suivant la distribution specifiée sur le site internet;
-            les tokens seront distribués sur le compte du marketing - pour le classement des joueurs - et sur le compte de l'allocation
-            destinée aux utilisateurs achetant des bonus.
+            Les tokens 1xMM Tokens seront distribués aux utilisateurs suivant la distribution specifiée sur le site internet.
         </p>
         <br/>
         <p>
@@ -65,9 +61,7 @@ const airdropText: { [key: string]: JSX.Element } = {
         </div>),
     "es": (<div className="flex flex-col justify-start pb-6 overflow-y-auto">
         <p>
-            Los tokens 1xMM serán distribuidos a los usuarios según la distribución especificada en el sitio web;
-            los tokens se distribuirán en la cuenta de marketing - para la clasificación de jugadores - y en la cuenta de asignación
-            destinada a los usuarios que compren bonos.
+            Los tokens 1xMM serán distribuidos a los usuarios según la distribución especificada en el sitio web.
         </p>
         <br/>
         <p>
@@ -102,7 +96,7 @@ export default function AirDrop({
     return (
         <Drawer open={open} onOpenChange={onOpenChange} {...props}>
             <h2 className="text-xl font-medium uppercase p-2 text-center">
-                Air Drop
+                Token Distribution
             </h2>
             {airdropText[i18next.language]}
         </Drawer>

@@ -1,7 +1,11 @@
 import { Friend } from '@/types/Friend';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { friends } from '@/referential/i18nPrefixes';
 
 const ListFriend: React.FC<any> = ({ referedUsers }) => {
+    const { t } = useTranslation();
+
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
     const formattedDate = `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}/${date.getFullYear()}`;
@@ -30,7 +34,7 @@ const ListFriend: React.FC<any> = ({ referedUsers }) => {
                     alt="coin"
                     className="h-4 w-4"
                 />
-                <span className="text-sm text-[#46FF00]">Accept</span>
+                <span className="text-sm text-[#46FF00]">{t(`${friends}.accepted`)}</span>
             </div>
         </div>
         )

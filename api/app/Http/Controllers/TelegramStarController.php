@@ -30,24 +30,28 @@ class TelegramStarController extends Controller
     public function sendTelegramInvoice(Request $request)
     {
         $bonus = $request->input('bonus');
-        $user = $request->user();
+        $user_id = $request->input('telegram_user_id');
 
-        if (!$user) return response()->json(['error' => 'User not found'], 404);
+        if (!$user_id) return response()->json(['error' => 'User not found'], 404);
 
-        $isBonusBought = UserBonuses::where('bonus_id', $bonus['id'])->where('telegram_user_id', $user->telegram_user_id)->first();
+        $isBonusBought = UserBonuses::where(['bonus_id' => $bonus['id'], 'telegram_user_id' => $user_id])->first();
+
         if ($isBonusBought) {
             return response()->json(['ok' => false], 202);
         } else {
-            $result = $this->telegramStarService->sendInvoice($bonus, $user->telegram_user_id);
+            $result = $this->telegramStarService->sendInvoice($bonus, $user_id);
+            
             if ($result) {
-
-                // We record the invoice
                 PendingInvoice::create([
-                    'telegram_user_id' => $user->telegram_user_id,
-                    'bonus_id' => $bonus['id']
+                    'telegram_user_id' => $user_id,
+                    'bonus_id' => $bonus['id'],
+                    'number_of_stars' => 0,
                 ]);
+
+                return response()->json(['ok' => true]);
             }
-            return $result;
+
+            return response()->json(['ok' => false], 202);
         }
     }
 
@@ -56,46 +60,6 @@ class TelegramStarController extends Controller
         $bonus_id = $request->input('bonus_id');
         $user = $request->user();
 
-        PendingInvoice::where(['telegram_user_id' => $user->telegram_user_id, 'bonus_id' => $bonus_id])->delete();
+        PendingInvoice::where(['telegram_user_id' => $user->telegram_user_id, 'bonus_id' => $bonus_id, 'paid' => false])->delete();
     }
-
-    /* public function buyStarPackage(Request $request)
-    {
-        $user = $request->user();
-        $telegramProfile = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
-
-        if (!$telegramProfile) {
-            return response()->json(['error' => 'User not found'], 404);
-        }
-
-        $settings = Settings::where('name', 'stars_spent')->first();
-        $conversion = Settings::where('name', 'conversion_rate')->first()->value;
-        $total_coins = round(floatval($settings->value) / (0.025 * floatval($conversion)), 0, PHP_ROUND_HALF_DOWN) * 0.025;
-
-        $telegramProfile->number_of_stars += $request['package']['number_of_stars'];
-        $telegramProfile->save();
-
-        $settings->value += $request['package']['number_of_stars'];
-        $settings->save();
-
-        $options = array(
-            'cluster' => 'ap2',
-            'useTLS' => true
-        );
-
-        $pusher = new Pusher(
-            env('PUSHER_APP_KEY'),
-            env('PUSHER_APP_SECRET'),
-            env('PUSHER_APP_ID'),
-            $options
-        );
-
-        try {
-            $pusher->trigger('totalCoins', 'data', ['totalCoins' => $total_coins]);
-        } catch (\Throwable $e) {
-            \Log::info('error pusher', ['error' => $e->getMessage()]);
-        }
-
-        return response()->json(['success' => 'Buy package successfully'], 200);
-    } */
 }
