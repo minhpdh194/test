@@ -54,10 +54,10 @@ export default function Ranking() {
                 response.data.forEach((transaction: any) => {
                     const newData: UserRanking = {
                         telegram_user_id: transaction.telegram_user_id,
-                        first_name: transaction.user_data.first_name ? transaction.user_data.first_name : "",
-                        last_name: transaction.user_data.last_name ? transaction.user_data.last_name : "",
-                        amount_of_tokens: transaction.tokens,
-                        avatar_id: transaction.user_data.avatar_id
+                        first_name: transaction.first_name ? transaction.first_name : "",
+                        last_name: transaction.last_name ? transaction.last_name : "",
+                        amount_of_tokens: transaction.pnl,
+                        avatar_id: transaction.avatar_id
                     };
 
                     setUserRanking(prevState => [...prevState, newData]);
