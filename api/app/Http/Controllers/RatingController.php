@@ -51,12 +51,13 @@ class RatingController extends Controller
     {
         $telegramUserIds = [];
         if ($request['played_users']) {
-        $telegramUserIds = array_map(function ($item) {
-            return $item['telegram_user_id'];
-        }, $request['played_users']);
+            $telegramUserIds = array_map(function ($item) {
+                return $item['telegram_user_id'];
+            }, $request['played_users']);
         }
 
-        $users = TelegramUser::whereNotIn('telegram_user_id', $telegramUserIds)->limit(10 - count($telegramUserIds))->get();
+        $users = TelegramUser::with('userProfiles')->whereNotIn('telegram_user_id', $telegramUserIds)->limit(10 - count($telegramUserIds))->get();
+        \Log::info($users);
         return response()->json($users);
     }
 }

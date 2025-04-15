@@ -32,7 +32,7 @@ class TelegramUser extends Authenticatable
 
     public function userProfiles()
     {
-        return $this->belongsTo(TelegramUser::class, 'telegram_user_id', 'id');
+        return $this->belongsTo(UserGameData::class, 'telegram_user_id', 'telegram_user_id');
     }
 
     public function level()
