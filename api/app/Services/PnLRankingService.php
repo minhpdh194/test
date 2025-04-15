@@ -22,7 +22,12 @@ class PnLRankingService
                 $this->calculateWeeklyPnl($userTransaction);
                 $this->calculateMonthlyPnl($userTransaction);
             }
+            Settings::update(
+                ['name' => 'pnl_date'],
+                ['value' => Carbon::now()]
+            );
         } catch (\Exception $e) {
+            \Log::info($e);
             Settings::updateOrCreate(
                 ['name' => 'pnl_date'],
                 ['value' => Carbon::now()]
