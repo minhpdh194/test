@@ -9,6 +9,6 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote')->hourly();
 
 Schedule::command('app:integration')->everyTwoMinutes();
-Schedule::command('app:ranking-computation')->cron('3 0 * * * *');
+Schedule::command('app:ranking-computation')->cron('30 0 0 * * *');
 Schedule::command('app:clear-daily-tasks')->dailyAt('00:30');
 
