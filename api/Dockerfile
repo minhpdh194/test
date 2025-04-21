@@ -44,33 +44,12 @@ RUN npm install
 # Build các tài nguyên frontend bằng Vite
 RUN npm run build
 
-# WHEN WILL WE GET THE CI/CD???????
-#<<<<<<< HEAD
-#RUN php artisan migrate --force
-#RUN php artisan db:seed --class=DatabaseSeeder --force
-#=======
 # RUN php artisan migrate --force
 # RUN php artisan db:seed --class=DatabaseSeeder --force
-#>>>>>>> c310e990b7dea8523a8819538b098e6b400d8a56
 
-
-
-
-# Thêm Cronjob
-RUN echo "*/2 * * * * /usr/local/bin/php /var/www/html/artisan app:integration >> /var/log/cron.log 2>&1" >> /etc/cron.d/laravel-cron \
-    && chmod 0644 /etc/cron.d/laravel-cron \
-    && crontab /etc/cron.d/laravel-cron
-
-RUN echo "*/4 * * * * /usr/local/bin/php /var/www/html/artisan app:ranking-computation >> /var/log/cron.log 2>&1" >> /etc/cron.d/laravel-cron \
-    && chmod 0644 /etc/cron.d/laravel-cron \
-    && crontab /etc/cron.d/laravel-cron
-
-# Thêm Cronjob mới
-#RUN echo "*/2 * * * * php /var/www/html/artisan app:run-check-result-position-job >> /var/log/cron.log 2>&1" >> /etc/cron.d/laravel-cron \
-#    && chmod 0644 /etc/cron.d/laravel-cron \
-#    && crontab /etc/cron.d/laravel-cron
-
-RUN echo "0 0 * * * root /usr/local/bin/php /var/www/html/artisan app:clear-daily-tasks >> /var/log/cron.log 2>&1" >> /etc/cron.d/laravel-cron \
+RUN echo "*/2 * * * * root /usr/local/bin/php /var/www/html/artisan app:integration >> /var/log/cron.log 2>&1" > /etc/cron.d/laravel-cron \
+    && echo "*/4 * * * * root /usr/local/bin/php /var/www/html/artisan app:ranking-computation >> /var/log/cron.log 2>&1" >> /etc/cron.d/laravel-cron \
+    && echo "0 0 * * * root /usr/local/bin/php /var/www/html/artisan app:clear-daily-tasks >> /var/log/cron.log 2>&1" >> /etc/cron.d/laravel-cron \
     && chmod 0644 /etc/cron.d/laravel-cron \
     && crontab /etc/cron.d/laravel-cron \
     && touch /var/log/cron.log
