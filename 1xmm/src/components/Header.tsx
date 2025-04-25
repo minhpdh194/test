@@ -1,12 +1,12 @@
 import { cn, Utils } from "@/lib/utils";
 import React, { useState } from "react";
-import Sidebar from "./partials/SidebarLeft";
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
 import { $http } from "@/lib/http";
 import { Button } from "@mui/material";
 import { userProfileStore } from "@/store/user-store";
 import { useTranslation } from "react-i18next";
 import { home, menu } from "@/referential/i18nPrefixes";
+import { useNavigate } from "react-router-dom";
 
 // deprecated - to be removed
 type HeaderProps = React.HtmlHTMLAttributes<HTMLDivElement> & {
@@ -18,9 +18,8 @@ export default function Header({
     amount_token = 0,
     ...props
 }: HeaderProps) {
-    const [isSidebarOpen, setSidebarOpen] = useState(false);
+    const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
-
     const images = import.meta.glob<{ default: string }>("../../public/images/avatars/*.jpg", { eager: true });
     const imagePaths = Object.values(images).map((module) => module.default);
 
@@ -43,7 +42,7 @@ export default function Header({
 
     // Toggle sidebar visibility
     const toggleSidebar = () => {
-        setSidebarOpen(!isSidebarOpen);
+        navigate("/sidebar");
     };
 
     const handleUpdateAvatarId = async () => {
@@ -99,9 +98,6 @@ export default function Header({
                     />
                 </div>
             </div>
-            {isSidebarOpen && (
-                <Sidebar toggleSidebar={toggleSidebar} />
-            )}
 
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
                 <DialogContent className="popup-body w-[calc(100%-2rem)]">

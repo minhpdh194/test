@@ -6,6 +6,7 @@ import Friends from "./pages/Friends";
 import Profile from "./pages/Profile";
 import Bonus from "./pages/Bonus";
 import Ranking from "./pages/Ranking";
+import Sidebar from "./components/partials/SidebarLeft";
 
 const router = createBrowserRouter([
   {
@@ -38,6 +39,10 @@ const router = createBrowserRouter([
         element: <Ranking />
       }
     ],
+  },
+  {
+    path: "sidebar",
+    element: <Sidebar />,
   },
 ]);
 

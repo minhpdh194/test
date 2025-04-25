@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 import AirDrop from "../AirDrop";
 import { useTonConnectUI } from "@tonconnect/ui-react";
@@ -7,16 +7,14 @@ import LanguageSelection from "../LanguageSelection";
 import { useTranslation } from "react-i18next";
 import { menu } from "@/referential/i18nPrefixes";
 
-interface SidebarProps {
-    toggleSidebar: () => void;
-}
 
-const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
+const Sidebar = () => {
     const [tonConnectUI] = useTonConnectUI();
     const [isConnected, setIsConnected] = useState<boolean>(false);
     const [openAirDropDrawer, setOpenAirDropDrawer] = useState(false);
     const [openWalletConnectorDrawer, setOpenWalletConnectorDrawer] = useState(false);
     const [openLanguageSelection, setOpenLanguageSelection] = useState(false);
+    const navigate = useNavigate();
 
     const { t } = useTranslation();
 
@@ -81,8 +79,8 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleSidebar }) => {
                     backgroundImage: `url(/images/home/bg.png)`,
                 }}
             >
-                <button type="button" className="flex items-center fw-bold space-x-2" onClick={toggleSidebar}>
-                    <img src="/images/home/back.png" alt="back" className="w-10 h-10" />
+                <button type="button" className="flex items-center fw-bold space-x-2">
+                    <img src="/images/home/back.png" alt="back" className="w-10 h-10" onClick={() => navigate("/")} />
                     <span>{t(`${menu}.menu`)}</span>
                 </button>
 
