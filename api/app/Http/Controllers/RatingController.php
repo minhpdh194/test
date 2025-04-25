@@ -19,7 +19,6 @@ class RatingController extends Controller
         if ($request->has('date')) {
             $pnl = DailyPnL::join('user_profile', 'daily_pnl.telegram_user_id', '=', 'user_profile.telegram_user_id')
                 ->join('user_game_data', 'daily_pnl.telegram_user_id', '=', 'user_game_data.telegram_user_id')
-                ->whereDate('daily_pnl.created_at', Carbon::today())
                 ->orderBy('daily_pnl.pnl', 'desc')
                 ->limit(100)
                 ->get(['daily_pnl.*', 'user_profile.first_name', 'user_profile.last_name', 'user_game_data.avatar_id']);
