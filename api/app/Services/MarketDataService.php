@@ -15,7 +15,7 @@ class MarketDataService
             'id' => $ids,
             'convert' => $convertTo,
         ];
-        
+
         // Send the request to CoinMarketCap API
         $response = Http::withHeaders([
             'Accepts' => 'application/json',
@@ -36,7 +36,7 @@ class MarketDataService
             'interval' => "24h",
             'convert' => $convertTo,
         ];
-        
+
         // Send the request to CoinMarketCap API
         $response = Http::withHeaders([
             'Accepts' => 'application/json',
@@ -53,7 +53,7 @@ class MarketDataService
         $cur_spot = Spot::where('pair_id', $pair->id)
             ->orderBy('created_at', 'desc')
             ->first();
-            
+
         $fixing_period = intval($now->hour / 6) * 6;
 
         // If spot already exists we will update the spot

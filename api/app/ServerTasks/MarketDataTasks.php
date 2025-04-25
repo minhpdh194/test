@@ -54,7 +54,9 @@ class MarketDataTasks
     public function getSpotsFromMarket($pairs)
     {
         $list_of_coins = '';
-        foreach ($pairs as $pair) { $list_of_coins = $list_of_coins . ($list_of_coins !== '' ? ',' : '') . $pair->cmc_id; }
+        foreach ($pairs as $pair) {
+            $list_of_coins = $list_of_coins . ($list_of_coins !== '' ? ',' : '') . $pair->cmc_id;
+        }
 
         $apiUrl = 'https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest';
         // $usdComparedSpots = $this->marketDataService->pairCoin($apiUrl, 'BTC,ETH,BNB,SOL,LINK,UNI,TON,XRP', 'USD');
@@ -73,7 +75,8 @@ class MarketDataTasks
 
         foreach ($quotes as $quote) {
             $price = $quote['quote']['USD']['price'];
-            if ($prev_value != 0) $return = ($price / $prev_value - 1.0);
+            if ($prev_value != 0)
+                $return = ($price / $prev_value - 1.0);
 
             Spot::create([
                 'pair_id' => $pair->id,
@@ -92,7 +95,8 @@ class MarketDataTasks
         }
     }
 
-    public function storeSpots($pairs, $now) {
+    public function storeSpots($pairs, $now)
+    {
         $createdSpots = [];
         $crypto_data = $this->getSpotsFromMarket($pairs);
 
@@ -155,14 +159,11 @@ class MarketDataTasks
             $fwd = 0.0;
             $data = [];
 
-            try
-            {
+            try {
                 $url = 'https://www.deribit.com/api/v2/public/get_order_book?instrument_name=' . array_values($options_symbols)[$i] . '&depth=' . '1';
                 $response = Http::withHeaders(['Content-Type' => 'application/json'])->get($url);
                 $data = $response->json();
-            }
-            catch (\Exception $e)
-            {
+            } catch (\Exception $e) {
                 \Log::info('error getting data from Deribit API', ['error' => $e->getMessage()]);
             }
 
@@ -184,7 +185,8 @@ class MarketDataTasks
                 }
 
                 if ($vol < 0.05 || $yield > 1) {
-                    if (!$last) throw new \Exception('VolAndFwd could not be initiated for ' . $coin);
+                    if (!$last)
+                        throw new \Exception('VolAndFwd could not be initiated for ' . $coin);
 
                     $vol = $last->current_volatility;
                     $yield = $last->current_yield;
@@ -192,10 +194,9 @@ class MarketDataTasks
                 }
 
                 $fwd = round($fwd, 5);
-            }
-            else
-            {
-                if (!$last) throw new \Exception('VolAndFwd could not be initiated for ' . $coin);
+            } else {
+                if (!$last)
+                    throw new \Exception('VolAndFwd could not be initiated for ' . $coin);
 
                 $vol = $last->current_volatility;
                 $yield = $last->current_yield;
@@ -229,10 +230,11 @@ class MarketDataTasks
         $correlated_pairs = [];
 
         foreach ($pairs as $pair) {
-            if (in_array($pair->coin_symbol, $ref_symbols)) continue;
+            if (in_array($pair->coin_symbol, $ref_symbols))
+                continue;
             $correlated_pairs[] = $pair->pair_symbol;
         }
-        
+
         $n = 30;
 
         $return_matrix = null;
@@ -309,7 +311,8 @@ class MarketDataTasks
 
         foreach ($xpairs as $pair) {
             // Sanity check: we exclude USD pairs
-            if ($pair->counter_symbol === 'USD') continue;
+            if ($pair->counter_symbol === 'USD')
+                continue;
 
             $pair1 = Pair::where('pair_symbol', ToolsUtil::getPairSymbol($pair->coin_symbol, 'USD'))->first();
             $pair2 = Pair::where('pair_symbol', ToolsUtil::getPairSymbol($pair->counter_symbol, 'USD'))->first();
@@ -318,12 +321,12 @@ class MarketDataTasks
                 ->orderBy('created_at', 'desc')
                 ->take($n)
                 ->get();
-            
+
             $spots2 = Spot::where('pair_id', $pair2->id)
                 ->orderBy('created_at', 'desc')
                 ->take($n)
                 ->get();
-            
+
             $corr = MathUtil::computeCorrelation($spots1->pluck('daily_return')->toArray(), $spots2->pluck('daily_return')->toArray(), $n);
             $spot = $spots1->first()->current_value / $spots2->first()->current_value;
 
@@ -356,7 +359,7 @@ class MarketDataTasks
         $accrual = $dt / $T;
 
         $last_indices = [];
-        $mult = (float)Settings::where('name', 'prem_mult')->first()->value;
+        $mult = (float) Settings::where('name', 'prem_mult')->first()->value;
         $timestamp = ToolsUtil::getFixingTimestamp();
 
         foreach ($pairs as $pair) {
@@ -367,7 +370,7 @@ class MarketDataTasks
             $prev_long_index = Index::where(['pair_id' => $pair->id, 'long_short' => 'long'])
                 ->orderBy('created_at', 'desc')
                 ->first();
-            
+
             $prev_short_index = Index::where(['pair_id' => $pair->id, 'long_short' => 'short'])
                 ->orderBy('created_at', 'desc')
                 ->first();
@@ -376,8 +379,8 @@ class MarketDataTasks
             $adj = 1;
             $histo = $prev_long_index->histo_record;
 
-            if ($histo == 5) { 
-                $histo = 1; 
+            if ($histo == 5) {
+                $histo = 1;
             } else {
                 $histo += 1;
             }
@@ -435,7 +438,7 @@ class MarketDataTasks
                 'time' => $timestamp
             ];
 
-            $fixing = Fixing::updateOrCreate(['pair_id' => $pair->id],[
+            $fixing = Fixing::updateOrCreate(['pair_id' => $pair->id], [
                 'prev_spot' => $spot->prev_value,
                 'spot' => $spot->current_value,
                 'forward' => $vol_fwd->forward,
@@ -446,20 +449,57 @@ class MarketDataTasks
         return $last_indices;
     }
 
+    public function pnlComputation()
+    {
+        $now = Carbon::now();
+        $xpairs = Pair::where('counter_symbol', '!=', 'USD')->get();
+        $natural_pairs = Pair::where('counter_symbol', 'USD')->get();
+        $newestSpots = [];
+        foreach ($natural_pairs as $natural_pair) {
+            $newestSpot = Spot::where('pair_id', $natural_pair->id)->orderBy('updated_at', 'desc')->first();
+            $newestSpot->load('pair');
+            if ($newestSpot) {
+                $newestSpots[$natural_pair->coin_symbol] = $newestSpot;
+            }
+        }
+
+        $T = $this->getYieldsAndVolatilitiesFromMarket($newestSpots);
+
+        $this->getCorrelatedParameters($T, $natural_pairs);
+        if ($xpairs) {
+            $this->getXPairsParameters($xpairs, $T, $now);
+        }
+        $last_indices = $this->computeFixings(Pair::all(), $T);
+
+        $options = array(
+            'cluster' => 'ap2',
+            'useTLS' => true
+        );
+
+        $pusher = new Pusher(
+            env('PUSHER_APP_KEY'),
+            env('PUSHER_APP_SECRET'),
+            env('PUSHER_APP_ID'),
+            $options
+        );
+
+        try {
+            $pusher->trigger('indices', 'data', ['indices' => $last_indices]);
+        } catch (\Throwable $e) {
+            $notify[] = ['warning', 'Pusher Not Properly Set'];
+            \Log::info('error pusher', ['error' => $e->getMessage()]);
+        }
+
+        return true;
+    }
+
     public function integration()
     {
         $natural_pairs = Pair::where('counter_symbol', 'USD')->get();
-        $xpairs = Pair::where('counter_symbol', '!=', 'USD')->get();
 
         $now = Carbon::now();
-        
+
         $createdSpots = $this->storeSpots($natural_pairs, $now);
-        $T = $this->getYieldsAndVolatilitiesFromMarket($createdSpots);
-        $this->getCorrelatedParameters($T, $natural_pairs);
-        if ($xpairs) $this->getXPairsParameters($xpairs, $T, $now);
-
-        $last_indices = $this->computeFixings(Pair::all(), $T);
-
         $options = array(
             'cluster' => 'ap2',
             'useTLS' => true
@@ -474,7 +514,6 @@ class MarketDataTasks
         $createdSpots = array_values($createdSpots);
         try {
             $pusher->trigger('pairs', 'data', ['pairs' => $createdSpots]);
-            $pusher->trigger('indices', 'data', ['indices' => $last_indices]);
         } catch (\Throwable $e) {
             $notify[] = ['warning', 'Pusher Not Properly Set'];
             \Log::info('error pusher', ['error' => $e->getMessage()]);
