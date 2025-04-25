@@ -26,7 +26,6 @@ class ClearDailyTasks extends Command
      */
     public function handle(TaskService $taskService)
     {
-        sleep(30);
         $taskService->resetUserDailyTasks();
     }
 }

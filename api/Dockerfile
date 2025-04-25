@@ -47,13 +47,10 @@ RUN npm run build
 # RUN php artisan migrate --force
 # RUN php artisan db:seed --class=DatabaseSeeder --force
 
-# RUN echo "*/2 * * * * root /usr/local/bin/php /var/www/html/artisan app:integration >> /var/log/cron.log 2>&1" > /etc/cron.d/laravel-cron \
-#     && echo "*/4 * * * * root /usr/local/bin/php /var/www/html/artisan app:ranking-computation >> /var/log/cron.log 2>&1" >> /etc/cron.d/laravel-cron \
-#     && echo "0 0 * * * root /usr/local/bin/php /var/www/html/artisan app:clear-daily-tasks >> /var/log/cron.log 2>&1" >> /etc/cron.d/laravel-cron \
-#     && chmod 0644 /etc/cron.d/laravel-cron \
-#     && crontab /etc/cron.d/laravel-cron \
-#     && touch /var/log/cron.log
-RUN echo "* * * * * root /usr/local/bin/php /var/www/html/artisan schedule:run >> /var/log/cron.log 2>&1" > /etc/cron.d/laravel-cron \
+RUN echo "*/2 * * * * root /usr/local/bin/php /var/www/html/artisan app:integration >> /var/log/cron.log 2>&1" > /etc/cron.d/laravel-cron \
+    && echo "*/4 * * * * sleep 30 root /usr/local/bin/php /var/www/html/artisan app:pnl-computation >> /var/log/cron.log 2>&1" >> /etc/cron.d/laravel-cron \
+    && echo "*/4 * * * * sleep 30 root /usr/local/bin/php /var/www/html/artisan app:ranking-computation >> /var/log/cron.log 2>&1" >> /etc/cron.d/laravel-cron \
+    && echo "0 0 * * * root /usr/local/bin/php /var/www/html/artisan app:clear-daily-tasks >> /var/log/cron.log 2>&1" >> /etc/cron.d/laravel-cron \
     && chmod 0644 /etc/cron.d/laravel-cron \
     && crontab /etc/cron.d/laravel-cron \
     && touch /var/log/cron.log

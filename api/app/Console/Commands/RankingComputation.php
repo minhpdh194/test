@@ -26,7 +26,6 @@ class RankingComputation extends Command
      */
     public function handle(PnLRankingService $service)
     {
-        sleep(30);
         $service->calculatePnlUpdate();
     }
 }
