@@ -8,6 +8,7 @@ use App\Models\Settings;
 use App\Models\UserTransaction;
 use App\Models\WeeklyPnl;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class PnLRankingService
 {
@@ -21,7 +22,8 @@ class PnLRankingService
             $isSameWeek = $lastPnLDate->weekOfYear == $newPnLDate->weekOfYear;
             $isSameMonth = $lastPnLDate->isSameMonth($newPnLDate);
 
-            $transactionsByUser = UserTransaction::where("created_at", ">", $lastPnLDate)
+            $transactionsByUser = UserTransaction::select('telegram_user_id', DB::raw('SUM(amount_of_tokens) as total_transactions'))
+                ->where("created_at", ">", $lastPnLDate)
                 ->where("created_at", "<=", $newPnLDate)
                 ->groupBy('telegram_user_id')
                 ->get();
@@ -32,10 +34,8 @@ class PnLRankingService
                 $this->calculateMonthlyPnl($transactionsForUser->telegram_user_id, $changeInPnl, $newPnLDate, $isSameMonth);
             }
 
-            Settings::update(
-                ['name' => 'pnl_date'],
-                ['value' => $newPnLDate]
-            );
+            Settings::where('name', 'pnl_date')
+                ->update(['value' => $newPnLDate]);
         } catch (\Exception $e) {
             \Log::info($e);
             Settings::updateOrCreate(
@@ -53,10 +53,8 @@ class PnLRankingService
         if (!$iSameDay) $userDailyPnL->pnl = 0;
         $changeInPnl = 0;
 
-        foreach ($transactionsForUser as $userTransaction) {
-            $userDailyPnL->pnl += $userTransaction->amount_of_tokens;
-            $changeInPnl += $userTransaction->amount_of_tokens;
-        }
+        $userDailyPnL->pnl += $transactionsForUser->total_transactions;
+        $changeInPnl += $transactionsForUser->total_transactions;
 
         $userDailyPnL->save();
         return $changeInPnl;
@@ -66,8 +64,17 @@ class PnLRankingService
     {
         if ($iSameWeek) {
             $userWeeklyPnL = WeeklyPnL::where(['telegram_user_id' => $telegram_user_id, 'year' => $pnlDate->year, 'week' => $pnlDate->weekOfYear])->first();
-            $userWeeklyPnL->pnl += $changeInPnl;
-            $userWeeklyPnL->save();
+            if ($userWeeklyPnL) {
+                $userWeeklyPnL->pnl += $changeInPnl;
+                $userWeeklyPnL->save();
+            } else {
+                WeeklyPnl::create([
+                    'telegram_user_id' => $telegram_user_id,
+                    'pnl' => $changeInPnl,
+                    'year' => $pnlDate->year,
+                    'week' => $pnlDate->weekOfYear,
+                ]);
+            }
         } else {
             $userWeeklyPnL = WeeklyPnl::create([
                 'telegram_user_id' => $telegram_user_id,
@@ -82,8 +89,17 @@ class PnLRankingService
     {
         if ($iSameMonth) {
             $userMonthlyPnL = MonthlyPnL::where(['telegram_user_id' => $telegram_user_id, 'year' => $pnlDate->year, 'month' => $pnlDate->month])->first();
-            $userMonthlyPnL->pnl += $changeInPnl;
-            $userMonthlyPnL->save();
+            if ($userMonthlyPnL) {
+                $userMonthlyPnL->pnl += $changeInPnl;
+                $userMonthlyPnL->save();
+            } else {
+                MonthlyPnL::create([
+                    'telegram_user_id' => $telegram_user_id,
+                    'pnl' => $changeInPnl,
+                    'year' => $pnlDate->year,
+                    'month' => $pnlDate->month,
+                ]);
+            }
         } else {
             MonthlyPnL::create([
                 'telegram_user_id' => $telegram_user_id,
