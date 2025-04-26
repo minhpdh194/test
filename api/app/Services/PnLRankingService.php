@@ -19,7 +19,7 @@ class PnLRankingService
 
             $isSameDay = $lastPnLDate->isSameDay($newPnLDate);
             $isSameWeek = $lastPnLDate->weekOfYear == $newPnLDate->weekOfYear;
-            $isSameMonth = $pnlDate->isSameMonth($newPnLDate);
+            $isSameMonth = $lastPnLDate->isSameMonth($newPnLDate);
 
             $userTransactions = UserTransaction::where("created_at", ">", $pnlDate)
                 ->where("created_at", "<=", $newPnLDate)
