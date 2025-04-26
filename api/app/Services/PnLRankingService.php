@@ -21,11 +21,10 @@ class PnLRankingService
             $isSameWeek = $lastPnLDate->weekOfYear == $newPnLDate->weekOfYear;
             $isSameMonth = $lastPnLDate->isSameMonth($newPnLDate);
 
-            $userTransactions = UserTransaction::where("created_at", ">", $pnlDate)
+            $transactionsByUser = UserTransaction::where("created_at", ">", $lastPnLDate)
                 ->where("created_at", "<=", $newPnLDate)
+                ->groupBy('telegram_user_id')
                 ->get();
-
-            $transactionsByUser = $userTransactions->groupBy('telegram_user_id');
 
             foreach ($transactionsByUser as $transactionsForUser) {
                 $changeInPnl = $this->calculateDailyPnl($transactionsForUser, $newPnLDate, $isSameDay);
