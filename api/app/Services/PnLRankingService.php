@@ -47,7 +47,7 @@ class PnLRankingService
 
     private function calculateDailyPnl($transactionsForUser, $pnlDate, $iSameDay)
     {
-        $userDailyPnL = DailyPnL::where(['telegram_user_id' => $userTransaction->telegram_user_id])->first();
+        $userDailyPnL = DailyPnL::where(['telegram_user_id' => $transactionsForUser->telegram_user_id])->first();
 
         // If we have changed day, we reset the daily PnL
         if (!$iSameDay) $userDailyPnL->pnl = 0;

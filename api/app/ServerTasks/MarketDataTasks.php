@@ -45,7 +45,7 @@ class MarketDataTasks
 
         foreach ($natural_pairs as $pair) {
             if ($pair->histo_init == false) {
-                $histo_spots = $this->getHistoricalSpots($pair, $time_end, 30);
+                $this->getHistoricalSpots($pair, $time_end, 30);
                 $pair->histo_init = true;
                 $pair->save();
             }
@@ -458,7 +458,7 @@ class MarketDataTasks
         $xpairs = Pair::where('counter_symbol', '!=', 'USD')->get();
 
         $now = Carbon::now();
-        
+
         $createdSpots = $this->storeSpots($natural_pairs, $now);
         $T = $this->getYieldsAndVolatilitiesFromMarket($createdSpots);
         $this->getCorrelatedParameters($T, $natural_pairs);

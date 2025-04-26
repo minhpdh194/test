@@ -9,21 +9,21 @@ import { getQuestions, getAnswers } from '@/referential/questionsAnswers';
 import { Tasks } from '@/classes/Tasks';
 import { TaskActionNames } from '@/enums';
 import i18next from 'i18next';
-import { platform } from 'process';
 
 const openNewWindow = (url: string) => {
     if (url.length > 0) {
-        if (platform === 'darwin') {
-            const newWindow = window.open();
-            if (newWindow) {
-                newWindow.location = url;
-            } else {
-                toast.warning('Error opening video');
-                return;
-            }
-        } else {
-            window.open(url, '_blank');
-        }
+        // if (platform === 'darwin') {
+        //     const newWindow = window.open();
+        //     if (newWindow) {
+        //         newWindow.location = url;
+        //     } else {
+        //         toast.warning('Error opening video');
+        //         return;
+        //     }
+        // } else {
+        //     window.open(url, '_blank');
+        // }
+        window.open(url, '_blank');
     }
 };
 
