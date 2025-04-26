@@ -81,6 +81,15 @@ const tasksList: Array<taskDef> = [
     complete_requirement: 3,
   },
   {
+    name: watch_onexmm_video(),
+    description: { 'en': "Understanding Inflation", 'fr': "Comprendre l’inflation", 'es': "Comprender la inflación" },
+    reward_coins: 25_000,
+    link: "https://www.youtube.com/watch?v=FDw677UnudE",
+    type: "life_time",
+    action_name: TaskActionNames.Watch1XMMVideo,
+    complete_requirement: 4,
+  },
+  {
     name: follow_us('Twitter'),
     description: { 'en': "Follow our official Twitter account and retweet our pinned tweet", 'fr': "Suivez notre compte Twitter officiel et retweetez notre tweet épinglé", 'es': "Sigue nuestra cuenta oficial de Twitter y retuitea nuestro tweet fijado"},
     reward_coins: 20_000,

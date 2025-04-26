@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import ModalEarn from './ModalEarn';
 import { $http } from '@/lib/http';
 import { TaskDefinition } from '@/types/tasks/TaskDefinition';
 import { toast } from 'react-toastify';
@@ -9,7 +8,6 @@ import { Question } from '@/types/tasks/Question';
 import { TaskActionNames } from '@/enums';
 
 const ListDailyQuest: React.FC = () => {
-    const [openDrawer, setOpenDrawer] = useState(false);
     const [questionPopup, setQuestionPopup] = useState<boolean>(false);
     const [selectedTask, setSelectedTask] = useState<TaskDefinition>();
     const [currentQuestions, setCurrentQuestions] = useState<Question[]>([]);
@@ -138,6 +136,12 @@ const ListDailyQuest: React.FC = () => {
         }
     }
 
+    if (!globalThis.dailyTasks || globalThis.dailyTasks.length == 0) return (
+        <div className="mt-2">
+            -
+        </div>
+    );
+
     return (
         <div className="bg-[#32363C] rounded-xl mt-2">
             {globalThis.dailyTasks.map((task) => (
@@ -195,11 +199,6 @@ const ListDailyQuest: React.FC = () => {
                     </div>
                 </div>
             ))}
-
-            <ModalEarn
-                open={openDrawer}
-                onOpenChange={setOpenDrawer}
-            />
 
             {selectedTask && currentQuestions.length > 0 && (
                 <Dialog open={questionPopup} onClose={() => handleCloseDialog()} fullWidth>

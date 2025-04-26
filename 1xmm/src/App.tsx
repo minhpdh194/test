@@ -193,12 +193,9 @@ function App() {
         globalThis.userProfile.positionStore!.UpdateAvailableBonuses(availableBonuses);
         globalThis.userProfile.positionStore!.SetUserPositions(cleanedPositions);
 
-        setProgress(85);
-        globalThis.userProfile.SetLevelBenefits();
+        setProgress(90);
 
-        setProgress(95);
         await fetchFriendsData();
-        // globalThis.starPackage = StarPackages;
         globalThis.spots = setFirstSpots((await $http.get<DBSpot[]>("/load-spots"))['data'], pairs);
       } catch (error) {
         console.error('Error loading data:', error);
@@ -262,25 +259,25 @@ async function filterBonusesAndPositions(userBonuses: UserBonus[], userPositions
     open_position.set_last_update_timestamp(timestamp);
 
     if (p.bonuses_id) {
-    const bonusForPosition: number[] = JSON.parse(p.bonuses_id);
+      const bonusForPosition: number[] = JSON.parse(p.bonuses_id);
 
-    bonusForPosition.forEach(element => {
-      const userBonus = userBonuses.find(b => b.id == element);
-      if (!userBonus) throw new Error('Bonus storage mismatch');
+      bonusForPosition.forEach(element => {
+        const userBonus = userBonuses.find(b => b.id == element);
+        if (!userBonus) throw new Error('Bonus storage mismatch');
 
-      const bonusDef = bonusDefinitions.find(def => def.id == userBonus.bonus_id);
-      if (!bonusDef) throw new Error('Bonus definition error');
+        const bonusDef = bonusDefinitions.find(def => def.id == userBonus.bonus_id);
+        if (!bonusDef) throw new Error('Bonus definition error');
 
-      const index = userBonuses.indexOf(userBonus);
-      userBonuses[index] = userBonuses[userBonuses.length - 1];
-      userBonuses.pop();
+        const index = userBonuses.indexOf(userBonus);
+        userBonuses[index] = userBonuses[userBonuses.length - 1];
+        userBonuses.pop();
 
-      const bonus = new Bonus(element, bonusDef);
-      const bonus_end_date = new Date(userBonus.end_date! + 'Z').getTime() / 1000;
-      bonus.attach_to_position(open_position, bonus_end_date);
+        const bonus = new Bonus(element, bonusDef);
+        const bonus_end_date = new Date(userBonus.end_date! + 'Z').getTime() / 1000;
+        bonus.attach_to_position(open_position, bonus_end_date);
 
-      if (!open_position.attach_existing_bonus(bonus)) { bonusesToDelete.push(element); }
-    });
+        if (!open_position.attach_existing_bonus(bonus)) { bonusesToDelete.push(element); }
+      });
     }
 
     openPositions.push(open_position);

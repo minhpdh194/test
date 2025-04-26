@@ -33,7 +33,7 @@ const XTap: React.FC<XTapProps> = ({ changeInBalance = 0, updateAmountOfTokens, 
 
         addClick({
             id: new Date().getTime(),
-            value: available_energy > 0 ? earn_per_tap : 0,
+            value: available_energy >= earn_per_tap ? earn_per_tap : 0,
             style: {
                 insetBlockStart: e.clientY,
                 insetInlineStart: e.clientX + (Math.random() > 0.5 ? 5 : -5),
@@ -61,7 +61,7 @@ const XTap: React.FC<XTapProps> = ({ changeInBalance = 0, updateAmountOfTokens, 
     return (
         <div {...props}>
             <div className="relative">
-                <div className="z-50 relative w-10 pt-2 pl-2">
+                <div className="z-10 relative w-10 pt-2 pl-2">
                     <img
                         src="images/energy.svg"
                         className="w-10"

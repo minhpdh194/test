@@ -16,7 +16,7 @@ interface DetailBonusProps {
 
 export const getBenefitMeasure = (bonusType: BonusTypes): string => {
     if (bonusType == BonusTypes.CapitalProtection) return '%';
-    if (bonusType == BonusTypes.TimeReduction) return 'h';
+    if (bonusType == BonusTypes.TimeReduction) return 'min';
     if (bonusType == BonusTypes.Friends) return '';
     return 'x';
 };
@@ -55,7 +55,7 @@ export default function ListBonus({
             <h2 className="text-xl font-medium uppercase p-2 text-center">
                 {t(`${popup}.bonus_selection.header`)}
             </h2>
-            <div className="flex flex-col justify-start pb-6 h-[calc(100vh-200px)] overflow-y-auto">
+            <div className="flex flex-col justify-start pb-6 overflow-y-auto">
                 {bonusData.sort((a, b) => a.id - b.id).filter(b => b.bonus_definition.bonus_type != BonusTypes.Friends).map((bonus) => (
                     <div
                         key={bonus.id}
@@ -70,7 +70,7 @@ export default function ListBonus({
                             <div className="flex space-x-2 items-center">
                                 <span className="text-xl">{prettyPrint(bonus.bonus_definition.bonus_type)}</span>
                                 <span className="text-xs flex space-x-1 items-center mt-1">
-                                    <span>+{bonus.bonus_definition.benefit}{getBenefitMeasure(bonus.bonus_definition.bonus_type)}</span>
+                                    <span>{bonus.bonus_definition.bonus_type != BonusTypes.TimeReduction ? '+' : ''}{bonus.bonus_definition.benefit}{getBenefitMeasure(bonus.bonus_definition.bonus_type)}</span>
                                 </span>
                             </div>
                             <div className="text-sm mt-1 text-gray-400">

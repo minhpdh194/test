@@ -160,34 +160,6 @@ class PositionController extends Controller
 
         $position_change = $updated_position['amount'] - $position->amount;
 
-        /*****************
-         * Sanity checks *
-         * ***************/
-        $position_change_for_pnl_estimate = 0.0;
-        if ($updated_position['long_short'] == $position->long_short) $position_change_for_pnl_estimate = $position_change > 0 ? $position_change : -$position_change;
-        else $position_change_for_pnl_estimate = $position->amount + $updated_position['amount'];
-
-        $not_using_leverage_bonus = true;
-        if (!empty($position->bonuses_id) && count($position->bonuses_id) > 0) {
-            foreach ($position->bonuses_id as $bonus_id) {
-                // Bonus will correspond to leverage or positive leverage
-                if ($bonus_id <= 24) {
-                    $not_using_leverage_bonus = false;
-                    break;
-                }
-            }
-        }
-
-        if ($position_change == 0 && $pnl > 0
-            || $updated_position['amount'] > $userGameData->balance + $pnl
-            || $not_using_leverage_bonus && PositionController::pnlIsNotConsistent($position->pair_id, 
-                $position->long_short, 
-                $position_change_for_pnl_estimate, 
-                $position->index_start,
-                $pnl)) return response()->json('Forbidden', 403);
-
-        /*****************/
-
         $positionData['amount'] = $updated_position['amount'];
         $positionData['index_start'] = $updated_position['index_at_start'];
         $positionData['average_leverage'] = $updated_position['leverage'];
@@ -229,6 +201,10 @@ class PositionController extends Controller
     {
         $user = $request->user();
 
+        if (!$user) {
+            return response()->json('User not found', 404);
+        }
+
         $position_id = $request->get('position')["position_id"];
         $pnl = $request->get('pnl');
 
@@ -237,15 +213,8 @@ class PositionController extends Controller
 
         $userGameData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
 
-        if (!$position || !$userGameData) {
-            $pos_issue = !$position;
+        if (!($position && $userGameData)) {
             return response()->json(['message' => 'Position not found'], 404);
-        }
-
-        // We delete the bonuses which were attached
-        $positionBonuses = UserBonuses::where('position_id', $position_id)->get();
-        foreach ($positionBonuses as $bonus) {
-            $bonus->delete();
         }
 
         $userGameData->balance += ($position->amount + $pnl);
@@ -255,6 +224,12 @@ class PositionController extends Controller
 
         $userGameData->save();
         $position->delete();
+
+        // We delete the bonuses which were attached
+        $positionBonuses = UserBonuses::where(['telegram_user_id' => $user->telegram_user_id, 'position_id' => $position_id])->get();
+        foreach ($positionBonuses as $bonus) {
+            $bonus->delete();
+        }
 
         UserTransaction::create([
             'amount_of_tokens' => $pnl,

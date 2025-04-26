@@ -30,7 +30,7 @@ WORKDIR /var/www/html
 COPY . .
 
 # Cài đặt các phụ thuộc thông qua Composer
-RUN composer install --no-interaction --optimize-autoloader
+RUN composer install --no-interaction --optimize-autoloader --ignore-platform-reqs
 
 # Tạo các thư mục 'storage', 'bootstrap/cache', và 'public/build' nếu chưa tồn tại
 RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public/build
@@ -44,8 +44,10 @@ RUN npm install
 # Build các tài nguyên frontend bằng Vite
 RUN npm run build
 
-# RUN php artisan migrate --force
-# RUN php artisan db:seed --class=DatabaseSeeder --force
+# WHEN WILL WE GET THE CI/CD???????
+#RUN php artisan migrate --force
+#RUN php artisan db:seed --class=DatabaseSeeder --force
+
 RUN echo "*/2 * * * * /usr/local/bin/php /var/www/html/artisan app:integration >> /var/log/cron.log 2>&1" >> /etc/cron.d/laravel-cron \
     && echo "0 0 * * * sleep 30 && /usr/local/bin/php /var/www/html/artisan app:clear-daily-tasks >> /var/log/cron.log 2>&1" >> /etc/cron.d/laravel-cron \
     && chmod 0644 /etc/cron.d/laravel-cron \

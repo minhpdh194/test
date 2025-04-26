@@ -13,6 +13,7 @@ import pusher from "@/lib/pusher";
 import { $http } from "@/lib/http";
 import { useTranslation } from "react-i18next";
 import { bonus } from "@/referential/i18nPrefixes";
+import { Popover } from "@mui/material";
 
 export default function Bonus() {
     const [leverageData, setLeverageData] = useState<BonusDefinition[]>([]);
@@ -22,17 +23,13 @@ export default function Bonus() {
     const [tokenData, setTokenData] = useState<BonusDefinition[]>([]);
     const [friendData, setFriendData] = useState<BonusDefinition[]>([]);
     const [coinSpent, setCoinSpent] = useState<number>(globalThis.coinTarget);
-    // const [openStarDrawer, setOpenStarDrawer] = useState(false);
+    const [waitForInvoice, setWaitForInvoice] = useState(false);
 
-    const bonusDefinitionIds = userProfile.positionStore?.available_bonuses.map(item => item.bonus_definition.id);
+    const idsBonusAlreadyBought = userProfile.positionStore?.available_bonuses.map(item => item.bonus_definition.id);
 
     const { t } = useTranslation();
 
     useEffect(() => {
-        // setInterval(async () => {
-        //     const total_stars = await COMM.getStarsTarget($http);
-        //     setStarsTarget(total_stars);
-        // }, 2500);
         const totalCoins = pusher.subscribe("totalCoins");
 
         totalCoins.bind("data", (data: any) => {
@@ -134,10 +131,10 @@ export default function Bonus() {
                     <>+{bonus.benefit}x</>
                 );
                 case BonusTypes.TimeReduction: return (
-                    <>+{bonus.benefit}sec</>
+                    <>{bonus.benefit}min</>
                 );
             case BonusTypes.Token: return (
-                <>+{bonus.benefit} token</>
+                <>+{bonus.benefit.toLocaleString()} tokens</>
             )
             case BonusTypes.Friends: return (
                 <>+{bonus.benefit} friends</>
@@ -149,7 +146,7 @@ export default function Bonus() {
         return (
             <div
                 key={bonus.id}
-                className={`flex-shrink-0 w-44 bg-[#32363C] rounded-xl p-2.5 mt-3 ${!bonusDefinitionIds?.includes(bonus.id) && 'hover:cursor-pointer'}`}
+                className={`flex-shrink-0 w-44 bg-[#32363C] rounded-xl p-2.5 mt-3 ${!idsBonusAlreadyBought?.includes(bonus.id) && 'hover:cursor-pointer'}`}
                 onClick={() => handleBuyBonusAction(bonus)}
             >
                 <span className="flex items-center">
@@ -161,7 +158,7 @@ export default function Bonus() {
                     <div className="w-full">
                         <div className="flex justify-between">
                             <span className="flex gap-2"><Star /> {bonus.cost} </span>
-                            {bonusDefinitionIds?.includes(bonus.id) && <Purchased />}
+                            {idsBonusAlreadyBought?.includes(bonus.id) && <Purchased />}
                         </div>
 
                         <div className="h-[1px] bg-gray-600 my-1"></div>
@@ -181,19 +178,23 @@ export default function Bonus() {
         );
     }
 
-    const handleBuyBonusAction = async (bonus: BonusDefinition) => {
-        try {
-            // Call the backend to send the invoice via Telegram bot
-            const response = await $http.post("send-invoice", {
-                telegram_user_id: userProfile.telegram_user_id,
-                bonus: bonus
-            });
+    const handleBuyBonusAction = (bonus: BonusDefinition) => {
+        setWaitForInvoice(true);
 
-            if (response.data.ok) {
+        $http.post("send-invoice", {
+            telegram_user_id: userProfile.telegram_user_id,
+            bonus: bonus
+        }).then(async r => {
+            setWaitForInvoice(false);
+
+            if (r.data.ok) {
                 if (Number(window.Telegram.WebApp.version) < 6.1) {
                     toast.error("Please update your Telegram app to the latest version to access all features.");
+                    await $http.post("not-paid", {
+                        bonus_id: bonus.id
+                    });
                 } else {
-                    window.Telegram.WebApp.openInvoice(response.data.result, async (status) => {
+                    window.Telegram.WebApp.openInvoice(r.data.url.result, async (status) => {
                         if (status === "paid") {
                             if (bonus.bonus_type === BonusTypes.Token) {
                                 await globalThis.userProfile.BuyToken(bonus);
@@ -202,21 +203,34 @@ export default function Bonus() {
                             } else {
                                 await globalThis.userProfile.BuyBonus(bonus);
                             }
-                        } else {
+                        } else if (status !== "pending") {
                             await $http.post("not-paid", {
                                 bonus_id: bonus.id
                             });
 
-                            toast.warning(`You dont have enough stars to buy this bonus`);
+                            if (status === 'failed') toast.warning(`You dont have enough stars to buy this bonus`);
                         }
                     });
                 }
             } else {
-                toast.warning("This bonus has been purchased");
+                if (r.data.bought) toast.warning("This bonus has been purchased");
+                if (r.data.err_invoice) toast.warning("Error sending payment invoice");
             }
-        } catch (error) {
-            console.error('Error sending payment invoice:', error);
+        }).catch(e => {
+            setWaitForInvoice(false);
+
+            console.error('Error sending payment invoice:', e);
+            toast.warning("Error sending payment invoice");
+        });
+    }
+
+    const getCurrentDistr = (amt: number):string => {
+        if (amt) {
+            if (amt < 1) return `${amt.toFixed(2)} 1XMM earned out of 20M`;
+            return `${amt.toFixed(2)} 1XMM earned out of 20M`;
         }
+
+        return "-";
     }
 
     return (
@@ -228,6 +242,7 @@ export default function Bonus() {
             }}
         >
             <Header amount_token={userProfile.amount_of_tokens} />
+            <Popover open={waitForInvoice} anchorOrigin={{vertical: 'center', horizontal: 'center'}}>{t(`${bonus}.wait_invoice`)}</Popover>
             <div className="text-xl bg-[var(--silver-white-light)] mt-3">
                 {t(`${bonus}.target_to_seed`)}
             </div>
@@ -238,10 +253,7 @@ export default function Bonus() {
                 </div>
                 <div className="flex justify-between">
                     <div className="font-bold text-sm">
-                        {coinSpent.toFixed(2)}
-                    </div>
-                    <div className="font-bold text-sm">
-                        20,000,000
+                        {getCurrentDistr(coinSpent)}
                     </div>
                 </div>
             </div>
@@ -317,12 +329,12 @@ export default function Bonus() {
                         <>
                             {/* First Row */}
                             <div className="flex space-x-4">
-                                {capitalProtectionData.filter(b => b.duration == BonusTerms.Short).map(renderBonusItem)}
+                                {capitalProtectionData.slice(0, Math.ceil(capitalProtectionData.length / 2)).map(renderBonusItem)}
                             </div>
 
                             {/* Second Row */}
                             <div className="flex space-x-4">
-                                {capitalProtectionData.filter(b => b.duration == BonusTerms.Long).map(renderBonusItem)}
+                                {capitalProtectionData.slice(Math.ceil(capitalProtectionData.length / 2)).map(renderBonusItem)}
                             </div>
                         </>
                     ) : (

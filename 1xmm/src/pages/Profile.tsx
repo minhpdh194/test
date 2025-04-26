@@ -84,8 +84,7 @@ export default function Profile() {
                                 className="w-8 h-8"
                             />
                             <span className="fw-bold">
-                                {Math.round(userProfile.amount_of_tokens)}
-                                <span className="text-xs"> 1vMM</span>
+                                {Math.round(userProfile.amount_of_tokens).toLocaleString()}
                             </span>
                         </div>
                     </div>
@@ -120,9 +119,9 @@ export default function Profile() {
                             ))}
                         </div>
                     </div>
-                    <div>{t(`${profile}.cumulated_pos_leverage_bonus`)}: +{levelBenefit?.cumulated_positive_leverage}x</div>
-                    <div>{t(`${profile}.cumulated_protection_bonus`)}: +{levelBenefit?.cumulated_protection_bonus}%</div>
-                    <div>{t(`${profile}.cumulated_time_bonus`)}: -{levelBenefit?.cumulated_time_bonus} min</div>
+                    <div>{t(`${profile}.cumulated_pos_leverage_bonus`)}: +{userProfile.trading_info.positive_leverage.toFixed(2)}x</div>
+                    <div>{t(`${profile}.cumulated_protection_bonus`)}: +{((userProfile.trading_info.capital_protection ?? 0) * 100).toFixed(2)}%</div>
+                    <div>{t(`${profile}.cumulated_time_bonus`)}: -{userProfile.trading_info.time_reduction} min</div>
                     <div>{t(`${profile}.cumulated_tapping_amount`)}: {levelBenefit?.cumulated_tapping_amount}</div>
                     <div>{t(`${profile}.gain_per_tap`)}: {levelBenefit?.total_gain_per_tap}</div>
                 </div>

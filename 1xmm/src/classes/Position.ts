@@ -225,9 +225,10 @@ export class Position {
                     break;
                 case BonusTypes.CapitalProtection:
                     total_capital_protection += b.bonus_definition.benefit;
+                    total_capital_protection = Math.min(0.9, total_capital_protection);
                     break;
                 case BonusTypes.TimeReduction:
-                    total_time_reduction = Math.min(359, total_time_reduction + b.bonus_definition.benefit);
+                    total_time_reduction = Math.min(350, total_time_reduction + b.bonus_definition.benefit);
                     break;
                 default:
                     console.error("Unknown bonus type:", b.bonus_definition.bonus_type);
@@ -267,18 +268,19 @@ export class Position {
 
         const adj_factors = this.get_performance_adjustment_factors(globalThis.userProfile);
         if (this.min_end_date > this.last_update_timestamp) penalty = penaltyFee;
-
-        const pro_rata = Math.min(1.0, (this.last_update_timestamp - this.open_date + adj_factors.total_time_reduction) / (this.min_end_date - this.open_date));
+        
+        const pro_rata = Math.min(1.0, (this.last_update_timestamp - this.open_date + Number(adj_factors.total_time_reduction) * 60) / (this.min_end_date - this.open_date));
         const net_perf = (index_value! - this.index_at_start) - (1 - pro_rata) * penalty;
 
         if (net_perf > 0) {
-            total_pnl = pro_rata * (adj_factors.total_leverage + adj_factors.total_positive_leverage) * net_perf * this.amount;
+            const totalLeverage: number = Number(adj_factors.total_leverage) + Number(adj_factors.total_positive_leverage);
+            total_pnl = pro_rata * totalLeverage * net_perf * this.amount;
         } else {
             let negPerf: number = adj_factors.total_leverage * net_perf * (1 - adj_factors.total_capital_protection);
             if (negPerf <= -1) { negPerf = -1; isZero = true; }
             total_pnl = negPerf * this.amount;
         }
-
+        
         this.performance = total_pnl / this.amount;
 
         return {

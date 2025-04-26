@@ -16,10 +16,12 @@ return new class extends Migration
             $table->string('telegram_user_id', 50)->unique()->nullable(false)->index();
             $table->string('first_name', 100)->nullable(false);
             $table->string('last_name', 100)->nullable();
+            $table->tinyInteger('avatar_id')->default(0)->unsigned(); // This is the avatar_id of avatar picture
             $table->string('username', 100)->nullable();
             $table->date('start_date')->default(now());
             $table->timestamp('last_login')->default(now());
             $table->integer('login_streak')->default(1);
+            $table->boolean('hasValidatedLegalTerms')->default(false);
             $table->string('selected_language')->default('en');
             $table->timestamps();
         });

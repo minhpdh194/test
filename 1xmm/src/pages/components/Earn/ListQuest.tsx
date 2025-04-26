@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import ModalEarn from './ModalEarn';
 import { $http } from '@/lib/http';
 import { TaskDefinition } from '@/types/tasks/TaskDefinition';
 import { toast } from 'react-toastify';
@@ -10,12 +9,28 @@ import { getQuestions, getAnswers } from '@/referential/questionsAnswers';
 import { Tasks } from '@/classes/Tasks';
 import { TaskActionNames } from '@/enums';
 import i18next from 'i18next';
+import { platform } from 'process';
+
+const openNewWindow = (url: string) => {
+    if (url.length > 0) {
+        if (platform === 'darwin') {
+            const newWindow = window.open();
+            if (newWindow) {
+                newWindow.location = url;
+            } else {
+                toast.warning('Error opening video');
+                return;
+            }
+        } else {
+            window.open(url, '_blank');
+        }
+    }
+};
 
 const ListQuest: React.FC = () => {
     //const TWITTER_CLIENT_ID: string = import.meta.env.VITE_TWITTER_CLIENT_ID;
     //const TWITTER_REDIRECT_URI: string = import.meta.env.VITE_TWITTER_REDIRECT_URI;
     const [tasks, updateTasks] = useState<Tasks>(new Tasks(userProfile.completed_task_ids));
-    const [openDrawer, setOpenDrawer] = useState(false);
     const [questionPopup, setQuestionPopup] = useState<boolean>(false);
     const [selectedTask, setSelectedTask] = useState<TaskDefinition>();
     const [currentQuestions, setCurrentQuestions] = useState<Question[]>([]);
@@ -90,11 +105,7 @@ const ListQuest: React.FC = () => {
         if (tasks.IsWaitingToJoin(task)) return;
         tasks.WaitToJoin(task);
 
-        const destinationUrl = task.link;
-
-        if (destinationUrl.length > 0) {
-            window.open(destinationUrl, '_blank')!;
-        }
+        openNewWindow(task.link);
 
         tasks.CheckIfUserHasJoined(task);
         let count = 0;
@@ -115,13 +126,11 @@ const ListQuest: React.FC = () => {
     }
 
     const handleWatchVideo = (task: TaskDefinition) => {
-        const videoUrl = task.link;
-
         // Sanity check
-        if (tasks.CompletedTaskIds.includes(task.id) || videoUrl.length == 0) return;
+        if (tasks.CompletedTaskIds.includes(task.id)) return;
 
         if (!tasks.CurrentVideoTaskInProgress) {
-            window.open(videoUrl, '_blank');
+            openNewWindow(task.link);
             tasks.CurrentVideoTaskInProgress = true;
         }
 
@@ -135,6 +144,8 @@ const ListQuest: React.FC = () => {
     }
 
     const claimTask = async (task: TaskDefinition) => {
+        tasks.CurrentVideoTaskInProgress = false;
+        
         try {
             const response = await $http.post('/claim-task', { task: task });
 
@@ -158,6 +169,8 @@ const ListQuest: React.FC = () => {
     }
 
     const handleCloseDialog = () => {
+        tasks.CurrentVideoTaskInProgress = false;
+
         setQuestionPopup(false);
         setSelectedTask(undefined);
     }
@@ -232,11 +245,6 @@ const ListQuest: React.FC = () => {
                     </div>
                 </div>
             ))}
-
-            <ModalEarn
-                open={openDrawer}
-                onOpenChange={setOpenDrawer}
-            />
 
             {selectedTask && currentQuestions.length > 0 && (
                 <Dialog open={questionPopup} onClose={() => handleCloseDialog()} fullWidth>

@@ -6,6 +6,7 @@ import { questionList1, answerList1 } from "./questions_answers/video_1";
 import { questionList2, answerList2 } from "./questions_answers/video_2";
 import { questionList3, answerList3 } from "./questions_answers/video_3";
 import { questionList4, answerList4 } from "./questions_answers/video_4";
+import { questionList5, answerList5 } from "./questions_answers/video_5";
 
 export type QuestionType = {
     description: { [key: string]: string };
@@ -23,6 +24,7 @@ const allQuestions: Array<Array<QuestionType>> = [
     questionList2,
     questionList3,
     questionList4,
+    questionList5,
 ];
 
 const allAnswers: Array<Array<AnswerType>> = [
@@ -30,6 +32,7 @@ const allAnswers: Array<Array<AnswerType>> = [
     answerList2,
     answerList3,
     answerList4,
+    answerList5,
 ];
 
 const getText = (description: { [key: string]: string }): string => {

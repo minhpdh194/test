@@ -24,6 +24,7 @@
         "website": "Website",
         "airdrop": "Token Distribution",
         "telegram_channel": "Telegram Channel",
+        "x_channel": "X Channel",
         "user_manual": "User Manual",
         "connect_wallet": "Connect Wallet",
         "disconnect_ton_wallet": "Disconnect TON Wallet",
@@ -41,7 +42,7 @@
         "confirm": "Confirm",
         "earn_per_tap": "Gain per tap",
         "time_to_next_fixing": "Time to next fixing",
-        "daily_perf": "Daily perf",
+        "daily_perf": "Pair day perf.",
         "position": "Position",
         "performance_to_date": "Performance to Date",
         "bonuses": "Bonuses",
@@ -101,6 +102,7 @@
         "more_info": "More Info"
     },
     "bonus": {
+        "wait_invoice": "Waiting for Telegram invoice",
         "target_to_seed": "Reward Cap",
         "data_not_found": "Data not found",
         "leverage": {

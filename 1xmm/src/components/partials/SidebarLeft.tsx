@@ -74,7 +74,7 @@ const Sidebar = () => {
     return (
         <div className="fixed inset-0 bg-[#064C7D] bg-opacity-50 z-20">
             <div
-                className="fixed top-0 left-0 w-100 h-full bg-center bg-cover bg-[#064C7D] text-white z-30 p-3 transition-transform transform translate-x-0"
+                className="fixed top-0 left-0 w-100 h-full bg-center bg-cover bg-[#064C7D] text-white z-40 p-3 transition-transform transform translate-x-0"
                 style={{
                     backgroundImage: `url(/images/home/bg.png)`,
                 }}
@@ -124,6 +124,11 @@ const Sidebar = () => {
 
                 <span className="flex justify-between align-center mt-3" onClick={handleOpenTelegramChannel}>
                     <span className="cursor-pointer">{t(`${menu}.telegram_channel`)}</span>
+                    <img src="/images/home/angle-right.png" alt="arrow" className="w-3 h-6" />
+                </span>
+
+                <span className="flex justify-between align-center mt-3" onClick={()=> window.open("https://x.com/onexmm_official", "_blank")}>
+                    <span className="cursor-pointer">{t(`${menu}.x_channel`)}</span>
                     <img src="/images/home/angle-right.png" alt="arrow" className="w-3 h-6" />
                 </span>
 

@@ -1,13 +1,10 @@
 import { earn } from "@/referential/i18nPrefixes";
 import Header from "../components/Header";
 import ListQuest from "./components/Earn/ListQuest";
-import ModalCategory from './components/Earn/ModalCategory';
-import { useState } from 'react';
 import { useTranslation } from "react-i18next";
 import ListDailyQuest from "./components/Earn/ListDailyQuest";
 
 export default function Profile() {
-  const [openDrawer, setOpenDrawer] = useState(false);
   const { t } = useTranslation();
 
   return (
@@ -27,16 +24,6 @@ export default function Profile() {
           <div className="fw-bold">
             {t(`${earn}.daily_quests`)}
           </div>
-          <div className="flex items-center space-x-1">
-            <img
-              src="/images/earn/more.png"
-              alt="more"
-              className="w-4 h-4"
-            />
-            <span className="text-xs" onClick={() => {
-              setOpenDrawer(true);
-            }}>{t(`${earn}.more_info`)}</span>
-          </div>
         </div>
         <ListDailyQuest />
       </div>
@@ -46,23 +33,9 @@ export default function Profile() {
           <div className="fw-bold">
             {t(`${earn}.quests_to_do`)}
           </div>
-          <div className="flex items-center space-x-1">
-            <img
-              src="/images/earn/more.png"
-              alt="more"
-              className="w-4 h-4"
-            />
-            <span className="text-xs" onClick={() => {
-              setOpenDrawer(true);
-            }}>{t(`${earn}.more_info`)}</span>
-          </div>
         </div>
         <ListQuest />
       </div>
-      <ModalCategory
-        open={openDrawer}
-        onOpenChange={setOpenDrawer}
-      />
     </div>
   );
 }

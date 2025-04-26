@@ -30,6 +30,7 @@ export type UserProfileStore = UserProfile & {
   UpdateUserWallet: (crypto_id: number, wallet_address: string) => void;
   UpdateTotalFriends: (friends: number) => void;
   LegalTermsValidated: () => void;
+  UpdateFriendBonuses: () => void;
   RefreshEnergy: () => void;
   unlocked_pair_ids: Array<number>;
   unlocked_pairs: Pair[];
@@ -108,6 +109,40 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
     }));
   },
 
+  UpdateFriendBonuses: () => {
+    const nbFriends = get().total_friends_refered;
+    var changePositiveLeverage = 0.0;
+    var changeCapitalProtection = 0.0;
+
+    if (nbFriends <= 5) {
+      changePositiveLeverage = nbFriends * 0.01;
+      changeCapitalProtection = nbFriends * 0.001;
+    } else if (nbFriends <= 15) {
+      changePositiveLeverage = 0.05 + (nbFriends - 5) * 0.02;
+      changeCapitalProtection = 0.005 + (nbFriends - 5) * 0.0015;
+    } else if (nbFriends <= 50) {
+      changePositiveLeverage = 0.25 + (nbFriends - 15) * 0.04;
+      changeCapitalProtection = 0.0225 + (nbFriends - 15) * 0.0025;
+    } else if (nbFriends > 50) {
+      changePositiveLeverage = 1.65 + (nbFriends - 50) * 0.05;
+      changeCapitalProtection = 0.11 + (nbFriends - 50) * 0.003;
+    }
+    
+    const capitalProtectionBonus = Math.min(0.50, changeCapitalProtection);
+    const timeReductionBonus = Math.min(180, nbFriends);
+
+    set((state) => ({
+      trading_info: {
+        balance: state.trading_info.balance,
+        total_pnl: state.trading_info.total_pnl,
+        perf_from_start_date: state.trading_info.perf_from_start_date,
+        positive_leverage: state.trading_info.positive_leverage + changePositiveLeverage,
+        capital_protection: state.trading_info.capital_protection + capitalProtectionBonus,
+        time_reduction: state.trading_info.time_reduction + timeReductionBonus
+      },
+    }));
+  },
+
   SetLevelBenefits: () => {
     const pairsInReferential = JSON.parse(localStorage.getItem("PairReferential") || "[]") as Pair[];
     const userLevel = get().level;
@@ -171,6 +206,14 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
         toast.success('Token bought successfully!');
         set((state) => ({
           amount_of_tokens: state.amount_of_tokens + bonus.benefit,
+          trading_info: {
+            balance: state.trading_info.balance + bonus.benefit,
+            total_pnl: state.trading_info.total_pnl,
+            perf_from_start_date: state.trading_info.perf_from_start_date,
+            positive_leverage: state.trading_info.positive_leverage,
+            capital_protection: state.trading_info.capital_protection,
+            time_reduction: state.trading_info.time_reduction
+          }
         }));
       } else if (response.status === 202) {
         toast.warning(response.data.success);
@@ -191,6 +234,7 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
         set((state) => ({
           total_friends_refered: state.total_friends_refered + bonus.benefit,
         }));
+        get().UpdateFriendBonuses();
       } else if (response.status === 202) {
         toast.warning(response.data.success);
       }
@@ -242,7 +286,10 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       hasValidatedLegalTerms: syncData.user.hasValidatedLegalTerms
     }));
 
-    globalThis.userProfile = get(); //assign newest data to global
+    get().SetLevelBenefits();
+    get().UpdateFriendBonuses();
+    
+    globalThis.userProfile = get();
   },
 
   LegalTermsValidated: () => {
@@ -320,7 +367,6 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
       } else {
         toast.error("Unexpected error has been occurred");
       }
-
     }
   },
 
@@ -392,11 +438,11 @@ export const userProfileStore = create<UserProfileStore>()((set, get) => ({
     
     // Energy is fully restored every 3 hours
     const energyGain = Math.ceil(nIncrease / 360 * energyLimit);
-    const newAvailableEnergy = Math.min(userProfile.available_energy + energyGain, energyLimit);
+    const newAvailableEnergy = Math.min(userProfile.available_energy + (isNaN(energyGain) || energyGain <= 0 ? 0 : energyGain), energyLimit);
 
     set(() => ({
       available_energy: newAvailableEnergy,
-      lastEnergyUpdate: newAvailableEnergy == energyLimit ? undefined : currentTime,
+      lastEnergyUpdate: currentTime,
     }));
   }
 }));

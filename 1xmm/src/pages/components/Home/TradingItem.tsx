@@ -22,9 +22,14 @@ type TradingItemProps = {
     onValidatePosition: (amount: number) => void;
 };
 
+export const allowedLeverages = (level: number): number[] => {
+    if (level <= 2) return [1, 2, 3]
+    else if (level <= 5) return [1, 2, 3, 5];
+    else if (level <= 10) return [1, 2, 3, 5, 7];
+    return [1, 2, 3, 5, 7, 10];
+}
+
 const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => {
-    // const [, setTimeBonus] = useState(null);
-    //const [bonusData, setBonusData] = useState<any[]>([]);
     const pairs = JSON.parse(localStorage.getItem("PairReferential") || "[]") as Pair[];
     const { t } = useTranslation();
 
@@ -33,13 +38,18 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
     const [bonusPositionId, setPositionIdForBonus] = useState<number>(-1);
     const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: LongShort | undefined }>({});
     const [amounts, setAmounts] = useState<{ [key: number]: number }>({});
-    const [leverages, setLeverages] = useState<{ [key: number]: number }>({});
-    const [expandedPairs, setExpandedPairs] = useState<{ [key: number]: boolean }>({1: true});
+    const [leverages, setLeverages] = useState<{ [key: number]: number }>(() => {
+        const initialLeverages: { [key: number]: number } = {};
+        pairs.forEach(pair => {
+            initialLeverages[pair.id] = 1;  // Set initial leverage to 1
+        });
+        return initialLeverages;
+    });
+    const [expandedPairs, setExpandedPairs] = useState<{ [key: number]: boolean }>({});
     const [expandedBonuses, setExpandedBonuses] = useState<{ [key: number]: boolean }>({});
-    const allowedLeverages = [0, 1, 2, 3, 5, 7, 10];  // Valid leverage options
     const [positions, setPositions] = useState<Position[]>([]);
     const [, setIsLoading] = useState(false);
-
+    
     useEffect(() => {
         const defaultOptions: { [key: number]: LongShort } = {};
         spots.forEach((spot) => {
@@ -54,13 +64,13 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
         const initialLeverages: { [key: number]: number } = {};
 
         spots.forEach(spot => {
-            initialAmounts[spot.id] = 0;  // Set initial amount to 0
-            initialLeverages[spot.id] = 0;  // Set initial leverage to 0
+            initialAmounts[spot.pair_id] = 0;  // Set initial amount to 0
+            initialLeverages[spot.pair_id] = 1;  // Set initial leverage to 1
         });
 
         setAmounts(initialAmounts);
         setLeverages(initialLeverages);
-    }, [spots]);  // Re-run when pairs change
+    }, [spots]);
 
     useEffect(() => {
         fetchLatestPositions();
@@ -138,7 +148,7 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
     };
 
     const handleLeverageChange = (pairId: number, leverage: number) => {
-        if (allowedLeverages.includes(leverage)) {
+        if (allowedLeverages(globalThis.userProfile.level).includes(leverage)) {
             setLeverages((prevLeverages) => ({
                 ...prevLeverages,
                 [pairId]: leverage,
@@ -205,7 +215,7 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
             // Reset states
             setAmounts((prev) => ({ ...prev, [pairId]: 0 }));
             setSelectedOptions((prev) => ({ ...prev, [pairId]: undefined }));
-            setLeverages((prev) => ({ ...prev, [pairId]: 0 }));
+            setLeverages((prev) => ({ ...prev, [pairId]: 1 }));
             setExpandedBonuses((prev) => ({ ...prev, [pairId]: false }));
 
             // Fetch updated positions
@@ -232,7 +242,7 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
 
                 // Reset states
                 setAmounts((prev) => ({ ...prev, [pairId]: 0 }));
-                setLeverages((prev) => ({ ...prev, [pairId]: 0 }));
+                setLeverages((prev) => ({ ...prev, [pairId]: 1 }));
 
                 onValidatePosition(balanceAdjustment);
 
@@ -262,7 +272,7 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
         if (bonusDef.bonus_type == BonusTypes.CapitalProtection)
             return `+${bonusDef.benefit}%`;
         if (bonusDef.bonus_type == BonusTypes.TimeReduction)
-            return `${bonusDef.benefit}s`;
+            return `${bonusDef.benefit}min`;
 
         return "";
     };
@@ -276,6 +286,10 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
 
         return () => clearInterval(interval); // Cleanup on unmount
     }, []);
+
+    useState(() => {
+        toggleExpand(1);
+    });
 
     return (
         <div className="mt-3">
@@ -386,7 +400,7 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                                             border: "0.5px solid #FFFFFF4D"
                                         }}
                                         className={`w-16 flex items-center justify-center font-bold text-xs rounded-[5px] py-1
-                                            ${selectedOptions[pair.id] === LongShort.Long ? 'bg-[#656565]' : 'bg-[#A6A6A6]'}`}
+                                            ${selectedOptions[pair.id] === LongShort.Long ? 'bg-[#7fb074]' : 'bg-[#A6A6A6]'}`}
                                         onClick={() => handleSelectOption(pair.id, LongShort.Long)}
                                     >
                                         {t(`${home}.long`)}
@@ -396,7 +410,7 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                                             border: "0.5px solid #FFFFFF4D"
                                         }}
                                         className={`w-16 flex items-center justify-center font-bold text-xs rounded-[5px] py-1
-                                            ${selectedOptions[pair.id] === LongShort.Short ? 'bg-[#656565] border-1' : 'bg-[#A6A6A6]'}`}
+                                            ${selectedOptions[pair.id] === LongShort.Short ? 'bg-[#7fb074] border-1' : 'bg-[#A6A6A6]'}`}
                                         onClick={() => handleSelectOption(pair.id, LongShort.Short)}
                                     >
                                         {t(`${home}.short`)}
@@ -408,15 +422,17 @@ const TradingItem = ({ spots, perfs, onValidatePosition }: TradingItemProps) => 
                                         <span className="font-normal text-sm mb-2 block">{t(`${home}.amount`)}</span>
                                         <CounterInput
                                             value={amounts[pair.id] || 0}
-                                            onChange={(value) => handleAmountChange(pair.id, value)} // Tăng giá trị
+                                            allowedLeverages={allowedLeverages(globalThis.userProfile.level)}
+                                            onChange={(value) => handleAmountChange(pair.id, value)}
                                         />
                                     </div>
                                     <div className="">
                                         <span className="font-normal text-sm mb-2 block">{t(`${home}.leverage`)}</span>
                                         <CounterInput
-                                            value={leverages[pair.id] || 0}
+                                            value={leverages[pair.id]}
+                                            allowedLeverages={allowedLeverages(globalThis.userProfile.level)}
                                             onChange={(value) => handleLeverageChange(pair.id, value)}
-                                            isLeverage={true} // Only leverage counter will be restricted to allowed values
+                                            isLeverage={true}
                                         />
                                     </div>
                                 </div>

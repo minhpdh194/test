@@ -34,10 +34,12 @@ class TelegramStarController extends Controller
 
         if (!$user_id) return response()->json(['error' => 'User not found'], 404);
 
-        $isBonusBought = UserBonuses::where(['bonus_id' => $bonus['id'], 'telegram_user_id' => $user_id])->first();
+        $isBonusBought = UserBonuses::where(['bonus_id' => $bonus['id'], 'telegram_user_id' => $user_id, 'is_expired' => false])
+            ->whereNotNull('end_date')
+            ->first();
 
         if ($isBonusBought) {
-            return response()->json(['ok' => false], 202);
+            return response()->json(['ok' => false, 'bought' => true], 202);
         } else {
             $result = $this->telegramStarService->sendInvoice($bonus, $user_id);
             
@@ -48,10 +50,10 @@ class TelegramStarController extends Controller
                     'number_of_stars' => 0,
                 ]);
 
-                return response()->json(['ok' => true]);
+                return response()->json(['ok' => true, 'url' => $result]);
             }
 
-            return response()->json(['ok' => false], 202);
+            return response()->json(['ok' => false, 'err_invoice' => true], 202);
         }
     }
 

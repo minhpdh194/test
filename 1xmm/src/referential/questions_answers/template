@@ -1,0 +1,32 @@
+export const questionList = [
+    {
+        description: {
+            'en': "",
+            'fr': "",
+            'es': ""
+        },
+        type: "single_choice"
+    },
+    {
+        description: {
+            'en': "",
+            'fr': "",
+            'es': ""
+        },
+        type: "multiple_choice"
+    }
+];
+
+export const answerList = [
+    // Question 1
+    { description: { 'en': "", 'fr': "", 'es': ""}, is_correct: true, question_id: 1 },
+    { description: { 'en': "", 'fr': "", 'es': ""}, is_correct: false, question_id: 1 },
+    { description: { 'en': "", 'fr': "", 'es': ""}, is_correct: false, question_id: 1 },
+    { description: { 'en': "", 'fr': "", 'es': ""}, is_correct: false, question_id: 1 },
+
+    // Question 2
+    { description: { 'en': "", 'fr': "", 'es': ""}, is_correct: true, question_id: 2 },
+    { description: { 'en': "", 'fr': "", 'es': ""}, is_correct: true, question_id: 2 },
+    { description: { 'en': "", 'fr': "", 'es': ""}, is_correct: false, question_id: 2 },
+    { description: { 'en': "", 'fr': "", 'es': ""}, is_correct: false, question_id: 2 },
+];

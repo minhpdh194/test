@@ -2,23 +2,25 @@ import React from "react";
 
 interface CounterInputProps {
   value: number;
+  allowedLeverages: number[];
   onChange: (value: number) => void;
   isLeverage?: boolean; // Add a flag to distinguish between leverage and amount
 }
 
-const allowedLeverages = [0, 1, 2, 3, 5, 7, 10]; // Define allowed leverage values
 const isSmallScreen = window.innerWidth < 400;
 
 const CounterInput: React.FC<CounterInputProps> = ({
   value,
+  allowedLeverages,
   onChange,
   isLeverage = false,
 }) => {
   const pos_amt_inc = Math.max(25, 10 ** (Math.round(Math.log10(userProfile.trading_info.balance)) - 2) * 2.5);
+
   const handleIncrement = () => {
     if (isLeverage) {
       const currentIndex = allowedLeverages.indexOf(value); // Find the current index of value
-      if (currentIndex !== -1 && currentIndex < allowedLeverages.length - 1) {
+      if (currentIndex < allowedLeverages.length - 1) {
         // Move to the next allowed value for leverage
         onChange(allowedLeverages[currentIndex + 1]);
       }

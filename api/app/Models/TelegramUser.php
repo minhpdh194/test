@@ -95,6 +95,10 @@ class TelegramUser extends Authenticatable
     {
         $freq = abs($update_time->diffInMinutes(Carbon::parse($last_tap)));
         if ($freq > 180) $freq = 180;
-        return ceil($freq / 180.0 * $maxEnergy);
+        $restore = ceil($freq / 180.0 * $maxEnergy);
+
+        // if there is a computation issue with $restore, we set to 0
+        if ($restore) return $restore;
+        return 0;
     }
 }

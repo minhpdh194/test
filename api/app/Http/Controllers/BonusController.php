@@ -78,6 +78,7 @@ class BonusController extends Controller
 
         $userData = UserGameData::where('telegram_user_id', $user->telegram_user_id)->first();
         $userData->amount_of_tokens += $boughtBonus['benefit'];
+        $userData->balance += $boughtBonus['benefit'];
         $userData->number_of_stars += $boughtBonus['cost'];
         $userData->save();
 
@@ -87,7 +88,7 @@ class BonusController extends Controller
 
         $this->telegramStarService->updateStarsInPusher();
 
-        return response()->json(['success' => 'Buy token successfully'], 200);
+        return response()->json(['success' => true], 200);
     }
 
     public function buyFriendBonus(Request $request)
@@ -117,7 +118,7 @@ class BonusController extends Controller
 
         $this->telegramStarService->updateStarsInPusher();
 
-        return response()->json(['success' => 'Buy friend bonus successfully'], 200);
+        return response()->json(['success' => true], 200);
     }
 
     public function getBonuses(Request $request)

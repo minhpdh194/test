@@ -3,6 +3,7 @@ import UserGameDetails from "@/components/UserGameDetails";
 import { Wrapper } from "./components/Home/Home.styled";
 import TradingItem from "./components/Home/TradingItem";
 import Header from "../components/Header";
+import Logo from "./components/Home/Logo";
 import { useEffect, useState } from "react";
 import pusher from "@/lib/pusher";
 import { SpotType } from "@/types/SpotType";
@@ -80,6 +81,7 @@ export default function Home() {
       }}
     >
       <Header amount_token={amtOfTokens} />
+      <Logo Size={"22%"} />
       <UserGameDetails className="mt-6" data={spots} />
       <XTap changeInBalance={changeInBalance} updateAmountOfTokens={updateTokenAmountAfterTap} />
       <div  className="pt-8 pb-2">

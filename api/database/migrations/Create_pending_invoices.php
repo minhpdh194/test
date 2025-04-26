@@ -15,9 +15,11 @@ return new class extends Migration
             $table->increments('id');
             $table->string('telegram_user_id')->references('telegram_user_id')->on('user_profile')->onDelete('cascade');
             $table->integer('bonus_id')->nullable(false);
+            $table->integer('number_of_stars')->nullable(false)->default(0);
+            $table->boolean('paid')->default(false);
             $table->timestamps();
 
-            $table->unique(['telegram_user_id', 'bonus_id']);
+            $table->unique(['telegram_user_id', 'bonus_id', 'paid']);
         });
     }
 

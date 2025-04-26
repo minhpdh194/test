@@ -24,6 +24,7 @@
         "website": "Sitio web",
         "airdrop": "Token Distribution",
         "telegram_channel": "Canal de Telegram",
+        "x_channel": "Canal de X / Twitter",
         "user_manual": "Manual de usuario",
         "connect_wallet": "Conectar billetera",
         "disconnect_ton_wallet": "Desconectar billetera TON",
@@ -41,7 +42,7 @@
         "confirm": "Confirmar",
         "earn_per_tap": "Toque para gagnar",
         "time_to_next_fixing": "Tiempo para la siguiente fixing",
-        "daily_perf": "Rendimiento diario",
+        "daily_perf": "Par rendimiento diario",
         "position": "Posición",
         "performance_to_date": "Rendimiento acumulado",
         "bonuses": "Bonos",
@@ -101,6 +102,7 @@
         "more_info": "Más Información"
     },
     "bonus": {
+        "wait_invoice": "Waiting for Telegram invoice",
         "target_to_seed": "Límite de compensación",
         "data_not_found": "Datos no encontrados",
         "leverage": {
