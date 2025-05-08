@@ -9,10 +9,10 @@ import { $http } from "@/lib/http";
 import { useTranslation } from "react-i18next";
 import { months, ranking } from "@/referential/i18nPrefixes";
 
-interface Payload {
-    date?: string;
-    week?: { start: string; end: string };
-    month?: string;
+interface PnLPayload {
+    date?: boolean;
+    week?: boolean;
+    month?: boolean;
 }
 
 export default function Ranking() {
@@ -21,17 +21,14 @@ export default function Ranking() {
 
     async function getUserRanking() {
         setUserRanking([]);
-        const payload: Payload = {};
+        const payload: PnLPayload = {};
 
         if (selectedFilter === 1) {
-            payload.week = {
-                start: format(selectedWeek.start, "yyyy-MM-dd"),
-                end: format(selectedWeek.end, "yyyy-MM-dd"),
-            };
+            payload.week = true;
         } else if (selectedFilter === 2) {
-            payload.month = selectedMonth;
+            payload.month = true;
         } else {
-            payload.date = format(selectedDate, "yyyy-MM-dd");
+            payload.date = true;
         }
 
         try {
