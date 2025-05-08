@@ -58,10 +58,10 @@
         "show": "Afficher"
     },
     "ranking": {
-        "daily": "Quotidien",
+        "total": "PnL Total",
         "weekly": "Hebdomadaire",
         "monthly": "Mensuel",
-        "points": "points"
+        "points": ""
     },
     "profile": {
         "total_token": "Total 1vMM",
@@ -121,7 +121,7 @@
         "time_reduction": {
             "name": "Réduction du temps",
             "title": "Réduisez votre pénalité",
-            "description": ": chaque 1s de bonus aide à réduire / fermer votre position 1s plus tôt."
+            "description": ": chaque 1min de bonus aide à réduire / fermer votre position 1min plus tôt."
         },
         "token_package": {
             "name": "Forfait tokens",

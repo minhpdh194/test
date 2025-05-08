@@ -28,7 +28,7 @@ export default function Profile() {
         <ListDailyQuest />
       </div>
 
-      <div className="b-8">
+      <div className="mb-8">
         <div className="flex justify-between items-center">
           <div className="fw-bold">
             {t(`${earn}.quests_to_do`)}

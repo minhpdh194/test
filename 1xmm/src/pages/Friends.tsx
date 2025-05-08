@@ -24,10 +24,10 @@ export default function Friends() {
     [userProfile.telegram_user_id]
   );
 
-  const referralLink = useMemo(
+  /*const referralLink = useMemo(
     () => `${import.meta.env.VITE_API_URL}/invite-user?ref=${userProfile.telegram_user_id}`,
     [userProfile.telegram_user_id]
-  );
+  );*/
   
   useEffect(() => {
     const notification = pusher.subscribe(`refer_noti_user_${userProfile.telegram_user_id}`);
@@ -99,7 +99,7 @@ export default function Friends() {
           </div>
           <div className="text-center py-2 rounded-lg w-48 h-30" style={{ background: `linear-gradient(142.18deg, #5155DA 21.85%, #2B2D74 78.15%)` }}>
             <button type="button" className="fw-bold text-sm" onClick={() => {
-              copy(referralLink);
+              copy(appLink);
               toast.success("Referral link copied to clipboard");
             }}>{t(`${prefix}.copy_invite_link`)}</button>
           </div>

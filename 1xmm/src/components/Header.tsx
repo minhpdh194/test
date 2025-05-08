@@ -88,7 +88,7 @@ export default function Header({
                         className="object-cover w-6 h-6"
                     />
                     <p className="text-sm font-semibold">
-                        {Math.floor(userAmount1vMM)?.toLocaleString()} 1vMM
+                        {Math.floor(userAmount1vMM)?.toLocaleString()}
                     </p>
                     <img
                         src="/images/home/setting.png"

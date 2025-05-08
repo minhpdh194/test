@@ -46,12 +46,14 @@ Route::post('/auth/telegram-user', [AuthController::class, 'telegramUser'])
 // Protected routes
 Route::middleware(['auth:sanctum', 'decrypt.request'])->group(function () {
     Route::post('/user_session', [AuthController::class, 'userSession']);
+    Route::post('/update_legalterms', [ProfileController::class, 'updateLegalTerms']);
     Route::get('/referred-users', [FriendsController::class, 'referredUsers']);
 
     Route::post('/send-invoice', [TelegramStarController::class, 'sendTelegramInvoice']);
     Route::post('/not-paid', [TelegramStarController::class, 'removePendingInvoice']);
 
     Route::get('/top-users', [RatingController::class, 'getRating']);
+    Route::get('/get-left-users', [RatingController::class, 'getLeftUsers']);
 
     Route::get('/timestamp', function () {
         return response()->json(['timestamp' => Carbon\Carbon::now()->timestamp]);
@@ -61,9 +63,9 @@ Route::middleware(['auth:sanctum', 'decrypt.request'])->group(function () {
     Route::get('/pairs-by-ids', [MarketDataController::class, 'getPairsByUnlockedIds']);
     Route::get('/user_positions', [PositionController::class, 'getPositions']);
 
-    Route::get('/get-indices', [MarketDataController::class, 'getIndices']);
-    Route::get('/get-index', [MarketDataController::class, 'getIndex']);
-    Route::get('/load-spots', [MarketDataController::class, 'getSpots']);
+    Route::get('/get-indices', [MarketDataController::class,'getIndices']);
+    Route::get('/get-index', [MarketDataController::class,'getIndex']);
+    Route::get('/load-spots', [MarketDataController::class,'getSpots']);
 
     //Route::post('/buy-stars', [TelegramStarController::class, 'buyStarPackage']);
 
@@ -83,8 +85,6 @@ Route::middleware(['auth:sanctum', 'decrypt.request'])->group(function () {
     Route::post('/task-in-progress', [UserTaskController::class, 'taskInProgress']);
     Route::get('/get-user-inprogress-task-id', [UserTaskController::class, 'getUserInProgressTasks']);
     Route::get('/get-user-completed-task', [UserTaskController::class, 'getUserCompletedTasks']);
-
-    Route::get('/get-left-users', [RatingController::class, 'getLeftUsers']);
 
     Route::post('/save-user-wallet-info', [TelegramUserController::class, 'saveUserWallet']);
 

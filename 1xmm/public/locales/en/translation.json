@@ -58,10 +58,10 @@
         "show": "Show"
     },
     "ranking": {
-        "daily": "Daily",
+        "total": "Total PnL",
         "weekly": "Weekly",
         "monthly": "Monthly",
-        "points": "points"
+        "points": ""
     },
     "profile": {
         "total_token": "Total 1vMM",
@@ -123,7 +123,7 @@
         "time_reduction": {
             "name": "Time Reduction",
             "title": "Reduce your penalty",
-            "description": ": each 1s bonus helps to reduce / close your position 1s earlier."
+            "description": ": each 1min bonus helps to reduce / close your position 1min earlier."
         },
         "token_package": {
             "name": "Token Package",

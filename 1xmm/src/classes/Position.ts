@@ -99,21 +99,21 @@ export class Position {
     public add(ls: LongShort, amt: number, lev: Leverages, bonuses: Bonus[]): PositionChange {
         if (ls === this.long_short) {
             const index_value = COMM.getIndex(this.pair.id, this.long_short);
-            const lev_amt = this.amount * this.leverage;
-            const new_lev_amt = amt * (lev as number);
 
             if (!index_value) return {
                 amount_adjustment: 0,
                 realized_pnl: 0
             };
 
+            const lev_amt = this.amount * this.leverage;
+            const new_lev_amt = amt * (lev as number);
+            const pnl = this.computePnL(index_value.timestamp, index_value.value);
+            this.performance = pnl.perf;
+
             this.index_at_start = index_value.value;
             this.last_update_timestamp = index_value.timestamp;
             this.amount += amt;
             this.leverage = (lev_amt + new_lev_amt) / this.amount;
-            
-            const pnl = this.computePnL(index_value.timestamp, index_value.value);
-            this.performance = pnl.perf;
 
             bonuses.forEach(b => this.attach_new_bonus(b));
 

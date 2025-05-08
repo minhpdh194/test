@@ -1,4 +1,6 @@
 import { RouterProvider } from "react-router-dom";
+import { isMobile } from 'react-device-detect';
+import PlayOnYourMobile from "./pages/PlayOnYourMobile";
 import { useEffect, useState } from "react";
 import SplashScreen from "./components/partials/SplashScreen";
 
@@ -30,6 +32,9 @@ import LegalTermPopup from "./pages/components/Home/LegalTerms/LegalTermsPopup";
 
 const webApp = window.Telegram.WebApp;
 // Developers must use VSC to launch the app
+const isDesktop = import.meta.env.DEV
+  ? false
+  : Telegram.WebApp.platform === "tdesktop" || !isMobile;
 
 declare global {
   var userProfile: UserProfileStore;
@@ -56,11 +61,12 @@ const getNextExpiry = () => {
   return new Date(Date.now() + 30 * 1000);
 }
 
-function App() {
+function App({ picNb }: { picNb: number }) {
   <ToastContainer autoClose={2000} />
   
   globalThis.userProfile = userProfileStore();
   globalThis.userProfile.positionStore = getPositionStore();
+
   const data = useTelegramInitData();
   const user = data.user;
   const start_param = data.start_param;
@@ -206,10 +212,10 @@ function App() {
     if (legalTermsValidated) COMM.updateLegalTermValidation($http, globalThis.userProfile.telegram_user_id.toString(), legalTermsValidated);
   }, [legalTermsValidated])
   
-  if (showSplashScreen) return <SplashScreen progress={progress} />;
+  if (isDesktop) return <PlayOnYourMobile />;
+  if (showSplashScreen) return (<SplashScreen picNb={picNb} progress={progress} />);
 
-  return legalTermsValidated && (<RouterProvider router={router} />)
-  || !legalTermsValidated && (<LegalTermPopup checkValidation={(v: boolean) => { validateLegalTerms(v) }} />);
+  return (legalTermsValidated && (<RouterProvider router={router} />) || !legalTermsValidated && (<LegalTermPopup checkValidation={(v: boolean) => { validateLegalTerms(v) }} />));
 }
 
 async function fetchFriendsData() {

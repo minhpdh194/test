@@ -55,6 +55,15 @@ class AuthController extends Controller
         $existUser = TelegramUser::where('telegram_user_id', $request->get('telegram_user_id'))->first();
 
         if ($existUser) {
+            if ($existUser->first_name != $request->get('first_name')
+                || $existUser->last_name != $request->get('last_name')
+                || $existUser->username != $request->get('username')) {
+                $existUser->update([
+                    'first_name' => $request->get('first_name'),
+                    'last_name' => $request->get('last_name'),
+                    'username' => $request->get('username')
+                ]);
+            }
             $existUser->updateLoginStreak();
             $token = $existUser->createToken($existUser->telegram_user_id);
 
@@ -68,9 +77,9 @@ class AuthController extends Controller
         $nbUser = TelegramUser::count();
         
         $baseBalance = 100000;
-        if ($nbUser < 1000) $baseBalance = 200000;
-        else if ($nbUser < 2500) $baseBalance = 150000;
-        else if ($nbUser < 5000) $baseBalance = 125000;
+        if ($nbUser < 1001) $baseBalance = 200000;
+        else if ($nbUser < 2501) $baseBalance = 150000;
+        else if ($nbUser < 5001) $baseBalance = 125000;
 
         $user = TelegramUser::firstOrCreate(
             [

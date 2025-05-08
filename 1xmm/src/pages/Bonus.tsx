@@ -242,7 +242,7 @@ export default function Bonus() {
             }}
         >
             <Header amount_token={userProfile.amount_of_tokens} />
-            <Popover open={waitForInvoice} anchorOrigin={{vertical: 'center', horizontal: 'center'}}>{t(`${bonus}.wait_invoice`)}</Popover>
+            <Popover className="text-lg" open={waitForInvoice} anchorReference="anchorPosition" anchorPosition={{left: 115, top: 150}}>{t(`${bonus}.wait_invoice`)}...</Popover>
             <div className="text-xl bg-[var(--silver-white-light)] mt-3">
                 {t(`${bonus}.target_to_seed`)}
             </div>
