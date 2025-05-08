@@ -29,18 +29,20 @@ class RatingController extends Controller
         }
 
         if ($request->has('week')) {
+            $now = Carbon::now('UTC');
             $pnl = WeeklyPnl::join('user_profile', 'weekly_pnl.telegram_user_id', '=', 'user_profile.telegram_user_id')
                 ->join('user_game_data', 'weekly_pnl.telegram_user_id', '=', 'user_game_data.telegram_user_id')
-                ->where(['year' => Carbon::now()->year, 'week' => Carbon::now()->weekOfYear])
+                ->where(['year' => $now->year, 'week' => $now->weekOfYear])
                 ->orderBy('weekly_pnl.pnl', 'desc')
                 ->limit(RatingController::MAX_RATING)
                 ->get(['weekly_pnl.*', 'user_profile.first_name', 'user_profile.last_name', 'user_game_data.avatar_id']);
         }
 
         if ($request->has('month')) {
+            $now = Carbon::now('UTC');
             $pnl = MonthlyPnL::join('user_profile', 'monthly_pnl.telegram_user_id', '=', 'user_profile.telegram_user_id')
                 ->join('user_game_data', 'monthly_pnl.telegram_user_id', '=', 'user_game_data.telegram_user_id')
-                ->where(['year' => Carbon::now()->year, 'month' => Carbon::now()->month])
+                ->where(['year' => $now->year, 'month' => $now->month])
                 ->orderBy('monthly_pnl.pnl', 'desc')
                 ->limit(RatingController::MAX_RATING)
                 ->get(['monthly_pnl.*', 'user_profile.first_name', 'user_profile.last_name', 'user_game_data.avatar_id']);
