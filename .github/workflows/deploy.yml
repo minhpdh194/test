@@ -1,0 +1,34 @@
+name: Deploy Docker App
+
+on:
+  push:
+    branches:
+      - cm
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: SSH and Deploy on Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: 22
+          script: |
+            cd /root/WORKSPACE/1xmm/1xmm_app_mini_tele
+            git pull github cm
+
+            cd /root/WORKSPACE/1xmm/1xmm_app_mini_tele/api
+            docker-compose -f docker-compose.dev.yml build
+            docker-compose -f docker-compose.dev.yml up -d
+
+            cd /root/WORKSPACE/1xmm/1xmm_app_mini_tele/1xmm
+            docker-compose -f docker-compose.dev.yml build
+            docker-compose -f docker-compose.dev.yml up -d
+
+            cd /root/WORKSPACE/1xmm/1xmm_app_mini_tele/bot
+            sudo docker compose build
+            sudo docker compose up -d
